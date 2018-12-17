@@ -22,7 +22,7 @@ jobs:
       - "checkout"
       - run: "yarn install --frozen-lockfile"
       - run: "npm run test-all-polyfills"
-  publish_library_to_npm:
+  publish_to_npm:
     docker:
       - image: "circleci/node:10"
     steps:
@@ -55,7 +55,7 @@ workflows:
           requires:
             - lint_js
             - unit_tests
-      - publish_library_to_npm:
+      - publish_to_npm:
           filters:
             tags:
               only: /^v.*/
