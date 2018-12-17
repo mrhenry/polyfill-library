@@ -1,0 +1,63 @@
+version: 2.1
+
+jobs:
+  lint_js:
+    docker:
+      - image: "circleci/node:10"
+    steps:
+      - "checkout"
+      - run: "yarn install --frozen-lockfile"
+      - run: "npm run lint"
+  unit_tests:
+    docker:
+      - image: "circleci/node:10"
+    steps:
+      - "checkout"
+      - run: "yarn install --frozen-lockfile"
+      - run: "npm run build && npm run test-node && npm run test-node-unit"
+  polyfill_tests:
+    docker:
+      - image: "circleci/node:10"
+    steps:
+      - "checkout"
+      - run: "yarn install --frozen-lockfile"
+      - run: "npm run test-all-polyfills"
+  publish_library_to_npm:
+    docker:
+      - image: "circleci/node:10"
+    steps:
+      - "checkout"
+      - run: "yarn install --frozen-lockfile"
+      - run: "echo \"//registry.npmjs.org/:_authToken=$NPM_TOKEN\" > ~/.npmrc"
+      - run: "npm publish"
+
+workflows:
+  test:
+    jobs:
+      - lint_js:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+      - unit_tests:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+      - polyfill_tests:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+      - publish_library_to_npm:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
