@@ -10,8 +10,8 @@ function getBrowsersFor(feature) {
 	const UA = require('./lib/UA');
 
 	// Grab all the browsers from BrowserStack which are officially supported by the polyfil service.
-	const browserlist = require("./../polyfill-service/tasks/node/browsers.json");
-	const browserstackBrowsers = require('./../polyfill-service/tasks/node/browserstackBrowsers.json');
+	const browserlist = require("./test/polyfills/browsers.json");
+	const browserstackBrowsers = require('./test/polyfills/browserstackBrowsers.json');
 
 	const browsersWeSupport = browserlist.filter(uaString => new UA(uaString).meetsBaseline());
 	const browsersWeSupportForThisFeature = browsersWeSupport.filter(uaString => {
