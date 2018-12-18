@@ -5,7 +5,6 @@ const fs = require('fs');
 const yaml = require('yaml');
 const globby = require('globby');
 const circleConfig = yaml.parse(fs.readFileSync(path.join(__dirname, './circleci-config.yml'), 'utf8'));
-circleConfig.commentBefore ='Do not modify this file directly, it is built by ./tasks/node/build-circleci-config.js.'
 
 const polyfillsWhichHaveTests = globby.sync(['polyfills/**/tests.js', '!polyfills/__dist'], {
     transform: (entry) => entry.replace('polyfills/', '').replace('/tests.js', '').replace(/\//g, '.')
@@ -43,4 +42,10 @@ for (const feature of polyfillsWhichHaveTests) {
         }
     })
 }
-fs.writeFileSync(path.join(__dirname, '../../.circleci/config.yml'), yaml.stringify(circleConfig))
+fs.writeFileSync(
+    path.join(__dirname, '../../.circleci/config.yml'), 
+    `
+# Do not modify this file directly, it is built by ./tasks/node/build-circleci-config.js.
+${yaml.stringify(circleConfig)}
+`
+)

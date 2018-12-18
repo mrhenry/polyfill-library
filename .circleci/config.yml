@@ -1,4 +1,5 @@
-#Do not modify this file directly, it is built by ./tasks/node/build-circleci-config.js.
+
+# Do not modify this file directly, it is built by ./tasks/node/build-circleci-config.js.
 version: 2.1
 jobs:
   lint_js:
@@ -14180,5 +14181,4 @@ workflows:
             - test_String_prototype_padStart
             - test_String_prototype_repeat
             - test_String_prototype_startsWith
-commentBefore: Do not modify this file directly, it is built by
-  ./tasks/node/build-circleci-config.js.
+
