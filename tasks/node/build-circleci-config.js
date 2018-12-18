@@ -14,7 +14,7 @@ const polyfillsWhichHaveTests = globby.sync(['polyfills/**/tests.js', '!polyfill
 
 _.chunk(polyfillsWhichHaveTests, 7).map(polyfillsWhichHaveTests => {
     const testCommands = polyfillsWhichHaveTests.map(feature => {
-        return {run:`npm run test-polyfills -- --feature=${feature} --browserstack`};
+        return {run:`npm run test-polyfills -- --features=${feature} --browserstack`};
     });
     return {
         docker: [{
