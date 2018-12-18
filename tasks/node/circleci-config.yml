@@ -4,6 +4,15 @@
 version: 2.1
 
 jobs:
+  check_circle_config:
+    docker:
+      - image: "circleci/node:10"
+    steps:
+      - "checkout"
+      - run: "yarn install --frozen-lockfile"
+      - run: "shasum -a 256 config.yml > checksum"
+      - run: "npm run build-circleci-config"
+      - run: "shasum -a 256 -c checksum || (echo \"oh no, it looks like the circleci is out of date. Please run `npm run build-circleci-config` and commit the changes it has made.\" && exit 1)"
   lint_js:
     docker:
       - image: "circleci/node:10"
