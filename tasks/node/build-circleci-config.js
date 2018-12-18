@@ -27,7 +27,7 @@ for (const feature of polyfillsWhichHaveTests) {
             }
         ]
     }
-    const jobName = `test_${feature}`
+    const jobName = `test_${feature.replace(/\./g, '_').replace(/@/g, '')}`
     circleConfig.jobs[jobName] = job;
     circleConfig.workflows.test.jobs.push({
         [jobName]: {
