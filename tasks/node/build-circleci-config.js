@@ -39,7 +39,7 @@ for (const feature of polyfillsWhichHaveTests) {
                     ignore: "master"
                 }
             },
-            requires: ["lint_js", "unit_tests", ...Object.keys(circleConfig.jobs).filter(job => job.startsWith('test_'))]
+            requires: ["lint_js", "unit_tests", ...Object.keys(circleConfig.jobs).filter(job => job.startsWith('test_') && job !== jobName)]
         }
     })
 }
