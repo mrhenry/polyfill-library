@@ -8,6 +8,7 @@ jobs:
     steps:
       - checkout
       - run: yarn install --frozen-lockfile
+      - run: cd ./.circleci/
       - run: shasum -a 256 config.yml > checksum
       - run: npm run build-circleci-config
       - run: shasum -a 256 -c checksum || (echo "oh no, it looks like the circleci
