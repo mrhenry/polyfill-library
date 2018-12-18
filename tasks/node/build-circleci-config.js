@@ -26,9 +26,9 @@ _.chunk(polyfillsWhichHaveTests, 7).map(polyfillsWhichHaveTests => {
             run: 'yarn install --frozen-lockfile'
         },
         ...testCommands
-    ]}
+    ]};
 }).forEach((job, index) => {
-    const jobName = `test_${index}`
+    const jobName = `test_${index}`;
     circleConfig.jobs[jobName] = job;
     circleConfig.workflows.test.jobs.push({
         [jobName]: {
@@ -42,7 +42,7 @@ _.chunk(polyfillsWhichHaveTests, 7).map(polyfillsWhichHaveTests => {
             },
             requires: ["lint_js", "unit_tests", ...Object.keys(circleConfig.jobs).filter(job => job.startsWith('test_') && job !== jobName)]
         }
-    })
+    });
 });
 fs.writeFileSync(
     path.join(__dirname, '../../.circleci/config.yml'), 
@@ -50,4 +50,4 @@ fs.writeFileSync(
 # Do not modify this file directly, it is built by ./tasks/node/build-circleci-config.js.
 ${yaml.stringify(circleConfig)}
 `
-)
+);
