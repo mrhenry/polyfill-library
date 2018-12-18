@@ -36,12 +36,18 @@ jobs:
       - run: npm run test-polyfills -- --feature=Event --browserstack
       - run: npm run test-polyfills -- --feature=IntersectionObserverEntry
           --browserstack
+  test_1:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=Map --browserstack
       - run: npm run test-polyfills -- --feature=Promise --browserstack
       - run: npm run test-polyfills -- --feature=Set --browserstack
       - run: npm run test-polyfills -- --feature=Symbol --browserstack
       - run: npm run test-polyfills -- --feature=URL --browserstack
-  test_1:
+  test_2:
     docker:
       - image: circleci/node:10
     steps:
@@ -52,13 +58,19 @@ jobs:
       - run: npm run test-polyfills -- --feature=WeakSet --browserstack
       - run: npm run test-polyfills -- --feature=XMLHttpRequest --browserstack
       - run: npm run test-polyfills -- --feature=atob --browserstack
+  test_3:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=console --browserstack
       - run: npm run test-polyfills -- --feature=matchMedia --browserstack
       - run: npm run test-polyfills -- --feature=requestAnimationFrame
           --browserstack
       - run: npm run test-polyfills -- --feature=setImmediate --browserstack
       - run: npm run test-polyfills -- --feature=Array.from --browserstack
-  test_2:
+  test_4:
     docker:
       - image: circleci/node:10
     steps:
@@ -69,12 +81,18 @@ jobs:
       - run: npm run test-polyfills -- --feature=Event.focusin --browserstack
       - run: npm run test-polyfills -- --feature=Event.hashchange --browserstack
       - run: npm run test-polyfills -- --feature=Function.name --browserstack
+  test_5:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=Math.acosh --browserstack
       - run: npm run test-polyfills -- --feature=Math.asinh --browserstack
       - run: npm run test-polyfills -- --feature=Math.atanh --browserstack
       - run: npm run test-polyfills -- --feature=Math.cbrt --browserstack
       - run: npm run test-polyfills -- --feature=Math.clz32 --browserstack
-  test_3:
+  test_6:
     docker:
       - image: circleci/node:10
     steps:
@@ -85,12 +103,18 @@ jobs:
       - run: npm run test-polyfills -- --feature=Math.hypot --browserstack
       - run: npm run test-polyfills -- --feature=Math.log10 --browserstack
       - run: npm run test-polyfills -- --feature=Math.log2 --browserstack
+  test_7:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=Math.sign --browserstack
       - run: npm run test-polyfills -- --feature=Math.sinh --browserstack
       - run: npm run test-polyfills -- --feature=Math.tanh --browserstack
       - run: npm run test-polyfills -- --feature=Math.trunc --browserstack
       - run: npm run test-polyfills -- --feature=Number.Epsilon --browserstack
-  test_4:
+  test_8:
     docker:
       - image: circleci/node:10
     steps:
@@ -103,12 +127,18 @@ jobs:
       - run: npm run test-polyfills -- --feature=Number.isFinite --browserstack
       - run: npm run test-polyfills -- --feature=Number.isInteger --browserstack
       - run: npm run test-polyfills -- --feature=Number.isNaN --browserstack
+  test_9:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=Number.isSafeInteger --browserstack
       - run: npm run test-polyfills -- --feature=Number.parseFloat --browserstack
       - run: npm run test-polyfills -- --feature=Number.parseInt --browserstack
       - run: npm run test-polyfills -- --feature=Object.assign --browserstack
       - run: npm run test-polyfills -- --feature=Object.create --browserstack
-  test_5:
+  test_10:
     docker:
       - image: circleci/node:10
     steps:
@@ -122,6 +152,12 @@ jobs:
       - run: npm run test-polyfills -- --feature=Object.freeze --browserstack
       - run: npm run test-polyfills -- --feature=Object.getOwnPropertyDescriptor
           --browserstack
+  test_11:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=Object.getOwnPropertyNames
           --browserstack
       - run: npm run test-polyfills -- --feature=Object.getPrototypeOf
@@ -130,7 +166,7 @@ jobs:
       - run: npm run test-polyfills -- --feature=Object.keys --browserstack
       - run: npm run test-polyfills -- --feature=Object.setPrototypeOf
           --browserstack
-  test_6:
+  test_12:
     docker:
       - image: circleci/node:10
     steps:
@@ -142,12 +178,18 @@ jobs:
       - run: npm run test-polyfills -- --feature=Symbol.isConcatSpreadable
           --browserstack
       - run: npm run test-polyfills -- --feature=Symbol.iterator --browserstack
+  test_13:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=Symbol.match --browserstack
       - run: npm run test-polyfills -- --feature=Symbol.replace --browserstack
       - run: npm run test-polyfills -- --feature=Symbol.search --browserstack
       - run: npm run test-polyfills -- --feature=Symbol.species --browserstack
       - run: npm run test-polyfills -- --feature=Symbol.split --browserstack
-  test_7:
+  test_14:
     docker:
       - image: circleci/node:10
     steps:
@@ -158,12 +200,18 @@ jobs:
       - run: npm run test-polyfills -- --feature=Symbol.unscopables --browserstack
       - run: npm run test-polyfills -- --feature=console.assert --browserstack
       - run: npm run test-polyfills -- --feature=console.clear --browserstack
+  test_15:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=console.count --browserstack
       - run: npm run test-polyfills -- --feature=console.debug --browserstack
       - run: npm run test-polyfills -- --feature=console.dir --browserstack
       - run: npm run test-polyfills -- --feature=console.dirxml --browserstack
       - run: npm run test-polyfills -- --feature=console.error --browserstack
-  test_8:
+  test_16:
     docker:
       - image: circleci/node:10
     steps:
@@ -175,12 +223,18 @@ jobs:
           --browserstack
       - run: npm run test-polyfills -- --feature=console.groupEnd --browserstack
       - run: npm run test-polyfills -- --feature=console.info --browserstack
+  test_17:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=console.log --browserstack
       - run: npm run test-polyfills -- --feature=console.markTimeline --browserstack
       - run: npm run test-polyfills -- --feature=console.profile --browserstack
       - run: npm run test-polyfills -- --feature=console.profileEnd --browserstack
       - run: npm run test-polyfills -- --feature=console.profiles --browserstack
-  test_9:
+  test_18:
     docker:
       - image: circleci/node:10
     steps:
@@ -191,6 +245,12 @@ jobs:
       - run: npm run test-polyfills -- --feature=console.timeEnd --browserstack
       - run: npm run test-polyfills -- --feature=console.timeStamp --browserstack
       - run: npm run test-polyfills -- --feature=console.timeline --browserstack
+  test_19:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=console.timelineEnd --browserstack
       - run: npm run test-polyfills -- --feature=console.trace --browserstack
       - run: npm run test-polyfills -- --feature=console.warn --browserstack
@@ -198,7 +258,7 @@ jobs:
           --browserstack
       - run: npm run test-polyfills -- --feature=document.getElementsByClassName
           --browserstack
-  test_10:
+  test_20:
     docker:
       - image: circleci/node:10
     steps:
@@ -212,6 +272,12 @@ jobs:
       - run: npm run test-polyfills -- --feature=screen.orientation --browserstack
       - run: npm run test-polyfills -- --feature=Array.prototype.@@iterator
           --browserstack
+  test_21:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=Array.prototype.copyWithin
           --browserstack
       - run: npm run test-polyfills -- --feature=Array.prototype.entries
@@ -221,7 +287,7 @@ jobs:
       - run: npm run test-polyfills -- --feature=Array.prototype.fill --browserstack
       - run: npm run test-polyfills -- --feature=Array.prototype.filter
           --browserstack
-  test_11:
+  test_22:
     docker:
       - image: circleci/node:10
     steps:
@@ -236,6 +302,12 @@ jobs:
           --browserstack
       - run: npm run test-polyfills -- --feature=Array.prototype.indexOf
           --browserstack
+  test_23:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=Array.prototype.keys --browserstack
       - run: npm run test-polyfills -- --feature=Array.prototype.lastIndexOf
           --browserstack
@@ -244,7 +316,7 @@ jobs:
           --browserstack
       - run: npm run test-polyfills -- --feature=Array.prototype.reduceRight
           --browserstack
-  test_12:
+  test_24:
     docker:
       - image: circleci/node:10
     steps:
@@ -259,6 +331,12 @@ jobs:
           --browserstack
       - run: npm run test-polyfills -- --feature=DocumentFragment.prototype.append
           --browserstack
+  test_25:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=DocumentFragment.prototype.prepend
           --browserstack
       - run: npm run test-polyfills -- --feature=Element.prototype.after
@@ -269,7 +347,7 @@ jobs:
           --browserstack
       - run: npm run test-polyfills -- --feature=Element.prototype.classList
           --browserstack
-  test_13:
+  test_26:
     docker:
       - image: circleci/node:10
     steps:
@@ -285,6 +363,12 @@ jobs:
           --browserstack
       - run: npm run test-polyfills -- --feature=Element.prototype.prepend
           --browserstack
+  test_27:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=Element.prototype.remove
           --browserstack
       - run: npm run test-polyfills -- --feature=Element.prototype.replaceWith
@@ -295,7 +379,7 @@ jobs:
           --browserstack
       - run: npm run test-polyfills -- --feature=Node.prototype.contains
           --browserstack
-  test_14:
+  test_28:
     docker:
       - image: circleci/node:10
     steps:
@@ -311,6 +395,12 @@ jobs:
           --browserstack
       - run: npm run test-polyfills -- --feature=String.prototype.@@iterator
           --browserstack
+  test_29:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
       - run: npm run test-polyfills -- --feature=String.prototype.codePointAt
           --browserstack
       - run: npm run test-polyfills -- --feature=String.prototype.endsWith
@@ -321,7 +411,7 @@ jobs:
           --browserstack
       - run: npm run test-polyfills -- --feature=String.prototype.padStart
           --browserstack
-  test_15:
+  test_30:
     docker:
       - image: circleci/node:10
     steps:
@@ -618,4 +708,484 @@ workflows:
             - test_12
             - test_13
             - test_14
+      - test_16:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+      - test_17:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+            - test_16
+      - test_18:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+            - test_16
+            - test_17
+      - test_19:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+            - test_16
+            - test_17
+            - test_18
+      - test_20:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+            - test_16
+            - test_17
+            - test_18
+            - test_19
+      - test_21:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+            - test_16
+            - test_17
+            - test_18
+            - test_19
+            - test_20
+      - test_22:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+            - test_16
+            - test_17
+            - test_18
+            - test_19
+            - test_20
+            - test_21
+      - test_23:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+            - test_16
+            - test_17
+            - test_18
+            - test_19
+            - test_20
+            - test_21
+            - test_22
+      - test_24:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+            - test_16
+            - test_17
+            - test_18
+            - test_19
+            - test_20
+            - test_21
+            - test_22
+            - test_23
+      - test_25:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+            - test_16
+            - test_17
+            - test_18
+            - test_19
+            - test_20
+            - test_21
+            - test_22
+            - test_23
+            - test_24
+      - test_26:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+            - test_16
+            - test_17
+            - test_18
+            - test_19
+            - test_20
+            - test_21
+            - test_22
+            - test_23
+            - test_24
+            - test_25
+      - test_27:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+            - test_16
+            - test_17
+            - test_18
+            - test_19
+            - test_20
+            - test_21
+            - test_22
+            - test_23
+            - test_24
+            - test_25
+            - test_26
+      - test_28:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+            - test_16
+            - test_17
+            - test_18
+            - test_19
+            - test_20
+            - test_21
+            - test_22
+            - test_23
+            - test_24
+            - test_25
+            - test_26
+            - test_27
+      - test_29:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+            - test_16
+            - test_17
+            - test_18
+            - test_19
+            - test_20
+            - test_21
+            - test_22
+            - test_23
+            - test_24
+            - test_25
+            - test_26
+            - test_27
+            - test_28
+      - test_30:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
+          requires:
+            - lint_js
+            - unit_tests
+            - test_0
+            - test_1
+            - test_2
+            - test_3
+            - test_4
+            - test_5
+            - test_6
+            - test_7
+            - test_8
+            - test_9
+            - test_10
+            - test_11
+            - test_12
+            - test_13
+            - test_14
+            - test_15
+            - test_16
+            - test_17
+            - test_18
+            - test_19
+            - test_20
+            - test_21
+            - test_22
+            - test_23
+            - test_24
+            - test_25
+            - test_26
+            - test_27
+            - test_28
+            - test_29
 
