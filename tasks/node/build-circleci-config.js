@@ -4,29 +4,31 @@ const path = require('path');
 const fs = require('fs');
 const yaml = require('yaml');
 const globby = require('globby');
+const _ = require('lodash');
+
 const circleConfig = yaml.parse(fs.readFileSync(path.join(__dirname, './circleci-config.yml'), 'utf8'));
 
 const polyfillsWhichHaveTests = globby.sync(['polyfills/**/tests.js', '!polyfills/__dist'], {
     transform: (entry) => entry.replace('polyfills/', '').replace('/tests.js', '').replace(/\//g, '.')
 });
 
-for (const feature of polyfillsWhichHaveTests) {
-    const testCommand = `npm run test-polyfills -- --feature=${feature} --browserstack`;
-    const job = {
+_.chunk(polyfillsWhichHaveTests, 10).map(polyfillsWhichHaveTests => {
+    const testCommands = polyfillsWhichHaveTests.map(feature => {
+        return {run:`npm run test-polyfills -- --feature=${feature} --browserstack`};
+    });
+    return {
         docker: [{
             image: 'circleci/node:10'
         }],
         steps: [
-            'checkout',
-            {
-                run: 'yarn install --frozen-lockfile'
-            },
-            {
-                run: testCommand
-            }
-        ]
-    }
-    const jobName = `test_${feature.replace(/\./g, '_').replace(/@/g, '')}`
+        'checkout',
+        {
+            run: 'yarn install --frozen-lockfile'
+        },
+        ...testCommands
+    ]}
+}).forEach((job, index) => {
+    const jobName = `test_${index}`
     circleConfig.jobs[jobName] = job;
     circleConfig.workflows.test.jobs.push({
         [jobName]: {
@@ -41,7 +43,7 @@ for (const feature of polyfillsWhichHaveTests) {
             requires: ["lint_js", "unit_tests", ...Object.keys(circleConfig.jobs).filter(job => job.startsWith('test_') && job !== jobName)]
         }
     })
-}
+});
 fs.writeFileSync(
     path.join(__dirname, '../../.circleci/config.yml'), 
     `
