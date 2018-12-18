@@ -39,6 +39,12 @@ jobs:
 workflows:
   test:
     jobs:
+      - check_circle_config:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
       - lint_js:
           filters:
             tags:

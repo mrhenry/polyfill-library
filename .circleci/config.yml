@@ -2,6 +2,17 @@
 # Do not modify this file directly, it is built by ./tasks/node/build-circleci-config.js.
 version: 2.1
 jobs:
+  check_circle_config:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run: yarn install --frozen-lockfile
+      - run: shasum -a 256 config.yml > checksum
+      - run: npm run build-circleci-config
+      - run: shasum -a 256 -c checksum || (echo "oh no, it looks like the circleci
+          is out of date. Please run `npm run build-circleci-config` and commit
+          the changes it has made." && exit 1)
   lint_js:
     docker:
       - image: circleci/node:10
@@ -379,6 +390,12 @@ jobs:
 workflows:
   test:
     jobs:
+      - check_circle_config:
+          filters:
+            tags:
+              ignore: /^v.*/
+            branches:
+              ignore: master
       - lint_js:
           filters:
             tags:
@@ -404,6 +421,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
       - test_1:
@@ -413,6 +431,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -423,6 +442,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -434,6 +454,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -446,6 +467,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -459,6 +481,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -473,6 +496,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -488,6 +512,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -504,6 +529,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -521,6 +547,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -539,6 +566,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -558,6 +586,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -578,6 +607,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -599,6 +629,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -621,6 +652,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -644,6 +676,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -668,6 +701,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -693,6 +727,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -719,6 +754,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -746,6 +782,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -774,6 +811,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0
@@ -803,6 +841,7 @@ workflows:
             branches:
               ignore: master
           requires:
+            - check_circle_config
             - lint_js
             - unit_tests
             - test_0

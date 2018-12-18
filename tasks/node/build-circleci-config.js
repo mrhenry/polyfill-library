@@ -40,7 +40,7 @@ _.chunk(polyfillsWhichHaveTests, 7).map(polyfillsWhichHaveTests => {
                     ignore: "master"
                 }
             },
-            requires: ["lint_js", "unit_tests", ...Object.keys(circleConfig.jobs).filter(job => job.startsWith('test_') && job !== jobName)]
+            requires: ["check_circle_config", "lint_js", "unit_tests", ...Object.keys(circleConfig.jobs).filter(job => job.startsWith('test_') && job !== jobName)]
         }
     });
 });
