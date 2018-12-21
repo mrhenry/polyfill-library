@@ -26,6 +26,7 @@
     "lint": "eslint polyfills/**/polyfill.js lib tasks test",
     "clean": "rimraf ./polyfills/__dist",
     "build": "npm run clean && node tasks/node/updatesources && node tasks/node/buildsources",
+    "build-circleci-config": "node ./tasks/node/build-circleci-config.js",
     "fmt": "eslint . --fix",
     "test-polyfills": "karma start",
     "test-all-polyfills": "node ./test/polyfills/test-all-features.js",
@@ -91,6 +92,7 @@
     "mockery": "^1.7.0",
     "nyc": "^10.0.0",
     "proclaim": "^3.6.0",
-    "sinon": "^4.0.1"
+    "sinon": "^4.0.1",
+    "yaml": "^1.1.0"
   }
 }
