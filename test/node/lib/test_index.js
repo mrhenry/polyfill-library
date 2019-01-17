@@ -3,8 +3,7 @@
 const assert = require('proclaim');
 const setsToArrays = require('../../utils/sets_to_arrays');
 
-const Polyfillio = require('../../../lib/index');
-const polyfillio = new Polyfillio;
+const polyfillio = require('../../../lib/index');
 
 describe("polyfillio", () => {
 	describe(".getPolyfills(features)", () => {
