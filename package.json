@@ -73,7 +73,7 @@
     "shuffle-array": "^1.0.1",
     "stream-from-promise": "^1.0.0",
     "stream-to-string": "^1.1.0",
-    "tsort": "0.0.1",
+    "toposort": "^2.0.2",
     "uglify-js": "^2.7.5",
     "useragent": "^2.1.12",
     "usertiming": "^0.1.8",
