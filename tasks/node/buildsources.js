@@ -5,7 +5,7 @@ const path = require('path');
 const uglify = require('uglify-js');
 const babel = require('babel-core');
 const mkdirp = require('mkdirp');
-const tsort = require('tsort');
+const toposort = require('toposort');
 const denodeify = require('denodeify');
 const vm = require('vm');
 
@@ -42,16 +42,16 @@ function flattenPolyfillDirectories(directory) {
 }
 
 function checkForCircularDependencies(polyfills) {
-	const graph = tsort();
+	const graph = []
 
 	for (const polyfill of polyfills) {
 		for (const dependency of polyfill.dependencies) {
-			graph.add(dependency, polyfill.name);
+			graph.push([dependency, polyfill.name]);
 		}
 	}
 
 	try {
-		graph.sort();
+		toposort(graph);
 
 		return Promise.resolve();
 	}
