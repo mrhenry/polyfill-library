@@ -292,38 +292,6 @@ describe("polyfillio", () => {
 
 	describe('.getPolyfills()', () => {
 
-		describe('when options.features contains the `all` feature', () => {
-			it('resolves to all polyfills', () => {
-				const polyfillio = require('../../../lib/index');
-
-				assert.notCalled(sourceslib.listPolyfills);
-
-				return polyfillio.getPolyfills({}).then(() => {
-					// Second argument to createAliasResolver contains the aliasAll function we are testing
-					const aliasAll = createAliasResolver.firstCall.args[1];
-
-					aliasAll('all');
-					assert.calledOnce(sourceslib.listPolyfills);
-				});
-			});
-		});
-
-		describe('when options.features does not contains the `all` feature', () => {
-			it('does not return all polyfills', () => {
-				const polyfillio = require('../../../lib/index');
-
-				assert.notCalled(sourceslib.listPolyfills);
-
-				return polyfillio.getPolyfills({}).then(() => {
-					// Second argument to createAliasResolver contains the aliasAll function we are testing
-					const aliasAll = createAliasResolver.firstCall.args[1];
-
-					aliasAll('es6');
-					assert.notCalled(sourceslib.listPolyfills);
-				});
-			});
-		});
-
 		describe('when options.uaString is not set', () => {
 			it('calls UA with options.uAString set to an empty string', () => {
 				const polyfillio = require('../../../lib/index');
