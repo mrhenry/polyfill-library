@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@financial-times/useragent_parser@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@financial-times/useragent_parser/-/useragent_parser-1.0.2.tgz#3f26e7cb2e0e4dfc9ac833f8259d7fed9c7fbf9c"
+  integrity sha512-zuJMxn5Qnk7CKl+zrVXDqXs0F+p4tshO6B4s8VenJj34EEVuV4iZIbkGiEFJUbn29z9Mcn6k8yfj9qSCNDcPPQ==
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"
