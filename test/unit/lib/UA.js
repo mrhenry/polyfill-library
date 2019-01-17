@@ -8,12 +8,10 @@ const semver = require('semver');
 const mockery = require('mockery');
 
 describe("lib/UA", function () {
-	let useragent;
 	let UA;
 	let lruCache;
 
 	beforeEach(() => {
-		useragent = require('useragent');
 		UA = require('../../../lib/UA');
 		lruCache = require('../mock/lru-cache.mock');
 		mockery.registerMock('lru-cache', lruCache);
@@ -32,11 +30,6 @@ describe("lib/UA", function () {
 	});
 
 	describe('UA("uastring")', () => {
-		it('this.ua is a useragent Agent object', () => {
-			const ua = new UA("");
-			assert.isInstanceOf(ua.ua, useragent.Agent);
-		});
-
 		describe('removes iOS webview browsers from uastring', () => {
 			let spy;
 
