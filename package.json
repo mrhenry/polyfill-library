@@ -30,6 +30,7 @@
     "fmt": "eslint . --fix",
     "test-polyfills": "karma start",
     "test-all-polyfills": "node ./test/polyfills/test-all-features.js",
+    "test-end-to-end": "mocha test/end-to-end/**/*.test.js",
     "test-node": "mocha test/node/**/*.js",
     "test-node-unit": "nyc mocha test/unit --recursive",
     "test-node-coverage": "nyc check-coverage --lines 90 --branches 90 --functions 90",
