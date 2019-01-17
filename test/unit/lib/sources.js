@@ -37,11 +37,6 @@ describe('lib/sources', () => {
 		assert.isObject(sources);
 	});
 
-	it('has a polyfillExists method', () => {
-		const sources = require('../../../lib/sources');
-		assert.isFunction(sources.polyfillExists);
-	});
-
 	it('has a getPolyfillMeta method', () => {
 		const sources = require('../../../lib/sources');
 		assert.isFunction(sources.getPolyfillMeta);
@@ -65,24 +60,6 @@ describe('lib/sources', () => {
 	it('has a streamPolyfillSource method', () => {
 		const sources = require('../../../lib/sources');
 		assert.isFunction(sources.streamPolyfillSource);
-	});
-
-	describe('sources.polyfillExists()', () => {
-		it('returns a promise which resolves with true if polyfill exists', () => {
-			fs.stat.yields(undefined, {
-				isFile() { return true;}
-			});
-			const sources = require('../../../lib/sources');
-			return sources.polyfillExists('featureToPolyfill').then(exists => assert.equal(exists, true));
-		});
-
-		it('returns a promise which resolves with false if polyfill exists', () => {
-			fs.stat.yields(undefined, {
-				isFile() { return false;}
-			});
-			const sources = require('../../../lib/sources');
-			return sources.polyfillExists('Array.from').then(exists => assert.equal(exists, false));
-		});
 	});
 
 	describe('sources.listPolyfills()', () => {
