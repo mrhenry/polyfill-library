@@ -42,7 +42,7 @@ function flattenPolyfillDirectories(directory) {
 }
 
 function checkForCircularDependencies(polyfills) {
-	const graph = []
+	const graph = [];
 
 	for (const polyfill of polyfills) {
 		for (const dependency of polyfill.dependencies) {
