@@ -104,29 +104,29 @@ describe("polyfillio", () => {
 	});
 
 	describe('.listAllPolyfills()', () => {
-		it('calls and returns sourceslib.instance.listPolyfills() without passing argument', () => {
+		it('calls and returns sourceslib.listPolyfills() without passing argument', () => {
 			const Polyfillio = require('../../../lib/index');
 			polyfillio = new Polyfillio;
-			sourceslib.instance.listPolyfills.resolves('return value for sourceslib.instance.listPolyfills');
+			sourceslib.listPolyfills.resolves('return value for sourceslib.listPolyfills');
 			return polyfillio.listAllPolyfills('test').then(result => {
-				assert.equal(result, 'return value for sourceslib.instance.listPolyfills');
-				assert.calledOnce(sourceslib.instance.listPolyfills);
-				assert.neverCalledWith(sourceslib.instance.listPolyfills, 'test');
+				assert.equal(result, 'return value for sourceslib.listPolyfills');
+				assert.calledOnce(sourceslib.listPolyfills);
+				assert.neverCalledWith(sourceslib.listPolyfills, 'test');
 			});
 		});
 	});
 
 	describe('.describePolyfill()', () => {
-		it('calls and returns sourceslib.instance.getPolyfillMeta() with passed argument', () => {
+		it('calls and returns sourceslib.getPolyfillMeta() with passed argument', () => {
 			const Polyfillio = require('../../../lib/index');
 			const polyfillio = new Polyfillio;
 
-			sourceslib.instance.getPolyfillMeta.resolves('return value for sourceslib.instance.getPolyfillMeta');
+			sourceslib.getPolyfillMeta.resolves('return value for sourceslib.getPolyfillMeta');
 			return polyfillio.describePolyfill('test')
 				.then(result => {
-					assert.equal(result, 'return value for sourceslib.instance.getPolyfillMeta');
-					assert.calledOnce(sourceslib.instance.getPolyfillMeta);
-					assert.calledWithExactly(sourceslib.instance.getPolyfillMeta, 'test');
+					assert.equal(result, 'return value for sourceslib.getPolyfillMeta');
+					assert.calledOnce(sourceslib.getPolyfillMeta);
+					assert.calledWithExactly(sourceslib.getPolyfillMeta, 'test');
 				});
 		});
 	});
@@ -266,14 +266,14 @@ describe("polyfillio", () => {
 				const Polyfillio = require('../../../lib/index');
 				polyfillio = new Polyfillio;
 
-				assert.notCalled(sourceslib.instance.listPolyfills);
+				assert.notCalled(sourceslib.listPolyfills);
 
 				return polyfillio.getPolyfills({}).then(() => {
 					// Second argument to createAliasResolver contains the aliasAll function we are testing
 					const aliasAll = createAliasResolver.firstCall.args[1];
 
 					aliasAll('all');
-					assert.calledOnce(sourceslib.instance.listPolyfills);
+					assert.calledOnce(sourceslib.listPolyfills);
 				});
 			});
 		});
@@ -283,14 +283,14 @@ describe("polyfillio", () => {
 				const Polyfillio = require('../../../lib/index');
 				polyfillio = new Polyfillio;
 
-				assert.notCalled(sourceslib.instance.listPolyfills);
+				assert.notCalled(sourceslib.listPolyfills);
 
 				return polyfillio.getPolyfills({}).then(() => {
 					// Second argument to createAliasResolver contains the aliasAll function we are testing
 					const aliasAll = createAliasResolver.firstCall.args[1];
 
 					aliasAll('es6');
-					assert.notCalled(sourceslib.instance.listPolyfills);
+					assert.notCalled(sourceslib.listPolyfills);
 				});
 			});
 		});
@@ -423,7 +423,7 @@ describe("polyfillio", () => {
 			createAliasResolver.onCall(0).returns(resolveAliasesStub);
 			createAliasResolver.onCall(1).returns(resolveDependenciesStub);
 
-			sourceslib.instance.getPolyfillMeta.resolves({
+			sourceslib.getPolyfillMeta.resolves({
 				"browsers": {
 					"ie": "6 - 8"
 				}
@@ -460,7 +460,7 @@ describe("polyfillio", () => {
 			createAliasResolver.onCall(0).returns(resolveAliasesStub);
 			createAliasResolver.onCall(1).returns(resolveDependenciesStub);
 
-			sourceslib.instance.getPolyfillMeta.resolves({
+			sourceslib.getPolyfillMeta.resolves({
 				"browsers": {
 					"ie": "6 - 8"
 				}
@@ -499,7 +499,7 @@ describe("polyfillio", () => {
 			createAliasResolver.onCall(0).returns(resolveAliasesStub);
 			createAliasResolver.onCall(1).returnsArg(0);
 
-			sourceslib.instance.getPolyfillMeta.withArgs('Element.prototype.placeholder').resolves({
+			sourceslib.getPolyfillMeta.withArgs('Element.prototype.placeholder').resolves({
 				"dependencies": ["setImmediate", "Array.isArray", "Event"]
 			});
 
