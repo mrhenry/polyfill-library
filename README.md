@@ -12,10 +12,10 @@ npm install polyfill-library --save
 ## Usage
 
 ```javascript
-const PolyfillLibrary = require('polyfill-service');
+const PolyfillLibrary = require('polyfill-library');
 const polyfillLibrary = new PolyfillLibrary;
 
-const polyfillBundle = polyfillLibary.getPolyfillString({
+const polyfillBundle = polyfillLibrary.getPolyfillString({
 	uaString: 'Mozilla/5.0 (Windows; U; MSIE 7.0; Windows NT 6.0; en-US)',
 	minify: true,
 	features: {
@@ -54,7 +54,7 @@ Create an options object for use with `getPolyfills` or `getPolyfillString`.
 
 - `@param {object} opts` - Valid keys are uaString, minify, unknown, excludes, rum and features.
 - `@param {Boolean} [opts.minify=true]` - Whether to return the minified or raw implementation of the polyfills.
-- `@param {'ignore'|'polyfill'} [opts.unknown='ignore']` - Whether to return all polyfills or no polyfills if the user-agent is unknown or unsupported.
+- `@param {'ignore'|'polyfill'} [opts.unknown='polyfill']` - Whether to return all polyfills or no polyfills if the user-agent is unknown or unsupported.
 - `@param {Object} [opts.features={}]` - Which features should be returned if the user-agent does not support them natively.
 - `@param {Array<String>} [opts.excludes=[]]` - Which features should be excluded from the returned object.
 - `@param {String} [opts.uaString='']` - The user-agent string to check each feature against.
@@ -68,7 +68,7 @@ Given a set of features that should be polyfilled in 'opts.features' (with flags
 
 - `@param {object} opts` - Valid keys are uaString, minify, unknown, excludes, rum and features.
 - `@param {Boolean} [opts.minify=true]` - Whether to return the minified or raw implementation of the polyfills.
-- `@param {'ignore'|'polyfill'} [opts.unknown='ignore']` - Whether to return all polyfills or no polyfills if the user-agent is unknown or unsupported.
+- `@param {'ignore'|'polyfill'} [opts.unknown='polyfill']` - Whether to return all polyfills or no polyfills if the user-agent is unknown or unsupported.
 - `@param {Object} [opts.features={}]` - Which features should be returned if the user-agent does not support them natively.
 - `@param {Array<String>} [opts.excludes=[]]` - Which features should be excluded from the returned object.
 - `@param {String} [opts.uaString='']` - The user-agent string to check each feature against.
@@ -82,7 +82,7 @@ Create a polyfill bundle.
 
 - `@param {object} opts` - Valid keys are uaString, minify, unknown, excludes, rum and features.
 - `@param {Boolean} [opts.minify=true]` - Whether to return the minified or raw implementation of the polyfills.
-- `@param {'ignore'|'polyfill'} [opts.unknown='ignore']` - Whether to return all polyfills or no polyfills if the user-agent is unknown or unsupported.
+- `@param {'ignore'|'polyfill'} [opts.unknown='polyfill']` - Whether to return all polyfills or no polyfills if the user-agent is unknown or unsupported.
 - `@param {Object} [opts.features={}]` - Which features should be returned if the user-agent does not support them natively.
 - `@param {Array<String>} [opts.excludes=[]]` - Which features should be excluded from the returned object.
 - `@param {String} [opts.uaString='']` - The user-agent string to check each feature against.
