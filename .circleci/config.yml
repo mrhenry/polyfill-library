@@ -26,7 +26,8 @@ jobs:
     steps:
       - checkout
       - run: yarn install --frozen-lockfile
-      - run: npm run build && npm run test-node && npm run test-node-unit && npm run test-end-to-end
+      - run: npm run build && npm run test-node && npm run test-node-unit && npm
+          run test-node-unit
   publish_to_npm:
     docker:
       - image: circleci/node:10
