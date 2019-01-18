@@ -95,7 +95,7 @@ class Polyfill {
 	}
 
 	get aliases() {
-		return this.config.aliases || [];
+		return ['all'].concat(this.config.aliases || []);
 	}
 
 	get dependencies() {

@@ -8,12 +8,10 @@ const semver = require('semver');
 const mockery = require('mockery');
 
 describe("lib/UA", function () {
-	let useragent;
 	let UA;
 	let lruCache;
 
 	beforeEach(() => {
-		useragent = require('useragent');
 		UA = require('../../../lib/UA');
 		lruCache = require('../mock/lru-cache.mock');
 		mockery.registerMock('lru-cache', lruCache);
@@ -32,11 +30,6 @@ describe("lib/UA", function () {
 	});
 
 	describe('UA("uastring")', () => {
-		it('this.ua is a useragent Agent object', () => {
-			const ua = new UA("");
-			assert.isInstanceOf(ua.ua, useragent.Agent);
-		});
-
 		describe('removes iOS webview browsers from uastring', () => {
 			let spy;
 
@@ -133,14 +126,13 @@ describe("lib/UA", function () {
 			context('when given a normalized ua', () => {
 				it('constructs a new useragent.Agent', () => {
 					const ie = new UA("ie/11.3.0");
-					assert.equal(ie.ua.family, 'ie');
-					assert.equal(ie.ua.toVersion(), '11.3.0');
-					assert.isInstanceOf(ie.ua, useragent.Agent);
+					assert.equal(ie.getFamily(), 'ie');
+					assert.equal(ie.getVersion(), '11.3.0');
 				});
 
 				it('assigns 0 to minor and patch versions if ommitted', () => {
 					const ie = new UA("ie/11");
-					assert.equal(ie.ua.toVersion(), '11.0.0');
+					assert.equal(ie.getVersion(), '11.0.0');
 				});
 
 			});

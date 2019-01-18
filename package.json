@@ -42,6 +42,7 @@
     "node": ">=8"
   },
   "dependencies": {
+    "@financial-times/useragent_parser": "^1.0.2",
     "Base64": "^1.0.0",
     "array.of": "^0.1.1",
     "audio-context-polyfill": "^1.0.0",
@@ -73,7 +74,6 @@
     "stream-to-string": "^1.1.0",
     "tsort": "0.0.1",
     "uglify-js": "^2.7.5",
-    "useragent": "^2.1.12",
     "usertiming": "^0.1.8",
     "web-animations-js": "^2.2.5",
     "whatwg-fetch": "^2.0.3",
