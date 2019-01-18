@@ -37,8 +37,7 @@ function createPolyfillLibraryConfigFor(features) {
 }
 
 async function respondWithPolyfillBundle(config, request, response) {
-	const PolyfillLibrary = require("./lib/index.js");
-	const polyfillLibrary = new PolyfillLibrary();
+	const polyfillLibrary = require("./lib/index.js");
 
 	const params = {
 		features: createPolyfillLibraryConfigFor(config.features),
