@@ -11,7 +11,7 @@ describe("polyfillio", () => {
 	const packageMock = {};
 	let fs;
 	let path;
-	let tsort;
+	let toposort;
 	let createAliasResolver;
 	let UA;
 	let sourceslib;
@@ -30,8 +30,8 @@ describe("polyfillio", () => {
 		path = require('../mock/path.mock');
 		mockery.registerMock('path', path);
 
-		tsort = require('../mock/tsort.mock');
-		mockery.registerMock('tsort', tsort);
+		toposort = require('../mock/toposort.mock');
+		mockery.registerMock('toposort', toposort);
 
 		createAliasResolver = require('../mock/aliases.mock');
 		mockery.registerMock('./aliases', createAliasResolver);
