@@ -1,3 +1,4 @@
+/.env
 node_modules
 polyfills/Intl/~locale/**/detect.js
 polyfills/Intl/~locale/**/tests.js
@@ -17,3 +18,4 @@ polyfills/WebAnimations/polyfill.js
 polyfills/_TypedArray/polyfill.js
 polyfills/atob/polyfill.js
 polyfills/fetch/polyfill.js
+.nyc_output/

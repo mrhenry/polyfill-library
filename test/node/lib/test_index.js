@@ -3,10 +3,11 @@
 const assert = require('proclaim');
 const setsToArrays = require('../../utils/sets_to_arrays');
 
-const Polyfillio = require('../../../lib/index');
-const polyfillio = new Polyfillio;
+const polyfillio = require('../../../lib/index');
 
-describe("polyfillio", () => {
+describe("polyfillio", function () {
+	this.timeout(30000);
+
 	describe(".getPolyfills(features)", () => {
 
 		it("should not include unused dependencies", () => {
