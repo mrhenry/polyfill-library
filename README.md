@@ -103,7 +103,7 @@ npm run test-polyfills -- --feature=Array.from --browserstack # Run the tests fo
 
 Polyfill-library is [MIT licensed][license].
 
-[contributing-guide]: https://example.com
-[license]: .././LICENSE.md
+[contributing-guide]: https://github.com/Financial-Times/polyfill-library/blob/master/.github/contributing.md
+[license]: https://github.com/Financial-Times/polyfill-library/blob/master/LICENSE.md
 [license-badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [pull-requests-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg
