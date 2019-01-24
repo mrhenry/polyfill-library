@@ -9,7 +9,8 @@
 		"firefox": "<19",
 		"safari": "<11",
 		"ie": ">=10",
-		"opera": "*"
+		"opera": "*",
+		"ios_saf": "<11"
 	},
 	"dependencies": [
 		"_ESAbstract.CreateMethodProperty",
