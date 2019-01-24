@@ -12,8 +12,7 @@ npm install polyfill-library --save
 ## Usage
 
 ```javascript
-const PolyfillLibrary = require('polyfill-library');
-const polyfillLibrary = new PolyfillLibrary;
+const polyfillLibrary = require('polyfill-library');
 
 const polyfillBundle = polyfillLibrary.getPolyfillString({
 	uaString: 'Mozilla/5.0 (Windows; U; MSIE 7.0; Windows NT 6.0; en-US)',
@@ -27,12 +26,6 @@ const polyfillBundle = polyfillLibrary.getPolyfillString({
 ```
 
 ## API
-
-### `polyfillLibrary = new PolyfillLibrary([polyfillsPath])`
-
-Create a PolyfillLibrary instance.
-
-- `@param {String} [polyfillsPath]` - The folder location on the file system where the polyfill sources exist. Defaults to the location of the polyfill sources which come bundled with the polyfill-library module.
 
 ### `polyfillLibrary.listAllPolyfills()`
 
@@ -110,7 +103,7 @@ npm run test-polyfills -- --feature=Array.from --browserstack # Run the tests fo
 
 Polyfill-library is [MIT licensed][license].
 
-[contributing-guide]: https://example.com
-[license]: .././LICENSE.md
+[contributing-guide]: https://github.com/Financial-Times/polyfill-library/blob/master/.github/contributing.md
+[license]: https://github.com/Financial-Times/polyfill-library/blob/master/LICENSE.md
 [license-badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [pull-requests-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg
