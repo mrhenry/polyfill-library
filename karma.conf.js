@@ -7,7 +7,7 @@ const globby = require('globby');
 const proclaim = path.resolve(require.resolve('proclaim'));
 
 function getBrowsersFor(feature) {
-	const UA = require('./lib/UA');
+	const UA = require('@financial-times/polyfill-useragent-normaliser');
 
 	// Grab all the browsers from BrowserStack which are officially supported by the polyfil service.
 	const browserlist = require("./test/polyfills/browsers.json");

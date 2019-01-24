@@ -37,7 +37,7 @@ describe("polyfillio", () => {
 		mockery.registerMock('./aliases', createAliasResolver);
 
 		UA = require('../mock/ua.mock');
-		mockery.registerMock('./UA', UA);
+		mockery.registerMock('@financial-times/polyfill-useragent-normaliser', UA);
 
 		sourceslib = require('../mock/sources.mock');
 		mockery.registerMock('./sources', sourceslib);
