@@ -82,6 +82,11 @@ describe("polyfillio", () => {
 			assert.isFunction(polyfillio.listAllPolyfills);
 		});
 		
+		it('listAliases is an exported function', () => {
+			const polyfillio = require('../../../lib/index');
+			assert.isFunction(polyfillio.listAliases);
+		});
+		
 		it('getPolyfills is an exported function', () => {
 			const polyfillio = require('../../../lib/index');
 			assert.isFunction(polyfillio.getPolyfills);
