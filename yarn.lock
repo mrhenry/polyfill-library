@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@financial-times/polyfill-useragent-normaliser@1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@financial-times/polyfill-useragent-normaliser/-/polyfill-useragent-normaliser-1.0.4.tgz#ff17c493da9ef1f454a102bbfcec0c05138a938f"
-  integrity sha512-dK6eo6Gz+UKh7jQHsJ0GY8jrYjif5zQqq04Y8DINt9Tsrjm/w0jNZ7qXU+ymd3JDwLgVIsSWiKEITL8FrggjWQ==
+"@financial-times/polyfill-useragent-normaliser@1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@financial-times/polyfill-useragent-normaliser/-/polyfill-useragent-normaliser-1.0.6.tgz#ac685b422b094ddb4c3bd6e2115fe9597e7383c7"
+  integrity sha512-beQ8vwlsd1FKyTI88zCluQamDg8OJOKbLz4mnTMNLAKiBihbXwPLCgOVkpnCUSkLcKu/vKyobgZtnqnRtICTUg==
   dependencies:
     "@financial-times/useragent_parser" "1.0.2"
     semver "^5.6.0"
