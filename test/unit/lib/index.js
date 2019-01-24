@@ -11,7 +11,7 @@ describe("polyfillio", () => {
 	const packageMock = {};
 	let fs;
 	let path;
-	let tsort;
+	let toposort;
 	let createAliasResolver;
 	let UA;
 	let sourceslib;
@@ -30,8 +30,8 @@ describe("polyfillio", () => {
 		path = require('../mock/path.mock');
 		mockery.registerMock('path', path);
 
-		tsort = require('../mock/tsort.mock');
-		mockery.registerMock('tsort', tsort);
+		toposort = require('../mock/toposort.mock');
+		mockery.registerMock('toposort', toposort);
 
 		createAliasResolver = require('../mock/aliases.mock');
 		mockery.registerMock('./aliases', createAliasResolver);
@@ -80,6 +80,11 @@ describe("polyfillio", () => {
 		it('listAllPolyfills is an exported function', () => {
 			const polyfillio = require('../../../lib/index');
 			assert.isFunction(polyfillio.listAllPolyfills);
+		});
+		
+		it('listAliases is an exported function', () => {
+			const polyfillio = require('../../../lib/index');
+			assert.isFunction(polyfillio.listAliases);
 		});
 		
 		it('getPolyfills is an exported function', () => {

@@ -1,3 +1,4 @@
+/.env
 node_modules
 polyfills/Intl/~locale/**/detect.js
 polyfills/Intl/~locale/**/tests.js

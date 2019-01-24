@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-/* globals proclaim, Symbol */
+/* globals proclaim */
 
 it('is a function', function () {
 	proclaim.isFunction(Array.prototype.copyWithin);
