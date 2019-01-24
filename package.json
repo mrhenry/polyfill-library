@@ -1,6 +1,6 @@
 {
   "name": "polyfill-library",
-  "version": "3.27.0",
+  "version": "3.27.2",
   "description": "A polyfill combinator",
   "main": "lib/index.js",
   "contributors": [
@@ -28,8 +28,10 @@
     "build": "npm run clean && node tasks/node/updatesources && node tasks/node/buildsources",
     "build-circleci-config": "node ./tasks/node/build-circleci-config.js",
     "fmt": "eslint . --fix",
+    "test-library": "npm run build && npm run test-node && npm run test-node-unit && npm run test-end-to-end",
     "test-polyfills": "karma start",
     "test-all-polyfills": "node ./test/polyfills/test-all-features.js",
+    "test-end-to-end": "mocha test/end-to-end/**/*.test.js",
     "test-node": "mocha test/node/**/*.js",
     "test-node-unit": "nyc mocha test/unit --recursive",
     "test-node-coverage": "nyc check-coverage --lines 90 --branches 90 --functions 90",
@@ -42,6 +44,7 @@
     "node": ">=8"
   },
   "dependencies": {
+    "@financial-times/useragent_parser": "^1.0.2",
     "Base64": "^1.0.0",
     "array.of": "^0.1.1",
     "audio-context-polyfill": "^1.0.0",
@@ -71,15 +74,15 @@
     "shuffle-array": "^1.0.1",
     "stream-from-promise": "^1.0.0",
     "stream-to-string": "^1.1.0",
-    "tsort": "0.0.1",
+    "toposort": "^2.0.2",
     "uglify-js": "^2.7.5",
-    "useragent": "^2.1.12",
     "usertiming": "^0.1.8",
     "web-animations-js": "^2.2.5",
     "whatwg-fetch": "^2.0.3",
     "yaku": "0.18.6"
   },
   "devDependencies": {
+    "dotenv": "^6.2.0",
     "eslint": "^4.9.0",
     "execa": "^1.0.0",
     "globby": "^8.0.1",

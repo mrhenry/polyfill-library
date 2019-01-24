@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@financial-times/useragent_parser@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@financial-times/useragent_parser/-/useragent_parser-1.0.2.tgz#3f26e7cb2e0e4dfc9ac833f8259d7fed9c7fbf9c"
+  integrity sha512-zuJMxn5Qnk7CKl+zrVXDqXs0F+p4tshO6B4s8VenJj34EEVuV4iZIbkGiEFJUbn29z9Mcn6k8yfj9qSCNDcPPQ==
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"
@@ -1426,6 +1431,11 @@ dom-serialize@^2.2.0:
     ent "~2.2.0"
     extend "^3.0.0"
     void-elements "^2.0.0"
+
+dotenv@^6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-6.2.0.tgz#941c0410535d942c8becf28d3f357dbd9d476064"
+  integrity sha512-HygQCKUBSFl8wKQZBSemMywRWcEDNidvNbjGVyZu3nbZ8qq9ubiPoGLMdRDpfSrpkkm9BXYFkpKxxFX38o/76w==
 
 duplexer2@~0.1.4:
   version "0.1.4"
@@ -2898,7 +2908,7 @@ lru-cache@2.2.x:
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-2.2.4.tgz#6c658619becf14031d0d0b594b16042ce4dc063d"
   integrity sha1-bGWGGb7PFAMdDQtZSxYELOTcBj0=
 
-lru-cache@4.1.x, lru-cache@^4.0.1, lru-cache@^4.0.2:
+lru-cache@^4.0.1, lru-cache@^4.0.2:
   version "4.1.4"
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-4.1.4.tgz#51cc46e8e6d9530771c857e24ccc720ecdbcc031"
   integrity sha512-EPstzZ23znHUVLKj+lcXO1KvZkrlw+ZirdwvOmnAnA/1PB4ggyXJ77LRkCqkff+ShQ+cqoxCxLQOh4cKITO5iA==
@@ -4346,6 +4356,11 @@ to-regex@^3.0.1, to-regex@^3.0.2:
     regex-not "^1.0.2"
     safe-regex "^1.1.0"
 
+toposort@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/toposort/-/toposort-2.0.2.tgz#ae21768175d1559d48bef35420b2f4962f09c330"
+  integrity sha1-riF2gXXRVZ1IvvNUILL0li8JwzA=
+
 "traverse@>=0.3.0 <0.4":
   version "0.3.9"
   resolved "https://registry.yarnpkg.com/traverse/-/traverse-0.3.9.tgz#717b8f220cc0bb7b44e40514c22b2e8bbc70d8b9"
@@ -4355,11 +4370,6 @@ trim-right@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/trim-right/-/trim-right-1.0.1.tgz#cb2e1203067e0c8de1f614094b9fe45704ea6003"
   integrity sha1-yy4SAwZ+DI3h9hQJS5/kVwTqYAM=
-
-tsort@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/tsort/-/tsort-0.0.1.tgz#e2280f5e817f8bf4275657fd0f9aebd44f5a2786"
-  integrity sha1-4igPXoF/i/QnVlf9D5rr1E9aJ4Y=
 
 type-check@~0.3.2:
   version "0.3.2"
@@ -4473,14 +4483,6 @@ useragent@2.2.1:
   integrity sha1-z1k+9PLRdYdei7ZY6pLhik/QbY4=
   dependencies:
     lru-cache "2.2.x"
-    tmp "0.0.x"
-
-useragent@^2.1.12:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/useragent/-/useragent-2.3.0.tgz#217f943ad540cb2128658ab23fc960f6a88c9972"
-  integrity sha512-4AoH4pxuSvHCjqLO04sU6U/uE65BYza8l/KKBS0b0hnUPWi+cQ2BpeTEwejCSx9SPV5/U03nniDTrWx5NrmKdw==
-  dependencies:
-    lru-cache "4.1.x"
     tmp "0.0.x"
 
 usertiming@^0.1.8:
