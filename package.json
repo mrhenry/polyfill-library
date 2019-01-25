@@ -44,7 +44,7 @@
     "node": ">=8"
   },
   "dependencies": {
-    "@financial-times/useragent_parser": "^1.0.2",
+    "@financial-times/polyfill-useragent-normaliser": "1.0.6",
     "Base64": "^1.0.0",
     "array.of": "^0.1.1",
     "audio-context-polyfill": "^1.0.0",
