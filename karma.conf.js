@@ -150,7 +150,7 @@ module.exports = async function (config) {
 			uaString: ''
 		}));
 
-		const latestCommitOfDependencies = dependencies.map(dep => latestCommitInFolder(featureToFolder(dep)));
+		const latestCommitOfDependencies = dependencies.map(dep => latestCommitInFolder(`./polyfills/${featureToFolder(dep)}`));
 
 		// if the lib folder contains the latest commit, run the tests
 		const libCommit = latestCommitInFolder(`./lib`);
