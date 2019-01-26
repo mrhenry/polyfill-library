@@ -1,1 +1,0 @@
-Event.CAPTURING_PHASE = 1;
