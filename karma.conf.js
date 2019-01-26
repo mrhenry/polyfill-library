@@ -132,7 +132,7 @@ module.exports = async function (config) {
 	const features = config.features.split(',').map(feature => feature.trim());
 	const feature = features[0];
 	const featureToFolder = feature => feature.replace(/\./g, path.sep);
-	const latestCommitInFolder = folder => execa.shellSync(`git log -1 --format=format:%H --full-diff ${folder}}`, {
+	const latestCommitInFolder = folder => execa.shellSync(`git log -1 --format=format:%H --full-diff ${folder}`, {
 		cwd: __dirname
 	});
 	if (process.env.CI) {
