@@ -1,0 +1,1 @@
+Event.NONE = 0;
