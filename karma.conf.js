@@ -171,6 +171,7 @@ module.exports = async function (config) {
 			latestCommit !== karmaPluginCommit &&
 			latestCommit !== packageJsonCommit
 		) {
+			console.log(`${feature} has not changed, no need to run the tests.`);
 			process.exit(0);
 		}
 	}
