@@ -134,10 +134,10 @@ module.exports = async function (config) {
 	const featureToFolder = feature => feature.replace(/\./g, path.sep);
 	const latestCommitInFolder = folder => execa.shellSync(`git log -1 --format=format:%H --full-diff ${folder}`, {
 		cwd: __dirname
-	});
+	}).stdout;
 	if (process.env.CI) {
 
-		const latestCommit = execa.shellSync('git rev-parse master');
+		const latestCommit = execa.shellSync('git rev-parse master').stdout;
 		// if feature folders latest commit is same as latest commit, run the tests
 		const featureFolderCommit = latestCommitInFolder(`./polyfills/${featureToFolder(feature)}`);
 
