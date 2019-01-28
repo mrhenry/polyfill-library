@@ -158,12 +158,18 @@ module.exports = async function (config) {
 		const testFolderCommit = latestCommitInFolder(`./test/polyfills`);
 		
 		// if the karma.conf.js contains the latest commit, run the tests
-		// const karmaCommit = latestCommitInFolder(`./karma.conf.js`);
+		const karmaCommit = latestCommitInFolder(`./karma.conf.js`);
 		// if the karma-polyfill-library-plugin.js contains the latest commit, run the tests
 		const karmaPluginCommit = latestCommitInFolder(`./karma-polyfill-library-plugin.js`);
 		// if the package.json contains the latest commit, run the tests?
 		const packageJsonCommit = latestCommitInFolder(`./package.json`);
-
+		console.log("latestCommit !== featureFolderCommit", latestCommit !== featureFolderCommit);
+		console.log("!latestCommitOfDependencies.includes(latestCommit)", !latestCommitOfDependencies.includes(latestCommit));
+		console.log("latestCommit !== libCommit", latestCommit !== libCommit);
+		console.log("latestCommit !== testFolderCommit", latestCommit !== testFolderCommit);
+		console.log("// latestCommit !== karmaCommit", latestCommit !== karmaCommit);
+		console.log("latestCommit !== karmaPluginCommit", latestCommit !== karmaPluginCommit);
+		console.log("latestCommit !== packageJsonCommit", latestCommit !== packageJsonCommit);
 		if (
 			latestCommit !== featureFolderCommit &&
 			!latestCommitOfDependencies.includes(latestCommit) &&
