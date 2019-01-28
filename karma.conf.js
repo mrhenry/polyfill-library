@@ -132,15 +132,9 @@ module.exports = async function (config) {
 	const features = config.features.split(',').map(feature => feature.trim());
 	const feature = features[0];
 	const featureToFolder = feature => feature.replace(/\./g, path.sep);
-	const latestCommitInFolder = folder => execa.shellSync(`git log -1 --format=format:%H --full-diff ${folder}`, {
-		cwd: __dirname
-	}).stdout;
 	if (process.env.CI) {
-
-		const latestCommit = execa.shellSync('git rev-parse master').stdout;
-		// if feature folders latest commit is same as latest commit, run the tests
-		const featureFolderCommit = latestCommitInFolder(`./polyfills/${featureToFolder(feature)}`);
-
+		const filesWhichChanged = execa.shellSync('git diff --name-only origin/master').stdout.split('\n');
+		
 		// if any of the dependencies in the tree from the feature is the same as latest commit, run the tests
 		const dependencies = Object.keys(await polyfillLibrary.getPolyfills({
 			features: {
@@ -148,49 +142,23 @@ module.exports = async function (config) {
 			},
 			unknown: 'polyfill',
 			uaString: ''
-		}));
+		})).map(feature => `polyfills/${featureToFolder(feature)}`);
 
-		const latestCommitOfDependencies = dependencies.map(dep => latestCommitInFolder(`./polyfills/${featureToFolder(dep)}`));
+		const configs = dependencies.map(d => d + '/config.json');
+		const polyfills = dependencies.map(d => d + '/polyfill.js');
+		const detects = dependencies.map(d => d + '/detect.js');
+		const tests = dependencies.map(d => d + '/tests.js');
+		const files = [].concat(configs, polyfills, detects, tests);
 
-		// if the lib folder contains the latest commit, run the tests
-		const libCommit = latestCommitInFolder(`./lib`);
-		// if the test/polyfills folder contains the latest commit, run the tests,
-		const testFolderCommit = latestCommitInFolder(`./test/polyfills`);
-		
-		// if the karma.conf.js contains the latest commit, run the tests
-		const karmaCommit = latestCommitInFolder(`./karma.conf.js`);
-		// if the karma-polyfill-library-plugin.js contains the latest commit, run the tests
-		const karmaPluginCommit = latestCommitInFolder(`./karma-polyfill-library-plugin.js`);
-		// if the package.json contains the latest commit, run the tests?
-		const packageJsonCommit = latestCommitInFolder(`./package.json`);
-		console.log({
-			latestCommit,
-			featureFolderCommit,
-			latestCommitOfDependencies,
-			libCommit,
-			testFolderCommit,
-			karmaCommit,
-			karmaPluginCommit,
-			packageJsonCommit
-		});
-		console.log("latestCommit !== featureFolderCommit", latestCommit !== featureFolderCommit);
-		console.log("!latestCommitOfDependencies.includes(latestCommit)", !latestCommitOfDependencies.includes(latestCommit));
-		console.log("latestCommit !== libCommit", latestCommit !== libCommit);
-		console.log("latestCommit !== testFolderCommit", latestCommit !== testFolderCommit);
-		console.log("// latestCommit !== karmaCommit", latestCommit !== karmaCommit);
-		console.log("latestCommit !== karmaPluginCommit", latestCommit !== karmaPluginCommit);
-		console.log("latestCommit !== packageJsonCommit", latestCommit !== packageJsonCommit);
-		if (
-			latestCommit !== featureFolderCommit &&
-			!latestCommitOfDependencies.includes(latestCommit) &&
-			latestCommit !== libCommit &&
-			latestCommit !== testFolderCommit &&
-			// latestCommit !== karmaCommit &&
-			latestCommit !== karmaPluginCommit &&
-			latestCommit !== packageJsonCommit
-		) {
-			console.log(`${feature} has not changed, no need to run the tests.`);
-			process.exit(0);
+		if (!files.some(file => filesWhichChanged.includes(file))) {
+			if (!filesWhichChanged.some(file => file.startsWith('lib/'))) {
+				if (!filesWhichChanged.some(file => file.startsWith('karma-polyfill-library-plugin.js'))) {
+					if (!filesWhichChanged.some(file => file.startsWith('package.json'))) {
+						console.log(`${feature} has not changed, no need to run the tests.`);
+						process.exit(0);
+					}
+				}
+			}
 		}
 	}
 	if (config.browserstack) {
