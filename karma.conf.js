@@ -162,7 +162,7 @@ module.exports = async function (config) {
 		}
 	}
 	if (config.browserstack) {
-		const browsers = getBrowsersFor(feature);
+		const browsers = getBrowsersFor(featureToFolder(feature));
 		config.set(Object.assign(config,{
 			// if true, Karma captures browsers, runs the tests and exits
 			singleRun: true,
