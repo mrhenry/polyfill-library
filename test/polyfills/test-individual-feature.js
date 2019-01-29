@@ -2,8 +2,8 @@
 
 const path = require('path');
 const execa = require('execa');
-const polyfillLibrary = require("./lib/index.js");
-const feature = process.argv.slice(2);
+const polyfillLibrary = require("../../lib/index.js");
+const feature = process.argv.slice(2)[0];
 
 const featureToFolder = feature => feature.replace(/\./g, path.sep);
 
