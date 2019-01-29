@@ -2,9 +2,7 @@
 
 const path = require('path');
 const karmaPolyfillLibraryPlugin = require('./karma-polyfill-library-plugin');
-const polyfillLibrary = require("./lib/index.js");
 const globby = require('globby');
-const execa = require('execa');
 
 const proclaim = path.resolve(require.resolve('proclaim'));
 
@@ -132,35 +130,7 @@ module.exports = async function (config) {
 	const features = config.features.split(',').map(feature => feature.trim());
 	const feature = features[0];
 	const featureToFolder = feature => feature.replace(/\./g, path.sep);
-	if (process.env.CI) {
-		const filesWhichChanged = execa.shellSync('git diff --name-only origin/master').stdout.split('\n');
-		
-		// if any of the dependencies in the tree from the feature is the same as latest commit, run the tests
-		const dependencies = Object.keys(await polyfillLibrary.getPolyfills({
-			features: {
-				[feature]: {}
-			},
-			unknown: 'polyfill',
-			uaString: ''
-		})).map(feature => `polyfills/${featureToFolder(feature)}`);
 
-		const configs = dependencies.map(d => d + '/config.json');
-		const polyfills = dependencies.map(d => d + '/polyfill.js');
-		const detects = dependencies.map(d => d + '/detect.js');
-		const tests = dependencies.map(d => d + '/tests.js');
-		const files = [].concat(configs, polyfills, detects, tests);
-
-		if (!files.some(file => filesWhichChanged.includes(file))) {
-			if (!filesWhichChanged.some(file => file.startsWith('lib/'))) {
-				if (!filesWhichChanged.some(file => file.startsWith('karma-polyfill-library-plugin.js'))) {
-					if (!filesWhichChanged.some(file => file.startsWith('package.json'))) {
-						console.log(`${feature} has not changed, no need to run the tests.`);
-						process.exit(0);
-					}
-				}
-			}
-		}
-	}
 	if (config.browserstack) {
 		const browsers = getBrowsersFor(featureToFolder(feature));
 		config.set(Object.assign(config,{
