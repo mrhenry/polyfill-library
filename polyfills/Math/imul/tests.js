@@ -10,7 +10,7 @@ it('is a function', function () {
 	proclaim.hasName(Math.imul, 'imul');
 });
  it('is not enumerable', function () {
-	proclaim.nonEnumerable(Math, 'imul');
+	proclaim.isNotEnumerable(Math, 'imul');
 });
  it('works as expected when called with no arguments', function () {
 	proclaim.strictEqual(Math.imul(), 0);
