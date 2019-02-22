@@ -1,7 +1,7 @@
 "use strict";
 
 const path = require('path');
-const fs = require('fs');
+const fs = require('graceful-fs');
 const yaml = require('yaml');
 const globby = require('globby');
 const _ = require('lodash');
