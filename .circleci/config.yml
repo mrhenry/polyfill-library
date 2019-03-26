@@ -728,6 +728,11 @@ jobs:
           command: node ./test/polyfills/test-individual-feature.js
             Element.prototype.replaceWith
       - run:
+          name: Testing Element.prototype.toggleAttribute
+          no_output_timeout: 60m
+          command: node ./test/polyfills/test-individual-feature.js
+            Element.prototype.toggleAttribute
+      - run:
           name: Testing Function.prototype.bind
           no_output_timeout: 60m
           command: node ./test/polyfills/test-individual-feature.js
@@ -767,17 +772,17 @@ jobs:
           no_output_timeout: 60m
           command: node ./test/polyfills/test-individual-feature.js
             RegExp.prototype.flags
-      - run:
-          name: Testing String.prototype.@@iterator
-          no_output_timeout: 60m
-          command: node ./test/polyfills/test-individual-feature.js
-            String.prototype.@@iterator
   test_11:
     docker:
       - image: circleci/node:10
     steps:
       - checkout
       - run: npm ci
+      - run:
+          name: Testing String.prototype.@@iterator
+          no_output_timeout: 60m
+          command: node ./test/polyfills/test-individual-feature.js
+            String.prototype.@@iterator
       - run:
           name: Testing String.prototype.codePointAt
           no_output_timeout: 60m
