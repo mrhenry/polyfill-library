@@ -1,0 +1,26 @@
+{
+    "aliases": [],
+    "browsers": {
+        "android": "9999",
+        "bb": "9999",
+        "chrome": "9999",
+        "edge": "9999",
+        "edge_mob": "9999",
+        "firefox": "9999",
+        "ios_chr": "9999",
+        "ios_saf": "9999",
+        "ie": "9999",
+        "ie_mob": "9999",
+        "opera": "9999",
+        "op_mini": "9999",
+        "op_mob": "9999",
+        "safari": "9999",
+        "firefox_mob": "9999",
+        "samsung_mob": "9999"
+    },
+    "dependencies": [
+        "Element"
+    ],
+    "spec": "https://dom.spec.whatwg.org/#dom-element-toggleattribute",
+    "docs": "https://developer.mozilla.org/en-US/docs/Web/API/Element/toggleAttribute"
+}
