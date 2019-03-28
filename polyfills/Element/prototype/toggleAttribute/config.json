@@ -2,6 +2,7 @@
     "aliases": [],
     "browsers": {
         "android": "<69",
+        "bb": "*",
         "chrome": "<69",
         "edge": "<18",
         "edge_mob": "<18",
@@ -11,6 +12,8 @@
         "ie": "*",
         "ie_mob": "*",
         "opera": "<56",
+        "op_mini": "*",
+        "op_mob": "<51",
         "safari": "<12",
         "firefox_mob": "<63",
         "samsung_mob": "*"
