@@ -3,7 +3,7 @@
     // 19.1.2.17 Object.preventExtensions ( O )
     CreateMethodProperty(Object, 'preventExtensions', function preventExtensions(O) {
         // 1. If Type(O) is not Object, return O.
-        if (TypeError(O) !== "object") {
+        if (Type(O) !== "object") {
             return O;
         }
         // 2. Let status be ? O.[[PreventExtensions]]().
