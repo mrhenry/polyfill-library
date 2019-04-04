@@ -5,20 +5,20 @@
 		"modernizr:es6object"
 	],
 	"browsers": {
-		"android": "<4.4",
+		"android": "< 4.4",
 		"bb": "*",
-		"chrome": "1 - 29",
-		"edge": "<12",
-		"edge_mob": "<14",
-		"firefox": "3.6 - 21",
+		"chrome": "< 29",
+		"edge": "< 12",
+		"edge_mob": "< 14",
+		"firefox": "< 22",
+		"firefox_mob": "< 22",
 		"ie": "*",
-		"ie_mob": "10 - *",
-		"opera": "<32",
+		"ie_mob": "*",
+		"opera": "< 32",
 		"op_mini": "*",
-		"op_mob": "*",
-		"safari": "<9",
-		"ios_saf": "<9",
-		"firefox_mob": "3.6 - 21"
+		"op_mob": "< 32",
+		"safari": "< 9",
+		"ios_saf": "< 9"
 	},
 	"dependencies": [
 		"_ESAbstract.CreateMethodProperty",
