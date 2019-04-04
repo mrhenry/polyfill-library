@@ -3,8 +3,8 @@
 		"es2017"
 	],
 	"browsers": {
-		"edge": "< 14",
-		"edge_mob": "<15",
+		"edge": "< 12",
+		"edge_mob": "< 12",
 		"ie": "*",
 		"ie_mob": "*",
 		"chrome": "< 54",
@@ -13,11 +13,11 @@
 		"ios_saf": "< 10.1",
 		"firefox": "< 47",
 		"firefox_mob": "< 47",
-		"android": "< 51",
+		"android": "< 54",
 		"opera": "< 41",
 		"op_mob": "< 41",
 		"op_mini": "*",
-		"samsung_mob": "<6",
+		"samsung_mob": "< 6",
 		"bb": "*"
 	},
 	"dependencies": [
