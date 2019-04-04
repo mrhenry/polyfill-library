@@ -2,20 +2,20 @@
 	"aliases": [
 	],
 	"browsers": {
-		"android": "4.4 - *",
-		"bb": "7 - 10",
-		"chrome": "<51",
-		"edge": "<16",
-		"edge_mob": "*",
-		"firefox": "<55",
-		"firefox_mob": "47 - 55",
+		"android": "*",
+		"bb": "*",
+		"chrome": "< 51",
+		"edge": "< 16",
+		"edge_mob": "< 16",
+		"firefox": "< 55",
+		"firefox_mob": "< 55",
 		"ie": "*",
-		"ie_mob": "11 - *",
-		"ios_saf": "7 - 12.1",
+		"ie_mob": "*",
+		"ios_saf": "< 12.1",
 		"op_mini": "*",
-		"opera": "<45",
-		"safari": "6 - 12.0",
-		"samsung_mob": "<6"
+		"opera": "< 45",
+		"safari": "< 12.0",
+		"samsung_mob": "< 7"
 	},
 	"dependencies": [
 		"getComputedStyle",
