@@ -5,19 +5,19 @@
 		"modernizr:es6object"
 	],
 	"browsers": {
-		"android": "*",
+		"android": "<4.4",
 		"bb": "*",
 		"chrome": "1 - 29",
-		"edge": "*",
-		"edge_mob": "*",
+		"edge": "<12",
+		"edge_mob": "<14",
 		"firefox": "3.6 - 21",
 		"ie": "*",
 		"ie_mob": "10 - *",
 		"opera": "<32",
 		"op_mini": "*",
 		"op_mob": "*",
-		"safari": "*",
-		"ios_saf": "*",
+		"safari": "<9",
+		"ios_saf": "<9",
 		"firefox_mob": "3.6 - 21"
 	},
 	"dependencies": [
