@@ -4,7 +4,10 @@
 		"default-3.4",
 		"default-3.5",
 		"default-3.6",
-		"default"
+		"default",
+		"EventTarget.prototype.addEventListener",
+		"EventTarget.prototype.removeEventListener",
+		"EventTarget.prototype.dispatchEvent"
 	],
 	"browsers": {
 		"firefox": "6 - 10",
