@@ -19,7 +19,7 @@
         "samsung_mob": "*"
     },
     "dependencies": [
-        "Array.prototype.indexOf",
+        "Array.prototype.reduce",
         "requestAnimationFrame",
         "performance.now",
         "Event"

@@ -115,29 +115,20 @@
         isIdleScheduled = false;
         isCallbackRunning = true;
 
-        // Find timed-out callbacks from the scheduled callbacks array.
-        var timedOutCallbacks = [];
-        for (var index = 0; index < scheduledCallbacks.length; index++) {
-            var callbackObject = scheduledCallbacks[index];
+        // Move timed-out callbacks from the scheduled array.
+        var timedOutCallbacks = scheduledCallbacks.reduce(function (timedOutCallbacks, callbackObject, index) {
             var deadline = getDeadline(callbackObject);
             if (deadline.didTimeout) {
-                timedOutCallbacks.push(callbackObject);
+                scheduledCallbacks.splice(index, 1); // Remove from scheduled array.
+                timedOutCallbacks.push(callbackObject); // Add to timed-out array.
             }
-        }
+            return timedOutCallbacks;
+        }, []);
 
         // Of the timed-out callbacks, order by those with the lowest timeout.
         timedOutCallbacks.sort(function (a, b) {
             return a.options.timeout - b.options.timeout;
         });
-
-        // Remove timed-out callbacks from the scheduled callbacks array.
-        for (var index = 0; index < timedOutCallbacks.length; index++) {
-            var callbackObject = timedOutCallbacks[index];
-            var scheduledCallbackIndex = scheduledCallbacks.indexOf(callbackObject);
-            if (scheduledCallbackIndex > -1) {
-                scheduledCallbacks.splice(scheduledCallbackIndex, 1);
-            }
-        }
 
         // Run all timed-out callbacks, regardless of the deadline time
         // remaining.
