@@ -39,7 +39,9 @@
 
     var isIdleScheduled = false;
     var isCallbackRunning = false;
-    var isAnimationFrameScheduled = false;
+
+    var scheduledAnimationFrameId;
+    var scheduledAnimationFrameTimeout;
 
     var frameDeadline = 0;
 
@@ -70,15 +72,22 @@
         callback(deadline);
     };
 
+    function scheduleIdleWork() {
+        if (!isIdleScheduled) {
+            isIdleScheduled = true;
+            window.postMessage(messageKey, '*');
+        }
+    }
+
     function scheduleAnimationFrame() {
-        if (!isAnimationFrameScheduled) {
-            isAnimationFrameScheduled = true;
-            // Schedule a frame.
-            // TODO: If this rAF doesn't materialize because the browser throttles, we
-            // might want to still have setTimeout trigger rIC as a backup to ensure
-            // that we keep performing work.
-            requestAnimationFrame(function (rafTime) {
-                isAnimationFrameScheduled = false;
+        // Schedule animation frame to calculate the browsers framerate.
+        if (!scheduledAnimationFrameId) {
+            // Request the animation frame.
+            scheduledAnimationFrameId = requestAnimationFrame(function (rafTime) {
+                // Animation frame run successfully, remove timeout fallback.
+                scheduledAnimationFrameId = undefined;
+                clearTimeout(scheduledAnimationFrameTimeout);
+                // Calculate the frame rate.
                 var nextFrameTime = rafTime - frameDeadline + activeFrameTime;
                 if (nextFrameTime < activeFrameTime && previousFrameTime < activeFrameTime) {
                     if (nextFrameTime < 8) {
@@ -97,12 +106,24 @@
                 } else {
                     previousFrameTime = nextFrameTime;
                 }
+                // Update the deadline we have to run idle callbacks.
                 frameDeadline = rafTime + activeFrameTime;
-                if (!isIdleScheduled) {
-                    isIdleScheduled = true;
-                    window.postMessage(messageKey, '*');
-                }
+                // Schedule idle callback work.
+                scheduleIdleWork();
             });
+
+            // If the animation frame is not called, for example if the tab is in the
+            // background, schedule work should still be run. So set a timeout as a
+            // fallback.
+            scheduledAnimationFrameTimeout = setTimeout(function () {
+                // Cancel the animation frame which failed to run timely.
+                cancelAnimationFrame(scheduledAnimationFrameId);
+                scheduledAnimationFrameId = undefined;
+                // Update the deadline we have to run idle callbacks.
+                frameDeadline = performance.now() + 50;
+                // Run callbacks.
+                scheduleIdleWork();
+            }, 100);
         }
     }
 
@@ -158,7 +179,6 @@
 
         isCallbackRunning = false;
     }, false);
-
 
     /**
      * @param {function} callback
