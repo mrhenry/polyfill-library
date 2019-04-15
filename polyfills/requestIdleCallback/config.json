@@ -19,7 +19,6 @@
         "samsung_mob": "*"
     },
     "dependencies": [
-        "Date.now",
         "Array.prototype.indexOf",
         "requestAnimationFrame",
         "performance.now",
