@@ -51,14 +51,8 @@
     var previousFrameTime = 33;
     var activeFrameTime = 33;
 
-    function getNow() {
-        return performance && typeof performance.now === 'function' ?
-            performance.now() :
-            Date.now();
-    }
-
     function timeRemaining() {
-        return frameDeadline - getNow();
+        return frameDeadline - performance.now();
     };
 
     function getDeadline(callbackObject) {
@@ -66,7 +60,7 @@
         var added = callbackObject.added;
         return {
             timeRemaining: timeRemaining,
-            didTimeout: timeout ? added + timeout < getNow() : false
+            didTimeout: timeout ? added + timeout < performance.now() : false
         };
     };
 
@@ -185,7 +179,7 @@
         var callbackObject = {
             callback: callback,
             options: options || {},
-            added: getNow()
+            added: performance.now()
         };
 
         // If an idle callback is running already this is a nested idle callback
