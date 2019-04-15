@@ -3,13 +3,9 @@
 
 describe('requestIdleCallback', function () {
 
-    function getNow() {
-        return performance ? performance.now() : Date.now();
-    }
-
     function sleep(busyFor) {
-        var start = getNow();
-        while (getNow() - start < busyFor) {
+        var start = performance.now();
+        while (performance.now() - start < busyFor) {
         }
     }
 
