@@ -1,5 +1,16 @@
 (function (global) {
 
+    // The requestIdleCallback polyfill builds on ReactScheduler, which
+    // calculates the browser's framerate and seperates the idle call into a
+    // seperate tick:
+    // "It works by scheduling a requestAnimationFrame, storing the time for the
+    // start of the frame, then scheduling a postMessage which gets scheduled
+    // after paint. Within the postMessage handler do as much work as possible
+    // until time + frame rate. By separating the idle call into a separate
+    // event tick we ensure that layout, paint and other browser work is counted
+    // against the available time. The frame rate is dynamically adjusted."
+    // https://github.com/facebook/react/blob/43a137d9c13064b530d95ba51138ec1607de2c99/packages/react-scheduler/src/ReactScheduler.js
+
     // MIT License
     //
     // Copyright (c) 2013-present, Facebook, Inc.
@@ -22,14 +33,6 @@
     // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     // SOFTWARE.
 
-    // The requestIdleCallback polyfill builds on ReactScheduler:
-    // "It works by scheduling a requestAnimationFrame, storing the time for the
-    // start of the frame, then scheduling a postMessage which gets scheduled
-    // after paint. Within the postMessage handler do as much work as possible
-    // until time + frame rate. By separating the idle call into a separate
-    // event tick we ensure that layout, paint and other browser work is counted
-    // against the available time. The frame rate is dynamically adjusted."
-
     var idleCallbackIdentifier = 0;
     var scheduledCallbacks = [];
     var nestedCallbacks = [];
@@ -42,7 +45,7 @@
 
     var messageKey = 'polyfillIdleCallback' + Math.random().toString(36).slice(2);
 
-    // We start out assuming that we run at 30fps but then the heuristic
+    // We start out assuming that we run at 33fps but then the heuristic
     // tracking will adjust this value to a faster fps if we get more frequent
     // animation frames.
     var previousFrameTime = 33;
