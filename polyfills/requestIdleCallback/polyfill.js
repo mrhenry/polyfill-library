@@ -45,7 +45,8 @@
 
     var frameDeadline = 0;
 
-    var messageKey = 'polyfillIdleCallback' + Math.random().toString(36).slice(2);
+    var messageChannel = new MessageChannel();
+    var port = messageChannel.port2;
 
     // We start out assuming that we run at 33fps but then the heuristic
     // tracking will adjust this value to a faster fps if we get more frequent
@@ -75,7 +76,7 @@
     function scheduleIdleWork() {
         if (!isIdleScheduled) {
             isIdleScheduled = true;
-            window.postMessage(messageKey, '*');
+            port.postMessage('*');
         }
     }
 
@@ -128,11 +129,7 @@
     }
 
     // We use the postMessage trick to defer idle work until after the repaint.
-    window.addEventListener('message', function (event) {
-        // IE8 returns true when a strict comparison with `window` is made.
-        if (event.source != window || event.data !== messageKey) {
-            return;
-        }
+    messageChannel.port1.onmessage = function () {
 
         isIdleScheduled = false;
         isCallbackRunning = true;
@@ -179,7 +176,7 @@
         }
 
         isCallbackRunning = false;
-    }, false);
+    };
 
     /**
      * @param {function} callback
