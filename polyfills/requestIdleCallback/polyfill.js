@@ -129,7 +129,8 @@
 
     // We use the postMessage trick to defer idle work until after the repaint.
     window.addEventListener('message', function (event) {
-        if (event.source !== window || event.data !== messageKey) {
+        // IE8 returns true when a strict comparison with `window` is made.
+        if (event.source != window || event.data !== messageKey) {
             return;
         }
 
