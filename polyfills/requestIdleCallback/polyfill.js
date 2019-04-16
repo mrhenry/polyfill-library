@@ -85,30 +85,37 @@
         if (!scheduledAnimationFrameId) {
             // Request the animation frame.
             scheduledAnimationFrameId = requestAnimationFrame(function (rafTime) {
-                // Animation frame run successfully, remove timeout fallback.
+                var futureFrameTime = rafTime > performance.now();
+                // Remove timeout fallback, as the animation frame run successfully.
                 scheduledAnimationFrameId = undefined;
                 clearTimeout(scheduledAnimationFrameTimeout);
-                // Calculate the frame rate.
-                var nextFrameTime = rafTime - frameDeadline + activeFrameTime;
-                if (nextFrameTime < activeFrameTime && previousFrameTime < activeFrameTime) {
-                    if (nextFrameTime < 8) {
-                        // Defensive coding. We don't support higher frame rates than 120hz.
-                        // If we get lower than that, it is probably a bug.
-                        nextFrameTime = 8;
-                    }
-                    // If one frame goes long, then the next one can be short to catch up.
-                    // If two frames are short in a row, then that's an indication that we
-                    // actually have a higher frame rate than what we're currently optimizing.
-                    // We adjust our heuristic dynamically accordingly. For example, if we're
-                    // running on 120hz display or 90hz VR display.
-                    // Take the max of the two in case one of them was an anomaly due to
-                    // missed frame deadlines.
-                    activeFrameTime = Math.max(previousFrameTime, nextFrameTime);
+                // Calculate the frame deadline.
+                if (futureFrameTime) {
+                    // Safari 9 etc schedules animation frames after messages, not before.
+                    frameDeadline = rafTime;
                 } else {
-                    previousFrameTime = nextFrameTime;
+                    // Calculate the frame rate.
+                    var nextFrameTime = rafTime - frameDeadline + activeFrameTime;
+                    if (nextFrameTime < activeFrameTime && previousFrameTime < activeFrameTime) {
+                        if (nextFrameTime < 8) {
+                            // Defensive coding. We don't support higher frame rates than 120hz.
+                            // If we get lower than that, it is probably a bug.
+                            nextFrameTime = 8;
+                        }
+                        // If one frame goes long, then the next one can be short to catch up.
+                        // If two frames are short in a row, then that's an indication that we
+                        // actually have a higher frame rate than what we're currently optimizing.
+                        // We adjust our heuristic dynamically accordingly. For example, if we're
+                        // running on 120hz display or 90hz VR display.
+                        // Take the max of the two in case one of them was an anomaly due to
+                        // missed frame deadlines.
+                        activeFrameTime = Math.max(previousFrameTime, nextFrameTime);
+                    } else {
+                        previousFrameTime = nextFrameTime;
+                    }
+                    // Update the deadline we have to run idle callbacks.
+                    frameDeadline = rafTime + activeFrameTime;
                 }
-                // Update the deadline we have to run idle callbacks.
-                frameDeadline = rafTime + activeFrameTime;
                 // Schedule idle callback work.
                 scheduleIdleWork();
             });
