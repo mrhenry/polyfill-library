@@ -76,6 +76,25 @@ describe('requestIdleCallback', function () {
         requestIdleCallback(incrementA);
     });
 
+    it('schedules callbacks when requestAnimationFrame is suspended', function (done) {
+        // Remove `requestAnimationFrame` so it cannot be relied on
+        // to schedule idle callbacks. For example, if the browser is minimised
+        // `requestAnimationFrame` might not be called.
+        var requestAnimationFrameBackup = window.requestAnimationFrame;
+        window.requestAnimationFrame = function(){};
+
+        var testTimeout = setTimeout(function () {
+            window.requestAnimationFrame = requestAnimationFrameBackup;
+            done(new Error('Expected "requestIdleCallback" callback to have run.'));
+        }, 500);
+
+        requestIdleCallback(function () {
+            window.requestAnimationFrame = requestAnimationFrameBackup;
+            clearTimeout(testTimeout);
+            done();
+        });
+    });
+
     it('scheduled callbacks are called in order', function (done) {
         var a = 0;
         var end = 10;
