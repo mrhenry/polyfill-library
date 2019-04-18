@@ -1,0 +1,17 @@
+start = performance.now();
+console.log({before: performance.now() - start});
+window.requestAnimationFrame(function(time) {
+    console.log({raf1: {
+        now: time - start,
+        frame: performance.now() - start,
+        diff: (performance.now() - start) - (time - start)
+    }});
+    window.requestAnimationFrame(function(time) {
+        console.log({raf2: {
+            now: time - start,
+            frame: performance.now() - start,
+            diff: (performance.now() - start) - (time - start)
+        }});
+    });
+});
+console.log({after: performance.now() - start});
