@@ -43,16 +43,39 @@
     var scheduledAnimationFrameId;
     var scheduledAnimationFrameTimeout;
 
-    var frameDeadline = 0;
-
-    var messageChannel = new MessageChannel();
-    var port = messageChannel.port2;
-
     // We start out assuming that we run at 30fps (1 frame per 33.3ms) but then
     // the heuristic tracking will adjust this value to a faster fps if we get
     // more frequent animation frames.
     var previousFrameTime = 33;
     var activeFrameTime = 33;
+
+    var frameDeadline = 0;
+
+    var port; // The object to `postMessage` on.
+    var messageKey;
+    var messageChannelSupport = typeof MessageChannel === 'object';
+
+    // We use the postMessage trick to defer idle work until after the repaint.
+    if (messageChannelSupport) {
+        // Use MessageChannel if supported.
+        var messageChannel = new MessageChannel();
+        port = messageChannel.port2;
+        messageChannel.port1.onmessage = processIdleCallbacks;
+    } else {
+        // TODO add `MessageChannel` polyfill to polyfill.io.
+        // Otherwise fallback to document messaging. It is less efficient as
+        // all message event listeners within a project will be called each
+        // frame whilst idle callbacks remain.
+        messageKey = 'polyfillIdleCallback' + Math.random().toString(36).slice(2);
+        port = window;
+        window.addEventListener('message', function (event) {
+            // IE8 returns true when a strict comparison with `window` is made.
+            if (event.source != window || event.data !== messageKey) {
+                return;
+            }
+            processIdleCallbacks();
+        });
+    }
 
     function timeRemaining() {
         return frameDeadline - performance.now();
@@ -76,7 +99,7 @@
     function scheduleIdleWork() {
         if (!isIdleScheduled) {
             isIdleScheduled = true;
-            port.postMessage('*');
+            port.postMessage(messageKey, '*');
         }
     }
 
@@ -133,9 +156,7 @@
         }
     }
 
-    // We use the postMessage trick to defer idle work until after the repaint.
-    messageChannel.port1.onmessage = function () {
-
+    function processIdleCallbacks () {
         isIdleScheduled = false;
         isCallbackRunning = true;
 
