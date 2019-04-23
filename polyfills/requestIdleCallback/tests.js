@@ -296,22 +296,33 @@ describe('requestIdleCallback', function () {
 });
 
 describe.skip('cancelIdleCallback', function () {
-    it('is defined"', function () {
+    it.skip('is defined"', function () {
         proclaim.isTypeOf(window.cancelIdleCallback, 'function');
     });
 
-    it('should return undefined', function () {
+    it.skip('should return undefined', function () {
         proclaim.equal(cancelIdleCallback(), undefined);
     });
 
-
-    it('cancels an idle callback', function (done) {
+    it.skip('cancels an idle callback', function (done) {
         var callback = requestIdleCallback(function () {
             done(new Error('The canceled idle callback should not be called.'));
         });
         cancelIdleCallback(callback);
-        setTimeout(function() {
+        setTimeout(function () {
             done();
         }, 200);
+    });
+
+    it.skip('does nothing if there is no idle callback to cancel', function () {
+        // Try to cancel with a random number that doesn't match a idle callback id.
+        cancelIdleCallback(Math.round(Math.random() * 100000));
+    });
+
+    it.skip('does nothing if the idle callback to cancel is executing', function (done) {
+        var handle = requestIdleCallback(function () {
+            cancelIdleCallback(handle);
+            done(); //Should reach this point. The test will timeout if not.
+        });
     });
 });
