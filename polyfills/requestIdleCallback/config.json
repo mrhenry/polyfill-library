@@ -22,7 +22,8 @@
         "Object.defineProperty",
         "Array.prototype.reduce",
         "requestAnimationFrame",
-        "performance.now"
+        "performance.now",
+        "Event"
     ],
     "license": "MIT",
     "docs": "https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback"

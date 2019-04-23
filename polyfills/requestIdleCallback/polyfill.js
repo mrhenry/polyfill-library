@@ -86,9 +86,7 @@
         var added = callbackObject.added;
         var deadline = new global.IdleDeadline();
         Object.defineProperty(deadline, 'didTimeout', {
-            get: function() {
-                return timeout ? added + timeout < performance.now() : false;
-            }
+            value: timeout ? added + timeout < performance.now() : false
         });
         Object.defineProperty(deadline, 'timeRemaining', {
             value: timeRemaining
@@ -251,9 +249,7 @@
     });
 
     Object.defineProperty(global.IdleDeadline.prototype, 'didTimeout', {
-        get: function() {
-            throw new TypeError('Illegal invocation');
-        }
+        value: undefined
     });
 
 }(this));
