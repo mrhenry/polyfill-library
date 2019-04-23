@@ -1,6 +1,32 @@
 /* eslint-env mocha, browser */
 /* global proclaim */
 
+describe('IdleDeadline', function () {
+
+    it('is defined as a function', function () {
+        proclaim.isTypeOf(IdleDeadline, 'function');
+    });
+
+    // TODO: how to polyfill illegal constructor?
+    it.skip('throws a type type error when used as a constructor', function () {
+        proclaim.throws(function () {
+            new IdleDeadline();
+        }, TypeError);
+    });
+
+    it('has a didTimeout prototype getter which throws a type error', function () {
+        proclaim.throws(function() {
+            return IdleDeadline.prototype.didTimeout;
+        }, TypeError);
+    });
+
+    it('has a timeRemaining prototype function which throws a type error', function () {
+        proclaim.isTypeOf(IdleDeadline.prototype.timeRemaining, 'function');
+        proclaim.throws(IdleDeadline.prototype.timeRemaining, TypeError);
+    });
+
+});
+
 describe('requestIdleCallback', function () {
 
     function sleep(busyFor) {
@@ -30,10 +56,13 @@ describe('requestIdleCallback', function () {
 
     it('schedules a callback with one IdleDeadline argument passed to the callback', function (done) {
         requestIdleCallback(function (deadline) {
-            proclaim.equal(arguments.length, 1);
+            proclaim.equal(
+                arguments.length,
+                1,
+                'Expected the callback to receive one argument.'
+            );
 
-            // TODO: Add "IdleDeadline" instance.
-            // proclaim.isTrue(deadline instanceof IdleDeadline, 1);
+            proclaim.isTrue(deadline instanceof IdleDeadline);
 
             proclaim.isTypeOf(
                 deadline.timeRemaining,

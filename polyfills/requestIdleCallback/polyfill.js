@@ -84,10 +84,16 @@
     function getDeadline(callbackObject) {
         var timeout = callbackObject.options.timeout;
         var added = callbackObject.added;
-        return {
-            timeRemaining: timeRemaining,
-            didTimeout: timeout ? added + timeout < performance.now() : false
-        };
+        var deadline = new global.IdleDeadline();
+        Object.defineProperty(deadline, 'didTimeout', {
+            get: function() {
+                return timeout ? added + timeout < performance.now() : false;
+            }
+        });
+        Object.defineProperty(deadline, 'timeRemaining', {
+            value: timeRemaining
+        });
+        return deadline;
     };
 
     function runCallback(callbackObject) {
@@ -232,5 +238,22 @@
         // Return the callbacks identifier.
         return ++idleCallbackIdentifier;
     };
+
+    global.IdleDeadline = function IdleDeadline() {
+        // TODO: how to polyfill illegal constructor?
+        // throw new TypeError('Illegal constructor');
+    };
+
+    Object.defineProperty(global.IdleDeadline.prototype, 'timeRemaining', {
+        value: function() {
+            throw new TypeError('Illegal invocation');
+        }
+    });
+
+    Object.defineProperty(global.IdleDeadline.prototype, 'didTimeout', {
+        get: function() {
+            throw new TypeError('Illegal invocation');
+        }
+    });
 
 }(this));
