@@ -4,6 +4,7 @@
 describe('requestIdleCallback', function () {
 
     function sleep(busyFor) {
+        busyFor = busyFor + Math.random(); // Prevent Safari while loop optimisation.
         var start = performance.now();
         while (performance.now() - start < busyFor) {
         }
