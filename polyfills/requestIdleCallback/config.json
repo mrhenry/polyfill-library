@@ -22,6 +22,7 @@
         "Object.create",
         "Object.defineProperty",
         "Array.prototype.reduce",
+        "Array.prototype.filter",
         "requestAnimationFrame",
         "performance.now",
         "Event"

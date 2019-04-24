@@ -220,12 +220,15 @@
 
     /**
      * @param {function} callback
-     * @return {number}
+     * @return {number} - The idle callback identifier.
      */
     global.requestIdleCallback = function requestIdleCallback(callback, options) {
+        var id = ++idleCallbackIdentifier;
+
         // Create an object to store the callback, its options, and the time it
         // was added.
         var callbackObject = {
+            id: id,
             callback: callback,
             options: options || {},
             added: performance.now()
@@ -244,14 +247,29 @@
         scheduleAnimationFrame();
 
         // Return the callbacks identifier.
-        return ++idleCallbackIdentifier;
+        return id;
     };
 
-    // Polyfill IdleDeadline.
-    // @example
-    //     requestIdleCallback(function (deadline) {
-    //         console.log(deadline instanceof IdleDeadline); // true
-    //     });
+    /**
+     * @param {number} - The idle callback identifier to cancel.
+     * @return {undefined}
+     */
+    global.cancelIdleCallback = function cancelIdleCallback(id) {
+        var callbackFilter = function (callbackObject) {
+            return callbackObject.id !== id;
+        };
+        // Find and remove the callback from the scheduled idle callbacks,
+        // and nested callbacks (cancelIdleCallback may be called in an idle period).
+        scheduledCallbacks = scheduledCallbacks.filter(callbackFilter);
+        nestedCallbacks = nestedCallbacks.filter(callbackFilter);
+    };
+
+    /** IdleDeadline Polyfill
+     *  @example
+     *      requestIdleCallback(function (deadline) {
+     *          console.log(deadline instanceof IdleDeadline); // true
+     *      });
+     */
     global.IdleDeadline = function IdleDeadline() {
         throw new TypeError('Illegal constructor');
     };
