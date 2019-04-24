@@ -15,9 +15,15 @@ describe('IdleDeadline', function () {
     });
 
     // the prototype didTimeout method should be a getter which throws a type
-    // error, but as IE8 does not support getters we'll just return undefined.
-    it('has a didTimeout prototype property which returns undefined', function () {
-        proclaim.equal(IdleDeadline.prototype.didTimeout, undefined);
+    // error, except where getters aren't supported return undefined.
+    it('has a didTimeout prototype property which throws a type error when getters are supported or undefined otherwise', function () {
+        if (Object.prototype.hasOwnProperty('__defineGetter__')) {
+            proclaim.throws(function () {
+                return IdleDeadline.prototype.didTimeout;
+            }, TypeError);
+        } else {
+            proclaim.equal(IdleDeadline.prototype.didTimeout, undefined);
+        }
     });
 
     it('has a timeRemaining prototype function which throws a type error', function () {

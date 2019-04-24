@@ -248,8 +248,16 @@
         }
     });
 
-    Object.defineProperty(global.IdleDeadline.prototype, 'didTimeout', {
-        value: undefined
-    });
+    if (Object.prototype.hasOwnProperty('__defineGetter__')) {
+        Object.defineProperty(global.IdleDeadline.prototype, 'didTimeout', {
+            get: function () {
+                throw new TypeError('Illegal invocation');
+            }
+        });
+    } else {
+        Object.defineProperty(global.IdleDeadline.prototype, 'didTimeout', {
+            value: undefined
+        });
+    }
 
 }(this));
