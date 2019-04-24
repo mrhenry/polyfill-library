@@ -84,7 +84,12 @@
     function getDeadline(callbackObject) {
         var timeout = callbackObject.options.timeout;
         var added = callbackObject.added;
-        var deadline = new global.IdleDeadline();
+        // Create deadline from global.IdleDeadline constructor throws a type
+        // error. So create a new object which inherits its prototype.
+        var deadlinePrototype = Object.create(global.IdleDeadline.prototype);
+        function IdleDeadline() {};
+        IdleDeadline.prototype = deadlinePrototype;
+        var deadline = new IdleDeadline();
         Object.defineProperty(deadline, 'didTimeout', {
             value: timeout ? added + timeout < performance.now() : false
         });
@@ -238,8 +243,7 @@
     };
 
     global.IdleDeadline = function IdleDeadline() {
-        // TODO: how to polyfill illegal constructor?
-        // throw new TypeError('Illegal constructor');
+        throw new TypeError('Illegal constructor');
     };
 
     Object.defineProperty(global.IdleDeadline.prototype, 'timeRemaining', {

@@ -7,8 +7,7 @@ describe('IdleDeadline', function () {
         proclaim.isTypeOf(IdleDeadline, 'function');
     });
 
-    // TODO: how to polyfill illegal constructor?
-    it.skip('throws a type type error when used as a constructor', function () {
+    it('throws a type type error when used as a constructor', function () {
         proclaim.throws(function () {
             new IdleDeadline();
         }, TypeError);

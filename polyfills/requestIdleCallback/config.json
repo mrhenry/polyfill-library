@@ -19,6 +19,7 @@
         "samsung_mob": "*"
     },
     "dependencies": [
+        "Object.create",
         "Object.defineProperty",
         "Array.prototype.reduce",
         "requestAnimationFrame",
