@@ -108,7 +108,12 @@
     function scheduleIdleWork() {
         if (!isIdleScheduled) {
             isIdleScheduled = true;
-            port.postMessage(messageKey, '*');
+            try {
+                // Safari 9 throws "TypeError: Value is not a sequence"
+                port.postMessage(messageKey, '*');
+            } catch (error) {
+                port.postMessage(messageKey);
+            }
         }
     }
 
@@ -242,6 +247,11 @@
         return ++idleCallbackIdentifier;
     };
 
+    // Polyfill IdleDeadline.
+    // @example
+    //     requestIdleCallback(function (deadline) {
+    //         console.log(deadline instanceof IdleDeadline); // true
+    //     });
     global.IdleDeadline = function IdleDeadline() {
         throw new TypeError('Illegal constructor');
     };
