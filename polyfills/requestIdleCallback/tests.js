@@ -121,7 +121,7 @@ describe('requestIdleCallback', function () {
         var testTimeout = setTimeout(function () {
             window.requestAnimationFrame = requestAnimationFrameBackup;
             done(new Error('Expected "requestIdleCallback" callback to have run.'));
-        }, 1000);
+        }, 500);
 
         requestIdleCallback(function () {
             window.requestAnimationFrame = requestAnimationFrameBackup;
