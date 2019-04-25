@@ -258,6 +258,10 @@
      * @return {undefined}
      */
     global.cancelIdleCallback = function cancelIdleCallback(id) {
+        if(arguments.length === 0) {
+            throw new TypeError('cancelIdleCallback requires at least 1 argument');
+        }
+
         var callbackFilter = function (callbackObject) {
             return callbackObject.id !== id;
         };

@@ -305,8 +305,8 @@ describe('cancelIdleCallback', function () {
         proclaim.isTypeOf(window.cancelIdleCallback, 'function');
     });
 
-    it('should return undefined', function () {
-        proclaim.equal(cancelIdleCallback(), undefined);
+    it('should throw a type error if given no arguments', function () {
+        proclaim.throws(cancelIdleCallback, TypeError);
     });
 
     it('cancels an idle callback', function (done) {
@@ -341,5 +341,9 @@ describe('cancelIdleCallback', function () {
             cancelIdleCallback(handle);
             done(); //Should reach this point. The test will timeout if not.
         });
+    });
+
+    it('should return undefined', function () {
+        proclaim.equal(cancelIdleCallback(0), undefined);
     });
 });
