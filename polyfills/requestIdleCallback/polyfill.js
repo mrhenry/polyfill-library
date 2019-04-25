@@ -78,7 +78,9 @@
     }
 
     function timeRemaining() {
-        return frameDeadline - performance.now();
+        // Defensive coding. Time remaining should never be more than 50ms.
+        // This is sometimes the case in Safari 9.
+        return Math.min(frameDeadline - performance.now(), 50);
     };
 
     function getDeadline(callbackObject) {
@@ -128,10 +130,11 @@
                 // Safari 9 gives a `rafTime` far into the future.
                 // It appears to be (now + (frame rate) * 2).
                 var futureRafTime = rafTime - activeFrameTime > performance.now();
+                if (futureRafTime) {
+                    rafTime = rafTime - (activeFrameTime * 2);
+                }
                 // Calculate the frame rate.
-                var nextFrameTime = futureRafTime ?
-                    rafTime - frameDeadline - activeFrameTime :
-                    rafTime - frameDeadline + activeFrameTime;
+                var nextFrameTime = rafTime - frameDeadline + activeFrameTime;
                 if (nextFrameTime < activeFrameTime && previousFrameTime < activeFrameTime) {
                     if (nextFrameTime < 8) {
                         // Defensive coding. We don't support higher frame rates than 120hz.
@@ -150,7 +153,7 @@
                     previousFrameTime = nextFrameTime;
                 }
                 // Update the deadline we have to run idle callbacks.
-                frameDeadline = futureRafTime ? rafTime - activeFrameTime : rafTime + activeFrameTime;
+                frameDeadline = rafTime + activeFrameTime;
                 // Schedule idle callback work.
                 scheduleIdleWork();
             });
