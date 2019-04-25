@@ -169,7 +169,7 @@
                 frameDeadline = performance.now() + 50;
                 // Run callbacks.
                 scheduleIdleWork();
-            }, 100);
+            }, document.hidden ? 100 : 500);
         }
     }
 
