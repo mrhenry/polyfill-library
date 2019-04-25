@@ -34,6 +34,9 @@ describe('IdleDeadline', function () {
 
 describe('requestIdleCallback', function () {
 
+    // Make sure the test window is in focus for requestAnimationFrame to fire.
+    window.focus();
+
     function sleep(busyFor) {
         busyFor = busyFor + Math.random(); // Prevent Safari while loop optimisation.
         var start = performance.now();

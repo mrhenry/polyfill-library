@@ -94,7 +94,7 @@ module.exports = async function (config) {
 		],
 
 		beforeMiddleware: ['polyfill-library'],
-		
+
 		// We need to add mocha after polyfill-library to ensure that the scripts loaded in the browser are in the correct order.
 		// TODO: This is really a bug in the Symbol polyfill that we should fix, which is that it adds enumerable properties onto Object.prototype which gets exposed in `for (var o in {})`.
 		frameworks: [
@@ -156,9 +156,9 @@ module.exports = async function (config) {
 				browserSummary: true
 			},
 			concurrency: 5,
-	
+
 			customLaunchers: browsers,
-	
+
 			browsers: Object.keys(browsers)
 		}));
 	}
