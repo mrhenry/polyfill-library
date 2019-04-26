@@ -293,6 +293,11 @@ describe('requestIdleCallback', function () {
             done();
         });
 
+        // Samsung Galaxy Tab 4, 4.4: android-4_4 did not appear to consistently
+        // call the above idle callback without spinning an animation frame.
+        window.requestAnimationFrame(function () {
+        });
+
         // Keep the even loop busy but not longer than the timeout.
         sleep(busyFor);
     });
@@ -338,6 +343,10 @@ describe('cancelIdleCallback', function () {
         var handle = requestIdleCallback(function () {
             cancelIdleCallback(handle);
             done(); //Should reach this point. The test will timeout if not.
+        });
+        // Samsung Galaxy Tab 4, 4.4: android-4_4 did not appear to consistently
+        // call the above idle callback without spinning an animation frame.
+        window.requestAnimationFrame(function() {
         });
     });
 
