@@ -185,7 +185,7 @@
                 return deadline.didTimeout;
             }
             return false;
-        }, []);
+        });
 
         scheduledCallbacks = scheduledCallbacks.filter(function (callbackObject) {
             return !timedOutCallbacks.includes(callbackObject);
