@@ -21,8 +21,8 @@
     "dependencies": [
         "Object.create",
         "Object.defineProperty",
-        "Array.prototype.reduce",
         "Array.prototype.filter",
+        "Array.prototype.includes",
         "requestAnimationFrame",
         "performance.now",
         "Event"

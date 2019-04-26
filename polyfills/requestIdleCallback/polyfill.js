@@ -35,6 +35,7 @@
 
     var idleCallbackIdentifier = 0;
     var scheduledCallbacks = [];
+    var timedOutCallbacks = [];
     var nestedCallbacks = [];
 
     var isIdleScheduled = false;
@@ -178,14 +179,17 @@
         isCallbackRunning = true;
 
         // Move timed-out callbacks from the scheduled array.
-        var timedOutCallbacks = scheduledCallbacks.reduce(function (timedOutCallbacks, callbackObject, index) {
-            var deadline = getDeadline(callbackObject);
-            if (deadline.didTimeout) {
-                scheduledCallbacks.splice(index, 1); // Remove from scheduled array.
-                timedOutCallbacks.push(callbackObject); // Add to timed-out array.
+        timedOutCallbacks = scheduledCallbacks.filter(function (callbackObject) {
+            if (callbackObject.options.timeout !== undefined) {
+                var deadline = getDeadline(callbackObject);
+                return deadline.didTimeout;
             }
-            return timedOutCallbacks;
+            return false;
         }, []);
+
+        scheduledCallbacks = scheduledCallbacks.filter(function (callbackObject) {
+            return !timedOutCallbacks.includes(callbackObject);
+        });
 
         // Of the timed-out callbacks, order by those with the lowest timeout.
         timedOutCallbacks.sort(function (a, b) {

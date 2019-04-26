@@ -34,9 +34,6 @@ describe('IdleDeadline', function () {
 
 describe('requestIdleCallback', function () {
 
-    // Make sure the test window is in focus for requestAnimationFrame to fire.
-    window.focus();
-
     function sleep(busyFor) {
         busyFor = busyFor + Math.random(); // Prevent Safari while loop optimisation.
         var start = performance.now();
@@ -205,71 +202,69 @@ describe('requestIdleCallback', function () {
     });
 
     it('schedules nested callbacks to run in different idle periods', function (done) {
+        var rafTime = 10;
         requestIdleCallback(function () {
-            var firstRafTime;
-            requestAnimationFrame(function (rafTime) {
-                firstRafTime = rafTime;
+            var first = performance.now();
+            window.requestAnimationFrame(function () {
+                sleep(rafTime);
             });
             requestIdleCallback(function () {
-                requestAnimationFrame(function (rafTime) {
-                    proclaim.isTypeOf(firstRafTime, 'number');
-                    proclaim.greaterThan(rafTime, firstRafTime);
-                    done();
-                });
+                var second = performance.now();
+                // Assert the nested idle callback is not immediately
+                // after the first.
+                proclaim.greaterThan(second - first, rafTime);
+                done();
             });
         });
     });
 
-    it('schedules a callback for the next idle period when the event loop is busy', function (done) {
-        var idleCallbackRun = false;
+    it('schedules a callback for the next idle period when the current idle deadline has passed', function (done) {
+        var rafTime = 10;
+        var busy = 55;
+        var first;
 
-        // First idle callback, takes >= 40ms.
+        // First idle callback.
         requestIdleCallback(function () {
-            // This callback will take more than one frame, so assert the
-            // second idle callback is not run within the same idle period.
-            requestAnimationFrame(function () {
-                if (idleCallbackRun) {
-                    done(new Error('The second idle callback was run in a long running frame.'));
-                } else {
-                    done();
-                }
+            window.requestAnimationFrame(function() {
+                sleep(rafTime);
             });
-            // Keep the even loop busy, missing an animation frame or two.
-            sleep(40);
+            sleep(busy); // Keep the callback busy past this idle period's deadline.
+            first = performance.now();
         });
 
-        // Second callback.
+        // Second idle callback.
         requestIdleCallback(function () {
-            idleCallbackRun = true;
+            var second = performance.now();
+            // Expected the first idle callback to have finished.
+            proclaim.isTypeOf(first, 'number');
+            // Assert the second idle callback is not run immediately
+            // after the first as it overrun the frame deadline.
+            proclaim.greaterThan(second - first, rafTime);
+            done();
         });
     });
 
     it('schedules a callback for the same idle period when the event loop is busy but the callbacks\'s timeout has expired', function (done) {
-        var idleCallbackRun = false;
-        var timeout = 50;
+        var busy = 55;
+        var first;
 
         // First idle callback.
         requestIdleCallback(function () {
-            // The second callback's timeout is expired by now, so assert it is
-            // run within the same idle period (regardless of performance due to
-            // overrunning the frame deadline).
-            requestAnimationFrame(function () {
-                if (idleCallbackRun) {
-                    done();
-                } else {
-                    done(new Error('The second idle callback was not run, even though its timeout had expired.'));
-                }
-            });
-        });
+            first = performance.now();
+        }, { timeout: 10 });
 
-        // Second callback.
+        // Second idle callback.
         requestIdleCallback(function () {
-            idleCallbackRun = true;
-        }, { timeout: timeout });
+            var second = performance.now();
+            // Expected the first idle callback to have finished.
+            proclaim.isTypeOf(first, 'number');
+            // Assert the second idle callback is not run immediately
+            // after the first as it overrun the frame deadline.
+            proclaim.lessThan(second - first, 5);
+            done();
+        }, { timeout: 30 });
 
-        // Keep the even loop busy, missing an animation frame or two.
-        // The second idle callback's timeout will expire.
-        sleep(100);
+        sleep(busy);
     });
 
     it('sets the callback\'s deadline "didTimeout" property to true when the callback\'s timeout is exceeded', function (done) {
@@ -286,7 +281,7 @@ describe('requestIdleCallback', function () {
     });
 
     it('sets the callback\'s deadline "didTimeout" property to false when the callback\'s timeout is not exceeded or set', function (done) {
-        var timeout = 300;
+        var timeout = 1000;
         var busyFor = 50;
 
         requestIdleCallback(function (deadline) {
