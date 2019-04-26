@@ -245,12 +245,16 @@ describe('requestIdleCallback', function () {
     });
 
     it('schedules a callback for the same idle period when the event loop is busy but the callbacks\'s timeout has expired', function (done) {
+        var raf = 20;
         var busy = 55;
         var first;
 
         // First idle callback.
         requestIdleCallback(function () {
             first = performance.now();
+            window.requestAnimationFrame(function () {
+                sleep(raf);
+            });
         }, { timeout: 10 });
 
         // Second idle callback.
@@ -260,7 +264,7 @@ describe('requestIdleCallback', function () {
             proclaim.isTypeOf(first, 'number');
             // Assert the second idle callback is not run immediately
             // after the first as it overrun the frame deadline.
-            proclaim.lessThan(second - first, 5);
+            proclaim.lessThan(second - first, raf);
             done();
         }, { timeout: 30 });
 
