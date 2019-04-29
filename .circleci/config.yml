@@ -771,17 +771,17 @@ jobs:
           no_output_timeout: 60m
           command: node ./test/polyfills/test-individual-feature.js
             Promise.prototype.finally
-      - run:
-          name: Testing RegExp.prototype.flags
-          no_output_timeout: 60m
-          command: node ./test/polyfills/test-individual-feature.js
-            RegExp.prototype.flags
   test_11:
     docker:
       - image: circleci/node:10
     steps:
       - checkout
       - run: npm ci
+      - run:
+          name: Testing RegExp.prototype.flags
+          no_output_timeout: 60m
+          command: node ./test/polyfills/test-individual-feature.js
+            RegExp.prototype.flags
       - run:
           name: Testing String.prototype.@@iterator
           no_output_timeout: 60m
