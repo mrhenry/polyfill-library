@@ -732,6 +732,11 @@ jobs:
           command: node ./test/polyfills/test-individual-feature.js
             Element.prototype.replaceWith
       - run:
+          name: Testing Element.prototype.toggleAttribute
+          no_output_timeout: 60m
+          command: node ./test/polyfills/test-individual-feature.js
+            Element.prototype.toggleAttribute
+      - run:
           name: Testing Function.prototype.bind
           no_output_timeout: 60m
           command: node ./test/polyfills/test-individual-feature.js

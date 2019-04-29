@@ -7,6 +7,7 @@
 	],
 	"browsers": {
 		"ie": "*",
+		"edge": "<12",
 		"safari": "<9",
 		"firefox": "<36",
 		"chrome": "<45",
