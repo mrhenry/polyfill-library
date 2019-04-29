@@ -19,7 +19,6 @@
         "samsung_mob": "*"
     },
     "dependencies": [
-        "Object.create",
         "Object.defineProperty",
         "Array.prototype.filter",
         "Array.prototype.includes",
