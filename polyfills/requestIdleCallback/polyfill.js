@@ -40,6 +40,7 @@
 
     var isIdleScheduled = false;
     var isCallbackRunning = false;
+    var allowIdleDeadlineConstructor = false;
 
     var scheduledAnimationFrameId;
     var scheduledAnimationFrameTimeout;
@@ -87,12 +88,12 @@
     function getDeadline(callbackObject) {
         var timeout = callbackObject.options.timeout;
         var added = callbackObject.added;
-        // Create deadline from global.IdleDeadline constructor throws a type
-        // error. So create a new object which inherits its prototype.
-        var deadlinePrototype = Object.create(global.IdleDeadline.prototype);
-        function IdleDeadline() {};
-        IdleDeadline.prototype = deadlinePrototype;
-        var deadline = new IdleDeadline();
+        // Create deadline from global.IdleDeadline.
+        // Turn off constructor error to do so.
+        allowIdleDeadlineConstructor = true;
+        var deadline = new global.IdleDeadline();
+        allowIdleDeadlineConstructor = false;
+        // Set deadline properties.
         Object.defineProperty(deadline, 'didTimeout', {
             value: timeout ? added + timeout < performance.now() : false
         });
@@ -282,7 +283,9 @@
      *      });
      */
     global.IdleDeadline = function IdleDeadline() {
-        throw new TypeError('Illegal constructor');
+        if (!allowIdleDeadlineConstructor) {
+            throw new TypeError('Illegal constructor');
+        }
     };
 
     Object.defineProperty(global.IdleDeadline.prototype, 'timeRemaining', {
