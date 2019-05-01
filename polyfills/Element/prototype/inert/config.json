@@ -1,0 +1,30 @@
+{
+	"browsers": {
+		"edge": "*",
+		"edge_mob": "*",
+		"ie": "*",
+		"ie_mob": "*",
+		"firefox": "*",
+		"opera": "*",
+		"safari": "*",
+		"chrome": "*",
+		"ios_saf": "*",
+		"firefox_mob": "*",
+		"android": "*"
+	},
+	"dependencies": [
+		"Element",
+		"Element.prototype.matches",
+		"Node.prototype.contains",
+		"Map",
+		"Set"
+	],
+	"license": "W3C CLA",
+	"spec": "https://html.spec.whatwg.org/multipage/interaction.html#inert",
+	"repo": "https://github.com/WICG/inert",
+	"docs": "https://github.com/WICG/inert/blob/master/explainer.md",
+	"install": {
+		"module": "wicg-inert",
+		"paths": ["dist/inert.min.js"]
+	}
+}
