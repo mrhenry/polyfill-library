@@ -17,7 +17,8 @@
 		"Array.prototype.forEach",
 		"Object.getOwnPropertyNames",
 		"Promise",
-		"XMLHttpRequest"
+		"XMLHttpRequest",
+		"Symbol.iterator"
 	],
 	"license": "MIT",
 	"spec": "https://fetch.spec.whatwg.org/",
