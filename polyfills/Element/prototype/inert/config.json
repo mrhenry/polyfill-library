@@ -19,7 +19,7 @@
 		"Map",
 		"Set"
 	],
-	"license": "W3C CLA",
+	"license": "W3C",
 	"spec": "https://html.spec.whatwg.org/multipage/interaction.html#inert",
 	"repo": "https://github.com/WICG/inert",
 	"docs": "https://github.com/WICG/inert/blob/master/explainer.md",
