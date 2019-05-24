@@ -7,7 +7,7 @@
 		"firefox": "*",
 		"opera": "*",
 		"safari": "*",
-		"chrome": "*",
+		"chrome": "<76",
 		"ios_saf": "*",
 		"firefox_mob": "*",
 		"android": "*"
