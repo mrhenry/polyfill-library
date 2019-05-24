@@ -16,7 +16,7 @@
 	"repo": "https://github.com/que-etc/resize-observer-polyfill",
 	"docs": "https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver",
 	"spec": "https://drafts.csswg.org/resize-observer-1",
-	"license": "W3C",
+	"license": "MIT",
 	"install": {
 		"module": "resize-observer-polyfill",
 		"paths": ["dist/ResizeObserver.js"]
