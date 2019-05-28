@@ -801,6 +801,11 @@ jobs:
           command: node ./test/polyfills/test-individual-feature.js
             Element.prototype.dataset
       - run:
+          name: Testing Element.prototype.inert
+          no_output_timeout: 180m
+          command: node ./test/polyfills/test-individual-feature.js
+            Element.prototype.inert
+      - run:
           name: Testing Element.prototype.matches
           no_output_timeout: 180m
           command: node ./test/polyfills/test-individual-feature.js
@@ -830,17 +835,17 @@ jobs:
           no_output_timeout: 180m
           command: node ./test/polyfills/test-individual-feature.js
             Function.prototype.bind
-      - run:
-          name: Testing Function.prototype.name
-          no_output_timeout: 180m
-          command: node ./test/polyfills/test-individual-feature.js
-            Function.prototype.name
   test_12:
     docker:
       - image: circleci/node:10
     steps:
       - checkout
       - run: npm ci
+      - run:
+          name: Testing Function.prototype.name
+          no_output_timeout: 180m
+          command: node ./test/polyfills/test-individual-feature.js
+            Function.prototype.name
       - run:
           name: Testing HTMLCanvasElement.prototype.toBlob
           no_output_timeout: 180m
@@ -906,17 +911,17 @@ jobs:
           no_output_timeout: 180m
           command: node ./test/polyfills/test-individual-feature.js
             String.prototype.padStart
-      - run:
-          name: Testing String.prototype.repeat
-          no_output_timeout: 180m
-          command: node ./test/polyfills/test-individual-feature.js
-            String.prototype.repeat
   test_13:
     docker:
       - image: circleci/node:10
     steps:
       - checkout
       - run: npm ci
+      - run:
+          name: Testing String.prototype.repeat
+          no_output_timeout: 180m
+          command: node ./test/polyfills/test-individual-feature.js
+            String.prototype.repeat
       - run:
           name: Testing String.prototype.startsWith
           no_output_timeout: 180m
