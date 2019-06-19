@@ -33,3 +33,4 @@ tasks/**/node_modules
 polyfills/**/detect.js
 polyfills/Event/focusin/detect-disabled.js
 polyfills/HTMLTemplateElement/polyfill.js
+polyfills/ResizeObserver/polyfill.js
