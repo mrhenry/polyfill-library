@@ -3,14 +3,14 @@
 		"es2017"
 	],
 	"browsers": {
-		"edge": "< 12",
-		"edge_mob": "< 12",
+		"edge": "< 14",
+		"edge_mob": "< 14",
 		"ie": "*",
 		"ie_mob": "*",
 		"chrome": "< 54",
 		"ios_chr": "< 54",
 		"safari": "< 10.1",
-		"ios_saf": "< 10.1",
+		"ios_saf": "< 10.3",
 		"firefox": "< 47",
 		"firefox_mob": "< 47",
 		"android": "< 54",
