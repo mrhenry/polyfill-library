@@ -28,6 +28,7 @@ it('works as expected', function () {
 		foo: true,
 		bar: false
 	}).length, 2);
+	debugger;
 	proclaim.deepEqual(Object.values(new String('qwe')), ['q', 'w', 'e']);
 	proclaim.deepEqual(Object.values({
 		q: 1,
