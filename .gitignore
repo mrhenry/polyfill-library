@@ -18,4 +18,5 @@ polyfills/WebAnimations/polyfill.js
 polyfills/_TypedArray/polyfill.js
 polyfills/atob/polyfill.js
 polyfills/fetch/polyfill.js
+polyfills/HTMLTemplateElement/polyfill.js
 .nyc_output/
