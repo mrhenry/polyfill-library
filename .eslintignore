@@ -32,3 +32,4 @@ polyfills/WebAnimations/polyfill.js
 tasks/**/node_modules
 polyfills/**/detect.js
 polyfills/Event/focusin/detect-disabled.js
+polyfills/HTMLTemplateElement/polyfill.js
