@@ -1,14 +1,14 @@
 {
   "browsers": {
-    "edge": "<12",
-    "edge_mob": "<12",
+    "edge": "<13",
+    "edge_mob": "<13",
     "ie": "11",
     "ie_mob": "11",
     "firefox": "4 - 22",
     "opera": "10 - 22",
-    "safari": "6 - 9",
-    "chrome": "* - 35",
-    "ios_saf": "* - 9",
+    "safari": "6 - 8",
+    "chrome": "* - 26",
+    "ios_saf": "* - 8",
     "firefox_mob": "<67",
     "bb": "7 - 10",
     "android": "<67"
