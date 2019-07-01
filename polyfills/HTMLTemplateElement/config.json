@@ -2,8 +2,8 @@
   "browsers": {
     "edge": "<12",
     "edge_mob": "<12",
-    "ie": "9 - *",
-    "ie_mob": "10 - *",
+    "ie": "11",
+    "ie_mob": "11",
     "firefox": "4 - 22",
     "opera": "10 - 22",
     "safari": "6 - 9",
