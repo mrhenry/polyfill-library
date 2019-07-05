@@ -17,6 +17,7 @@
 		"Element.prototype.matches",
 		"Node.prototype.contains",
 		"Map",
+		"MutationObserver",
 		"Set"
 	],
 	"license": "W3C",
