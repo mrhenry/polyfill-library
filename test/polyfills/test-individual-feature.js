@@ -1,6 +1,7 @@
 "use strict";
 
 // Ensure Array.prototype.flatMap exists
+// We support NodeJS 8 and above and Array.prototype.flatMap was added in NodeJS 11
 require('array.prototype.flatmap').shim();
 const intersection = require('lodash').intersection;
 const fs = require('fs');
