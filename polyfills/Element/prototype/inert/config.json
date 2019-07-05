@@ -26,6 +26,6 @@
 	"docs": "https://github.com/WICG/inert/blob/master/explainer.md",
 	"install": {
 		"module": "wicg-inert",
-		"paths": ["dist/inert.min.js"]
+		"paths": ["dist/inert.js"]
 	}
 }
