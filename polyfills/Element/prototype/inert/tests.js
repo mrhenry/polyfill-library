@@ -24,11 +24,15 @@ describe('inert', function () {
 		proclaim.equal(el.inert, false);
 	});
 
-	it('set', function () {
+	it('set', function (done) {
 		var el = document.getElementById('inert-tests-present');
-		el.inert = false;
-
-		proclaim.equal(el.inert, false);
-		proclaim.equal(el.getAttribute('inert'), '');
+		// Polyfill.io This needs to be async due to the MutationObserver polyfill being async.
+		// MutationObserver polyfill executes in a 30 ms timeout, which is why we run this in a timeout that is longer than 30 ms.
+		setTimeout(function() {
+			el.inert = false;
+			proclaim.equal(el.inert, false, "expected property access `inert` to be `false` but was " + Object.prototype.toString(el.inert));
+			proclaim.equal(el.getAttribute('inert'), null, "expected attribute access `inert` to be `null` but was " + el.getAttribute('inert'));
+			done();
+		}, 100);
 	});
 });
