@@ -67,7 +67,8 @@ async function featureRequiresTesting(feature) {
         ];
     });
 
-    const filesRequiredByFeatureHasNotChanged = intersection(filesRequiredByFeature, filesWhichChanged).length === 0;
+    const filesRequiredByFeatureWhichHaveChanged = intersection(filesRequiredByFeature, filesWhichChanged);
+    const filesRequiredByFeatureHasNotChanged = filesRequiredByFeatureWhichHaveChanged.length === 0;
     const libFolderHasNotChanged = !filesWhichChanged.some(file => file.startsWith('lib/'));
     const karmaPolyfillPluginHasNotChanged = !filesWhichChanged.includes('karma-polyfill-library-plugin.js');
     const packageJsonDependenciesFromMaster = JSON.parse(execa.shellSync('git show origin/master:package.json').stdout).dependencies;
@@ -76,12 +77,16 @@ async function featureRequiresTesting(feature) {
     const thirdPartyPolyfillsWhichHaveBeenAddedOrChanged = intersection(packageJsonDependenciesChanges, thirdPartyPolyfills);
 
     if (!filesRequiredByFeatureHasNotChanged) {
+        console.log(`Running tests for ${feature} because one or more of the files it depends on has changed.`);
+        console.log(`The files which changed were ${filesRequiredByFeatureWhichHaveChanged}`);
         return true;
     }
     if (!libFolderHasNotChanged) {
+        console.log(`Running tests for ${feature} because one or more of the files of the core polyfill-library has changed.`);
         return true;
     }
     if (!karmaPolyfillPluginHasNotChanged) {
+        console.log(`Running tests for ${feature} because the Karma plugin used for testing has changed.`);
         return true;
     }
 
@@ -94,11 +99,14 @@ async function featureRequiresTesting(feature) {
     const packageJsonHasOnlyHadThirdPartyPolyfillChangesAppliedToIt = packageJsonDependenciesChanges.every(dep => thirdPartyPolyfills.includes(dep));
 
     if (thirdPartyPolyfillHasBeenAddedOrChangedForFeature) {
+        console.log(`Running tests for ${feature} because one of the package.json.dependencies it is built from has changed.`);
         return true;
     }
     if (packageJsonHasOnlyHadThirdPartyPolyfillChangesAppliedToIt) {
         return false;
     }
+    
+    console.log(`Running tests for ${feature} because... Well, I'm not sure why.`);
     return true;
 }
 
