@@ -51,7 +51,7 @@ async function findAllThirdPartyPolyfills () {
 
 async function featureRequiresTesting(feature) {
     
-    const filesWhichChanged = execa.shellSync('git diff --name-only origin/master').stdout.split('\n');
+    const filesWhichChanged = execa.shellSync('git diff --name-only origin/master HEAD').stdout.split('\n');
 
     // if any of the dependencies in the tree from the feature is the same as latest commit, run the tests
     const dependencies = await generateDependencyTreeForFeature(feature);
@@ -66,18 +66,23 @@ async function featureRequiresTesting(feature) {
             folder + '/tests.js'
         ];
     });
-    
-    const fileRequiredByFeatureHasNotChanged = intersection(filesRequiredByFeature, filesWhichChanged).length === 0;
+
+    const filesRequiredByFeatureHasNotChanged = intersection(filesRequiredByFeature, filesWhichChanged).length === 0;
     const libFolderHasNotChanged = !filesWhichChanged.some(file => file.startsWith('lib/'));
     const karmaPolyfillPluginHasNotChanged = !filesWhichChanged.includes('karma-polyfill-library-plugin.js');
-    const packageJsonHasChanged = filesWhichChanged.includes('package.json');
     const packageJsonDependenciesFromMaster = JSON.parse(execa.shellSync('git show origin/master:package.json').stdout).dependencies;
     const packageJsonDependenciesFromHead = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf-8')).dependencies;
     const packageJsonDependenciesChanges = Object.keys(findDifferenceInObjects(packageJsonDependenciesFromHead, packageJsonDependenciesFromMaster));
     const thirdPartyPolyfillsWhichHaveBeenAddedOrChanged = intersection(packageJsonDependenciesChanges, thirdPartyPolyfills);
 
-    if (fileRequiredByFeatureHasNotChanged && libFolderHasNotChanged && karmaPolyfillPluginHasNotChanged && !packageJsonHasChanged) {
-        return false;
+    if (!filesRequiredByFeatureHasNotChanged) {
+        return true;
+    }
+    if (!libFolderHasNotChanged) {
+        return true;
+    }
+    if (!karmaPolyfillPluginHasNotChanged) {
+        return true;
     }
 
     const thirdPartyDependenciesForFeature = filesRequiredByFeature.filter(file => file.endsWith('/config.json')).map(file => {
