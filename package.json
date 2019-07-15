@@ -68,6 +68,7 @@
     "resize-observer-polyfill": "^1.5.1",
     "rimraf": "^2.6.2",
     "spdx-licenses": "^1.0.0",
+    "stream-cache": "^0.0.2",
     "stream-from-promise": "^1.0.0",
     "stream-to-string": "^1.1.0",
     "toposort": "^2.0.2",
