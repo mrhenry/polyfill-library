@@ -25,7 +25,7 @@ function generateDependencyTreeForFeature(feature) {
 
 function hasOwnProperty (object, property) {
     return Object.prototype.hasOwnProperty.call(object, property);
-} 
+}
 
 function findDifferenceInObjects(inclusionObject, exclusionObject) {
     const result = {};
@@ -50,7 +50,7 @@ async function findAllThirdPartyPolyfills () {
 }
 
 async function featureRequiresTesting(feature) {
-    
+
     const filesWhichChanged = execa.shellSync('git diff --name-only origin/master HEAD').stdout.split('\n');
 
     // if any of the dependencies in the tree from the feature is the same as latest commit, run the tests
@@ -105,7 +105,7 @@ async function featureRequiresTesting(feature) {
     if (packageJsonHasOnlyHadThirdPartyPolyfillChangesAppliedToIt) {
         return false;
     }
-    
+
     console.log(`Running tests for ${feature} because... Well, I'm not sure why.`);
     return true;
 }
