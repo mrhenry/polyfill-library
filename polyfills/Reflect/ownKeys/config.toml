@@ -1,5 +1,6 @@
 dependencies = [
   "Reflect",
+  "Symbol",
   "Object.getOwnPropertyNames",
   "_ESAbstract.Type",
   "_ESAbstract.CreateMethodProperty"

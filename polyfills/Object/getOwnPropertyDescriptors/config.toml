@@ -1,0 +1,13 @@
+aliases = []
+dependencies = [
+    "Object.getOwnPropertyDescriptor",
+    "Reflect.ownKeys"
+]
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptors"
+
+[browsers]
+ie = "*"
+edge = "<15"
+chrome = "<54"
+firefox = "<50"
+safari = "<10"

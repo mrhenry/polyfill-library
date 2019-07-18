@@ -317,6 +317,11 @@ jobs:
           command: node ./test/polyfills/test-individual-feature.js
             Object.getOwnPropertyDescriptor
       - run:
+          name: Testing Object.getOwnPropertyDescriptors
+          no_output_timeout: 180m
+          command: node ./test/polyfills/test-individual-feature.js
+            Object.getOwnPropertyDescriptors
+      - run:
           name: Testing Object.getOwnPropertyNames
           no_output_timeout: 180m
           command: node ./test/polyfills/test-individual-feature.js
@@ -351,16 +356,16 @@ jobs:
           no_output_timeout: 180m
           command: node ./test/polyfills/test-individual-feature.js
             Object.preventExtensions
-      - run:
-          name: Testing Object.seal
-          no_output_timeout: 180m
-          command: node ./test/polyfills/test-individual-feature.js Object.seal
   test_5:
     docker:
       - image: circleci/node:10
     steps:
       - checkout
       - run: npm ci
+      - run:
+          name: Testing Object.seal
+          no_output_timeout: 180m
+          command: node ./test/polyfills/test-individual-feature.js Object.seal
       - run:
           name: Testing Object.setPrototypeOf
           no_output_timeout: 180m
@@ -419,16 +424,16 @@ jobs:
           no_output_timeout: 180m
           command: node ./test/polyfills/test-individual-feature.js
             Reflect.preventExtensions
-      - run:
-          name: Testing Reflect.set
-          no_output_timeout: 180m
-          command: node ./test/polyfills/test-individual-feature.js Reflect.set
   test_6:
     docker:
       - image: circleci/node:10
     steps:
       - checkout
       - run: npm ci
+      - run:
+          name: Testing Reflect.set
+          no_output_timeout: 180m
+          command: node ./test/polyfills/test-individual-feature.js Reflect.set
       - run:
           name: Testing Reflect.setPrototypeOf
           no_output_timeout: 180m
