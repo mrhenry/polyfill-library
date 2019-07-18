@@ -1,6 +1,7 @@
 aliases = []
 dependencies = [
     "Object.getOwnPropertyDescriptor",
+    "Object.defineProperty",
     "Reflect.ownKeys",
     "Array.protoype.reduce"
 ]
