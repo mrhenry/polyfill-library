@@ -1,7 +1,8 @@
 aliases = []
 dependencies = [
     "Object.getOwnPropertyDescriptor",
-    "Reflect.ownKeys"
+    "Reflect.ownKeys",
+    "Array.protoype.reduce"
 ]
 docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptors"
 
