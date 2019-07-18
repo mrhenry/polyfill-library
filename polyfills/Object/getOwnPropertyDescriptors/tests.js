@@ -61,7 +61,6 @@ it('works as expected', function () {
   Object.defineProperty(obj, 'a', aDescriptor);
   Object.defineProperty(obj, b, bDescriptor);
   var descriptors = Object.getOwnPropertyDescriptors(obj);
-  console.log(descriptors);
   proclaim.strictEqual(descriptors.a.get, aDescriptor.get);
   proclaim.deepEqual(descriptors[b], {
     value: 2,
