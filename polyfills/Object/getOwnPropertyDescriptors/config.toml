@@ -3,7 +3,6 @@ dependencies = [
     "Object.getOwnPropertyDescriptor",
     "Object.defineProperty",
     "Reflect.ownKeys",
-    "Array.protoype.reduce",
     "_ESAbstract.ToObject",
     "_ESAbstract.CreateMethodProperty",
     "_ESAbstract.CreateDataProperty",
