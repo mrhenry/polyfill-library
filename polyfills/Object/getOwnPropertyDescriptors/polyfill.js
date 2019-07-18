@@ -1,27 +1,29 @@
-// https://github.com/tc39/proposal-object-getownpropertydescriptors#proposed-solution
-if (!Object.hasOwnProperty('getOwnPropertyDescriptors')) {
-    Object.defineProperty(
-        Object,
-        'getOwnPropertyDescriptors',
-        {
-            configurable: true,
-            writable: true,
-            value: function getOwnPropertyDescriptors(object) {
-                if (object == null) throw new TypeError(object + ' is not an object');
+/* global CreateMethodProperty, Reflect, ToObject, CreateDataProperty */
 
-                return Reflect.ownKeys(object).reduce(function(descriptors, key) {
-                    return Object.defineProperty(
-                        descriptors,
-                        key,
-                        {
-                            configurable: true,
-                            enumerable: true,
-                            writable: true,
-                            value: Object.getOwnPropertyDescriptor(object, key)
-                      }
-                  );
-                }, {});
+// 19.1.2.9. Object.getOwnPropertyDescriptors ( O )
+CreateMethodProperty(
+    Object,
+    'getOwnPropertyDescriptors',
+    function getOwnPropertyDescriptors(O) {
+        // 1. Let obj be ? ToObject(O).
+        var obj = ToObject(O);
+        // 2. Let ownKeys be ? obj.[[OwnPropertyKeys]]().
+        var ownKeys = Reflect.ownKeys(obj);
+        // 3. Let descriptors be ! ObjectCreate(%ObjectPrototype%).
+        var descriptors = {};
+        // 4. For each element key of ownKeys in List order, do
+        var length = ownKeys.length;
+        for (var i = 0; i < length; i++) {
+            var key = ownKeys[i];
+            // a. Let desc be ? obj.[[GetOwnProperty]](key).
+            // b. Let descriptor be ! FromPropertyDescriptor(desc).
+            var descriptor = Object.getOwnPropertyDescriptor(O, key);
+            // c. If descriptor is not undefined, perform ! CreateDataProperty(descriptors, key, descriptor).
+            if (descriptor !== undefined) {
+                CreateDataProperty(descriptors, key, descriptor);
             }
         }
-    );
-}
+        // 5. Return descriptors.
+        return descriptors;
+    }
+);

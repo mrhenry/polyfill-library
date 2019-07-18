@@ -3,7 +3,10 @@ dependencies = [
     "Object.getOwnPropertyDescriptor",
     "Object.defineProperty",
     "Reflect.ownKeys",
-    "Array.protoype.reduce"
+    "Array.protoype.reduce",
+    "_ESAbstract.ToObject",
+    "_ESAbstract.CreateMethodProperty",
+    "_ESAbstract.CreateDataProperty",
 ]
 docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptors"
 
