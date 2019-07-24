@@ -1,10 +1,13 @@
 dependencies = [
+  "Array.prototype.forEach",
   "Element",
-  "Element.prototype.matches",
-  "Node.prototype.contains",
+  "Function.prototype.bind",
   "Map",
   "MutationObserver",
-  "Set"
+  "Node.prototype.contains",
+  "Object.defineProperty",
+  "Set",
+  "WeakMap"
 ]
 license = "W3C"
 spec = "https://html.spec.whatwg.org/multipage/interaction.html#inert"
@@ -14,8 +17,8 @@ docs = "https://github.com/WICG/inert/blob/master/explainer.md"
 [browsers]
 edge = "*"
 edge_mob = "*"
-ie = "*"
-ie_mob = "*"
+ie = "8 - *"
+ie_mob = "8 - *"
 firefox = "*"
 opera = "*"
 safari = "*"
