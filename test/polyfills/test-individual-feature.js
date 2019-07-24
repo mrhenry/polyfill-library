@@ -106,7 +106,7 @@ async function featureRequiresTesting(feature) {
         return false;
     }
 
-    console.log(`Running tests for ${feature} because... Well, I'm not sure why.`);
+    console.log(`Running tests for ${feature} because... Well, I'm not sure why. One of these might be why ${filesWhichChanged.join(' ')}`);
     return true;
 }
 
