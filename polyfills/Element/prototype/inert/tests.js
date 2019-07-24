@@ -30,9 +30,13 @@ describe('inert', function () {
 		// MutationObserver polyfill executes in a 30 ms timeout, which is why we run this in a timeout that is longer than 30 ms.
 		setTimeout(function() {
 			el.inert = false;
-			proclaim.equal(el.inert, false, "expected property access `inert` to be `false` but was " + Object.prototype.toString(el.inert));
-			proclaim.equal(el.getAttribute('inert'), null, "expected attribute access `inert` to be `null` but was " + el.getAttribute('inert'));
-			done();
+			try {
+				proclaim.equal(el.inert, false, "expected property access `inert` to be `false` but was " + Object.prototype.toString(el.inert));
+				proclaim.equal(el.getAttribute('inert'), null, "expected attribute access `inert` to be `null` but was " + el.getAttribute('inert'));
+				done();
+			} catch (err) {
+				done(err);
+			}
 		}, 100);
 	});
 });
