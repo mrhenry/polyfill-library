@@ -30,6 +30,7 @@ var arePropertyDescriptorsSupported = function () {
 	}
 };
 var supportsDescriptors = Object.defineProperty && arePropertyDescriptorsSupported();
+var strictModeSupported = (function(){ return this; }).call(null) === null;
 
 // https://tc39.github.io/ecma262/#sec-symbol-constructor
 it('should throw if being used via `new`', function() {
@@ -56,6 +57,20 @@ xit('should have Symbol.prototype as the prototype of an instance', function() {
 
 it('should return "[object Symbol]" when called with Object.prototype.toString()', function() {
 	proclaim.equal(Object.prototype.toString.call(Symbol()), '[object Symbol]');
+});
+
+if(strictModeSupported) {
+	it('Object.prototype.toString.call(window) should be [object Window]', function() {
+		proclaim.equal(Object.prototype.toString.call(window), '[object Window]');
+	});
+
+	it('window.toString() should be [object Window]', function() {
+		proclaim.equal(window.toString(), '[object Window]');
+	});
+}
+
+it('Object.prototype.toString.call(null) should be [object Null]', function() {
+	proclaim.equal(Object.prototype.toString.call(null), '[object Null]');
 });
 
 if (supportsDescriptors) {
