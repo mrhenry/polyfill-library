@@ -905,16 +905,21 @@ jobs:
           command: node ./test/polyfills/test-individual-feature.js
             String.prototype.endsWith
       - run:
-          name: Testing String.prototype.includes
+          name: Testing String.prototype.fixed
           no_output_timeout: 180m
           command: node ./test/polyfills/test-individual-feature.js
-            String.prototype.includes
+            String.prototype.fixed
   test_13:
     docker:
       - image: circleci/node:10
     steps:
       - checkout
       - run: npm ci
+      - run:
+          name: Testing String.prototype.includes
+          no_output_timeout: 180m
+          command: node ./test/polyfills/test-individual-feature.js
+            String.prototype.includes
       - run:
           name: Testing String.prototype.link
           no_output_timeout: 180m
