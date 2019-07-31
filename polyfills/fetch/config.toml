@@ -14,20 +14,19 @@ notes = [
 docs = "https://developer.mozilla.org/en-US/docs/Web/API/GlobalFetch/fetch"
 
 [browsers]
-android = "* - 4.4.4"
+android = "<67"
 bb = "10 - *"
-edge = "<15"
-edge_mob = "<15"
+edge = "<16"
+edge_mob = "<16"
 ie = "*"
 ie_mob = "*"
-firefox = "* - 38"
-opera = "* - 28"
-safari = "< 10.1"
-chrome = "* - 41"
-ios_saf = "< 10.3 "
-firefox_mob = "* - 38"
+firefox = "<57"
+opera = "<53"
+safari = "<12"
+chrome = "<66"
+ios_saf = "<12"
+firefox_mob = "<64"
 
 [install]
 module = "whatwg-fetch"
 postinstall = "update.task.js"
-

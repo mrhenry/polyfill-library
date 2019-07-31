@@ -47,6 +47,7 @@
     "@financial-times/polyfill-useragent-normaliser": "^1.2.0",
     "@iarna/toml": "^2.2.3",
     "@webcomponents/template": "^1.4.0",
+    "abort-controller": "^2.0.2",
     "Base64": "^1.0.0",
     "audio-context-polyfill": "^1.0.0",
     "diff": "1.4.0",
@@ -76,7 +77,7 @@
     "unorm": "^1.6.0",
     "usertiming": "^0.1.8",
     "web-animations-js": "^2.2.5",
-    "whatwg-fetch": "^2.0.3",
+    "whatwg-fetch": "^3.0.0",
     "wicg-inert": "^2.1.2",
     "yaku": "0.18.6"
   },
