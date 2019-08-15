@@ -18,23 +18,26 @@
 	}());
 
 	// Need an internal counter to assign unique IDs to a key map
-	var _tableLookupId = 0;
+	var _uniqueHashId = 0;
+	// Create a unique key name for storing meta data on functions and objects to enable lookups in hash table
+	var _metaKey = Symbol('meta_' + (Math.random() * 100000000) + '').replace('.', '');
 		
 	/**
-	 * normalizeKey()
-	 * Function that given a key of any time, returns a string key value to enable hash map optimization for accessing Map data structure
+	 * hashKey()
+	 * Function that given a key of any type, returns a string key value to enable hash map optimization for accessing Map data structure
 	 * @param {string|integer|function|object} key - Key to translate into normalized key for hash map
 	 */
-	var normalizeKey = function(key) {
+	var hashKey = function(key) {
 		// Check to see if we are dealing with object or function type.  
 		if (typeof key === 'object' ? key !== null : typeof key === 'function') {
-			if (!key.__meta__) {
-				key.__meta__ = {
-					id: typeof(key)+'-'+(++_tableLookupId)
+			// Look at secondary table for a valid reference
+			if (!key[_metaKey]) {
+				key[_metaKey] = {
+					id: typeof(key)+'-'+(++_uniqueHashId)
 				};
 			}
 			// Compute a key and assign to object so we can identify it properly next time an Map operation is performed with it
-			return key.__meta__.id;
+			return key[_metaKey].id;
 		}
 		// If this is just a primitive, we can cast it to a string and return it
 		return ''+key;
@@ -228,8 +231,8 @@
 						this.size = this._size;
 					}
 					// ii-a. Remove key from lookup table
-					var normalizedKey = normalizeKey(key);
-					delete this._table[normalizedKey];
+					var hashedKey = hashKey(key);
+					delete this._table[hashedKey];
 					// iii. Return true.
 					return true;
 				}
@@ -301,8 +304,8 @@
 			// 6. Return undefined.
 
 			// Implement steps 4-6 with a more optimal algo
-			var normalizedKey = normalizeKey(key); // Casts key to unique string (unless already string or number)
-			var index = M._table[normalizedKey]; // O(1) access to record
+			var hashedKey = hashKey(key); // Casts key to unique string (unless already string or number)
+			var index = M._table[hashedKey]; // O(1) access to record
 			if (typeof index !== 'undefined') {
 				var recordKey = M._keys[index];
 				if (recordKey !== undefMarker && SameValueZero(recordKey, key)) {
@@ -331,8 +334,8 @@
 			// 6. Return false.
 
 			// Implement steps 4-6 with a more optimal algo
-			var normalizedKey = normalizeKey(key); // Casts key to unique string (unless already string or number)
-			var index = M._table[normalizedKey]; // O(1) access to record
+			var hashedKey = hashKey(key); // Casts key to unique string (unless already string or number)
+			var index = M._table[hashedKey]; // O(1) access to record
 			if (typeof index !== 'undefined') {
 				var recordKey = M._keys[index];
 				if (recordKey !== undefMarker && SameValueZero(recordKey, key)) {
@@ -372,8 +375,8 @@
 
 			// Strictly following the above steps 4-9 will lead to an inefficient algorithm.  
 			// Step 8 also doesn't seem to be required if an entry already exists
-			var normalizedKey = normalizeKey(key); // Casts key to unique string (unless already string or number)
-			var index = M._table[normalizedKey]; // O(1) access to record
+			var hashedKey = hashKey(key); // Casts key to unique string (unless already string or number)
+			var index = M._table[hashedKey]; // O(1) access to record
 			if (typeof index !== 'undefined') {
 				// update path
 				M._values[index] = value;
@@ -387,7 +390,7 @@
 				};
 				M._keys.push(p['[[Key]]']);
 				M._values.push(p['[[Value]]']);
-				M._table[normalizedKey] = M._keys.length - 1; // update lookup table
+				M._table[hashedKey] = M._keys.length - 1; // update lookup table
 				++M._size;
 				if (!supportsGetters) {
 					M.size = M._size;
