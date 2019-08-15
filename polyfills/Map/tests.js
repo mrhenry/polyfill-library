@@ -692,9 +692,11 @@ describe('Map', function () {
 	});
 
 	it("has reasonable runtime performance with .has(), .get() and .set()", function (done) {
+		var map = new Map();
+		var operations = 10000;
 		var timeout = setTimeout(function() {
-			proclaim.fail('Map performance was unreasonably slow');
 			timeout = null;
+			proclaim.fail('Map performance was unreasonably slow');
 			done();
 		}, 1000);
 		function operateOnMap(map, i) {
@@ -702,15 +704,14 @@ describe('Map', function () {
 				return; // timeout has been cleared, signaling test has failed
 			}
 			if (i <= 0) {
-				proclaim.ok(true, 'Map performance is good');
 				clearTimeout(timeout);
+				proclaim.ok(true, 'Map performance is good');
 				done();
 				return;
 			}
-			for (var j = 0; j < 1000; j++) {
-				var key = 'item-'+ i;
-				//var key = function(){};
-				var value = 'mock-value';
+			for (var j = 0; j < operations / 10; j++) {
+				var key = 'item-' + i;
+				var value = 'mock-value-' + i;
 				map.set(key, value);
 				map.has(key);
 				map.get(key);
@@ -721,6 +722,6 @@ describe('Map', function () {
 				operateOnMap(map, i);
 			}, 1);
 		}
-		operateOnMap(new Map(), 10000);
+		operateOnMap(map, operations);
 	});
 });
