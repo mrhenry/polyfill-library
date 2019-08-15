@@ -438,6 +438,8 @@ describe('Map', function () {
 	it("implements .set()", function () {
 		var o = new Map();
 		var generic = {};
+		var frozenObject = {};
+		Object.freeze(frozenObject);
 		var callback = function () {};
 		o.set(callback, generic);
 		proclaim.equal(o.get(callback), generic);
@@ -472,6 +474,10 @@ describe('Map', function () {
 			o.set(key, key);
 			proclaim.equal(o.get(key), key);
 		}
+		// test frozen object key
+		o.set(frozenObject, 'frozen solid');
+		proclaim.ok(o.has(frozenObject));
+		proclaim.equal(o.get(frozenObject), 'frozen solid');
 	});
 
 	it("implements .delete()", function () {
@@ -691,7 +697,7 @@ describe('Map', function () {
 		proclaim.equal(callCount, 1);
 	});
 
-	it("has reasonable runtime performance with .has(), .get() and .set()", function (done) {
+	it("has reasonable runtime performance with .has(), .delete(), .get() and .set()", function (done) {
 		var map = new Map();
 		var operations = 10000;
 		var timeout = setTimeout(function() {
@@ -716,6 +722,12 @@ describe('Map', function () {
 				map.has(key);
 				map.get(key);
 				i--;
+			}
+			if (i <= 0) {
+				// Remove all entries
+				map.forEach(function(val, key) {
+					map.delete(key);
+				});
 			}
 			// release this frame in case timeout has occurred
 			setTimeout(function() {
