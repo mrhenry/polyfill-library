@@ -17,6 +17,29 @@
 		}
 	}());
 
+	// Need an internal counter to assign unique IDs to a key map
+	var _tableLookupId = 0;
+		
+	/**
+	 * normalizeKey()
+	 * Function that given a key of any time, returns a string key value to enable hash map optimization for accessing Map data structure
+	 * @param {string|integer|function|object} key - Key to translate into normalized key for hash map
+	 */
+	var normalizeKey = function(key) {
+		// Check to see if we are dealing with object or function type.  
+		if (typeof key === 'object' ? key !== null : typeof key === 'function') {
+			if (!key.__meta__) {
+				key.__meta__ = {
+					id: typeof(key)+'-'+(++_tableLookupId)
+				};
+			}
+			// Compute a key and assign to object so we can identify it properly next time an Map operation is performed with it
+			return key.__meta__.id;
+		}
+		// If this is just a primitive, we can cast it to a string and return it
+		return ''+key;
+	};
+
 	// Deleted map items mess with iterator pointers, so rather than removing them mark them as deleted. Can't use undefined or null since those both valid keys so use a private symbol.
 	var undefMarker = Symbol('undef');
 	// 23.1.1.1 Map ( [ iterable ] )
@@ -27,6 +50,7 @@
 		}
 		// 2. Let map be ? OrdinaryCreateFromConstructor(NewTarget, "%MapPrototype%", « [[MapData]] »).
 		var map = OrdinaryCreateFromConstructor(this, Map.prototype, {
+			_table: {}, // O(1) access table for retrieving records
 			_keys: [],
 			_values: [],
 			_size: 0,
@@ -167,6 +191,8 @@
 			if (!supportsGetters) {
 				this.size = this._size;
 			}
+			// 5a. Clear lookup table
+			this._table = {};
 			// 6. Return undefined.
 			return undefined;
 		}
@@ -201,6 +227,9 @@
 					if (!supportsGetters) {
 						this.size = this._size;
 					}
+					// ii-a. Remove key from lookup table
+					var normalizedKey = normalizeKey(key);
+					delete this._table[normalizedKey];
 					// iii. Return true.
 					return true;
 				}
@@ -267,15 +296,20 @@
 				throw new TypeError('Method Map.prototype.get called on incompatible receiver ' + Object.prototype.toString.call(M));
 			}
 			// 4. Let entries be the List that is M.[[MapData]].
-			var entries = M._keys;
 			// 5. For each Record {[[Key]], [[Value]]} p that is an element of entries, do
-			for (var i = 0; i < entries.length; i++) {
 				// a. If p.[[Key]] is not empty and SameValueZero(p.[[Key]], key) is true, return p.[[Value]].
-				if (M._keys[i] !== undefMarker && SameValueZero(M._keys[i], key)) {
-					return M._values[i];
+			// 6. Return undefined.
+
+			// Implement steps 4-6 with a more optimal algo
+			var normalizedKey = normalizeKey(key); // Casts key to unique string (unless already string or number)
+			var index = M._table[normalizedKey]; // O(1) access to record
+			if (typeof index !== 'undefined') {
+				var recordKey = M._keys[index];
+				if (recordKey !== undefMarker && SameValueZero(recordKey, key)) {
+					return M._values[index];
 				}
 			}
-			// 6. Return undefined.
+			
 			return undefined;
 		});
 
@@ -292,15 +326,20 @@
 				throw new TypeError('Method Map.prototype.has called on incompatible receiver ' + Object.prototype.toString.call(M));
 			}
 			// 4. Let entries be the List that is M.[[MapData]].
-			var entries = M._keys;
 			// 5. For each Record {[[Key]], [[Value]]} p that is an element of entries, do
-			for (var i = 0; i < entries.length; i++) {
 				// a. If p.[[Key]] is not empty and SameValueZero(p.[[Key]], key) is true, return true.
-				if (M._keys[i] !== undefMarker && SameValueZero(M._keys[i], key)) {
+			// 6. Return false.
+
+			// Implement steps 4-6 with a more optimal algo
+			var normalizedKey = normalizeKey(key); // Casts key to unique string (unless already string or number)
+			var index = M._table[normalizedKey]; // O(1) access to record
+			if (typeof index !== 'undefined') {
+				var recordKey = M._keys[index];
+				if (recordKey !== undefMarker && SameValueZero(recordKey, key)) {
 					return true;
 				}
 			}
-			// 6. Return false.
+
 			return false;
 		});
 
@@ -325,33 +364,35 @@
 				throw new TypeError('Method Map.prototype.set called on incompatible receiver ' + Object.prototype.toString.call(M));
 			}
 			// 4. Let entries be the List that is M.[[MapData]].
-			var entries = M._keys;
 			// 5. For each Record {[[Key]], [[Value]]} p that is an element of entries, do
-			for (var i = 0; i < entries.length; i++) {
-				// a. If p.[[Key]] is not empty and SameValueZero(p.[[Key]], key) is true, then
-				if (M._keys[i] !== undefMarker && SameValueZero(M._keys[i], key)) {
-					// i. Set p.[[Value]] to value.
-					M._values[i] = value;
-					// Return M.
-					return M;
+			// 6. If key is -0, let key be +0.
+			// 7. Let p be the Record {[[Key]]: key, [[Value]]: value}.
+			// 8. Append p as the last element of entries.
+			// 9. Return M.
+
+			// Strictly following the above steps 4-9 will lead to an inefficient algorithm.  
+			// Step 8 also doesn't seem to be required if an entry already exists
+			var normalizedKey = normalizeKey(key); // Casts key to unique string (unless already string or number)
+			var index = M._table[normalizedKey]; // O(1) access to record
+			if (typeof index !== 'undefined') {
+				// update path
+				M._values[index] = value;
+			} else {
+				if (key === -0) {
+					key = 0;
+				}
+				var p = {
+					'[[Key]]': key,
+					'[[Value]]': value
+				};
+				M._keys.push(p['[[Key]]']);
+				M._values.push(p['[[Value]]']);
+				M._table[normalizedKey] = M._keys.length - 1; // update lookup table
+				++M._size;
+				if (!supportsGetters) {
+					M.size = M._size;
 				}
 			}
-			// 6. If key is -0, let key be +0.
-			if (key === -0) {
-				key = 0;
-			}
-			// 7. Let p be the Record {[[Key]]: key, [[Value]]: value}.
-			var p = {};
-			p['[[Key]]'] = key;
-			p['[[Value]]'] = value;
-			// 8. Append p as the last element of entries.
-			M._keys.push(p['[[Key]]']);
-			M._values.push(p['[[Value]]']);
-			++M._size;
-			if (!supportsGetters) {
-				M.size = M._size;
-			}
-			// 9. Return M.
 			return M;
 		});
 
