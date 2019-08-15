@@ -690,4 +690,37 @@ describe('Map', function () {
 
 		proclaim.equal(callCount, 1);
 	});
+
+	it("has reasonable runtime performance with .has(), .get() and .set()", function (done) {
+		var timeout = setTimeout(function() {
+			proclaim.fail('Map performance was unreasonably slow');
+			timeout = null;
+			done();
+		}, 1000);
+		function operateOnMap(map, i) {
+			if (!timeout) {
+				return; // timeout has been cleared, signaling test has failed
+			}
+			if (i <= 0) {
+				proclaim.ok(true, 'Map performance is good');
+				clearTimeout(timeout);
+				done();
+				return;
+			}
+			for (var j = 0; j < 1000; j++) {
+				var key = 'item-'+ i;
+				//var key = function(){};
+				var value = 'mock-value';
+				map.set(key, value);
+				map.has(key);
+				map.get(key);
+				i--;
+			}
+			// release this frame in case timeout has occurred
+			setTimeout(function() {
+				operateOnMap(map, i);
+			}, 1);
+		}
+		operateOnMap(new Map(), 10000);
+	});
 });
