@@ -61,7 +61,7 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH RE
 				visage || (visage = mirror.appendChild(document.createElement("div")));
 
 				tokenList = DOMTokenList.call(visage, THIS, attr);
-			} else tokenList = new DOMTokenList(THIS, attr);
+			} else tokenList = new _DOMTokenList(THIS, attr);
 
 			defineGetter(THIS, name, function () {
 				return tokenList;
