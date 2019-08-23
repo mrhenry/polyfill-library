@@ -439,7 +439,9 @@ describe('Map', function () {
 		var o = new Map();
 		var generic = {};
 		var frozenObject = {};
-		Object.freeze(frozenObject);
+		if (Object.freeze) {
+			Object.freeze(frozenObject);
+		}
 		var callback = function () {};
 		o.set(callback, generic);
 		proclaim.equal(o.get(callback), generic);
