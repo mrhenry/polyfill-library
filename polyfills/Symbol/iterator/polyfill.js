@@ -1,2 +1,2 @@
 /* global Symbol */
-Object.defineProperty(global.Symbol, 'iterator', { value: global.Symbol('iterator') });
+Object.defineProperty(self.Symbol, 'iterator', { value: self.Symbol('iterator') });
