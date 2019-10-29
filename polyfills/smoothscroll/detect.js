@@ -1,1 +1,1 @@
-'scrollBehavior' in d.documentElement.style
+'scrollBehavior' in document.documentElement.style
