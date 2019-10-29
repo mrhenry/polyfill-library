@@ -1,0 +1,24 @@
+dependencies = [
+  "requestAnimationFrame"
+]
+license = "MIT"
+spec = "https://drafts.csswg.org/cssom-view/#smooth-scrolling"
+repo = "https://github.com/webcomponents/polyfills/tree/master/packages/template"
+docs = "https://developer.mozilla.org/en/docs/Web/CSS/scroll-behavior"
+
+[browsers]
+edge = "* - 76"
+edge_mob = "*"
+ie = "*"
+ie_mob = "*"
+firefox = "4 - 36"
+opera = "*"
+safari = "*"
+chrome = "* - 60"
+ios_saf = "*"
+android = "*"
+
+[install]
+module = "smoothscroll-polyfill"
+paths = [ "dist/smoothscroll.min.js" ]
+
