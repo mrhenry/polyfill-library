@@ -9,8 +9,7 @@ var path = require('path');
 var polyfill = fs.readFileSync(path.join(__dirname, './polyfill.js'), 'utf8');
 var patch = fs.readFileSync(path.join(__dirname, './patch.jsdiff'), 'utf8');
 
-var patched = diff.applyPatch(polyfill, patch, {fuzzFactor: 2});
+var patched = diff.applyPatch(polyfill, patch);
 
-console.log('patched', patched);
 if (patched === false) {process.exit(1);}
 fs.writeFileSync(path.join(__dirname, './polyfill.js'), patched);
