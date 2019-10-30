@@ -3,7 +3,7 @@ dependencies = [
 ]
 license = "MIT"
 spec = "https://drafts.csswg.org/cssom-view/#smooth-scrolling"
-repo = "https://github.com/webcomponents/polyfills/tree/master/packages/template"
+repo = "https://github.com/iamdustan/smoothscroll"
 docs = "https://developer.mozilla.org/en/docs/Web/CSS/scroll-behavior"
 
 [browsers]
