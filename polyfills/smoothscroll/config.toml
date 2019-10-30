@@ -30,5 +30,4 @@ android = "*"
 
 [install]
 module = "smoothscroll-polyfill"
-paths = [ "dist/smoothscroll.min.js" ]
-
+postinstall = "update.task.js"
