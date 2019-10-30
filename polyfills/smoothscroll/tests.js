@@ -23,6 +23,6 @@ describe('scrollBy', function () {
 
 describe('scrollIntoView', function () {
     it('is defined as a function on Element.prototype', function () {
-        proclaim.isTypeOf(Element.prototype. scrollIntoView, 'function');
+        proclaim.isTypeOf(Element.prototype.scrollIntoView, 'function');
     });
 });
