@@ -1,7 +1,12 @@
 aliases = [
   "scroll",
   "scrollBy",
-  "scroll"
+  "scrollIntoView",
+  "Element.prototype.scroll",
+  "Element.prototype.scrollBy",
+  "Element.prototype.scrollIntoView",
+  "window.scroll",
+  "window.scrollBy"
 ]
 dependencies = [
   "requestAnimationFrame"
