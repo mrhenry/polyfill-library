@@ -27,6 +27,7 @@ chrome = "4 - 65"
 ios_saf = "3.2 - 11.2"
 firefox_mob = "<64"
 android = "<67"
+samsung_mob = "*"
 
 [install]
 module = "abort-controller"
