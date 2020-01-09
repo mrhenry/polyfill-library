@@ -661,7 +661,6 @@
 		}
 	);
 
-	delete global.Map;
 	// Export the object
 	try {
 		CreateMethodProperty(global, 'Map', Map);
