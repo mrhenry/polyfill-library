@@ -728,7 +728,7 @@ describe('Map', function () {
 			if (i <= 0) {
 				// Remove all entries
 				map.forEach(function(val, key) {
-					map.delete(key);
+					map["delete"](key);
 				});
 			}
 			// release this frame in case timeout has occurred
