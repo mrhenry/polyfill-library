@@ -22,7 +22,7 @@ CreateMethodProperty(Array.prototype, 'indexOf', function indexOf(searchElement 
 		// 7. Else n < 0,
 	} else {
 		// a. Let k be len + n.
-		var k = len + n;
+		k = len + n;
 		// b. If k < 0, let k be 0.
 		if (k < 0) {
 			k = 0;

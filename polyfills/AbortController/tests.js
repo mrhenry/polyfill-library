@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-/* globals proclaim, AbortSignal */
+/* globals proclaim */
 
 describe('AbortSignal', function () {
     it('is a function', function () {

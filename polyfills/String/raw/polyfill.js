@@ -38,7 +38,7 @@ CreateMethodProperty(String, "raw", function raw(template /*, ...substitutions*/
             var next = substitutions[nextIndex];
             // f. Else, let next be the empty String.
         } else {
-            var next = "";
+            next = "";
         }
         // g. Let nextSub be ? ToString(next).
         var nextSub = ToString(next);

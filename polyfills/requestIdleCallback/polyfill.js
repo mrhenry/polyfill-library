@@ -207,7 +207,7 @@
         // While there is deadline time remaining, run remaining scheduled
         // callbacks.
         while (scheduledCallbacks.length > 0 && timeRemaining() > 0) {
-            var callbackObject = scheduledCallbacks.shift();
+            callbackObject = scheduledCallbacks.shift();
             runCallback(callbackObject);
         }
 

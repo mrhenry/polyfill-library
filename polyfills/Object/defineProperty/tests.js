@@ -1,5 +1,5 @@
 /* eslint-env mocha, browser*/
-/* global proclaim, it */
+/* global proclaim */
 
 it('is a function', function () {
 	proclaim.isFunction(Object.defineProperty);
