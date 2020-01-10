@@ -38,6 +38,7 @@
 		try {
 			var iteratorRecord = GetIterator(iterable);
 			// 9. Repeat,
+			// eslint-disable-next-line no-constant-condition
 			while (true) {
 				// a. Let next be ? IteratorStep(iteratorRecord).
 				var next = IteratorStep(iteratorRecord);

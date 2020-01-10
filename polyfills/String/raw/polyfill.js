@@ -20,6 +20,7 @@ CreateMethodProperty(String, "raw", function raw(template /*, ...substitutions*/
     // 8. Let nextIndex be 0.
     var nextIndex = 0;
     // 9. Repeat,
+    // eslint-disable-next-line no-constant-condition
     while(true) {
         // a. Let nextKey be ! ToString(nextIndex).
         var nextKey = ToString(nextIndex);
