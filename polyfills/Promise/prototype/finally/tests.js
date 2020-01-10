@@ -248,7 +248,7 @@ describe('onFinally', function() {
 		});
 
 		specify('from rejected', function() {
-      		var newReason = {};
+			var newReason = {};
 			return Promise.reject(someRejectionReason)
 				['catch'](function(e) {
 					proclaim.strictEqual(e, someRejectionReason);

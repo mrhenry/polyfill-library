@@ -11,13 +11,13 @@
 		rootSize = property == 'fontSize' ? fontSize : /width/i.test(property) ? element.clientWidth : element.clientHeight;
 
 		return suffix == '%' ? size / 100 * rootSize :
-		       suffix == 'cm' ? size * 0.3937 * 96 :
-		       suffix == 'em' ? size * fontSize :
-		       suffix == 'in' ? size * 96 :
-		       suffix == 'mm' ? size * 0.3937 * 96 / 10 :
-		       suffix == 'pc' ? size * 12 * 96 / 72 :
-		       suffix == 'pt' ? size * 96 / 72 :
-		       size;
+				suffix == 'cm' ? size * 0.3937 * 96 :
+				suffix == 'em' ? size * fontSize :
+				suffix == 'in' ? size * 96 :
+				suffix == 'mm' ? size * 0.3937 * 96 / 10 :
+				suffix == 'pc' ? size * 12 * 96 / 72 :
+				suffix == 'pt' ? size * 96 / 72 :
+				size;
 	}
 
 	function setShortStyleProperty(style, property) {
@@ -29,9 +29,9 @@
 		l = property + 'Left' + borderSuffix;
 
 		style[property] = (style[t] == style[r] && style[t] == style[b] && style[t] == style[l] ? [ style[t] ] :
-		                   style[t] == style[b] && style[l] == style[r] ? [ style[t], style[r] ] :
-		                   style[l] == style[r] ? [ style[t], style[r], style[b] ] :
-		                   [ style[t], style[r], style[b], style[l] ]).join(' ');
+			style[t] == style[b] && style[l] == style[r] ? [ style[t], style[r] ] :
+			style[l] == style[r] ? [ style[t], style[r], style[b] ] :
+			[ style[t], style[r], style[b], style[l] ]).join(' ');
 	}
 
 	// <CSSStyleDeclaration>
