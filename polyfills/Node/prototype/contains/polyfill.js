@@ -9,6 +9,7 @@
 			if (this === node) {
 				return true;
 			}
+		// eslint-disable-next-line no-cond-assign
 		} while (node = node && node.parentNode);
 
 		return false;
