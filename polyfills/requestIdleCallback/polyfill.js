@@ -83,7 +83,7 @@
         // Defensive coding. Time remaining should never be more than 50ms.
         // This is sometimes the case in Safari 9.
         return Math.min(frameDeadline - performance.now(), 50);
-    };
+    }
 
     function getDeadline(callbackObject) {
         var timeout = callbackObject.options.timeout;
@@ -101,13 +101,13 @@
             value: timeRemaining
         });
         return deadline;
-    };
+    }
 
     function runCallback(callbackObject) {
         var deadline = getDeadline(callbackObject);
         var callback = callbackObject.callback;
         callback(deadline);
-    };
+    }
 
     function scheduleIdleWork() {
         if (!isIdleScheduled) {
@@ -224,7 +224,7 @@
         }
 
         isCallbackRunning = false;
-    };
+    }
 
     /**
      * @param {function} callback
