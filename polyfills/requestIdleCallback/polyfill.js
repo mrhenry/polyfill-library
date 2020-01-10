@@ -294,7 +294,7 @@
         }
     });
 
-    if (Object.prototype.hasOwnProperty('__defineGetter__')) {
+    if (Object.prototype.hasOwnProperty.call(Object.prototype, '__defineGetter__')) {
         Object.defineProperty(global.IdleDeadline.prototype, 'didTimeout', {
             get: function () {
                 throw new TypeError('Illegal invocation');

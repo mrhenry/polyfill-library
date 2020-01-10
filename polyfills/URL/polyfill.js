@@ -452,7 +452,7 @@
 
     if (origURL) {
       for (var i in origURL) {
-        if (origURL.hasOwnProperty(i) && typeof origURL[i] === 'function')
+        if (Object.prototype.hasOwnProperty.call(origURL, i) && typeof origURL[i] === 'function')
           URL[i] = origURL[i];
       }
     }

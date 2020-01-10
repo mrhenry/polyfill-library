@@ -16,7 +16,7 @@ describe('IdleDeadline', function () {
     // the prototype didTimeout method should be a getter which throws a type
     // error, except where getters aren't supported return undefined.
     it('has a didTimeout prototype property which throws a type error when getters are supported or undefined otherwise', function () {
-        if (Object.prototype.hasOwnProperty('__defineGetter__')) {
+        if (Object.prototype.hasOwnProperty.call(Object.prototype, '__defineGetter__')) {
             proclaim["throws"](function () {
                 return IdleDeadline.prototype.didTimeout;
             }, TypeError);

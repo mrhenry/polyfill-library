@@ -49,7 +49,7 @@
 	prototype.attachEvent('onpropertychange', function (event) {
 		var
 		propertyName = event.propertyName,
-		nonValue = !cache.hasOwnProperty(propertyName),
+		nonValue = !Object.prototype.hasOwnProperty.call(cache, propertyName),
 		newValue = prototype[propertyName],
 		oldValue = cache[propertyName],
 		index = -1,

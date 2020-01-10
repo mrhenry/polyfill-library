@@ -252,7 +252,7 @@ describe('Map', function () {
 			proclaim.equal((new Map()).constructor, Map);
 			proclaim.equal((new Map()).constructor.name, "Map");
 			if ("__proto__" in {}) {
-				proclaim.equal((new Map).__proto__.isPrototypeOf(new Map()), true);
+				proclaim.equal(Object.prototype.isPrototypeOf.call((new Map).__proto__, new Map()), true);
 				proclaim.equal((new Map).__proto__ === Map.prototype, true);
 			}
 		});
@@ -545,7 +545,7 @@ describe('Map', function () {
 		// interfaces recognize it as a valid iterator
 		var lastResult = entriesagain.next();
 		proclaim.equal(lastResult.done, true);
-		proclaim.ok(lastResult.hasOwnProperty('value'));
+		proclaim.ok(Object.prototype.hasOwnProperty.call(lastResult, 'value'));
 		proclaim.equal(lastResult.value, void 0);
 	});
 
