@@ -35,6 +35,7 @@ var strictModeSupported = (function(){ return this; }).call(null) === null;
 // https://tc39.github.io/ecma262/#sec-symbol-constructor
 it('should throw if being used via `new`', function() {
 	var test = function () {
+		// eslint-disable-next-line no-new-symbol
 		return new Symbol();
 	};
 	proclaim["throws"](test);
