@@ -48,6 +48,7 @@
 				}
 				nativeURL = undefined;
       }
+    // eslint-disable-next-line no-empty
     } catch (_) {}
 
     // NOTE: Doesn't do the encoding/decoding dance

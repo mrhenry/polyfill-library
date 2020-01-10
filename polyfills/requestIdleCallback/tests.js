@@ -37,8 +37,8 @@ describe('requestIdleCallback', function () {
     function sleep(busyFor) {
         busyFor = busyFor + Math.random(); // Prevent Safari while loop optimisation.
         var start = performance.now();
-        while (performance.now() - start < busyFor) {
-        }
+        // eslint-disable-next-line no-empty
+        while (performance.now() - start < busyFor) {}
     }
 
     it('is defined', function () {

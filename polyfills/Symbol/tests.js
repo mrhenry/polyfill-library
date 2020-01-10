@@ -162,6 +162,7 @@ if (supportsDescriptors) {
 		var symbol = Symbol();
 		object[symbol] = 1;
 
+		// eslint-disable-next-line no-empty
 		for (var x in object){}
 		var passed = !x;
 
@@ -176,6 +177,7 @@ if (supportsDescriptors) {
 		var symbol = Symbol();
 		Object.defineProperty(object, symbol, { enumerable: false });
 
+		// eslint-disable-next-line no-empty
 		for (var x in object){}
 		var passed = !x;
 
