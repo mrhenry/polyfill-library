@@ -19,7 +19,7 @@ describe('AbortSignal', function () {
                 signal: signal
             });
             proclaim.ok(request.signal);
-            proclaim.ok(Object.prototype.isPrototypeOf.call(Request, request));
+            proclaim.isInstanceOf(request, Request);
         });
 
         it('abort during fetch', function (done) {
