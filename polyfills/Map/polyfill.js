@@ -338,7 +338,8 @@
 				}
 			}
 			// 6. If key is -0, let key be +0.
-			if (1/key === -Infinity) {
+
+			if (key === 0 &&  1/key === -Infinity) {
 				key = 0;
 			}
 			// 7. Let p be the Record {[[Key]]: key, [[Value]]: value}.

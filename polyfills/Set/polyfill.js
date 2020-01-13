@@ -149,7 +149,7 @@
 				}
 			}
 			// 6. If value is -0, let value be +0.
-			if (1/value === -Infinity) {
+			if (value === 0 && 1/value === -Infinity) {
 				value = 0;
 			}
 			// 7. Append value as the last element of entries.
