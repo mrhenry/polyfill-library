@@ -48,7 +48,7 @@
     "@iarna/toml": "^2.2.3",
     "@webcomponents/template": "^1.4.0",
     "Base64": "^1.0.0",
-    "abort-controller": "^2.0.2",
+    "abort-controller": "^3.0.0",
     "audio-context-polyfill": "^1.0.0",
     "diff": "1.4.0",
     "event-source-polyfill": "^1.0.12",
