@@ -459,6 +459,7 @@
 				// update path
 				M._values[recordIndex] = value;
 			} else {
+				// eslint-disable-next-line no-compare-neg-zero
 				if (key === -0) {
 					key = 0;
 				}
