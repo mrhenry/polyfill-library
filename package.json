@@ -45,6 +45,8 @@
   },
   "dependencies": {
     "@financial-times/polyfill-useragent-normaliser": "^1.2.0",
+    "@formatjs/intl-pluralrules": "^1.1.2",
+    "@formatjs/intl-relativetimeformat": "^3.0.2",
     "@webcomponents/template": "^1.4.0",
     "Base64": "^1.0.0",
     "abort-controller": "^3.0.0",
