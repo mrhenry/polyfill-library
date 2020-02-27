@@ -61,13 +61,31 @@ function intlLocaleDetectFor(locale) {
 	return "'Intl' in self && " +
 			"Intl.Collator && " +
 			"Intl.Collator.supportedLocalesOf && " +
-			"Intl.Collator.supportedLocalesOf('"+locale+"').length === 1 && " +
+			`(function() {
+				try {
+					return Intl.Collator.supportedLocalesOf("${locale}").length === 1;
+				} catch (e) {
+					return false;
+				}
+			})` + " && " +
 			"Intl.DateTimeFormat && " +
 			"Intl.DateTimeFormat.supportedLocalesOf && " +
-			"Intl.DateTimeFormat.supportedLocalesOf('"+locale+"').length === 1 && " +
+			`(function() {
+				try {
+					return Intl.DateTimeFormat.supportedLocalesOf("${locale}").length === 1;
+				} catch (e) {
+					return false;
+				}
+			})` + " && " +
 			"Intl.NumberFormat && " +
 			"Intl.NumberFormat.supportedLocalesOf && " +
-			"Intl.NumberFormat.supportedLocalesOf('"+locale+"').length === 1";
+			`(function() {
+				try {
+					return Intl.NumberFormat.supportedLocalesOf("${locale}").length === 1;
+				} catch (e) {
+					return false;
+				}
+			})`;
 }
 
 console.log('Importing Intl.~locale.* polyfill from ' + LocalesPath);
@@ -96,9 +114,15 @@ locales.forEach(function (file) {
 	if (locale === "root") {
 		return;
 	}
-	intlPolyfillDetect += "&& \n Intl.Collator.supportedLocalesOf('"+locale+"').length === 1 ";
-	intlPolyfillDetect += "&& \n Intl.DateTimeFormat.supportedLocalesOf('"+locale+"').length === 1 ";
-	intlPolyfillDetect += "&& \n Intl.NumberFormat.supportedLocalesOf('"+locale+"').length === 1 ";
+	intlPolyfillDetect += ` && (function() {
+		try {
+			return Intl.Collator.supportedLocalesOf('"+locale+"').length === 1 &&
+			Intl.DateTimeFormat.supportedLocalesOf('"+locale+"').length === 1 &&
+			Intl.NumberFormat.supportedLocalesOf('"+locale+"').length === 1;
+		} catch (e) {
+			return false;
+		}
+	})`;
 })
 
 var detectOutputPath = path.join(IntlPolyfillOutput, 'detect.js');
