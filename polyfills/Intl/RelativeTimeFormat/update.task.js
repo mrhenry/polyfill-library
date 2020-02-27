@@ -68,9 +68,6 @@ console.log('Importing Intl.RelativeTimeFormat~locale.* polyfill from ' + Locale
 var locales = fs.readdirSync(LocalesPath);
 locales.forEach(function (file) {
 	var locale = file.slice(0, file.indexOf('.'));
-	if (locale === "root") {
-		return;
-	}
 	var localeOutputPath = path.join(LocalesPolyfillOutput, locale);
 
 	if (!fs.existsSync(localeOutputPath)) {
