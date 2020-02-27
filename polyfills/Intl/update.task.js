@@ -93,6 +93,9 @@ var intlPolyfillDetect = "'Intl' in self && \n Intl.Collator && \n Intl.DateTime
 
 locales.forEach(function (file) {
 	var locale = file.slice(0, file.indexOf('.'));
+	if (locale === "root") {
+		return;
+	}
 	intlPolyfillDetect += "&& \n Intl.Collator.supportedLocalesOf('"+locale+"').length === 1 ";
 	intlPolyfillDetect += "&& \n Intl.DateTimeFormat.supportedLocalesOf('"+locale+"').length === 1 ";
 	intlPolyfillDetect += "&& \n Intl.NumberFormat.supportedLocalesOf('"+locale+"').length === 1 ";

@@ -68,6 +68,9 @@ console.log('Importing Intl.PluralRules~locale.* polyfill from ' + LocalesPath);
 var locales = fs.readdirSync(LocalesPath);
 locales.forEach(function (file) {
 	var locale = file.slice(0, file.indexOf('.'));
+	if (locale === "root") {
+		return;
+	}
 	var localeOutputPath = path.join(LocalesPolyfillOutput, locale);
 
 	if (!fs.existsSync(localeOutputPath)) {
