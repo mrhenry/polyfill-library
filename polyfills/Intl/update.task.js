@@ -96,15 +96,15 @@ locales.forEach(function (file) {
 	if (locale === "root") {
 		return;
 	}
-	intlPolyfillDetect += ` && (function() {
-		try {
-			return Intl.Collator.supportedLocalesOf('"+locale+"').length === 1 &&
-			Intl.DateTimeFormat.supportedLocalesOf('"+locale+"').length === 1 &&
-			Intl.NumberFormat.supportedLocalesOf('"+locale+"').length === 1;
-		} catch (e) {
-			return false;
-		}
-	})`;
+	intlPolyfillDetect += "&& (function() {" +
+							"try {" +
+								"return Intl.Collator.supportedLocalesOf('"+locale+"').length === 1 &&" +
+										"Intl.DateTimeFormat.supportedLocalesOf('"+locale+"').length === 1 && "+
+										"Intl.NumberFormat.supportedLocalesOf('"+locale+"').length === 1;" +
+							"} catch (e) {" +
+								"return false;" +
+							"}" +
+	"})";
 })
 
 var detectOutputPath = path.join(IntlPolyfillOutput, 'detect.js');
