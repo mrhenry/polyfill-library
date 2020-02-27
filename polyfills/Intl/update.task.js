@@ -89,23 +89,23 @@ locales.forEach(function (file) {
 	writeFileIfChanged(configOutputPath, configFileSource);
 });
 
-var intlPolyfillDetect = "'Intl' in self && \n Intl.Collator && \n Intl.DateTimeFormat && \n Intl.NumberFormat && \n Intl.NumberFormat.supportedLocalesOf ";
+var intlPolyfillDetect = "'Intl' in self && \n Intl.Collator && \n Intl.DateTimeFormat && \n Intl.NumberFormat && \n Intl.NumberFormat.supportedLocalesOf && ";
 
-locales.forEach(function (file) {
-	var locale = file.slice(0, file.indexOf('.'));
-	if (locale === "root") {
-		return;
-	}
-	intlPolyfillDetect += "&& (function() {" +
-							"try {" +
-								"return Intl.Collator.supportedLocalesOf('"+locale+"').length === 1 &&" +
-										"Intl.DateTimeFormat.supportedLocalesOf('"+locale+"').length === 1 && "+
-										"Intl.NumberFormat.supportedLocalesOf('"+locale+"').length === 1;" +
-							"} catch (e) {" +
-								"return false;" +
-							"}" +
-	"})";
-})
+intlPolyfillDetect += "(function() {\n\tfunction supportsLocale(locale) {\n\t\ttry {\n\t\t\treturn Intl.Collator.supportedLocalesOf(locale).length === 1 &&\n\t\t\t\tIntl.DateTimeFormat.supportedLocalesOf(locale).length === 1 &&\n\t\t\t\tIntl.NumberFormat.supportedLocalesOf(locale).length === 1;\n\t\t} catch (e) {\n\t\t\treturn false;\n\t\t}\n\t}";
+
+var localeNames = locales
+  .map(function(file) {
+    var locale = file.slice(0, file.indexOf("."));
+    return locale;
+  })
+  .filter(function(locale) {
+    return locale !== "root";
+  });
+
+  intlPolyfillDetect += "var locales = " + JSON.stringify(localeNames) + ";";
+
+intlPolyfillDetect +=
+  "for(var i = 0; i < locales.length; i++) {\n\t\tvar locale = locales[i];\n\t\tif (supportsLocale(locale)) {\n\t\t\tcontinue;\n\t\t} else {\n\t\t\treturn false;\n\t\t}\n\t}\n})()";
 
 var detectOutputPath = path.join(IntlPolyfillOutput, 'detect.js');
 writeFileIfChanged(detectOutputPath, intlPolyfillDetect);
