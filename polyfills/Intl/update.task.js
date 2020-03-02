@@ -89,7 +89,7 @@ locales.forEach(function (file) {
 	writeFileIfChanged(configOutputPath, configFileSource);
 });
 
-var intlPolyfillDetect = "'Intl' in self && \n Intl.Collator && \n Intl.DateTimeFormat && \n Intl.NumberFormat && \n Intl.NumberFormat.supportedLocalesOf && ";
+var intlPolyfillDetect = "'Intl' in self && \n Intl.Collator && \n Intl.DateTimeFormat  && \n Intl.DateTimeFormat.prototype.formatToParts && \n Intl.NumberFormat && \n Intl.NumberFormat.supportedLocalesOf && ";
 
 intlPolyfillDetect += "(function() {\n\tfunction supportsLocale(locale) {\n\t\ttry {\n\t\t\treturn Intl.Collator.supportedLocalesOf(locale).length === 1 &&\n\t\t\t\tIntl.DateTimeFormat.supportedLocalesOf(locale).length === 1 &&\n\t\t\t\tIntl.NumberFormat.supportedLocalesOf(locale).length === 1;\n\t\t} catch (e) {\n\t\t\treturn false;\n\t\t}\n\t}";
 

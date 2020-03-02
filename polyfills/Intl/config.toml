@@ -8,16 +8,17 @@ notes = [
 ]
 
 [browsers]
-android = "<=4.3"
-ie = "<12"
-ie_mob = "*"
-firefox = "<29"
-opera = "<15"
-chrome = "<=34"
-safari = "<10"
-ios_saf = "<10"
+chrome = "<71"
+edge = "<18"
+firefox = "<51"
 firefox_mob = "*"
-samsung_mob = "<6"
+ie = "*"
+ie_mob = "*"
+opera = "<58"
+safari = "<11"
+ios_saf = "<11"
+android = "<7.1"
+samsung_mob = "<7"
 
 [build]
 minify = false
