@@ -106,7 +106,6 @@ jobs:
     steps:
       - checkout
       - run: npm ci
-      - run: sudo apt install hub
       - run:
           name: Start test-server
           command: node ./test/polyfills/server.js
@@ -116,6 +115,7 @@ jobs:
       - run: node ./test/polyfills/compat.js
       - run: node ./test/polyfills/update-polyfill-targeting.js
       - run: >
+          curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.1
           for i in `git diff --name-only`; 
           do 
             git checkout master;
@@ -126,7 +126,7 @@ jobs:
             git add $i;
             git commit -m "update targets for $i";
             git push origin $branch_name;
-            hub pull-request --no-edit;
+            bin/hub pull-request --no-edit;
           done
 workflows:
   update_polyfill_targets:
