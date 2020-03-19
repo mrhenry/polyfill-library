@@ -22,6 +22,7 @@ jobs:
       - checkout
       - run: npm ci
       - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
+      - run: npm version --no-git-tag-version ${CIRCLE_TAG}
       - run: npm publish
   polyfill_tests_android:
     docker:
