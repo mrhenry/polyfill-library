@@ -36,7 +36,7 @@ jobs:
             git checkout master;
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
-            branch_name="android--`echo $i | sed 's/polyfills\///' | sed 's/\/config\.toml//'`"";
+            branch_name="android--`echo $i | sed 's/polyfills\///' | sed 's/\/config\.toml//'`";
             git checkout -b $branch_name;
             git add $i;
             git commit -m "update android targeting for $i";
@@ -76,7 +76,7 @@ jobs:
             git checkout master;
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
-            branch_name="chrome--`echo $i | sed 's/polyfills\///' | sed 's/\/config\.toml//'`"";
+            branch_name="chrome--`echo $i | sed 's/polyfills\///' | sed 's/\/config\.toml//'`";
             git checkout -b $branch_name;
             git add $i;
             git commit -m "update chrome targeting for $i";
@@ -116,7 +116,7 @@ jobs:
             git checkout master;
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
-            branch_name="edge--`echo $i | sed 's/polyfills\///' | sed 's/\/config\.toml//'`"";
+            branch_name="edge--`echo $i | sed 's/polyfills\///' | sed 's/\/config\.toml//'`";
             git checkout -b $branch_name;
             git add $i;
             git commit -m "update edge targeting for $i";
@@ -156,7 +156,7 @@ jobs:
             git checkout master;
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
-            branch_name="firefox--`echo $i | sed 's/polyfills\///' | sed 's/\/config\.toml//'`"";
+            branch_name="firefox--`echo $i | sed 's/polyfills\///' | sed 's/\/config\.toml//'`";
             git checkout -b $branch_name;
             git add $i;
             git commit -m "update firefox targeting for $i";
@@ -196,7 +196,7 @@ jobs:
             git checkout master;
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
-            branch_name="ie--`echo $i | sed 's/polyfills\///' | sed 's/\/config\.toml//'`"";
+            branch_name="ie--`echo $i | sed 's/polyfills\///' | sed 's/\/config\.toml//'`";
             git checkout -b $branch_name;
             git add $i;
             git commit -m "update ie targeting for $i";
@@ -236,7 +236,7 @@ jobs:
             git checkout master;
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
-            branch_name="ios--`echo $i | sed 's/polyfills\///' | sed 's/\/config\.toml//'`"";
+            branch_name="ios--`echo $i | sed 's/polyfills\///' | sed 's/\/config\.toml//'`";
             git checkout -b $branch_name;
             git add $i;
             git commit -m "update ios targeting for $i";
@@ -277,7 +277,7 @@ jobs:
             git checkout master;
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
-            branch_name="safari--`echo $i | sed 's/polyfills\///' | sed 's/\/config\.toml//'`"";
+            branch_name="safari--`echo $i | sed 's/polyfills\///' | sed 's/\/config\.toml//'`";
             git checkout -b $branch_name;
             git add $i;
             git commit -m "update safari targeting for $i";
