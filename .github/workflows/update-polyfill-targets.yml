@@ -40,7 +40,7 @@ jobs:
             git checkout -b $branch_name;
             git add $i;
             git commit -m "update android targeting for $i";
-            git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name;
+            git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name -f;
             bin/hub pull-request --no-edit -p;
           done
   chrome:
@@ -80,7 +80,7 @@ jobs:
             git checkout -b $branch_name;
             git add $i;
             git commit -m "update chrome targeting for $i";
-            git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name;
+            git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name -f;
             bin/hub pull-request --no-edit -p;
           done
   edge:
@@ -120,7 +120,7 @@ jobs:
             git checkout -b $branch_name;
             git add $i;
             git commit -m "update edge targeting for $i";
-            git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name;
+            git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name -f;
             bin/hub pull-request --no-edit -p;
           done
   firefox:
@@ -160,7 +160,7 @@ jobs:
             git checkout -b $branch_name;
             git add $i;
             git commit -m "update firefox targeting for $i";
-            git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name;
+            git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name -f;
             bin/hub pull-request --no-edit -p;
           done
   ie:
@@ -200,7 +200,7 @@ jobs:
             git checkout -b $branch_name;
             git add $i;
             git commit -m "update ie targeting for $i";
-            git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name;
+            git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name -f;
             bin/hub pull-request --no-edit -p;
           done
   ios:
@@ -240,7 +240,7 @@ jobs:
             git checkout -b $branch_name;
             git add $i;
             git commit -m "update ios targeting for $i";
-            git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name;
+            git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name -f;
             bin/hub pull-request --no-edit -p;
           done
   safari:
@@ -281,6 +281,6 @@ jobs:
             git checkout -b $branch_name;
             git add $i;
             git commit -m "update safari targeting for $i";
-            git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name;
+            git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name -f;
             bin/hub pull-request --no-edit -p;
           done
