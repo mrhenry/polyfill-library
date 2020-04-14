@@ -1,7 +1,8 @@
 name: Update polyfill targets
-on:
-  schedule:
-    - cron: "50 16 * * *"
+on: [push]
+# on:
+#   schedule:
+#     - cron: "50 16 * * *"
 jobs:
   android:
     runs-on: ubuntu-latest
