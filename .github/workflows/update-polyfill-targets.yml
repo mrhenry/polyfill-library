@@ -41,7 +41,9 @@ jobs:
             git add $i;
             git commit -m "update android targeting for $i";
             git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name -f;
-            bin/hub pull-request --no-edit -p;
+            if [[ -z $(hub pr list -h $branch_name) ]]; then
+              bin/hub pull-request --no-edit -p;
+            fi
           done
   chrome:
     runs-on: ubuntu-latest
@@ -81,7 +83,9 @@ jobs:
             git add $i;
             git commit -m "update chrome targeting for $i";
             git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name -f;
-            bin/hub pull-request --no-edit -p;
+            if [[ -z $(hub pr list -h $branch_name) ]]; then
+              bin/hub pull-request --no-edit -p;
+            fi
           done
   edge:
     runs-on: ubuntu-latest
@@ -121,7 +125,9 @@ jobs:
             git add $i;
             git commit -m "update edge targeting for $i";
             git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name -f;
-            bin/hub pull-request --no-edit -p;
+            if [[ -z $(hub pr list -h $branch_name) ]]; then
+              bin/hub pull-request --no-edit -p;
+            fi
           done
   firefox:
     runs-on: ubuntu-latest
@@ -161,7 +167,9 @@ jobs:
             git add $i;
             git commit -m "update firefox targeting for $i";
             git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name -f;
-            bin/hub pull-request --no-edit -p;
+            if [[ -z $(hub pr list -h $branch_name) ]]; then
+              bin/hub pull-request --no-edit -p;
+            fi
           done
   ie:
     runs-on: ubuntu-latest
@@ -201,7 +209,9 @@ jobs:
             git add $i;
             git commit -m "update ie targeting for $i";
             git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name -f;
-            bin/hub pull-request --no-edit -p;
+            if [[ -z $(hub pr list -h $branch_name) ]]; then
+              bin/hub pull-request --no-edit -p;
+            fi
           done
   ios:
     runs-on: ubuntu-latest
@@ -241,7 +251,9 @@ jobs:
             git add $i;
             git commit -m "update ios targeting for $i";
             git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name -f;
-            bin/hub pull-request --no-edit -p;
+            if [[ -z $(hub pr list -h $branch_name) ]]; then
+              bin/hub pull-request --no-edit -p;
+            fi
           done
   safari:
     runs-on: ubuntu-latest
@@ -282,5 +294,7 @@ jobs:
             git add $i;
             git commit -m "update safari targeting for $i";
             git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" $branch_name -f;
-            bin/hub pull-request --no-edit -p;
+            if [[ -z $(hub pr list -h $branch_name) ]]; then
+              bin/hub pull-request --no-edit -p;
+            fi
           done
