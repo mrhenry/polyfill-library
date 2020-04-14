@@ -1,7 +1,7 @@
 name: Update polyfill targets
 on:
   schedule:
-    - cron: "10 16 * * *"
+    - cron: "40 16 * * *"
 jobs:
   android:
     runs-on: ubuntu-latest
@@ -12,12 +12,12 @@ jobs:
         node-version: 12.x
     - run: npm ci
     - name: Run tests on android without polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=android
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=android || true
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
     - name: Run tests on android all polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js all browser=android
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js all browser=android || true
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
@@ -49,12 +49,12 @@ jobs:
         node-version: 12.x
     - run: npm ci
     - name: Run tests on chrome without polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=chrome
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=chrome || true
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
     - name: Run tests on chrome all polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js all browser=chrome
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js all browser=chrome || true
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
@@ -86,12 +86,12 @@ jobs:
         node-version: 12.x
     - run: npm ci
     - name: Run tests on edge without polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=edge
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=edge || true
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
     - name: Run tests on edge all polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js all browser=edge
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js all browser=edge || true
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
@@ -123,12 +123,12 @@ jobs:
         node-version: 12.x
     - run: npm ci
     - name: Run tests on firefox without polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=firefox
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=firefox || true
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
     - name: Run tests on firefox all polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js all browser=firefox
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js all browser=firefox || true
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
@@ -160,12 +160,12 @@ jobs:
         node-version: 12.x
     - run: npm ci
     - name: Run tests on ie without polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=ie
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=ie || true
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
     - name: Run tests on ie all polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js all browser=ie
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js all browser=ie || true
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
@@ -197,12 +197,12 @@ jobs:
         node-version: 12.x
     - run: npm ci
     - name: Run tests on ios without polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=ios
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=ios || true
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
     - name: Run tests on ios all polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js all browser=ios
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js all browser=ios || true
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
@@ -234,13 +234,13 @@ jobs:
         node-version: 12.x
     - run: npm ci
     - name: Run tests on safari without polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=safari
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=safari || true
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
     - run: all ci
     - name: Run tests all safari without polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=safari
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=safari || true
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
