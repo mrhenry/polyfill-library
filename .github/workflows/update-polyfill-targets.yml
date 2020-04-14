@@ -1,7 +1,7 @@
 name: Update polyfill targets
 on:
   schedule:
-    - cron: "0 1 * * *"
+    - cron: "20 1 * * *"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,7 +17,10 @@ jobs:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
     - name: Run tests with all polyfills
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js all || true
+      run: node ./test/polyfills/remotetest.js all || true
+      env:
+        BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+        BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
     - name: Figure out which browsers require the polyfill and which do not
       run: node ./test/polyfills/compat.js
     - name: Update the browser targeting configuration for all polyfills
