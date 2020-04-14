@@ -1,7 +1,7 @@
 name: Update polyfill targets
 on:
   schedule:
-    - cron: "40 15 * * *"
+    - cron: "10 16 * * *"
 jobs:
   android:
     runs-on: ubuntu-latest
@@ -237,11 +237,13 @@ jobs:
       run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=safari
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+        BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
     - run: all ci
     - name: Run tests all safari without polyfills
       run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js control browser=safari
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+        BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
     - name: Figure out which versions require the polyfill and which versions do not
       run: node ./test/polyfills/compat.js
     - name: Update the browser targeting configuration for all polyfills
@@ -260,4 +262,3 @@ jobs:
             git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${REPOSITORY}.git" $branch_name;
             bin/hub pull-request --no-edit;
           done
-        BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
