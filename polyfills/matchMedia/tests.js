@@ -37,3 +37,13 @@ it('https://github.com/Financial-Times/polyfill-library/issues/43', function() {
 		window.matchMedia('(min--moz-device-pixel-ratio: 2)');
 	});
 });
+
+it('https://github.com/Financial-Times/polyfill-library/issues/623', function() {
+	// addEventListener should not throw
+	proclaim.doesNotThrow(function() {
+		var mql = window.matchMedia('screen');
+		mql.addListener(function() {
+			// noop
+		});
+	});
+});
