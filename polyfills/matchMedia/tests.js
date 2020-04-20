@@ -39,7 +39,7 @@ it('https://github.com/Financial-Times/polyfill-library/issues/43', function() {
 });
 
 it('https://github.com/Financial-Times/polyfill-library/issues/623', function() {
-	// addEventListener should not throw
+	// addListener should not throw
 	proclaim.doesNotThrow(function() {
 		var mql = window.matchMedia('screen');
 		mql.addListener(function() {
