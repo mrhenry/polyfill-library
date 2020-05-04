@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ybiquitous/npm-audit-fix-action@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.ORIGAMI_GITHUB_TOKEN }}
           # branch: "npm-audit-fix"
           # default_branch: "master"
           # commit_title: "chore(deps): npm audit fix"
