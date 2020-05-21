@@ -288,7 +288,7 @@ describe("ResizeObserver", function() {
 		ro = new ResizeObserver(function(entries) {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.deepStrictEqual(entries[0].contentRect.width, 68)
+			proclaim.deepStrictEqual(entries[0].contentRect.width, 70)
 			proclaim.deepStrictEqual(entries[0].contentRect.height, 200)
 			done()
 		})
@@ -323,7 +323,7 @@ describe("ResizeObserver", function() {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
 			proclaim.deepStrictEqual(entries[0].contentRect.width, 100)
-			proclaim.deepStrictEqual(entries[0].contentRect.height, 168)
+			proclaim.deepStrictEqual(entries[0].contentRect.height, 170)
 			done()
 		})
 		Object.defineProperty(el, "offsetWidth", {
@@ -356,8 +356,8 @@ describe("ResizeObserver", function() {
 		ro = new ResizeObserver(function(entries) {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.deepStrictEqual(entries[0].contentRect.width, 68)
-			proclaim.deepStrictEqual(entries[0].contentRect.height, 168)
+			proclaim.deepStrictEqual(entries[0].contentRect.width, 70)
+			proclaim.deepStrictEqual(entries[0].contentRect.height, 170)
 			done()
 		})
 		Object.defineProperty(el, "offsetWidth", {
