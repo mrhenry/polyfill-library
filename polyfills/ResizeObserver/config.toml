@@ -1,7 +1,12 @@
-repo = "https://github.com/que-etc/resize-observer-polyfill"
+repo = "https://github.com/juggle/resize-observer/"
 docs = "https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"
 spec = "https://drafts.csswg.org/resize-observer-1"
-license = "MIT"
+license = "Apache-2.0"
+dependencies = [
+  "Map",
+  "MutationObserver",
+  "requestAnimationFrame"
+]
 
 [browsers]
 chrome = "<64"
@@ -19,6 +24,6 @@ op_mob = "<47"
 ios_saf = "*"
 
 [install]
-module = "resize-observer-polyfill"
-paths = [ "dist/ResizeObserver.js" ]
+module = "@juggle/resize-observer"
+paths = [ "lib/exports/resize-observer.umd.js" ]
 
