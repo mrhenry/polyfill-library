@@ -1,5 +1,9 @@
 name: Test Polyfills 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - '**'
+      - '!master'
 jobs:
   android:
     runs-on: ubuntu-latest
