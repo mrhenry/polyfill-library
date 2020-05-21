@@ -1,0 +1,26 @@
+dependencies = [ "Intl", "Intl.~locale.en", "Intl.PluralRules" ]
+license = "MIT"
+spec = "https://tc39.es/proposal-intl-relative-time/#sec-intl-numberformat-constructor"
+repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-numberformat/polyfill.js"
+docs = "https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat"
+notes = [
+  "Locales must be specified separately by prefixing the locale name with `Intl.NumberFormat~locale`, eg `Intl.NumberFormat~locale.en-GB`."
+]
+
+[browsers]
+android = "*"
+ie = "9 - *"
+ie_mob = "9 - *"
+firefox = "*"
+opera = "*"
+chrome = "<77"
+safari = "*"
+ios_saf = "*"
+firefox_mob = "*"
+samsung_mob = "*"
+
+[install]
+module = "@formatjs/intl-numberformat"
+paths = [ "dist/umd/polyfill.js" ]
+postinstall = "update.task.js"
+
