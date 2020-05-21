@@ -22,9 +22,7 @@ describe("ResizeObserver", function() {
 	})
 
 	afterEach(function() {
-		while (document.body.firstElementChild) {
-			document.body.removeChild(document.body.firstElementChild)
-		}
+		el.parentNode.removeChild(el);
 		if (ro) {
 			ro.disconnect()
 			ro = null
@@ -139,7 +137,7 @@ describe("ResizeObserver", function() {
 		var child = document.createElement("div")
 		el.style.display = "none"
 		child.style.display = "block"
-		el.append(child)
+		el.appendChild(child)
 		proclaim.deepStrictEqual(el.style.display, "none")
 		proclaim.deepStrictEqual(child.style.display, "block")
 		ro.observe(child)
@@ -147,13 +145,13 @@ describe("ResizeObserver", function() {
 	})
 
 	it("Observer should not fire when an element has no document", function(done) {
-		el = el.cloneNode()
+		var el1 = el.cloneNode()
 		ro = new ResizeObserver(function() {
 			proclaim.deepStrictEqual(false, true) // Should not fire
 		})
-		el.style.width = "0"
-		el.style.height = "0"
-		ro.observe(el)
+		el1.style.width = "0"
+		el1.style.height = "0"
+		ro.observe(el1)
 		delay(done)
 	})
 
@@ -167,14 +165,12 @@ describe("ResizeObserver", function() {
 
 	it("Observer should fire initially when element has size and display", function(done) {
 		ro = new ResizeObserver(function(entries) {
-			proclaim.deepStrictEqual(entries, 1)
+			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.deepStrictEqual(entries[0].contentRect, {
-				top: 0,
-				left: 0,
-				width: 100,
-				height: 0
-			})
+			proclaim.deepStrictEqual(entries[0].contentRect.top, 0)
+			proclaim.deepStrictEqual(entries[0].contentRect.left, 0)
+			proclaim.deepStrictEqual(entries[0].contentRect.width, 100)
+			proclaim.deepStrictEqual(entries[0].contentRect.height, 0)
 			done()
 		})
 		ro.observe(el)
@@ -182,14 +178,12 @@ describe("ResizeObserver", function() {
 
 	it("Observer should only allow watching the same element once", function(done) {
 		ro = new ResizeObserver(function(entries) {
-			proclaim.deepStrictEqual(entries, 1)
+			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.deepStrictEqual(entries[0].contentRect, {
-				top: 0,
-				left: 0,
-				width: 100,
-				height: 0
-			})
+			proclaim.deepStrictEqual(entries[0].contentRect.top, 0)
+			proclaim.deepStrictEqual(entries[0].contentRect.left, 0)
+			proclaim.deepStrictEqual(entries[0].contentRect.width, 100)
+			proclaim.deepStrictEqual(entries[0].contentRect.height, 0)
 			done()
 		})
 		ro.observe(el)
@@ -198,14 +192,12 @@ describe("ResizeObserver", function() {
 
 	it("Observer should fire when element size changes", function(done) {
 		ro = new ResizeObserver(function(entries) {
-			proclaim.deepStrictEqual(entries, 1)
+			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.deepStrictEqual(entries[0].contentRect, {
-				top: 0,
-				left: 0,
-				width: 100,
-				height: 200
-			})
+			proclaim.deepStrictEqual(entries[0].contentRect.top, 0)
+			proclaim.deepStrictEqual(entries[0].contentRect.left, 0)
+			proclaim.deepStrictEqual(entries[0].contentRect.width, 100)
+			proclaim.deepStrictEqual(entries[0].contentRect.height, 200)
 			done()
 		})
 		el.style.width = "0"
@@ -221,14 +213,12 @@ describe("ResizeObserver", function() {
 		var count = 0
 		ro = new ResizeObserver(function(entries) {
 			count += 1
-			proclaim.deepStrictEqual(entries, 1)
+			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.deepStrictEqual(entries[0].contentRect, {
-				top: 0,
-				left: 0,
-				width: count !== 2 ? 100 : 0,
-				height: 0
-			})
+			proclaim.deepStrictEqual(entries[0].contentRect.top, 0)
+			proclaim.deepStrictEqual(entries[0].contentRect.left, 0)
+			proclaim.deepStrictEqual(entries[0].contentRect.width, count !== 2 ? 100 : 0)
+			proclaim.deepStrictEqual(entries[0].contentRect.height, 0)
 			if (count === 3) {
 				done()
 			}
@@ -244,14 +234,12 @@ describe("ResizeObserver", function() {
 
 	it("Observer should fire when only the width changes", function(done) {
 		ro = new ResizeObserver(function(entries) {
-			proclaim.deepStrictEqual(entries, 1)
+			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.deepStrictEqual(entries[0].contentRect, {
-				top: 0,
-				left: 0,
-				width: 100,
-				height: 0
-			})
+			proclaim.deepStrictEqual(entries[0].contentRect.top, 0)
+			proclaim.deepStrictEqual(entries[0].contentRect.left, 0)
+			proclaim.deepStrictEqual(entries[0].contentRect.width, 100)
+			proclaim.deepStrictEqual(entries[0].contentRect.height, 0)
 			done()
 		})
 		el.style.width = "0"
@@ -264,14 +252,12 @@ describe("ResizeObserver", function() {
 
 	it("Observer should fire when only the height changes", function(done) {
 		ro = new ResizeObserver(function(entries) {
-			proclaim.deepStrictEqual(entries, 1)
+			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.deepStrictEqual(entries[0].contentRect, {
-				top: 0,
-				left: 0,
-				width: 0,
-				height: 100
-			})
+			proclaim.deepStrictEqual(entries[0].contentRect.top, 0)
+			proclaim.deepStrictEqual(entries[0].contentRect.left, 0)
+			proclaim.deepStrictEqual(entries[0].contentRect.width, 0)
+			proclaim.deepStrictEqual(entries[0].contentRect.height, 100)
 			done()
 		})
 		el.style.width = "0"
@@ -284,14 +270,12 @@ describe("ResizeObserver", function() {
 
 	it("Observer should handle padding on an element.", function(done) {
 		ro = new ResizeObserver(function(entries) {
-			proclaim.deepStrictEqual(entries, 1)
+			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.deepStrictEqual(entries[0].contentRect, {
-				top: 1,
-				left: 4,
-				width: 100,
-				height: 200
-			})
+			proclaim.deepStrictEqual(entries[0].contentRect.top, 1)
+			proclaim.deepStrictEqual(entries[0].contentRect.left, 4)
+			proclaim.deepStrictEqual(entries[0].contentRect.width, 100)
+			proclaim.deepStrictEqual(entries[0].contentRect.height, 200)
 			done()
 		})
 		el.style.width = "100px"
@@ -302,12 +286,10 @@ describe("ResizeObserver", function() {
 
 	it("Observer should handle vertical scrollbars on an element.", function(done) {
 		ro = new ResizeObserver(function(entries) {
-			proclaim.deepStrictEqual(entries, 1)
+			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.deepStrictEqual(entries[0].contentRect, {
-				width: 85,
-				height: 200
-			})
+			proclaim.deepStrictEqual(entries[0].contentRect.width, 68)
+			proclaim.deepStrictEqual(entries[0].contentRect.height, 200)
 			done()
 		})
 		Object.defineProperty(el, "offsetWidth", {
@@ -338,12 +320,10 @@ describe("ResizeObserver", function() {
 
 	it("Observer should handle horizontal scrollbars on an element.", function(done) {
 		ro = new ResizeObserver(function(entries) {
-			proclaim.deepStrictEqual(entries, 1)
+			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.deepStrictEqual(entries[0].contentRect, {
-				width: 100,
-				height: 185
-			})
+			proclaim.deepStrictEqual(entries[0].contentRect.width, 100)
+			proclaim.deepStrictEqual(entries[0].contentRect.height, 168)
 			done()
 		})
 		Object.defineProperty(el, "offsetWidth", {
@@ -374,12 +354,10 @@ describe("ResizeObserver", function() {
 
 	it("Observer should handle horizontal and vertical scrollbars on an element.", function(done) {
 		ro = new ResizeObserver(function(entries) {
-			proclaim.deepStrictEqual(entries, 1)
+			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.deepStrictEqual(entries[0].contentRect, {
-				width: 85,
-				height: 185
-			})
+			proclaim.deepStrictEqual(entries[0].contentRect.width, 68)
+			proclaim.deepStrictEqual(entries[0].contentRect.height, 168)
 			done()
 		})
 		Object.defineProperty(el, "offsetWidth", {
@@ -411,14 +389,12 @@ describe("ResizeObserver", function() {
 
 	it("Observer should handle box-sizing and padding correctly.", function(done) {
 		ro = new ResizeObserver(function(entries) {
-			proclaim.deepStrictEqual(entries, 1)
+			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.deepStrictEqual(entries[0].contentRect, {
-				top: 1,
-				left: 4,
-				width: 94,
-				height: 196
-			})
+			proclaim.deepStrictEqual(entries[0].contentRect.top, 1)
+			proclaim.deepStrictEqual(entries[0].contentRect.left, 4)
+			proclaim.deepStrictEqual(entries[0].contentRect.width, 94)
+			proclaim.deepStrictEqual(entries[0].contentRect.height, 196)
 			done()
 		})
 		el.style.width = "100px"
@@ -442,7 +418,7 @@ describe("ResizeObserver", function() {
 		var el2 = el.cloneNode()
 		document.body.appendChild(el2)
 		ro = new ResizeObserver(function(entries, observer) {
-			proclaim.deepStrictEqual(entries, 1)
+			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
 			proclaim.deepStrictEqual(observer, ro)
 			done()
@@ -456,7 +432,7 @@ describe("ResizeObserver", function() {
 		var el2 = el.cloneNode()
 		document.body.appendChild(el2)
 		ro = new ResizeObserver(function(entries, observer) {
-			proclaim.deepStrictEqual(entries, 1)
+			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
 			proclaim.deepStrictEqual(observer, ro)
 			done()
@@ -504,28 +480,6 @@ describe("ResizeObserver", function() {
 		ro.disconnect()
 		ro.unobserve(el)
 		delay(done)
-	})
-
-	it("Observer should fire resize loop errors.", function(done) {
-		window.addEventListener(
-			"error",
-			function(e) {
-				proclaim.deepStrictEqual(e.type, "error")
-				proclaim.deepStrictEqual(
-					e.message,
-					"ResizeObserver loop completed with undelivered notifications."
-				)
-				done()
-			},
-			{once: true}
-		)
-		ro = new ResizeObserver(function(entries) {
-			entries.forEach(function(entry) {
-				var target = entry.target
-				target.style.width = entry.contentRect.width + 1000 + "px"
-			})
-		})
-		ro.observe(el)
 	})
 
 	it("Observer should return itself in the callback.", function(done) {
