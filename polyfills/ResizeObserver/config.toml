@@ -26,4 +26,5 @@ ios_saf = "*"
 [install]
 module = "@juggle/resize-observer"
 paths = [ "lib/exports/resize-observer.umd.js" ]
+postinstall = "update.task.js"
 
