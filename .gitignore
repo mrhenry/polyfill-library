@@ -11,7 +11,13 @@ polyfills/Intl/PluralRules/~locale/**/config.toml
 polyfills/Intl/RelativeTimeFormat/~locale/**/detect.js
 polyfills/Intl/RelativeTimeFormat/~locale/**/tests.js
 polyfills/Intl/RelativeTimeFormat/~locale/**/polyfill.js
+polyfills/Intl/RelativeTimeFormat/polyfill.js
 polyfills/Intl/RelativeTimeFormat/~locale/**/config.toml
+polyfills/Intl/ListFormat/~locale/**/detect.js
+polyfills/Intl/ListFormat/~locale/**/tests.js
+polyfills/Intl/ListFormat/~locale/**/polyfill.js
+polyfills/Intl/ListFormat/polyfill.js
+polyfills/Intl/ListFormat/~locale/**/config.toml
 polyfills/__dist/
 polyfills/~html5-elements/polyfill.js
 polyfills/AudioContext/polyfill.js
@@ -20,7 +26,6 @@ polyfills/HTMLPictureElement/polyfill.js
 polyfills/Intl/detect.js
 polyfills/Intl/polyfill.js
 polyfills/Intl/PluralRules/polyfill.js
-polyfills/Intl/RelativeTimeFormat/polyfill.js
 polyfills/JSON/polyfill.js
 polyfills/MutationObserver/polyfill.js
 polyfills/ResizeObserver/polyfill.js
