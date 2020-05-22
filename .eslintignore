@@ -17,6 +17,8 @@ polyfills/Intl/RelativeTimeFormat/~locale/**/polyfill.js
 polyfills/Intl/RelativeTimeFormat/polyfill.js
 polyfills/Intl/ListFormat/~locale/**/polyfill.js
 polyfills/Intl/ListFormat/polyfill.js
+polyfills/Intl/DisplayNames/~locale/**/polyfill.js
+polyfills/Intl/DisplayNames/polyfill.js
 polyfills/Intl/PluralRules/~locale/**/polyfill.js
 polyfills/Intl/PluralRules/polyfill.js
 polyfills/JSON/polyfill.js

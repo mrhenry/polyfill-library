@@ -18,6 +18,11 @@ polyfills/Intl/ListFormat/~locale/**/tests.js
 polyfills/Intl/ListFormat/~locale/**/polyfill.js
 polyfills/Intl/ListFormat/polyfill.js
 polyfills/Intl/ListFormat/~locale/**/config.toml
+polyfills/Intl/DisplayNames/~locale/**/detect.js
+polyfills/Intl/DisplayNames/~locale/**/tests.js
+polyfills/Intl/DisplayNames/~locale/**/polyfill.js
+polyfills/Intl/DisplayNames/polyfill.js
+polyfills/Intl/DisplayNames/~locale/**/config.toml
 polyfills/__dist/
 polyfills/~html5-elements/polyfill.js
 polyfills/AudioContext/polyfill.js
