@@ -288,7 +288,11 @@ describe("ResizeObserver", function() {
 		ro = new ResizeObserver(function(entries) {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.ok(entries[0].contentRect.width === 70 || entries[0].contentRect.width === 68)
+			try {
+				proclaim.deepStrictEqual(entries[0].contentRect.width, 70)
+			} catch (e) {
+				proclaim.deepStrictEqual(entries[0].contentRect.width, 68)
+			}
 			proclaim.deepStrictEqual(entries[0].contentRect.height, 200)
 			done()
 		})
@@ -323,7 +327,11 @@ describe("ResizeObserver", function() {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
 			proclaim.deepStrictEqual(entries[0].contentRect.width, 100)
-			proclaim.ok(entries[0].contentRect.height === 170 || entries[0].contentRect.height === 168)
+			try {
+				proclaim.deepStrictEqual(entries[0].contentRect.height, 170)
+			} catch (e) {
+				proclaim.deepStrictEqual(entries[0].contentRect.height, 168)
+			}
 			done()
 		})
 		Object.defineProperty(el, "offsetWidth", {
@@ -356,8 +364,16 @@ describe("ResizeObserver", function() {
 		ro = new ResizeObserver(function(entries) {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
-			proclaim.ok(entries[0].contentRect.width === 70 || entries[0].contentRect.width === 68)
-			proclaim.ok(entries[0].contentRect.height === 170 || entries[0].contentRect.height === 168)
+			try {
+				proclaim.deepStrictEqual(entries[0].contentRect.width, 70)
+			} catch (e) {
+				proclaim.deepStrictEqual(entries[0].contentRect.width, 68)
+			}
+			try {
+				proclaim.deepStrictEqual(entries[0].contentRect.height, 170)
+			} catch (e) {
+				proclaim.deepStrictEqual(entries[0].contentRect.height, 168)
+			}
 			done()
 		})
 		Object.defineProperty(el, "offsetWidth", {
