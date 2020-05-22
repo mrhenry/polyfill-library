@@ -1,4 +1,4 @@
-dependencies = [ "Intl", "Intl.~locale.en", "Intl.PluralRules" ]
+dependencies = [ "Intl.getCanonicalLocales", "Intl.PluralRules", "WeakMap", "Set" ]
 license = "MIT"
 spec = "https://tc39.es/proposal-intl-relative-time/#sec-intl-numberformat-constructor"
 repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-numberformat/polyfill.js"
