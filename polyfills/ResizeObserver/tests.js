@@ -294,7 +294,11 @@ describe("ResizeObserver", function() {
 				try {
 					proclaim.deepStrictEqual(entries[0].contentRect.width, 68)
 				} catch (_e) {
-					proclaim.deepStrictEqual(entries[0].contentRect.width, 69)
+					try {
+						proclaim.deepStrictEqual(entries[0].contentRect.width, 69)
+					} catch (err) {
+						proclaim.deepStrictEqual(entries[0].contentRect.width, 73)
+					}
 				}
 			}
 			proclaim.deepStrictEqual(entries[0].contentRect.height, 200)
@@ -337,7 +341,11 @@ describe("ResizeObserver", function() {
 				try {
 					proclaim.deepStrictEqual(entries[0].contentRect.height, 168)
 				} catch (_e) {
-					proclaim.deepStrictEqual(entries[0].contentRect.height, 169)
+					try {
+						proclaim.deepStrictEqual(entries[0].contentRect.height, 169)
+					} catch (err) {
+						proclaim.deepStrictEqual(entries[0].contentRect.height, 173)
+					}
 				}
 			}
 			done()
@@ -378,7 +386,11 @@ describe("ResizeObserver", function() {
 				try {
 					proclaim.deepStrictEqual(entries[0].contentRect.width, 68)
 				} catch (_e) {
-					proclaim.deepStrictEqual(entries[0].contentRect.width, 69)
+					try {
+						proclaim.deepStrictEqual(entries[0].contentRect.width, 69)
+					} catch (err) {
+						proclaim.deepStrictEqual(entries[0].contentRect.width, 73)
+					}
 				}
 			}
 			try {
@@ -387,7 +399,11 @@ describe("ResizeObserver", function() {
 				try {
 					proclaim.deepStrictEqual(entries[0].contentRect.height, 168)
 				} catch (_e) {
-					proclaim.deepStrictEqual(entries[0].contentRect.height, 169)
+					try {
+						proclaim.deepStrictEqual(entries[0].contentRect.height, 169)
+					} catch (err) {
+						proclaim.deepStrictEqual(entries[0].contentRect.height, 173)
+					}
 				}
 			}
 			done()
