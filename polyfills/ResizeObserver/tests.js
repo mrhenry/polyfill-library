@@ -386,15 +386,4 @@ describe("ResizeObserver", function() {
 		})
 		ro.observe(el)
 	})
-
-	it("Calculations should be run after all other raf callbacks have been fired.", function(done) {
-		ro = new ResizeObserver(function(entries) {
-			proclaim.deepStrictEqual(entries[0].contentRect.width, 2000)
-			done()
-		})
-		ro.observe(el)
-		requestAnimationFrame(function() {
-			el.style.width = "2000px"
-		})
-	})
 })
