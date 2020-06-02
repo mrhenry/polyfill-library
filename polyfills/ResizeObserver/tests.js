@@ -359,7 +359,7 @@ describe("ResizeObserver", function() {
 		delay(done)
 	})
 
-	it("Observer should not observe after a disconnect.", function(done) {
+	it("Observer should observe after a disconnect.", function(done) {
 		ro = new ResizeObserver(function() {
 			done()
 		})
