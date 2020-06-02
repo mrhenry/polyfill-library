@@ -359,16 +359,6 @@ describe("ResizeObserver", function() {
 		delay(done)
 	})
 
-	it("Observer should not observe after a disconnect.", function(done) {
-		ro = new ResizeObserver(function() {
-			proclaim.deepStrictEqual(false, true) // Should not fire
-		})
-		ro.observe(el)
-		ro.disconnect()
-		ro.observe(el)
-		delay(done)
-	})
-
 	it("Observer should allow disconnect and unobserve to be called.", function(done) {
 		ro = new ResizeObserver(function() {
 			proclaim.deepStrictEqual(false, true) // Should not fire
