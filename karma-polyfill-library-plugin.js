@@ -37,16 +37,16 @@ function createPolyfillLibraryConfigFor(features) {
 }
 
 async function respondWithPolyfillBundle(config, request, response) {
-	const polyfillLibrary = require("./lib/index.js");
+	const polyfillLibrary = require('./lib');
 
-	const params = {
+	const parameters = {
 		features: createPolyfillLibraryConfigFor(config.features),
 		minify: false,
 		stream: false,
 		uaString: request.headers["user-agent"]
 	};
 
-	const bundle = await polyfillLibrary.getPolyfillString(params);
+	const bundle = await polyfillLibrary.getPolyfillString(parameters);
 	response.setHeader("Content-Type", "application/javascript; charset=utf-8");
 
 	response.writeHead(200);

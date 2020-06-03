@@ -1,3 +1,4 @@
+// eslint-disable-next-line unicorn/prevent-abbreviations
 "use strict";
 
 const path = require('path');
@@ -22,9 +23,9 @@ function getBrowsersFor(feature) {
 		return isBrowserMatch;
 	});
 
-	function useragentToBrowserObj(browserWithVersion) {
+	function useragentToBrowserObject(browserWithVersion) {
 		const [browser, version] = browserWithVersion.split("/");
-		const browserObj = browserstackBrowsers.browsers.find(browserObject => {
+		const browserObject = browserstackBrowsers.browsers.find(browserObject => {
 			if (browser === browserObject.os && version === browserObject.os_version) {
 				return true;
 			} else if (browser === browserObject.browser && version === browserObject.browser_version) {
@@ -34,19 +35,19 @@ function getBrowsersFor(feature) {
 			}
 		});
 
-		if (browserObj) {
+		if (browserObject) {
 			return Object.assign({
 				name: browserWithVersion.replace(/\//g, '-').replace(/\./g, '_'),
 				base: 'BrowserStack'
-			}, browserObj);
+			}, browserObject);
 		} else {
 			throw new Error(`Browser: ${browser} with version ${version} was not found on BrowserStack.`);
 		}
 	}
 
-	const browsersWeSupportInBrowserStack = browsersWeSupportForThisFeature.map(useragentToBrowserObj).reduce(function (acc, cur) {
-		acc[cur.name] = cur;
-		return acc;
+	const browsersWeSupportInBrowserStack = browsersWeSupportForThisFeature.map((element) => useragentToBrowserObject(element)).reduce(function (accumulator, current) {
+		accumulator[current.name] = current;
+		return accumulator;
 	}, {});
 
 	return browsersWeSupportInBrowserStack;
@@ -61,7 +62,7 @@ function generateKarmaConfigTestFiles(config) {
 
 	const featureTests = globby.sync(features);
 
-	return featureTests.map(createKarmaFileObject);
+	return featureTests.map((element) => createKarmaFileObject(element));
 }
 
 function createKarmaFileObject(filePattern) {
@@ -76,6 +77,7 @@ function createKarmaFileObject(filePattern) {
 module.exports = async function (config) {
 	if (!config.features) {
 		console.error('Missing the `--features` flag. `--features` needs to be set to the names of the features being tested. E.G. `npm run test-feature -- --features=Array.from,Array.prototype.forEach`');
+		// eslint-disable-next-line unicorn/no-process-exit
 		process.exit(1);
 	}
 
@@ -119,9 +121,9 @@ module.exports = async function (config) {
 		logLevel: config.LOG_WARN,
 		client: {
 			mocha: {
-			  opts: 'mocha.opts',
-			  // change Karma's debug.html to the mocha web reporter so we can see the test results in page instead of in the console
-			  reporter: 'html'
+				opts: 'mocha.opts',
+				// change Karma's debug.html to the mocha web reporter so we can see the test results in page instead of in the console
+				reporter: 'html'
 			}
 		},
 		// Run the tests inside a new window instead of in an iFrame
@@ -130,12 +132,14 @@ module.exports = async function (config) {
 
 	const features = config.features.split(',').map(feature => feature.trim());
 	const feature = features[0];
+	// eslint-disable-next-line unicorn/consistent-function-scoping
 	const featureToFolder = feature => feature.replace(/\./g, path.sep);
 
 	if (config.browserstack) {
 		const browsers = getBrowsersFor(featureToFolder(feature));
 		if (Object.keys(browsers).length === 0) {
 			console.log('No browsers we support require this polyfill, not running the tests');
+			// eslint-disable-next-line unicorn/no-process-exit
 			process.exit(0);
 		}
 		config.set(Object.assign(config,{
