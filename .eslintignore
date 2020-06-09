@@ -13,6 +13,7 @@ polyfills/fetch/polyfill.js
 polyfills/HTMLPictureElement/polyfill.js
 polyfills/Intl/polyfill.js
 polyfills/Intl/~locale/**/polyfill.js
+polyfills/Intl/getCanonicalLocales/polyfill.js
 polyfills/Intl/RelativeTimeFormat/~locale/**/polyfill.js
 polyfills/Intl/RelativeTimeFormat/polyfill.js
 polyfills/Intl/ListFormat/~locale/**/polyfill.js
