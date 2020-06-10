@@ -63,7 +63,9 @@ function intlLocaleDetectFor(locale) {
 
 console.log('Importing Intl.NumberFormat~locale.* polyfill from ' + LocalesPath);
 var locales = fs.readdirSync(LocalesPath);
-locales.filter(locale => locale.endsWith('.js')).forEach(function (file) {
+locales.filter(function(locale) {
+	return locale.endsWith('.js')
+}).forEach(function (file) {
 	var locale = file.slice(0, file.indexOf('.'));
 	var localeOutputPath = path.join(LocalesPolyfillOutput, locale);
 
