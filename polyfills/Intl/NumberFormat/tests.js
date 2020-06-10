@@ -26,6 +26,6 @@ before(function() {
 it('format should work for compact notation', function () {
   proclaim.equal(new Intl.NumberFormat('en-GB', {
     notation: 'compact',
-    compactDisplay: 'long',
+    compactDisplay: 'long'
   }).format(1807687.733), '1.8 million');
 });
