@@ -1,4 +1,4 @@
-dependencies = [ "Intl", "Intl.~locale.en", "Intl.PluralRules" ]
+dependencies = [ "Intl.NumberFormat", "Intl.PluralRules" ]
 license = "MIT"
 spec = "https://tc39.es/proposal-intl-relative-time/#sec-intl-relativetimeformat-constructor"
 repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-relativetimeformat/polyfill.js"

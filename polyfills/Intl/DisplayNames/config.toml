@@ -1,4 +1,4 @@
-dependencies = [ "Intl", "Intl.~locale.en", "WeakMap"]
+dependencies = [ "Intl.getCanonicalLocales", "WeakMap"]
 license = "MIT"
 spec = "https://tc39.es/proposal-intl-displaynames/#sec-intl-displaynames"
 repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-displaynames/polyfill.js"

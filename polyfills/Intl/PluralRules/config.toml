@@ -1,4 +1,4 @@
-dependencies = ["Intl"]
+dependencies = ["Intl.getCanonicalLocales", "WeakMap"]
 license = "MIT"
 spec = "https://rawgit.com/caridy/intl-plural-rules-spec/master/index.html"
 repo = "https://github.com/formatjs/formatjs/blob/master/packages/intl-pluralrules/polyfill.js"
@@ -22,6 +22,6 @@ samsung_mob = "*"
 
 [install]
 module = "@formatjs/intl-pluralrules"
-paths = [ "dist/umd/polyfill-intl-pluralrules.js" ]
+paths = [ "dist/umd/polyfill.js" ]
 postinstall = "update.task.js"
 

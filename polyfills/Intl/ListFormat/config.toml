@@ -1,4 +1,4 @@
-dependencies = [ "Intl", "Intl.~locale.en", "WeakMap"]
+dependencies = [ "Intl.getCanonicalLocales", "WeakMap"]
 license = "MIT"
 spec = "https://tc39.es/proposal-intl-relative-time/#sec-intl-listformat-constructor"
 repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-listformat/polyfill.js"
