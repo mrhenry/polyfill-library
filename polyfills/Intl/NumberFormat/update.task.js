@@ -58,17 +58,7 @@ configSource.test = { ci: false };
 var configFileSource = TOML.stringify(configSource);
 
 function intlLocaleDetectFor(locale) {
-	return `'Intl' in self && Intl.NumberFormat && (function () {
-		try {
-		  new Intl.NumberFormat('${locale}', {
-			style: 'unit',
-			unit: 'byte',
-		  });
-		} catch (e) {
-		  return false;
-		}
-		return true;
-	  })() && Intl.NumberFormat.supportedLocalesOf('${locale}').length`;
+	return "'Intl' in self && Intl.NumberFormat && (function () {\n\t\ttry {\n\t\t  new Intl.NumberFormat('".concat(locale, "', {\n\t\t\tstyle: 'unit',\n\t\t\tunit: 'byte',\n\t\t  });\n\t\t} catch (e) {\n\t\t  return false;\n\t\t}\n\t\treturn true;\n\t  })() && Intl.NumberFormat.supportedLocalesOf('").concat(locale, "').length");
 }
 
 console.log('Importing Intl.NumberFormat~locale.* polyfill from ' + LocalesPath);
