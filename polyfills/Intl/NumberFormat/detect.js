@@ -2,7 +2,7 @@
   try {
     new Intl.NumberFormat(undefined, {
       style: 'unit',
-      unit: 'byte',
+      unit: 'byte'
     });
   } catch (e) {
     return false;
