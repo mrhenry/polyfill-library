@@ -1,3 +1,4 @@
+aliases = ["Intl"]
 dependencies = ["Intl.getCanonicalLocales", "WeakMap"]
 license = "MIT"
 spec = "https://rawgit.com/caridy/intl-plural-rules-spec/master/index.html"
