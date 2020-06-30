@@ -12,7 +12,6 @@ android = "<63"
 edge = "<18"
 ie = "9 - *"
 ie_mob = "9 - *"
-edge = "<18"
 edge_mob = "<18"
 firefox = "<58"
 opera = "<50"
@@ -26,4 +25,3 @@ samsung_mob = "*"
 module = "@formatjs/intl-pluralrules"
 paths = [ "dist/umd/polyfill.js" ]
 postinstall = "update.task.js"
-
