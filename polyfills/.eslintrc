@@ -23,6 +23,18 @@
       "files": ["update.task.js"],
       "parserOptions": {
         "ecmaVersion": 2018
+      },
+      "env": {
+        "es6": true,
+        "browser": false,
+        "node": true
+      }
+    },
+    {
+      "files": ["tests.js", "test/*"],
+      "env": {
+        "mocha": true,
+        "browser": true
       }
     }
   ],
