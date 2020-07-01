@@ -93,7 +93,13 @@ locales
     var configOutputPath = path.join(localeOutputPath, "config.toml");
     writeFileIfChanged(polyfillOutputPath, localePolyfillSource);
     writeFileIfChanged(detectOutputPath, intlLocaleDetectFor(locale));
-    writeFileIfChanged(configOutputPath, TOML.stringify({...configSource, aliases: [...configSource.aliases, `Intl.~locale.${locale}`]}));
+    writeFileIfChanged(
+      configOutputPath,
+      TOML.stringify({
+        ...configSource,
+        aliases: [...configSource.aliases, `Intl.~locale.${locale}`]
+      })
+    );
   });
 
 console.log(locales.length + " imported locales");

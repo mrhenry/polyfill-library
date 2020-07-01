@@ -55,8 +55,6 @@ configSource.dependencies.push('Intl.PluralRules');
 // don't test every single locale - it will be too slow
 configSource.test = { ci: false };
 
-var configFileSource = TOML.stringify(configSource);
-
 function intlLocaleDetectFor(locale) {
 	return "'Intl' in this && " +
 			"Intl.PluralRules && " +
