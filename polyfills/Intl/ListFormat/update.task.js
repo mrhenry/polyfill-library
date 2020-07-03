@@ -17,7 +17,7 @@
 
 var fs = require('graceful-fs');
 var path = require('path');
-var LocalesPath = path.dirname(require.resolve('@formatjs/intl-listformat/dist/locale-data/en.js'));
+var LocalesPath = path.dirname(require.resolve('@formatjs/intl-listformat/locale-data/en.js'));
 var IntlPolyfillOutput = path.resolve('polyfills/Intl/ListFormat');
 var LocalesPolyfillOutput = path.resolve('polyfills/Intl/ListFormat/~locale');
 var crypto = require('crypto');

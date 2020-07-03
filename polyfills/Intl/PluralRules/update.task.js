@@ -17,7 +17,7 @@
 
 var fs = require('graceful-fs');
 var path = require('path');
-var LocalesPath = path.dirname(require.resolve('@formatjs/intl-pluralrules/dist/locale-data/en.js'));
+var LocalesPath = path.dirname(require.resolve('@formatjs/intl-pluralrules/locale-data/en.js'));
 var IntlPolyfillOutput = path.resolve('polyfills/Intl/PluralRules');
 var LocalesPolyfillOutput = path.resolve('polyfills/Intl/PluralRules/~locale');
 var crypto = require('crypto');

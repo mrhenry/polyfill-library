@@ -18,7 +18,7 @@
 var fs = require("graceful-fs");
 var path = require("path");
 var LocalesPath = path.dirname(
-  require.resolve("@formatjs/intl-datetimeformat/dist/locale-data/en.js")
+  require.resolve("@formatjs/intl-datetimeformat/locale-data/en.js")
 );
 var IntlPolyfillOutput = path.resolve("polyfills/Intl/DateTimeFormat");
 var LocalesPolyfillOutput = path.resolve(
