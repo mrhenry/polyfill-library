@@ -36,7 +36,7 @@
 				// Return `false`
 				return false;
 			}
-			if (!recordKey[_metaKey]) {
+			if (!Object.prototype.hasOwnProperty.call(recordKey, _metaKey)) {
 				var uniqueHashKey = typeof(recordKey)+'-'+(++_uniqueHashId);
 				Object.defineProperty(recordKey, _metaKey, {
 					configurable: false,

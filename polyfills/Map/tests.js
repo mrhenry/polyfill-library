@@ -481,6 +481,33 @@ describe('Map', function () {
 
 		o.set("", "test value");
 		proclaim.equal(o.get(""), 'test value');
+		
+		function inherits(subClass, superClass) {
+			subClass.prototype = Object.create(superClass.prototype);
+			subClass.prototype.constructor = subClass;
+			Object.setPrototypeOf(subClass, superClass);
+		}
+
+		var BaseClass = function() {
+			function BaseClass() {
+			}
+
+			return BaseClass;
+		}();
+
+		var SubClass = function() {
+			inherits(SubClass, BaseClass);
+
+			function SubClass() {
+			}
+
+			return SubClass;
+		}();
+
+		o.set(BaseClass, "base class");
+		o.set(SubClass, "sub class");
+		proclaim.equal(o.get(BaseClass), "base class");
+		proclaim.equal(o.get(SubClass), "sub class");
 	});
 
 	it("implements .delete()", function () {
