@@ -483,10 +483,10 @@ describe('Map', function () {
 		proclaim.equal(o.get(""), 'test value');
 		
 		if (Object.create && Object.setPrototypeOf) {
-			function BaseClass() {
+			function BaseClass() { // eslint-disable-line no-inner-declarations
 				// Empty class
 			}
-			function SubClass() {
+			function SubClass() { // eslint-disable-line no-inner-declarations
 				// Empty class
 			}
 			
