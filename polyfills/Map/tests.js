@@ -483,27 +483,16 @@ describe('Map', function () {
 		proclaim.equal(o.get(""), 'test value');
 		
 		if (Object.create && Object.setPrototypeOf) {
-			function inherits(subClass, superClass) {
-				subClass.prototype = Object.create(superClass.prototype);
-				subClass.prototype.constructor = subClass;
-				Object.setPrototypeOf(subClass, superClass);
+			function BaseClass() {
+				// Empty class
 			}
-
-			var BaseClass = function() {
-				function BaseClass() {
-				}
-
-				return BaseClass;
-			}();
-
-			var SubClass = function() {
-				inherits(SubClass, BaseClass);
-
-				function SubClass() {
-				}
-
-				return SubClass;
-			}();
+			function SubClass() {
+				// Empty class
+			}
+			
+			SubClass.prototype = Object.create(BaseClass.prototype);
+			SubClass.prototype.constructor = SubClass;
+			Object.setPrototypeOf(SubClass, BaseClass);
 
 			o.set(BaseClass, "base class");
 			o.set(SubClass, "sub class");
