@@ -13,9 +13,9 @@ license = "MIT"
 docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/finally"
 
 [browsers]
-android = ">4.4 <63"
+android = ">4.4 <64"
 bb = ">10"
-chrome = ">31 <63"
+chrome = ">31 <64"
 firefox = ">28 <58"
 ios_saf = ">7.1 <11.3"
 edge = ">12 <18"
