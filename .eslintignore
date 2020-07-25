@@ -38,4 +38,4 @@ polyfills/HTMLTemplateElement/polyfill.js
 polyfills/ResizeObserver/polyfill.js
 polyfills/AbortController/polyfill.js
 polyfills/smoothscroll/polyfill.js
-polyfills/TextEncoder/polyfill.js
+# polyfills/TextEncoder/polyfill.js

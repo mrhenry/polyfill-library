@@ -58,4 +58,4 @@ local.log
 test/polyfills/compat.json
 test/polyfills/results-all.json
 test/polyfills/results-control.json
-polyfills/TextEncoder/polyfill.js
+# polyfills/TextEncoder/polyfill.js

@@ -23,6 +23,6 @@ opera = "<25"
 android = "38"
 samsung_mob = "<3.0"
 
-[install]
-module = "fastestsmallesttextencoderdecoder"
-paths = [ "EncoderDecoderTogether.min.js"]
+# [install]
+# module = "fastestsmallesttextencoderdecoder"
+# paths = [ "EncoderDecoderTogether.min.js"]
