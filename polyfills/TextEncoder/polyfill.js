@@ -24,7 +24,7 @@ var ENCODEINTO_BUILD = false;
 	var tmpBufferU16 = new (NativeUint8Array ? Uint16Array : patchedU8Array)(32);
 	var globalTextEncoderPrototype;
 	var globalTextEncoderInstance;
-	
+
 	/*function decoderReplacer(encoded) {
 		var cp0 = encoded.charCodeAt(0), codePoint=0x110000, i=0, stringLen=encoded.length|0, result="";
 		switch(cp0 >> 4) {
@@ -81,28 +81,28 @@ var ENCODEINTO_BUILD = false;
 				switch(cp0 >> 4) {
 					case 15:
 						cp1 = inputAs8[index=index+1|0] & 0xff;
-						if ((cp1 >> 6) !== 0b10 || 0b11110111 < cp0) {
+						if ((cp1 >> 6) !== 2 || 247 < cp0) {
 							index = index - 1|0;
 							break;
 						}
-						codePoint = ((cp0 & 0b111) << 6) | (cp1 & 0b00111111);
+						codePoint = ((cp0 & 7) << 6) | (cp1 & 63);
 						minBits = 5; // 20 ensures it never passes -> all invalid replacements
 						cp0 = 0x100; //  keep track of th bit size
 					case 14:
 						cp1 = inputAs8[index=index+1|0] & 0xff;
 						codePoint <<= 6;
-						codePoint |= ((cp0 & 0b1111) << 6) | (cp1 & 0b00111111);
-						minBits = (cp1 >> 6) === 0b10 ? minBits + 4|0 : 24; // 24 ensures it never passes -> all invalid replacements
+						codePoint |= ((cp0 & 15) << 6) | (cp1 & 63);
+						minBits = (cp1 >> 6) === 2 ? minBits + 4|0 : 24; // 24 ensures it never passes -> all invalid replacements
 						cp0 = (cp0 + 0x100) & 0x300; // keep track of th bit size
 					case 13:
 					case 12:
 						cp1 = inputAs8[index=index+1|0] & 0xff;
 						codePoint <<= 6;
-						codePoint |= ((cp0 & 0b11111) << 6) | cp1 & 0b00111111;
+						codePoint |= ((cp0 & 31) << 6) | cp1 & 63;
 						minBits = minBits + 7|0;
 						
 						// Now, process the code point
-						if (index < len && (cp1 >> 6) === 0b10 && (codePoint >> minBits) && codePoint < 0x110000) {
+						if (index < len && (cp1 >> 6) === 2 && (codePoint >> minBits) && codePoint < 0x110000) {
 							cp0 = codePoint;
 							codePoint = codePoint - 0x10000|0;
 							if (0 <= codePoint/*0xffff < codePoint*/) { // BMP code point
@@ -176,7 +176,7 @@ var ENCODEINTO_BUILD = false;
 			} else if (tmp !== -1) {
 				tmpStr += fromCharCode(tmp);
 			}
-			
+
 			resultingString += tmpStr;
 			tmpStr = "";
 		}
@@ -190,7 +190,7 @@ var ENCODEINTO_BUILD = false;
 		if (0xD800 <= point) {
 			if (point <= 0xDBFF) {
 				var nextcode = nonAsciiChars.charCodeAt(1)|0; // defaults to 0 when NaN, causing null replacement character
-				
+
 				if (0xDC00 <= nextcode && nextcode <= 0xDFFF) {
 					//point = ((point - 0xD800)<<10) + nextcode - 0xDC00 + 0x10000|0;
 					point = (point<<10) + nextcode - 0x35fdc00|0;
@@ -235,7 +235,7 @@ var ENCODEINTO_BUILD = false;
 					if (0xD800 <= point) {
 						if (point <= 0xDBFF) {
 							nextcode = encodedString.charCodeAt(i=i+1|0)|0; // defaults to 0 when NaN, causing null replacement character
-							
+
 							if (0xDC00 <= nextcode && nextcode <= 0xDFFF) {
 								//point = ((point - 0xD800)<<10) + nextcode - 0xDC00 + 0x10000|0;
 								point = (point<<10) + nextcode - 0x35fdc00|0;
@@ -274,7 +274,7 @@ var ENCODEINTO_BUILD = false;
 		putChars: {
 			for (; i<len; i=i+1|0) {
 				char = encodedString.charCodeAt(i) |0;
-				switch(char >> 4) {
+				switch (char >> 4) {
 					case 0:
 					case 1:
 					case 2:
@@ -426,7 +426,7 @@ var ENCODEINTO_BUILD = false;
 	if (ENCODEINTO_BUILD) {
 		TextEncoderPrototype["encodeInto"] = polyfill_encodeInto;
 	}
-	
+
 	if (!GlobalTextEncoder) {
 		window["TextDecoder"] = TextDecoder;
 		window["TextEncoder"] = TextEncoder;
