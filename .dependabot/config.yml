@@ -10,3 +10,4 @@ update_configs:
     ignored_updates:
       - match:
           dependency_name: "snyk"
+          dependency_name: "mocha"
