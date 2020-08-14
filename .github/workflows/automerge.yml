@@ -28,7 +28,7 @@ jobs:
           ignoreActions: automerge
           checkInterval: 13
         env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_TOKEN: "${{ secrets.ORIGAMI_GITHUB_TOKEN }}"
       - name: automerge
         uses: "pascalgn/automerge-action@v0.9.0"
         env:
