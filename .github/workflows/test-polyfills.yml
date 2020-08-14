@@ -1,9 +1,6 @@
 name: Test Polyfills 
 on:
-  push:
-    branches:
-      - '**'
-      - '!master'
+  pull_request_target:
 jobs:
   check-for-other-pull-requests-running-this-workflow:
     runs-on: ubuntu-latest
