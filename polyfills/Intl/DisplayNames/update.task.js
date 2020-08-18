@@ -64,7 +64,7 @@ Intl.DisplayNames.supportedLocalesOf &&
 Intl.DisplayNames.supportedLocalesOf('${locale}').length === 1 &&
 (function hasMissingICUBug() {
 	if (Intl.DisplayNames) {
-		const regionNames = new Intl.DisplayNames(['en'], {type: 'region'});
+		var regionNames = new Intl.DisplayNames(['en'], {type: 'region'});
 		return regionNames.of('CA') === 'CA';
 	}
 	return false;

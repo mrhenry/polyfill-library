@@ -4,7 +4,7 @@
  */
 (function hasMissingICUBug() {
     if (Intl.DisplayNames) {
-        const regionNames = new Intl.DisplayNames(['en'], {type: 'region'});
+        var regionNames = new Intl.DisplayNames(['en'], {type: 'region'});
         return regionNames.of('CA') === 'CA';
     }
     return false;
