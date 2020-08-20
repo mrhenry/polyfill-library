@@ -4,7 +4,7 @@ spec = "https://tc39.es/proposal-intl-relative-time/#sec-intl-relativetimeformat
 repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-relativetimeformat/polyfill.js"
 docs = "https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/RelativeTimeFormat"
 notes = [
-  "Locales must be specified separately by prefixing the locale name with `Intl.RelativeTimeFormat~locale`, eg `Intl.RelativeTimeFormat~locale.en-GB`."
+  "Locales must be specified separately by prefixing the locale name with `Intl.RelativeTimeFormat.~locale`, eg `Intl.RelativeTimeFormat.~locale.en-GB`."
 ]
 
 [browsers]

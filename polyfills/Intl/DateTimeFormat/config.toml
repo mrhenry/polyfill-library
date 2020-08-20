@@ -8,7 +8,7 @@ spec = "https://tc39.es/ecma402/#datetimeformat-objects"
 repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-datetimeformat"
 docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat"
 notes = [
-  "Locales must be specified separately by prefixing the locale name with `Intl.DateTimeFormat~locale`, eg `Intl.DateTimeFormat~locale.en-GB`."
+  "Locales must be specified separately by prefixing the locale name with `Intl.DateTimeFormat.~locale`, eg `Intl.DateTimeFormat.~locale.en-GB`."
 ]
 
 [browsers]
