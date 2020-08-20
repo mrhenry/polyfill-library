@@ -20,21 +20,14 @@ var path = require('path');
 var LocalesPath = path.dirname(require.resolve('@formatjs/intl-pluralrules/locale-data/en.js'));
 var IntlPolyfillOutput = path.resolve('polyfills/Intl/PluralRules');
 var LocalesPolyfillOutput = path.resolve('polyfills/Intl/PluralRules/~locale');
-var crypto = require('crypto');
 var mkdirp = require('mkdirp');
 var TOML = require('@iarna/toml');
-
-function md5 (contents) {
-	return crypto.createHash('md5').update(contents).digest('hex');
-}
 
 function writeFileIfChanged (filePath, newFile) {
 	if (fs.existsSync(filePath)) {
 		var currentFile = fs.readFileSync(filePath);
-		var currentFileHash = md5(currentFile);
-		var newFileHash = md5(newFile);
 
-		if (newFileHash !== currentFileHash) {
+		if (newFile !== currentFile) {
 			fs.writeFileSync(filePath, newFile);
 		}
   } else {
