@@ -10,6 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: gh pr checkout ${{ github.event.inputs.number }} && git push origin
+      - run: gh pr checkout ${{ github.event.inputs.number }} && git push origin -f
         env:
           GITHUB_TOKEN: "${{ secrets.POLYFILL_GH_TOKEN }}"
