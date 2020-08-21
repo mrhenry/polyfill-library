@@ -1,0 +1,13 @@
+name: Push forked branch to origin to run tests
+on: 
+   workflow_dispatch:
+    inputs:
+      number:
+        description: 'pull-request number'     
+        required: true
+jobs:
+  percy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: gh pr checkout ${{ github.event.inputs.number }} && git push origin
