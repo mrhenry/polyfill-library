@@ -2357,7 +2357,11 @@
         return locale;
     }
 
-    function canonicalizeLocaleList(locales) {
+    /**
+     * https://tc39.es/ecma402/#sec-canonicalizelocalelist
+     * @param locales
+     */
+    function CanonicalizeLocaleList(locales) {
         if (locales === undefined) {
             return [];
         }
@@ -2375,7 +2379,16 @@
         return seen;
     }
     function getCanonicalLocales(locales) {
-        return canonicalizeLocaleList(locales);
+        return CanonicalizeLocaleList(locales);
+    }
+
+    function shouldPolyfill() {
+        return (typeof Intl === 'undefined' ||
+            !('getCanonicalLocales' in Intl) ||
+            // Native Intl.getCanonicalLocales is just buggy
+            // https://bugs.chromium.org/p/v8/issues/detail?id=10682
+            Intl.getCanonicalLocales('und-x-private')[0] ===
+                'x-private');
     }
 
     if (typeof Intl === 'undefined') {
@@ -2390,9 +2403,7 @@
             });
         }
     }
-    if (!('getCanonicalLocales' in Intl) ||
-        // Native Intl.getCanonicalLocales is just buggy
-        Intl.getCanonicalLocales('und-x-private')[0] === 'x-private') {
+    if (shouldPolyfill()) {
         Object.defineProperty(Intl, 'getCanonicalLocales', {
             value: getCanonicalLocales,
             writable: true,
@@ -2402,4 +2413,4 @@
     }
 
 })));
-//# sourceMappingURL=polyfill.js.map
+//# sourceMappingURL=polyfill.umd.js.map
