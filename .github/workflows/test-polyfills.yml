@@ -1,5 +1,6 @@
 name: Test Polyfills 
 on:
+  pull_request:
   push:
     branches:
       - '*'
