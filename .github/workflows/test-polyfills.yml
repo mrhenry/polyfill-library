@@ -9,6 +9,7 @@ on:
 jobs:
   check-for-other-pull-requests-running-this-workflow:
     runs-on: ubuntu-latest
+    if: ${{ github.pull_request.head.repo.fork == false}}
     steps:
     - name: Cancel Previous Runs
       uses: styfle/cancel-workflow-action@0.4.1
