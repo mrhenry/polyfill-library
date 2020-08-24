@@ -1,5 +1,23 @@
 aliases = ["Intl"]
-dependencies = ["Intl.getCanonicalLocales", "WeakMap"]
+dependencies = [
+  "Array.isArray",
+  "Array.prototype.@@iterator",
+  "Array.prototype.filter",
+  "Array.prototype.forEach",
+  "Array.prototype.indexOf",
+  "Array.prototype.lastIndexOf",
+  "Array.prototype.map",
+  "Array.prototype.reduce",
+  "Intl.getCanonicalLocales",
+  "Function.prototype.bind",
+  "Object.assign",
+  "Object.create",
+  "Object.defineProperty",
+  "Object.keys",
+  "Object.setPrototypeOf",
+  "Symbol.toStringTag",
+  "WeakMap"
+]
 license = "MIT"
 spec = "https://rawgit.com/caridy/intl-plural-rules-spec/master/index.html"
 repo = "https://github.com/formatjs/formatjs/blob/master/packages/intl-pluralrules/polyfill.js"

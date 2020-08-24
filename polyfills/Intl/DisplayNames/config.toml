@@ -1,4 +1,21 @@
-dependencies = [ "Intl.getCanonicalLocales", "WeakMap"]
+dependencies = [ 
+  "Array.isArray",
+  "Array.prototype.@@iterator",
+  "Array.prototype.filter",
+  "Array.prototype.indexOf",
+  "Array.prototype.lastIndexOf",
+  "Array.prototype.map",
+  "Array.prototype.reduce",
+  "Function.prototype.bind",
+  "Intl.getCanonicalLocales",
+  "Object.assign",
+  "Object.create",
+  "Object.defineProperty",
+  "Object.keys",
+  "Symbol.toStringTag",
+  "WeakMap",
+]
+
 license = "MIT"
 spec = "https://tc39.es/proposal-intl-displaynames/#sec-intl-displaynames"
 repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-displaynames/polyfill.js"

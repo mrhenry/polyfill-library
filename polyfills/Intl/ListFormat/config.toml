@@ -1,4 +1,22 @@
-dependencies = [ "Intl.getCanonicalLocales", "WeakMap"]
+dependencies = [
+  "Array.isArray",
+  "Array.prototype.@@iterator",
+  "Array.prototype.filter",
+  "Array.prototype.forEach",
+  "Array.prototype.indexOf",
+  "Array.prototype.lastIndexOf",
+  "Array.prototype.map",
+  "Array.prototype.reduce",
+  "Function.prototype.bind",
+  "Intl.getCanonicalLocales",
+  "Object.assign",
+  "Object.create",
+  "Object.defineProperty",
+  "Object.keys",
+  "Object.setPrototypeOf",
+  "Symbol.toStringTag",
+  "WeakMap"
+]
 license = "MIT"
 spec = "https://tc39.es/proposal-intl-relative-time/#sec-intl-listformat-constructor"
 repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-listformat/polyfill.js"

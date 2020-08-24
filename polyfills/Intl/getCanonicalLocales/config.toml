@@ -1,5 +1,15 @@
 aliases = ["Intl"]
-dependencies = []
+dependencies = [
+    "Array.prototype.@@iterator",
+    "Array.prototype.filter",
+    "Array.prototype.indexOf",
+    "Array.prototype.reduce",
+    "Array.prototype.sort",
+    "Function.prototype.bind",
+    "Object.assign",
+    "Object.defineProperty",
+    "Object.keys"
+]
 license = "MIT"
 spec = "https://tc39.es/ecma402/#sec-intl.getcanonicallocales"
 repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-getcanonicallocales/"

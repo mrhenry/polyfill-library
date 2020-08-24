@@ -1,7 +1,29 @@
 aliases = [
   "Intl"
 ]
-dependencies = [ "Intl.getCanonicalLocales", "Intl.PluralRules", "WeakMap", "Set" ]
+dependencies = [
+  "Array.isArray",
+  "Array.prototype.@@iterator",
+  "Array.prototype.filter",
+  "Array.prototype.indexOf",
+  "Array.prototype.lastIndexOf",
+  "Array.prototype.map",
+  "Array.prototype.reduce",
+  "Function.prototype.bind",
+  "Intl.getCanonicalLocales",
+  "Intl.PluralRules",
+  "Object.assign",
+  "Object.create",
+  "Object.defineProperty",
+  "Object.freeze",
+  "Object.is",
+  "Object.keys",
+  "Object.setPrototypeOf",
+  "Set",
+  "String.prototype.repeat",
+  "Symbol.toStringTag",
+  "WeakMap"
+]
 license = "MIT"
 spec = "https://tc39.es/proposal-intl-relative-time/#sec-intl-numberformat-constructor"
 repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-numberformat/polyfill.js"

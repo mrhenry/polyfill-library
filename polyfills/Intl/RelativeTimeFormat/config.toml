@@ -1,4 +1,25 @@
-dependencies = [ "Intl.NumberFormat", "Intl.PluralRules" ]
+dependencies = [
+  "Array.isArray",
+  "Array.prototype.@@iterator",
+  "Array.prototype.filter",
+  "Array.prototype.forEach",
+  "Array.prototype.indexOf",
+  "Array.prototype.lastIndexOf",
+  "Array.prototype.map",
+  "Array.prototype.reduce",
+  "Function.prototype.bind",
+  "Intl.NumberFormat",
+  "Intl.PluralRules",
+  "Object.assign",
+  "Object.create",
+  "Object.defineProperty",
+  "Object.is",
+  "Object.keys",
+  "Object.setPrototypeOf",
+  "Symbol.iterator",
+  "Symbol.toStringTag",
+  "WeakMap"
+]
 license = "MIT"
 spec = "https://tc39.es/proposal-intl-relative-time/#sec-intl-relativetimeformat-constructor"
 repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-relativetimeformat/polyfill.js"
