@@ -1,7 +1,6 @@
 aliases = ["Intl"]
 dependencies = [
   "Array.isArray",
-  "Array.prototype.@@iterator",
   "Array.prototype.filter",
   "Array.prototype.forEach",
   "Array.prototype.indexOf",
@@ -9,14 +8,12 @@ dependencies = [
   "Array.prototype.map",
   "Array.prototype.reduce",
   "Intl.getCanonicalLocales",
-  "Function.prototype.bind",
   "Object.assign",
   "Object.create",
   "Object.defineProperty",
   "Object.keys",
   "Object.setPrototypeOf",
-  "Symbol.toStringTag",
-  "WeakMap"
+  "WeakMap",
 ]
 license = "MIT"
 spec = "https://rawgit.com/caridy/intl-plural-rules-spec/master/index.html"

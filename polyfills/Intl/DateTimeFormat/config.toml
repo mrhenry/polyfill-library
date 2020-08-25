@@ -4,24 +4,19 @@ aliases = [
 ]
 dependencies = [ 
   "Array.isArray",
-  "Array.prototype.@@iterator",
   "Array.prototype.filter",
   "Array.prototype.indexOf",
   "Array.prototype.lastIndexOf",
   "Array.prototype.map",
   "Array.prototype.reduce",
   "Date.now",
-  "Function.prototype.bind",
   "Intl.getCanonicalLocales", 
   "Intl.NumberFormat",
   "Object.assign",
   "Object.create",
   "Object.keys",
   "Object.setPrototypeOf",
-  "Reflect.apply",
   "Set",
-  "Symbol",
-  "Symbol.toStringTag",
   "WeakMap"
 ]
 license = "MIT"

@@ -1,34 +1,32 @@
 aliases = ["Intl"]
 dependencies = [
-    "Array.prototype.@@iterator",
-    "Array.prototype.filter",
-    "Array.prototype.indexOf",
-    "Array.prototype.reduce",
-    "Array.prototype.sort",
-    "Function.prototype.bind",
-    "Object.assign",
-    "Object.defineProperty",
-    "Object.keys"
+  "Array.prototype.filter",
+  "Array.prototype.indexOf",
+  "Array.prototype.reduce",
+  "Array.prototype.sort",
+  "Object.assign",
+  "Object.defineProperty",
+  "Object.keys",
 ]
-license = "MIT"
-spec = "https://tc39.es/ecma402/#sec-intl.getcanonicallocales"
-repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-getcanonicallocales/"
 docs = "https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Intl/getCanonicalLocales"
+license = "MIT"
+repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-getcanonicallocales/"
+spec = "https://tc39.es/ecma402/#sec-intl.getcanonicallocales"
 
 [browsers]
 android = "*"
-ie = "9 - *"
-ie_mob = "9 - *"
+chrome = "<54"
 edge = "<16"
 edge_mob = "<16"
 firefox = "<48"
-opera = "*"
-chrome = "<54"
-safari = "<11"
-ios_saf = "<11"
 firefox_mob = "<56"
+ie = "9 - *"
+ie_mob = "9 - *"
+ios_saf = "<11"
+opera = "*"
+safari = "<11"
 samsung_mob = "*"
 
 [install]
 module = "@formatjs/intl-getcanonicallocales"
-paths = [ "polyfill.umd.js" ]
+paths = ["polyfill.umd.js"]
