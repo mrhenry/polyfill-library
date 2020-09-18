@@ -21,6 +21,7 @@ jobs:
   automerge:
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
+    timeout-minutes: 120
     steps:
       - name: 'Wait for status checks'
         id: waitforstatuschecks
