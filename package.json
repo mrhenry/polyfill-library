@@ -74,7 +74,7 @@
     "mutationobserver-shim": "^0.3.2",
     "picturefill": "^3.0.1",
     "rimraf": "^3.0.0",
-    "seamless-scroll-polyfill": "^1.0.10",
+    "seamless-scroll-polyfill": "^1.2.2",
     "spdx-licenses": "^1.0.0",
     "stream-cache": "^0.0.2",
     "stream-from-promise": "^1.0.0",
