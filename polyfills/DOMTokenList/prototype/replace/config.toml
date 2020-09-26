@@ -1,4 +1,4 @@
-dependencies = [ "DOMTokenList" ]
+dependencies = [ "Element.prototype.classList" ]
 license = "MIT"
 spec = "https://dom.spec.whatwg.org/#domtokenlist"
 

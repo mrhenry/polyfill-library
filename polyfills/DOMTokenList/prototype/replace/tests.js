@@ -2,7 +2,7 @@
 /* global proclaim */
 
 var div = document.createElement('div');
-var tokenList = div.classList || new DOMTokenList(div, 'className');
+var tokenList = div.classList;
 
 function testReplace(before, token, newToken, after, expectedResult, expectedExceptionName) {
     div.className = before;

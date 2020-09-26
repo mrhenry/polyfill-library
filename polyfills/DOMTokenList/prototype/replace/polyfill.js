@@ -1,6 +1,6 @@
 (function() {
 	var classList = document.createElement('div').classList;
-	classList && (Object.getPrototypeOf(classList).replace =
+	classList && (classList.constructor.prototype.replace =
 		function (token, newToken) {
 			var tokenString = '' + token, newTokenString = '' + newToken;
 
