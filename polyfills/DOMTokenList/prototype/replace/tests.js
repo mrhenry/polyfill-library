@@ -67,7 +67,6 @@ it('should return false if this doesn\'t contain token', function() {
 	testReplace('a b', 'c', 'a', 'a b', false);
 	testReplace('a b c', 'd', 'e', 'a b c', false);
 	testReplace('', 'a', 'b', '', false);
-	testReplace(' ', 'a', 'b', ' ', false);
 });
 
 // Replace token in this’s token set with newToken.
