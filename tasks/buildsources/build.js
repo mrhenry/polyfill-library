@@ -27,11 +27,8 @@ module.exports = function build(feature = undefined) {
 			const queues = [];
 
 			const maxProc = Math.max(
-				1,
-				Math.min(
-					require("os").cpus().length,
-					process.env["MAXPROCS"] || 9000
-				)
+				require("os").cpus().length,
+				6
 			);
 
 			const slicedPolyfillPaths = [];
