@@ -47,7 +47,7 @@ module.exports = function build(feature = undefined) {
 
 			for (const slice of slicedPolyfillPaths) {
 				queues.push(new Promise((resolve, reject) => {
-					const child = child_process.fork(path.join(__dirname, 'load-sources-child-proc'));
+					const child = child_process.fork(path.join(__dirname, 'buildsources-child-proc'));
 					children.push(child);
 
 					child.on('message', function (message) {

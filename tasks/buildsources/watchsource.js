@@ -29,7 +29,7 @@ processFeatureAndStartServer().then(() => {
 
 	if (fs.existsSync(source)) {
 		fs.watch(source, { recursive: true }, (eventType, fileName) => {
-			if (fileName.indexOf('__dist/') === 0) {
+			if (fileName.indexOf('__') === 0) {
 				return; // skip
 			}
 
