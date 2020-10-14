@@ -13,6 +13,7 @@ updates:
     ignore:
       - dependency-name: "snyk"
       - dependency-name: "mocha"
+      - dependency-name: "webdriverio"
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
