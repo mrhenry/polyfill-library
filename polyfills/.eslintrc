@@ -18,6 +18,9 @@
     "no-dupe-else-if": "error",
     "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
   },
+  "plugins": [
+    "uncalled-iife"
+  ],
   "overrides": [
     {
       "files": ["update.task.js"],
@@ -35,6 +38,12 @@
       "env": {
         "mocha": true,
         "browser": true
+      }
+    },
+    {
+      "files": ["detect.js"],
+      "rules": {
+         "uncalled-iife/uncalled-iife": "error"
       }
     }
   ],
