@@ -163,6 +163,12 @@ async function testablePolyfills(isIE8, ua) {
           }).call(window));
         });
 
+        it('throws when called as a function', function() {
+          proclaim["throws"](function () {
+            (${config.detectSource})();
+          });
+        });
+
         ${await readFile(testFile)}
       });`;
       polyfilldata.push({

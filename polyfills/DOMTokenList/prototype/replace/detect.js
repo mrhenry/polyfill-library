@@ -1,1 +1,1 @@
-(document.createElement('div').classList || {}).replace
+"replace" in (document.createElement('div').classList || {})

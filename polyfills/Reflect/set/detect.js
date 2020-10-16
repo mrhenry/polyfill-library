@@ -1,1 +1,1 @@
-'set' in self.Reflect
+self.Reflect && 'set' in self.Reflect

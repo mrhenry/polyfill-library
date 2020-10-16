@@ -1,1 +1,1 @@
-'defineProperty' in self.Reflect
+self.Reflect && 'defineProperty' in self.Reflect

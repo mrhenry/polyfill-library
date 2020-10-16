@@ -5,4 +5,4 @@
     } catch (err) {
         return false;
     }
-})
+}())
