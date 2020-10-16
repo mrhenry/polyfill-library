@@ -1,5 +1,7 @@
 aliases = [ ]
-dependencies = [ ]
+dependencies = [
+	"Object.create"
+]
 docs = "https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment"
 spec = "https://dom.spec.whatwg.org/#interface-documentfragment"
 notes = [ ]
