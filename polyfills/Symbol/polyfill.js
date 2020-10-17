@@ -105,11 +105,20 @@
 		} catch (e) {
 			ObjectProto[uid] = descriptor.value;
 		}
-		return freeze(source[uid] = defineProperty(
+		source[uid] = defineProperty(
 			Object(uid),
 			'constructor',
 			sourceConstructor
-		));
+		);
+		var description = gOPD(Symbol.prototype, 'description');
+		if (description) {
+			defineProperty(
+				source[uid],
+				'description',
+				description
+			);
+		}
+		return freeze(source[uid]);
 	};
 	var Symbol = function Symbol() {
 		var description = arguments[0];
@@ -227,8 +236,8 @@
 			// This code ensures that we return the correct result in that situation however,
 			// this code also introduces a bug where it will return the incorrect result for
 			// `Object.prototype.toString.call(window)`. We can't have the correct result for
-			// both `window` and `null`, so we have opted for `null` as we believe this is the more 
-			// common situation. 
+			// both `window` and `null`, so we have opted for `null` as we believe this is the more
+			// common situation.
 			if (this === window) {
 				return '[object Null]';
 			}

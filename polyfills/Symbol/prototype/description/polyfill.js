@@ -21,7 +21,7 @@ if (supportsGetters) {
     var getInferredName;
     try {
       // eslint-disable-next-line no-new-func
-      getInferredName = Function("s", "return { [s]() {} }[s].name;");
+      getInferredName = Function("s", "var v = s.valueOf(); return { [v]() {} }[v].name;");
       // eslint-disable-next-line no-empty
     } catch (e) {}
 
@@ -55,15 +55,55 @@ if (supportsGetters) {
         // 3. Return sym.[[Description]].
         if (supportsInferredNames) {
           var name = getInferredName(sym);
-          if (name === "") {
-            return undefined;
+          if (name !== "") {
+            return name.slice(1, -1); // name.slice('['.length, -']'.length);
           }
-          return name.slice(1, -1); // name.slice('['.length, -']'.length);
+        }
+
+        if (emptySymbolLookup[sym] !== undefined) {
+          return emptySymbolLookup[sym];
         }
 
         var string = sym.toString();
-        return string.slice(7, string.length - 1);
+        if (isSymbolPolyfilled(sym)) {
+          var randomStartIndex = string.lastIndexOf("0.");
+          string = string.slice(10, randomStartIndex);
+        } else {
+          string = string.slice(7, string.length - 1);
+        }
+        if (string === "") {
+          return undefined;
+        }
+        return string;
       }
     });
+
+    function isSymbolPolyfilled(symbol) {
+      return symbol.toString().indexOf("__\x01symbol:") === 0;
+    }
+
+    var emptySymbolLookup = {};
+    var NativeSymbol = self.NativeSymbol = Symbol
+    var SymbolWrapper = function Symbol() {
+      var description = arguments[0];
+      var result = this instanceof SymbolWrapper
+        ? new NativeSymbol(description)
+        // in Edge 13, String(Symbol(undefined)) === 'Symbol(undefined)'
+        : description === undefined ? NativeSymbol() : NativeSymbol(description);
+
+      if (isSymbolPolyfilled(result)) {
+        if (description !== undefined && (description === null || isNaN(description) || String(description) === "")) {
+          emptySymbolLookup[result] = String(description);
+        }
+      } else {
+        if (String(description) === "") {
+          emptySymbolLookup[result] = ""
+        }
+      }
+
+      return result;
+    };
+    SymbolWrapper.prototype = NativeSymbol.prototype;
+    Symbol = SymbolWrapper; // eslint-disable-line no-native-reassign, no-global-assign
   })();
 }
