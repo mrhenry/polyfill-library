@@ -1,6 +1,6 @@
 {
   "name": "polyfill-library",
-  "version": "3.52.3",
+  "version": "3.96.0",
   "description": "A polyfill combinator",
   "main": "lib/index.js",
   "contributors": [
@@ -40,7 +40,8 @@
     "test": "npm run build && npm run test-node && npm run test-node-unit && npm run test-polyfills",
     "prepublishOnly": "mv polyfills/__dist __dist && rimraf polyfills && mkdir polyfills && mv __dist polyfills/__dist",
     "prepublish": "npm run build",
-    "create-new-polyfill": "node ./tasks/create-new-polyfill.js"
+    "create-new-polyfill": "node ./tasks/create-new-polyfill.js",
+    "version": "auto-changelog -p && git add CHANGELOG.md"
   },
   "license": "MIT",
   "engines": {
@@ -94,6 +95,7 @@
     "@iarna/toml": "^2.2.3",
     "apicache": "^1.5.3",
     "array.prototype.flatmap": "^1.2.1",
+    "auto-changelog": "^2.2.1",
     "bluebird": "^3.7.2",
     "browserstack": "1.6.0",
     "browserstack-local": "^1.4.5",
