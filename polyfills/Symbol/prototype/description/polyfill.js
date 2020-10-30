@@ -1,5 +1,7 @@
 /* global Symbol, Type */
 
+var NativeSymbol = Symbol;
+
 var supportsGetters = (function() {
   try {
     var a = {};
@@ -16,6 +18,7 @@ var supportsGetters = (function() {
     return false;
   }
 })();
+
 if (supportsGetters) {
   (function() {
     var getInferredName;
@@ -83,7 +86,6 @@ if (supportsGetters) {
     }
 
     var emptySymbolLookup = {};
-    var NativeSymbol = self.NativeSymbol = Symbol
     var SymbolWrapper = function Symbol() {
       var description = arguments[0];
       var result = this instanceof SymbolWrapper
