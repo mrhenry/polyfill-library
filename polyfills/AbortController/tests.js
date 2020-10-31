@@ -1,5 +1,12 @@
 /* globals proclaim */
 
+beforeEach(function (done) {
+    // 
+    setTimeout(function () {
+        done();
+    }, 50);
+})
+
 describe('AbortSignal', function () {
     // Because these tests make use of the network, they can be unreliable and fail for reasons outside of the polyfills concern such as a Network Timeout.
     // We increase mocha timeout from 2 seconds to 10 seconds to cater for slow responses.
@@ -33,7 +40,7 @@ describe('AbortSignal', function () {
             setTimeout(function () {
                 controller.abort();
             }, 500);
-            fetch('https://httpstat.us/200?sleep=1000', {
+            fetch('/sleep?d=1000', {
                 signal: signal
             }).then(function () {
                 proclaim.isUndefined('Abort during fetch failed.');
@@ -49,7 +56,7 @@ describe('AbortSignal', function () {
             setTimeout(function () {
                 controller.abort();
             }, 500);
-            var request = new Request('https://httpstat.us/200?sleep=1000', {
+            var request = new Request('/sleep?d=1000', {
                 signal: signal
             });
             fetch(request).then(function () {
@@ -64,7 +71,7 @@ describe('AbortSignal', function () {
             var controller = new AbortController();
             controller.abort();
             var signal = controller.signal;
-            fetch('https://httpstat.us/200?sleep=1000', {
+            fetch('/sleep?d=1000', {
                 signal: signal
             }).then(function () {
                 proclaim.isUndefined('Abort during fetch failed.');
@@ -77,7 +84,7 @@ describe('AbortSignal', function () {
         it('fetch without aborting', function (done) {
             var controller = new AbortController();
             var signal = controller.signal;
-            fetch('https://httpstat.us/200?sleep=50', {
+            fetch('/sleep?d=50', {
                 signal: signal
             }).then(function () {
                 done();

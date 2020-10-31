@@ -126,6 +126,17 @@ app.get(
   }
 );
 
+app.get(
+  "/sleep",
+  async (request, response) => {
+    const duration = Math.max(Number.parseInt(request.query.d), 1000);
+    await new Promise((resolve) => setTimeout(resolve, duration));
+
+    response.status(200);
+    response.send("");
+  }
+);
+
 app.listen(port, () => console.log(`Test server listening on port ${port}!`));
 
 const testablePolyfillsCache = {};
