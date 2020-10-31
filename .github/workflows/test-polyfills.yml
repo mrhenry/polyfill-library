@@ -64,7 +64,6 @@ jobs:
         key: cache--dist--${{ env.commit-sha }}
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
-    - run: npm run build
     - name: Test on android
       run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js targeted director browser=android
       env:
@@ -89,7 +88,6 @@ jobs:
         key: cache--dist--${{ env.commit-sha }}
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
-    - run: npm run build
     - name: Test on chrome
       run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js targeted director browser=chrome
       env:
@@ -114,7 +112,6 @@ jobs:
         key: cache--dist--${{ env.commit-sha }}
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
-    - run: npm run build
     - name: Test on edge
       run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js targeted director browser=edge
       env:
@@ -139,7 +136,6 @@ jobs:
         key: cache--dist--${{ env.commit-sha }}
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
-    - run: npm run build
     - name: Test on firefox
       run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js targeted director browser=firefox
       env:
@@ -164,7 +160,6 @@ jobs:
         key: cache--dist--${{ env.commit-sha }}
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
-    - run: npm run build
     - name: Test on ios
       run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js targeted director browser=ios
       env:
@@ -189,7 +184,6 @@ jobs:
         key: cache--dist--${{ env.commit-sha }}
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
-    - run: npm run build
     - name: Test on safari
       run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js targeted director browser=safari
       env:

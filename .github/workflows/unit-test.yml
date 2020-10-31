@@ -13,15 +13,6 @@ jobs:
     - uses: actions/setup-node@v2.1.2
       with:
         node-version: 12.x
-    - name: env
-      run: echo "commit-sha=$(echo ${GITHUB_SHA})" >> $GITHUB_ENV
     - run: npm ci
-    - name: cache __dist
-      id: cache-dist
-      uses: actions/cache@v2
-      with:
-        path: polyfills/__dist
-        key: cache--dist--${{ env.commit-sha }}
     - run: npm run build
-      if: steps.cache-dist.outputs.cache-hit != 'true'
     - run: npm run test-library
