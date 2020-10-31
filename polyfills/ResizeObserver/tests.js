@@ -1,7 +1,12 @@
 /* eslint-env mocha, browser */
 /* global proclaim */
 
-describe("ResizeObserver", function() {
+describe("ResizeObserver", function () {
+	// Extending the timeout and adding retries to reduce test flackiness.
+	// Failures can be emulated by running the tests and then quickly switching to another tab.
+	this.retries(2);
+	this.timeout(10 * 1000);
+
 	var delay = function(callback) {
 		setTimeout(function() {
 			callback()
