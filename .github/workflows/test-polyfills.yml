@@ -35,7 +35,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: polyfills/__dist
-        key: cache--dist--${{ env.GITHUB_SHA }}
+        key: cache--dist--$GITHUB_SHA
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
     - name: Test on ie
@@ -57,7 +57,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: polyfills/__dist
-        key: cache--dist--${{ env.GITHUB_SHA }}
+        key: cache--dist--$GITHUB_SHA
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
     - run: npm run build
@@ -80,7 +80,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: polyfills/__dist
-        key: cache--dist--${{ env.GITHUB_SHA }}
+        key: cache--dist--$GITHUB_SHA
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
     - run: npm run build
@@ -103,7 +103,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: polyfills/__dist
-        key: cache--dist--${{ env.GITHUB_SHA }}
+        key: cache--dist--$GITHUB_SHA
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
     - run: npm run build
@@ -126,7 +126,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: polyfills/__dist
-        key: cache--dist--${{ env.GITHUB_SHA }}
+        key: cache--dist--$GITHUB_SHA
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
     - run: npm run build
@@ -149,7 +149,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: polyfills/__dist
-        key: cache--dist--${{ env.GITHUB_SHA }}
+        key: cache--dist--$GITHUB_SHA
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
     - run: npm run build
@@ -172,7 +172,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: polyfills/__dist
-        key: cache--dist--${{ env.GITHUB_SHA }}
+        key: cache--dist--$GITHUB_SHA
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
     - run: npm run build
