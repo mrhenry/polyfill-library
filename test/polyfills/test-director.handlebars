@@ -27,7 +27,16 @@
 			testedSuites: [],
 			uaString: 'unknown'
 		};
-		var queue = "{{features}}".split(',').slice(0,-1);
+		var queue = "{{features}}".split(',');
+		var flackynessQueue = [];
+		for (var i = 0; i < queue.length; i++) {
+			const feature = queue[i];
+			for (let j = 0; j < 100; j++) {
+				flackynessQueue.push(feature);
+			}
+		}
+		queue = flackynessQueue;
+
 		var runnerCompletedCount = 0;
 		var runnerTotalCount = queue.length;
 		var windowQueryString = "?includePolyfills={{{includePolyfills}}}&always={{{always}}}";
