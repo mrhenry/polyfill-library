@@ -14,5 +14,12 @@ jobs:
       with:
         node-version: 12.x
     - run: npm ci
+    - name: cache __dist
+      id: cache-dist
+      uses: actions/cache@v2
+      with:
+        path: polyfills/__dist
+        key: cache--dist--${{ env.GITHUB_SHA }}
     - run: npm run build
+      if: steps.cache-dist.outputs.cache-hit != 'true'
     - run: npm run test-library
