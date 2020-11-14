@@ -33,7 +33,8 @@ it('passes WPT tests', function () {
 
     var cur = 0;
     var thisObj = {};
-    tokenList.forEach(function(value, key, listObj) {
+
+    tokenList.forEach(function (value, key, listObj) {
         proclaim.equal(listObj, tokenList);
         proclaim.equal(this, thisObj);
         proclaim.equal(value, values[cur]);
