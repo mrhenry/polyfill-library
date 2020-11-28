@@ -12,5 +12,8 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2018
   },
-  rules: {}
+  rules: {
+    "unicorn/prefer-optional-catch-binding": "off",
+    "unicorn/prefer-ternary": "off",
+  }
 };

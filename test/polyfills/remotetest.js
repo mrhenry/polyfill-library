@@ -40,11 +40,7 @@ const browser = (process.argv
   .replace("browser=", "");
 const browsers = browserlist
   .filter(b => {
-    if (browser) {
-      return b.startsWith(browser);
-    } else {
-      return true;
-  }
+    return browser ? b.startsWith(browser) : true;
   })
   .filter(uaString => {
     if (uaString.startsWith("ios/")) {
@@ -89,7 +85,7 @@ const testResults = {};
 const pollTick = 1000;
 const testBrowserTimeout = 10 * 60 * 1000;
 const mode =
-  ["all", "control", "targeted"].filter(x => process.argv.includes(x))[0] || "all";
+  ["all", "control", "targeted"].find(x => process.argv.includes(x)) || "all";
 const testResultsFile = path.join(__dirname, `results-${mode}.json`);
 
 const director = process.argv.includes("director");
@@ -270,7 +266,7 @@ const printProgress = (function() {
         );
       }
       const concurrency = 5;
-      for (let i = 0; i < concurrency && i < jobs.length; i++) {
+      for (let index = 0; index < concurrency && index < jobs.length; index++) {
         pushJob();
       }
     });
@@ -284,7 +280,7 @@ const printProgress = (function() {
     await closeTunnel();
     console.log("Tunnel closed");
 
-    const totalFailureCount = jobs.reduce(
+    const totalFailureCount = jobs.reduce( // eslint-disable-line unicorn/no-reduce
       (out, job) => out + (job.state === "complete" ? job.results.failed : 1),
       0
     );

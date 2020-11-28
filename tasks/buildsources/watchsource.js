@@ -66,7 +66,7 @@ processFeatureAndStartServer().then(() => {
  * @param {string|undefined} feature An optional feature to build. When omitted all polyfills will be build.
  * @returns {Promise<void>} When done.
  */
-async function processFeatureAndStartServer(feature = undefined) {
+async function processFeatureAndStartServer(feature) {
 	const startTime = new Date();
 
 	return build(feature)

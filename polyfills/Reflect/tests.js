@@ -21,6 +21,7 @@ it('cannot be called or constructed', function () {
         Reflect();
     });
     proclaim["throws"](function () {
+        // eslint-disable-next-line no-obj-calls
         new Reflect;
     });
 });

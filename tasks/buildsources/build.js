@@ -19,7 +19,7 @@ const writeAliasFile = require('./write-alias-file');
  * @param {string|undefined} feature An optional feature to build. When omitted all polyfills will be build.
  * @returns {Promise<void>} When done.
  */
-module.exports = function build(feature = undefined) {
+module.exports = function build(feature) {
 	return Promise.resolve()
 		.then(async () => {
 			await makeDirectory(destination);
@@ -34,9 +34,9 @@ module.exports = function build(feature = undefined) {
 			const slicedPolyfillPaths = [];
 			const polyfillPaths = flattenPolyfillDirectories(source);
 
-			for (let i = 0; i < maxProc; i++) {
-				const start = Math.floor((polyfillPaths.length / maxProc) * i);
-				const end = Math.floor((polyfillPaths.length / maxProc) * (i + 1));
+			for (let queue = 0; queue < maxProc; queue++) {
+				const start = Math.floor((polyfillPaths.length / maxProc) * queue);
+				const end = Math.floor((polyfillPaths.length / maxProc) * (queue + 1));
 				slicedPolyfillPaths.push(polyfillPaths.slice(start, end));
 			}
 
