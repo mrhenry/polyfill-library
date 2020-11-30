@@ -1,8 +1,5 @@
 /.env
 node_modules
-polyfills/Intl/**/detect.js
-polyfills/Intl/**/polyfill.js
-polyfills/Intl/**/~locale
 polyfills/__dist/
 polyfills/~html5-elements/polyfill.js
 polyfills/AudioContext/polyfill.js

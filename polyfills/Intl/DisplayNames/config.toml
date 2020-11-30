@@ -6,6 +6,7 @@ dependencies = [
   "Array.prototype.map",
   "Array.prototype.reduce",
   "Intl.getCanonicalLocales",
+  "Intl.Locale",
   "Object.assign",
   "Object.create",
   "Object.defineProperty",

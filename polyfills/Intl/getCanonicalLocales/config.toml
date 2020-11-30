@@ -6,7 +6,7 @@ dependencies = [
   "Array.prototype.sort",
   "Object.assign",
   "Object.defineProperty",
-  "Object.keys",
+  "Object.keys"
 ]
 docs = "https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Intl/getCanonicalLocales"
 license = "MIT"
