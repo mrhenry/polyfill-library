@@ -16,13 +16,20 @@ it("is not enumerable", function () {
 	proclaim.isNotEnumerable(Array.prototype, "sort");
 });
 
+it("sorts", function () {
+	proclaim.deepStrictEqual(
+		Array.prototype.sort.call(["b", "c", "a"]),
+		["a", "b", "c"]
+	);
+
+	proclaim.deepStrictEqual(
+		["b", "c", "a"].sort(),
+		["a", "b", "c"]
+	);
+});
+
 it("has a stable sort", function () {
-	var obj = {
-		length: 3,
-		0: 2,
-		1: 1,
-		2: 3
-	};
+	var obj = {length:3, 0:2, 1:1,2:3};
 	proclaim.deepStrictEqual(
 		Array.prototype.sort.call(obj, function (a, b) {
 			return a - b;

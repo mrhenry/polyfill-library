@@ -42,9 +42,11 @@ CreateMethodProperty(Array.prototype, "sort", function sort(compareFn) {
     // update the original object (`this`) with the new position for the items
     // which were moved.
     for (var a in that) {
+      if (Object.prototype.hasOwnProperty.call(that, a)) {
         if (that[a].item !== this[a]) {
-            this[a] = that[a].item;
+          this[a] = that[a].item;
         }
+      }
     }
   }
 
