@@ -240,7 +240,13 @@
 
 	// 23.3.3.6 WeakMap.prototype [ @@toStringTag ]
 	// The initial value of the @@toStringTag property is the String value "WeakMap".
-	// This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true }.
+	// This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: true }.	
+	Object.defineProperty(WeakMap.prototype, Symbol.toStringTag, {
+		configurable: true,
+		enumerable: false,
+		writable: false,
+		value: 'WeakMap'
+	});
 
 	// Polyfill.io - Safari 8 implements WeakMap.name but as a non-writable property, which means it would throw an error if we try and write to it here.
 	if (!('name' in WeakMap)) {
