@@ -64,7 +64,7 @@ it('returns value from a receiver', function () {
 
 if ('create' in Object && function () { // supports getters
     try {
-        Object.defineProperty({}, property, {
+        Object.defineProperty({}, 'x', {
             configurable: true,
             enumerable: true,
             get: function () {
