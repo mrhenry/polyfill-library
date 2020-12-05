@@ -46,7 +46,12 @@ it('returns true if deleting property was a success', function () {
     proclaim.isTrue(Reflect.deleteProperty(o, 'a'));
 });
 
-if ('freeze' in Object) {
+if ('freeze' in Object && (function () {
+    // check for Object.freeze polyfill which doesn't really freeze things.
+    var frozen = Object.freeze({});
+    frozen.foo = true;
+    return (typeof frozen.foo === 'undefined');
+}())) {
     it('returns false if deleting property was not a success', function () {
         var o = {
             a: 1

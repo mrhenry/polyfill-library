@@ -62,7 +62,21 @@ it('returns value from a receiver', function () {
     }
 });
 
-if ('create' in Object) {
+if ('create' in Object && function () { // supports getters
+    try {
+        Object.defineProperty({}, property, {
+            configurable: true,
+            enumerable: true,
+            get: function () {
+                return 1;
+            }
+        });
+
+        return true;
+    } catch (_) {
+        return false;
+    }
+}()) {
     it('returns prototype property value using a receiver', function () {
         var o = {};
         var n = {

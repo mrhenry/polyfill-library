@@ -23,7 +23,12 @@ it('returns true if defining the property was a success', function () {
     proclaim.isTrue(Object.prototype.hasOwnProperty.call(o, 'a'));
 });
 
-if ('freeze' in Object) {
+if ('freeze' in Object && (function () {
+    // check for Object.freeze polyfill which doesn't really freeze things.
+    var frozen = Object.freeze({});
+    frozen.foo = true;
+    return (typeof frozen.foo === 'undefined');
+}())) {
     it('returns false if defining the property was not a success', function () {
         var o = {};
         Object.freeze(o);

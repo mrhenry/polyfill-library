@@ -21,7 +21,20 @@ it('returns true if object is extensible', function () {
     proclaim.isTrue(Reflect.isExtensible({}));
 });
 
-if ('preventExtensions' in Object) {
+if ('preventExtensions' in Object && (function () {
+    // check for Object.preventExtensions polyfill which doesn't really prevent anything.
+    var notExtensible = {};
+    Object.preventExtensions(notExtensible)
+
+    try {
+        Object.defineProperty(notExtensible, 'property1', {
+            value: 42
+        });
+        return false
+    } catch (_) {
+        return true
+    }
+}())) {
     it('returns false if object is not extensible', function () {
         var o = {};
         Object.preventExtensions(o);
