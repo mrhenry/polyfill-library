@@ -34,16 +34,16 @@
 		return nGOPN(obj);
 	};
 	var gOPD = Object[GOPD];
-	var create = Object.create;
-	var keys = Object.keys;
+	var objectCreate = Object.create;
+	var objectKeys = Object.keys;
 	var freeze = Object.freeze || Object;
-	var defineProperty = Object[DP];
+	var objectDefineProperty = Object[DP];
 	var $defineProperties = Object[DPies];
 	var descriptor = gOPD(Object, GOPN);
 	var addInternalIfNeeded = function (o, uid, enumerable) {
 		if (!hOP.call(o, internalSymbol)) {
 			try {
-				defineProperty(o, internalSymbol, {
+				objectDefineProperty(o, internalSymbol, {
 					enumerable: false,
 					configurable: false,
 					writable: false,
@@ -56,7 +56,7 @@
 		o[internalSymbol]['@@' + uid] = enumerable;
 	};
 	var createWithSymbols = function (proto, descriptors) {
-		var self = create(proto);
+		var self = objectCreate(proto);
 		gOPN(descriptors).forEach(function (key) {
 			if (propertyIsEnumerable.call(descriptors, key)) {
 				$defineProperty(self, key, descriptors[key]);
@@ -65,7 +65,7 @@
 		return self;
 	};
 	var copyAsNonEnumerable = function (descriptor) {
-		var newDescriptor = create(descriptor);
+		var newDescriptor = objectCreate(descriptor);
 		newDescriptor.enumerable = false;
 		return newDescriptor;
 	};
@@ -101,18 +101,18 @@
 			}
 		};
 		try {
-			defineProperty(ObjectProto, uid, descriptor);
+			objectDefineProperty(ObjectProto, uid, descriptor);
 		} catch (e) {
 			ObjectProto[uid] = descriptor.value;
 		}
-		source[uid] = defineProperty(
+		source[uid] = objectDefineProperty(
 			Object(uid),
 			'constructor',
 			sourceConstructor
 		);
 		var description = gOPD(Symbol.prototype, 'description');
 		if (description) {
-			defineProperty(
+			objectDefineProperty(
 				source[uid],
 				'description',
 				description
@@ -129,19 +129,19 @@
 			prefix.concat(description || '', random, ++id)
 		);
 		};
-	var source = create(null);
+	var source = objectCreate(null);
 	var sourceConstructor = {value: Symbol};
 	var sourceMap = function (uid) {
 		return source[uid];
 		};
-	var $defineProperty = function defineProp(o, key, descriptor) {
+	var $defineProperty = function defineProperty(o, key, descriptor) {
 		var uid = '' + key;
 		if (onlySymbols(uid)) {
 			setDescriptor(o, uid, descriptor.enumerable ?
 				copyAsNonEnumerable(descriptor) : descriptor);
 			addInternalIfNeeded(o, uid, !!descriptor.enumerable);
 		} else {
-			defineProperty(o, key, descriptor);
+			objectDefineProperty(o, key, descriptor);
 		}
 		return o;
 	};
@@ -157,20 +157,20 @@
 	;
 
 	descriptor.value = $defineProperty;
-	defineProperty(Object, DP, descriptor);
+	objectDefineProperty(Object, DP, descriptor);
 
 	descriptor.value = $getOwnPropertySymbols;
-	defineProperty(Object, GOPS, descriptor);
+	objectDefineProperty(Object, GOPS, descriptor);
 
 	descriptor.value = function getOwnPropertyNames(o) {
 		return gOPN(o).filter(onlyNonSymbols);
 	};
-	defineProperty(Object, GOPN, descriptor);
+	objectDefineProperty(Object, GOPN, descriptor);
 
 	descriptor.value = function defineProperties(o, descriptors) {
 		var symbols = $getOwnPropertySymbols(descriptors);
 		if (symbols.length) {
-		keys(descriptors).concat(symbols).forEach(function (uid) {
+		objectKeys(descriptors).concat(symbols).forEach(function (uid) {
 			if (propertyIsEnumerable.call(descriptors, uid)) {
 			$defineProperty(o, uid, descriptors[uid]);
 			}
@@ -180,20 +180,20 @@
 		}
 		return o;
 	};
-	defineProperty(Object, DPies, descriptor);
+	objectDefineProperty(Object, DPies, descriptor);
 
 	descriptor.value = propertyIsEnumerable;
-	defineProperty(ObjectProto, PIE, descriptor);
+	objectDefineProperty(ObjectProto, PIE, descriptor);
 
 	descriptor.value = Symbol;
-	defineProperty(global, 'Symbol', descriptor);
+	objectDefineProperty(global, 'Symbol', descriptor);
 
 	// defining `Symbol.for(key)`
 	descriptor.value = function (key) {
 		var uid = prefix.concat(prefix, key, random);
 		return uid in ObjectProto ? source[uid] : setAndGetSymbol(uid);
 	};
-	defineProperty(Symbol, 'for', descriptor);
+	objectDefineProperty(Symbol, 'for', descriptor);
 
 	// defining `Symbol.keyFor(symbol)`
 	descriptor.value = function (symbol) {
@@ -204,7 +204,7 @@
 		void 0
 		;
 	};
-	defineProperty(Symbol, 'keyFor', descriptor);
+	objectDefineProperty(Symbol, 'keyFor', descriptor);
 
 	descriptor.value = function getOwnPropertyDescriptor(o, key) {
 		var descriptor = gOPD(o, key);
@@ -213,14 +213,15 @@
 		}
 		return descriptor;
 	};
-	defineProperty(Object, GOPD, descriptor);
+	objectDefineProperty(Object, GOPD, descriptor);
 
-	descriptor.value = function (proto, descriptors) {
+	descriptor.value = function create(proto, descriptors) {
 		return arguments.length === 1 || typeof descriptors === "undefined" ?
-		create(proto) :
+		objectCreate(proto) :
 		createWithSymbols(proto, descriptors);
 	};
-	defineProperty(Object, 'create', descriptor);
+
+	objectDefineProperty(Object, 'create', descriptor);
 
 	var strictModeSupported = (function(){ 'use strict'; return this; }).call(null) === null;
 	if (strictModeSupported) {
@@ -246,14 +247,14 @@
 			return (str === '[object String]' && onlySymbols(this)) ? '[object Symbol]' : str;
 		};
 	}
-	defineProperty(ObjectProto, 'toString', descriptor);
+	objectDefineProperty(ObjectProto, 'toString', descriptor);
 
 	setDescriptor = function (o, key, descriptor) {
 		var protoDescriptor = gOPD(ObjectProto, key);
 		delete ObjectProto[key];
-		defineProperty(o, key, descriptor);
+		objectDefineProperty(o, key, descriptor);
 		if (o !== ObjectProto) {
-			defineProperty(ObjectProto, key, protoDescriptor);
+			objectDefineProperty(ObjectProto, key, protoDescriptor);
 		}
 	};
 

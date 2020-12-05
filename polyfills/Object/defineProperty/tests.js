@@ -69,26 +69,61 @@ describe('Basic functionality', function () {
 		proclaim.equal(object[property], value);
 	});
 
-	if ('create' in Object) {
-		it('Works with objects which have no prototype', function () {
-			var object = Object.create(null);
-			try {
-				Object.defineProperty(object, property, {
+	if (function () { // supports getters
+		try {
+			Object.defineProperty({}, property, {
 					configurable: true,
 					enumerable: true,
 					get: function () {
-						return value;
+						return 1;
 					}
 				});
-			} catch (e) {
-				if (e.message !== "Getters & setters cannot be defined on this javascript engine") {
-					throw e;
-				}
-			}
 
-			proclaim.equal(object[property], value);
-		});
+			return true;
+			} catch (_) {
+			return false;
+			}
+	}()) {
+		if ('create' in Object) {
+			it('Works with objects which have no prototype - getter', function () {
+				var object = Object.create(null);
+				try {
+					Object.defineProperty(object, property, {
+						configurable: true,
+						enumerable: true,
+						get: function () {
+							return value;
+						}
+					});
+				} catch (e) {
+					if (e.message !== "Getters & setters cannot be defined on this javascript engine") {
+						throw e;
+					}
+				}
+
+				proclaim.equal(object[property], value);
+			});
+		}
 	}
+
+	if ('create' in Object) {
+			it('Works with objects which have no prototype - value', function () {
+				var object = Object.create(null);
+				try {
+					Object.defineProperty(object, property, {
+						configurable: true,
+						enumerable: true,
+						value: value
+					});
+				} catch (e) {
+					if (e.message !== "Getters & setters cannot be defined on this javascript engine") {
+						throw e;
+					}
+				}
+
+				proclaim.equal(object[property], value);
+			});
+		}
 });
 
 describe('Error handling', function () {

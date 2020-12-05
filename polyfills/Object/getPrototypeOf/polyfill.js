@@ -16,8 +16,8 @@ CreateMethodProperty(Object, 'getPrototypeOf', function getPrototypeOf(object) {
 	if (proto || proto === null) {
 		return proto;
 	} else if (typeof object.constructor == 'function' && object instanceof object.constructor) {
-    return object.constructor.prototype;
-  } else if (object instanceof Object) {
+		return object.constructor.prototype;
+	} else if (object instanceof Object) {
 		return Object.prototype;
 	} else {
 		// Correctly return null for Objects created with `Object.create(null)`

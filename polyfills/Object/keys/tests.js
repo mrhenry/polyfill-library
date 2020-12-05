@@ -69,6 +69,37 @@ it('works with objects', function () {
 	}).length, 2);
 });
 
+if ('create' in Object) {
+  it('works with created objects', function () {
+    proclaim.equal(Object.keys(Object.create({})).length, 0);
+
+    proclaim.deepEqual(Object.keys(Object.create({}, {
+      foo: {
+        value: true,
+        enumerable: true
+      }
+    })), ['foo']);
+
+    proclaim.equal(Object.keys(Object.create({}, {
+      foo: {
+        value: true,
+        enumerable: true
+      }
+    })).length, 1);
+
+    proclaim.equal(Object.keys(Object.create({}, {
+      foo: {
+        value: true,
+        enumerable: true
+      },
+      bar: {
+        value: false,
+        enumerable: true
+      }
+    })).length, 2);
+  });
+}
+
 it('works with objects containing otherwise non-enumerable keys', function () {
 	proclaim.equal(Object.keys({
 		toString: function () {}

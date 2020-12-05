@@ -115,21 +115,25 @@ it("If the second argument is present and not undefined, add own properties to r
 	// proclaim.equal(result2, true);
 });
 
-it('Object.create', function () {
+describe('Object.create', function () {
 	var obj = {
 		q: 1
 	};
+
 	function has(x, xs){
-    var i = -1, l = xs.length >>> 0;
-    while (++i < l) if (x === xs[i]) return true;
-    return false;
-  }
+		var i = -1, l = xs.length >>> 0;
+		while (++i < l) if (x === xs[i]) return true;
+		return false;
+	}
+
 	function isObject(it) {
 		return it === Object(it);
 	}
+
 	function isPrototype(a, b) {
 		return {}.isPrototypeOf.call(a, b);
 	}
+
 	function getPropertyNames(object) {
 		var result = Object.getOwnPropertyNames(object);
 		// eslint-disable-next-line no-cond-assign
@@ -144,35 +148,80 @@ it('Object.create', function () {
 		}
 		return result;
 	}
-	proclaim.isFunction(Object.create);
-	proclaim.arity(Object.create, 2);
-	proclaim.hasName(Object.create, 'create');
-	proclaim.isNotEnumerable(Object, 'create');
-	proclaim.ok(isPrototype(obj, Object.create(obj)));
-	proclaim.ok(Object.create(obj).q === 1);
-	function fn() {
-		return this.a = 1;
-	}
-	proclaim.ok(Object.create(new fn) instanceof fn);
-	if ('getPrototypeOf' in Object) {
-		proclaim.ok(fn.prototype === Object.getPrototypeOf(Object.getPrototypeOf(Object.create(new fn))));
-	}
-	proclaim.ok(Object.create(new fn).a === 1);
-	proclaim.ok(Object.create({}, {
-		a: {
-			value: 42
-		}
-	}).a === 42);
-	obj = Object.create(null, {
-		w: {
-			value: 2
-		}
+
+	it('is a function', function () {
+		proclaim.isFunction(Object.create);
 	});
-	proclaim.ok(isObject(obj));
-	proclaim.ok(!('toString' in obj));
-	proclaim.ok(obj.w === 2);
+
+	it('has correct arity', function () {
+		proclaim.arity(Object.create, 2);
+	});
+
+	it('has the correct name', function () {
+		proclaim.hasName(Object.create, 'create');
+	});
+
+	it('is not enumerable', function () {
+		proclaim.isNotEnumerable(Object, 'create');
+	});
+
+	it('is prototype', function () {
+		proclaim.ok(isPrototype(obj, Object.create(obj)));
+	});
+
+	it('creates objects with properties', function () {
+		proclaim.ok(Object.create(obj).q === 1);
+	});
+
+	it('creates instances with properties', function () {
+		function fn() {
+			return this.a = 1;
+		}
+
+		proclaim.ok(Object.create(new fn).a === 1);
+	});
+
+	it('creates functions that are instances of itself', function () {
+		function fn() {
+			return this.a = 1;
+		}
+
+		proclaim.ok(Object.create(new fn) instanceof fn);
+	});
+
+	if ('getPrototypeOf' in Object) {
+		it('can get the prototype of', function () {
+			function fn() {
+				return this.a = 1;
+			}
+
+			proclaim.ok(fn.prototype === Object.getPrototypeOf(Object.getPrototypeOf(Object.create(new fn))));
+		});
+	}
 
 	if ('getOwnPropertyNames' in Object && 'getPrototypeOf' in Object) {
-		proclaim.deepEqual(getPropertyNames(Object.create(null)), []);
+		it('can get own property names', function () {
+			proclaim.deepEqual(getPropertyNames(Object.create(null)), []);
+		});
 	}
+
+	it('creates objects following the property descriptor map', function () {
+		proclaim.ok(Object.create({}, {
+			a: {
+				value: 42
+			}
+		}).a === 42);
+	});
+
+	it('creates correct object from property map alone', function () {
+		var obj2 = Object.create(null, {
+			w: {
+				value: 2
+			}
+		});
+
+		proclaim.ok(isObject(obj2));
+		proclaim.ok(!('toString' in obj2));
+		proclaim.ok(obj2.w === 2);
+	});
 });

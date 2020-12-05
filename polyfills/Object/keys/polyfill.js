@@ -8,7 +8,21 @@ CreateMethodProperty(Object, "keys", (function() {
 	var toStr = Object.prototype.toString;
 	var isEnumerable = Object.prototype.propertyIsEnumerable;
 	var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
-	var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
+	var hasPrototypeEnumBug = isEnumerable.call(function () { }, 'prototype');
+	function hasProtoEnumBug() {
+		// Object.create polyfill creates an enumerable __proto__
+		var createdObj;
+		try {
+			createdObj = Object.create({});
+		} catch (e) {
+			// If this fails the polyfil isn't loaded yet, but will be.
+			// Can't add it to depedencies because of it would create a circular depedency.
+			return true;
+		}
+
+		return isEnumerable.call(createdObj, '__proto__')
+	}
+
 	var dontEnums = [
 		'toString',
 		'toLocaleString',
@@ -96,7 +110,7 @@ CreateMethodProperty(Object, "keys", (function() {
 			throw new TypeError('Cannot convert undefined or null to object');
 		}
 
-		var skipProto = hasProtoEnumBug && isFunction;
+		var skipPrototype = hasPrototypeEnumBug && isFunction;
 		if (isString && object.length > 0 && !has.call(object, 0)) {
 			for (var i = 0; i < object.length; ++i) {
 				theKeys.push(String(i));
@@ -109,7 +123,7 @@ CreateMethodProperty(Object, "keys", (function() {
 			}
 		} else {
 			for (var name in object) {
-				if (!(skipProto && name === 'prototype') && has.call(object, name)) {
+				if (!(hasProtoEnumBug() && name === '__proto__') && !(skipPrototype && name === 'prototype') && has.call(object, name)) {
 					theKeys.push(String(name));
 				}
 			}

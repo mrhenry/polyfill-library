@@ -289,15 +289,24 @@ it('works as expected', function () {
 	proclaim.deepEqual(Object.entries(new String('qwe')), [['0', 'q'], ['1', 'w'], ['2', 'e']]);
 
 	if ('assign' in Object && 'create' in Object) {
-		proclaim.deepEqual(Object.entries(Object.assign(Object.create({
+		var assignedAndCreatedObj = Object.assign(Object.create({
 			q: 1,
 			w: 2,
 			e: 3
 		}), {
-				a: 4,
-				s: 5,
-				d: 6
-			})), [['a', 4], ['s', 5], ['d', 6]]);
+			a: 4,
+			s: 5,
+			d: 6
+		});
+
+		proclaim.deepEqual(
+			Object.entries(assignedAndCreatedObj),
+			[
+				['a', 4],
+				['s', 5],
+				['d', 6]
+			]
+		);
 	}
 	try {
 		proclaim.deepEqual(Function('return Object.entries({a: 1, get b(){delete this.c;return 2},c: 3})')(), [['a', 1], ['b', 2]]);
