@@ -391,6 +391,10 @@
         },
         origin: {
           get: function () {
+            if (this.protocol.toLowerCase() === "data:") {
+              return null
+            }
+
             if ('origin' in instance) return instance.origin;
             return this.protocol + '//' + this.host;
           },

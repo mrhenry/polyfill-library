@@ -190,4 +190,47 @@ describe('Blob', function () {
 		proclaim.equal(blob1.type, '');
 		proclaim.equal(blob2.type, 'a');
 	});
+
+	it('can be converted to an object url', function () {
+		var blob = new Blob(['test']);
+		var blobURL = URL.createObjectURL(blob);
+
+		proclaim.ok(
+			blobURL.indexOf('data:') === 0 ||
+			blobURL.indexOf('blob:') === 0
+		);
+	});
+
+	it('object url has "null" origin', function () {
+		var blob = new Blob(['test']);
+		var blobURL = URL.createObjectURL(blob);
+
+		proclaim.ok(
+			blobURL.origin == null
+		);
+	});
+
+	if ('fetch' in self) {
+		it.skip('object url can be fetched', function (done) {
+			var blob = new Blob(['test']);
+			var blobURL = URL.createObjectURL(blob);
+
+			try {
+				fetch(blobURL).then(function (resp) {
+					if (resp.status !== 200) {
+						throw new Error('unexpected status code ' + resp.status);
+					}
+
+					return resp.text();
+				}).then(function (text) {
+					proclaim.equal(text, 'test');
+					done();
+				})["catch"](function (err1) {
+					done(err1);
+				});
+			} catch (err2) {
+				done(err2);
+			}
+		});
+	}
 });
