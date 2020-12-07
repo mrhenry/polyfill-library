@@ -1,4 +1,4 @@
-(function() {
+(function () {
 	var classList = document.createElement('div').classList;
 	classList && (classList.constructor.prototype.replace =
 		function (token, newToken) {
@@ -37,4 +37,4 @@
 			return true;
 		}
 	);
-})()
+})();
