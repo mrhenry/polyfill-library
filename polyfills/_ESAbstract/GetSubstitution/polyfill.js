@@ -70,4 +70,4 @@
 		// 12. Return result.
 		return result;
 	};
-}())
+}());
