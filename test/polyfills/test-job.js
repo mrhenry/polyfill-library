@@ -20,11 +20,12 @@ module.exports = class TestJob {
     capability,
     sessionName,
     testBrowserTimeout,
-    pollTick
+    pollTick,
+    polyfillCombinations,
+    shard
   ) {
     this.name = name;
     this.mode = mode;
-    this.url = url;
     this.results = undefined;
     this.lastUpdateTime = 0;
     this.duration = 0;
@@ -46,6 +47,17 @@ module.exports = class TestJob {
     this.pollTick = pollTick;
     this.setState("ready");
     this.runCount = 0;
+
+    this.url = url;
+    if (polyfillCombinations) {
+      this.polyfillCombinations = true;
+      this.url = this.url + '&polyfillCombinations=yes';
+    }
+
+    if (shard) {
+      this.shard = shard;
+      this.url = this.url + `&shard=${shard}`;
+    }
   }
 
   async pollForResults() {
@@ -157,5 +169,9 @@ module.exports = class TestJob {
         : [],
       testedSuites: [...this.results.testedSuites]
     };
+  }
+
+  get configForLog() {
+    return `${this.mode.padEnd(" ", 8)} / ${(this.polyfillCombinations ? 'combined' : '        ')} / ${(this.shard ? 'shard ' + this.shard + '  ' : 'shard n/a')}`;
   }
 };

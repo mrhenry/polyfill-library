@@ -99,18 +99,62 @@ const tunnelId =
   (process.env.CIRCLE_BUILD_NUM || process.env.NODE_ENV || "null") +
   "_" +
   new Date().toISOString();
-const jobs = browsers.map(browser => {
-  const capability = useragentToBrowserObject(browser);
-  return new TestJob(
-    browser,
+
+const jobConfigs = browsers.flatMap(browser => {
+  let configs = [];
+  const baseConfig = {
+    browser: browser,
+    shard: false,
+    capability: useragentToBrowserObject(browser),
+  };
+
+  if (browser === 'ie/8.0' || browser === 'ie/9.0') {
+    configs = [
+      {
+        ...baseConfig,
+        shard: 1,
+      },
+      {
+        ...baseConfig,
+        shard: 2,
+      }
+    ];
+  } else {
+    configs = [
+      baseConfig
+    ];
+  }
+  
+  return configs.flatMap((config) => {
+    return [
+      {
+        ...config,
+        polyfillCombinations: false,
+      },
+      {
+        ...config,
+        polyfillCombinations: true,
+      }
+    ] 
+  })
+});
+
+let jobs = [];
+
+jobConfigs.forEach(jobConfig => {
+  jobs.push(new TestJob(
+    jobConfig.browser,
     url,
     mode,
-    capability,
+    jobConfig.capability,
     tunnelId,
     testBrowserTimeout,
-    pollTick
-  );
+    pollTick,
+    jobConfig.polyfillCombinations,
+    jobConfig.shard
+  ));
 });
+
 const tunnel = new Tunnel();
 
 const openTunnel = promisify(tunnel.start.bind(tunnel));
@@ -171,7 +215,7 @@ const printProgress = (function() {
           ` • Browser: ${job.name.padEnd(
             " ",
             20
-          )} Testing mode: ${job.mode.padEnd(" ", 8)} ${message}`
+          )} Test config: ${job.configForLog} ${message}`
         );
       }
     });

@@ -69,6 +69,7 @@ app.get(
   async (request, response) => {
     const ua = request.get("User-Agent");
     const isIE8 = polyfillio.normalizeUserAgent(ua) === "ie/8.0.0";
+    const polyfillCombinations = (request.query.polyfillCombinations || "no") === "yes";
     const feature = request.query.feature || "";
     const includePolyfills = request.query.includePolyfills || "no";
     const always = request.query.always || "no";
@@ -84,13 +85,14 @@ app.get(
       const features = polyfillsWithTests.map(polyfill => polyfill.feature);
       const parameters = {
         features: createPolyfillLibraryConfigFor(
-          feature ? feature : features.join(","),
+          (feature && !polyfillCombinations) ? feature : features.join(","),
           always === "yes"
         ),
         minify: false,
         stream: false,
         uaString: always === "yes" ? "other/0.0.0" : request.get("user-agent")
       };
+
       const bundle = await polyfillio.getPolyfillString(parameters);
       response.send(bundle);
     } else {
@@ -183,7 +185,17 @@ async function testablePolyfills(isIE8, ua) {
     }
   }
 
-  polyfilldata.sort(function(a, b) {
+  polyfilldata.sort(function (a, b) {
+    // console.clear() test must run first to preserve console output of other tests.
+    // to run first it must be last in the list.
+    if (a.feature === 'console.clear') {
+      return 1;
+    }
+
+    if (b.feature === 'console.clear') {
+      return -1;
+    }
+
     return a.feature > b.feature ? -1 : 1;
   });
 
@@ -197,6 +209,8 @@ function createEndpoint(template) {
     const isIE8 = polyfillio.normalizeUserAgent(ua) === "ie/8.0.0";
     const feature = request.query.feature || "";
     const includePolyfills = request.query.includePolyfills || "no";
+    const polyfillCombinations = request.query.polyfillCombinations || "no";
+    const shard = request.query.shard || false;
     const always = request.query.always || "no";
 
     if (includePolyfills !== "yes" && includePolyfills !== "no") {
@@ -222,10 +236,14 @@ function createEndpoint(template) {
     }
 
     // Filter for querystring args
-    const features = feature
+    let features = feature
       ? polyfills.filter(polyfill => feature === polyfill.feature)
       : polyfills;
     response.status(200);
+
+    if (shard) {
+      features = features.slice((shard - 1) * (features.length / 2), (shard) * (features.length / 2));
+    }
 
     response.set({
       "Content-Type": "text/html; charset=utf-8"
@@ -236,6 +254,7 @@ function createEndpoint(template) {
         requestedFeature: !!feature,
         features: features.map(f => f.feature).join(','),
         includePolyfills: includePolyfills,
+        polyfillCombinations: polyfillCombinations,
         always: always,
         afterTestSuite: `
         // During the test run, surface the test results in Browserstacks' preferred format
