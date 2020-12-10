@@ -16,7 +16,7 @@ CreateMethodProperty(String.prototype, 'replaceAll', function replaceAll(searchV
 			// 2.b.ii. Perform ? RequireObjectCoercible(flags).
 			RequireObjectCoercible(flags)
 			// 2.b.iii. If ? ToString(flags) does not contain "g", throw a TypeError exception.
-			if (ToString(flags).includes('g')) {
+			if (ToString(flags).indexOf('g') === -1 && searchValue.global !== true) {
 				throw TypeError('');
 			}
 		}
@@ -39,6 +39,7 @@ CreateMethodProperty(String.prototype, 'replaceAll', function replaceAll(searchV
 		// 6.a. Set replaceValue to ? ToString(replaceValue).
 		replaceValue = ToString(replaceValue);
 	}
+
 	// 7. Let searchLength be the length of searchString.
 	var searchLength = searchString.length;
 	// 8. Let advanceBy be max(1, searchLength).
@@ -54,6 +55,7 @@ CreateMethodProperty(String.prototype, 'replaceAll', function replaceAll(searchV
 		// 11.b. Set position to ! StringIndexOf(string, searchString, position + advanceBy).
 		position = StringIndexOf(string, searchString, position + advanceBy);
 	}
+
 	// 12. Let endOfLastMatch be 0.
 	var endOfLastMatch = 0;
 	// 13. Let result be the empty String.
@@ -61,23 +63,23 @@ CreateMethodProperty(String.prototype, 'replaceAll', function replaceAll(searchV
 	// 14. For each element position of matchPositions, do
 	for (var i = 0; i < matchPositions.length; i++) {
 		// 14.a. Let preserved be the substring of string from endOfLastMatch to position.
-		var preserved = string.substring(endOfLastMatch, position);
+		var preserved = string.substring(endOfLastMatch, matchPositions[i]);
 		// 14.b. If functionalReplace is true, then
 		if (functionalReplace) {
 			// 14.b.i. Let replacement be ? ToString(? Call(replaceValue, undefined, « searchString, position, string »)).
-			var replacement = ToString(Call(replaceValue, undefined, [searchString, position, string]));
+			var replacement = ToString(Call(replaceValue, undefined, [searchString, matchPositions[i], string]));
 			// 14.c. Else,
 		} else {
 			// 14.c.i. Assert: Type(replaceValue) is String.
 			// 14.c.ii. Let captures be a new empty List.
 			var captures = [];
 			// 14.c.iii. Let replacement be ! GetSubstitution(searchString, string, position, captures, undefined, replaceValue).
-			replacement = GetSubstitution(searchString, string, position, captures, undefined, replaceValue);
+			replacement = GetSubstitution(searchString, string, matchPositions[i], captures, undefined, replaceValue);
 		}
 		// 14.d. Set result to the string-concatenation of result, preserved, and replacement.
 		result = result + preserved + replacement;
 		// 14.e. Set endOfLastMatch to position + searchLength.
-		endOfLastMatch = position + searchLength;
+		endOfLastMatch = matchPositions[i] + searchLength;
 	}
 	// 15. If endOfLastMatch < the length of string, then
 	if (endOfLastMatch < string.length) {
