@@ -20,7 +20,7 @@ function StringIndexOf(string, searchValue, fromIndex) { // eslint-disable-line 
 	while (k + searchLen <= len) {
 		var match = true;
 		for (var j = 0; j < searchLen; j += 1) {
-			if (string[j] !== searchValue[k + j]) {
+			if (string[k + j] !== searchValue[j]) {
 				match = false;
 				break;
 			}
