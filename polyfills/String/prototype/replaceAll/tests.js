@@ -60,6 +60,16 @@ describe('String.prototype.replaceAll', function () {
         }, TypeError);
     });
 
+    var supportsRegexpStickyFlag = (function () {
+        // NOTE : figure out why sticky flag isn't supported.
+        try {
+            new RegExp('\\.', 'gy');
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }());
+
     // NOTE : Polyfill for RegExp.prototype[@@replace] is missing. This polyfill won't work fully as expected untill that polyfill has been implemented.
     if ('Symbol' in self && 'replace' in self.Symbol && self.RegExp.prototype[self.Symbol.replace]) {
         it('works correctly if searchValue is a regex with a global flag', function () {
@@ -73,20 +83,24 @@ describe('String.prototype.replaceAll', function () {
             var result = 'aa /./g /./g aa'.replaceAll(searchValue, 'z');
             proclaim.deepStrictEqual(result, 'zzzzzzzzzzzzzzz');
 
-            searchValue = new RegExp('\\.', 'gy');
+            if (supportsRegexpStickyFlag) {
+                searchValue = new RegExp('\\.', 'gy');
 
-            result = '. aa /./gy /./gy aa .'.replaceAll(searchValue, 'z');
-            proclaim.deepStrictEqual(result, 'z aa /./gy /./gy aa .');
+                result = '. aa /./gy /./gy aa .'.replaceAll(searchValue, 'z');
+                proclaim.deepStrictEqual(result, 'z aa /./gy /./gy aa .');
+            }
 
             searchValue = /./gi;
 
             result = 'aa /./gi /./gi aa'.replaceAll(searchValue, 'z');
             proclaim.deepStrictEqual(result, 'zzzzzzzzzzzzzzzzz');
 
-            searchValue = new RegExp('\\.', 'igy');
+            if (supportsRegexpStickyFlag) {
+                searchValue = new RegExp('\\.', 'igy');
 
-            result = 'aa /\\./giy /./giy /\\./iyg /\\./gyi /\\./giy aa'.replaceAll(searchValue, 'z');
-            proclaim.deepStrictEqual(result, 'aa /\\./giy /./giy /\\./iyg /\\./gyi /\\./giy aa');
+                result = 'aa /\\./giy /./giy /\\./iyg /\\./gyi /\\./giy aa'.replaceAll(searchValue, 'z');
+                proclaim.deepStrictEqual(result, 'aa /\\./giy /./giy /\\./iyg /\\./gyi /\\./giy aa');
+            }
         });
     }
 
@@ -100,12 +114,14 @@ describe('String.prototype.replaceAll', function () {
             var result = 'aa /./g /./g aa'.replaceAll(searchValue, 'z');
             proclaim.deepStrictEqual(result, 'aa z z aa');
 
-            searchValue = new RegExp('\\.', 'gy');
+            if (supportsRegexpStickyFlag) {
+                searchValue = new RegExp('\\.', 'gy');
 
-            Object.defineProperty(searchValue, self.Symbol.replace, { value: undefined });
+                Object.defineProperty(searchValue, self.Symbol.replace, { value: undefined });
 
-            result = 'aa /\\./gy /\\./gy aa'.replaceAll(searchValue, 'z');
-            proclaim.deepStrictEqual(result, 'aa z z aa');
+                result = 'aa /\\./gy /\\./gy aa'.replaceAll(searchValue, 'z');
+                proclaim.deepStrictEqual(result, 'aa z z aa');
+            }
 
             searchValue = /./gi;
 
@@ -114,12 +130,14 @@ describe('String.prototype.replaceAll', function () {
             result = 'aa /./gi /./gi aa'.replaceAll(searchValue, 'z');
             proclaim.deepStrictEqual(result, 'aa z z aa');
 
-            searchValue = new RegExp('\\.', 'igy');
+            if (supportsRegexpStickyFlag) {
+                searchValue = new RegExp('\\.', 'igy');
 
-            Object.defineProperty(searchValue, self.Symbol.replace, { value: undefined });
+                Object.defineProperty(searchValue, self.Symbol.replace, { value: undefined });
 
-            result = 'aa /\\./giy /./giy /\\./iyg /\\./gyi /\\./giy aa'.replaceAll(searchValue, 'z');
-            proclaim.deepStrictEqual(result, 'aa z /./giy /\\./iyg /\\./gyi z aa');
+                result = 'aa /\\./giy /./giy /\\./iyg /\\./gyi /\\./giy aa'.replaceAll(searchValue, 'z');
+                proclaim.deepStrictEqual(result, 'aa z /./giy /\\./iyg /\\./gyi z aa');
+            }
         });
     }
 });
