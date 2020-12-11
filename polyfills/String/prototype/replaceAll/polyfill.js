@@ -13,11 +13,18 @@ CreateMethodProperty(String.prototype, 'replaceAll', function replaceAll(searchV
 		if (isRegExp) {
 			// 2.b.i. Let flags be ? Get(searchValue, "flags").
 			var flags = Get(searchValue, "flags");
-			// 2.b.ii. Perform ? RequireObjectCoercible(flags).
-			RequireObjectCoercible(flags)
+			
+			// IE8 doesn't have RegExp.prototype.flags support, it does have RegExp.prototype.global
 			// 2.b.iii. If ? ToString(flags) does not contain "g", throw a TypeError exception.
-			if (ToString(flags).indexOf('g') === -1 && searchValue.global !== true) {
+			if (!('flags' in RegExp.prototype) && searchValue.global !== true) {
 				throw TypeError('');
+			} else if ('flags' in RegExp.prototype) {
+				// 2.b.ii. Perform ? RequireObjectCoercible(flags).
+				RequireObjectCoercible(flags)
+				// 2.b.iii. If ? ToString(flags) does not contain "g", throw a TypeError exception.
+				if (ToString(flags).indexOf('g') === -1) {
+					throw TypeError('');
+				}
 			}
 		}
 		// 2.c. Let replacer be ? GetMethod(searchValue, @@replace).
@@ -32,6 +39,7 @@ CreateMethodProperty(String.prototype, 'replaceAll', function replaceAll(searchV
 	var string = ToString(O);
 	// 4. Let searchString be ? ToString(searchValue).
 	var searchString = ToString(searchValue);
+
 	// 5. Let functionalReplace be IsCallable(replaceValue).
 	var functionalReplace = IsCallable(replaceValue);
 	// 6. If functionalReplace is false, then
