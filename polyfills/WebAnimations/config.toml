@@ -5,7 +5,7 @@ repo = "https://github.com/web-animations/web-animations-js"
 docs = "https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API"
 
 [browsers]
-edge = "*"
+edge = "<79"
 edge_mob = "*"
 ie = "10 - *"
 ie_mob = "10 - *"

@@ -20,7 +20,7 @@ repo = "https://github.com/magic-akari/seamless-scroll-polyfill"
 docs = "https://developer.mozilla.org/en/docs/Web/CSS/scroll-behavior"
 
 [browsers]
-edge = "* - 76"
+edge = "<79"
 edge_mob = "*"
 ie = "9 - *"
 ie_mob = "9 - *"

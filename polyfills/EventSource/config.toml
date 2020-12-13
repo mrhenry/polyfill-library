@@ -8,7 +8,7 @@ repo = "https://github.com/Yaffle/EventSource"
 [browsers]
 firefox = "<36"
 chrome = "<26"
-edge = "*"
+edge = "<79"
 edge_mob = "*"
 safari = "<7"
 opera = "<12"
