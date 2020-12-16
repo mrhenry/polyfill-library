@@ -85,9 +85,20 @@ async function handleList(options) {
 			polyfill.sources = {}; // No need to communicate this back to the parent process, output files have been written.
 			polyfills.push(polyfill);
 		} catch (error) {
+			if (error instanceof Error) {
+				throw {
+					name: "Build error",
+					message: `Error while building: ${path.relative(source, absolute)}`,
+					error: {
+						message: error.message,
+						error: error
+					}
+				};
+			}
+			
 			throw {
 				name: "Build error",
-				message: `Error handling ${path.relative(source, absolute)}`,
+				message: `Error while building: ${path.relative(source, absolute)}`,
 				error
 			};
 		}
