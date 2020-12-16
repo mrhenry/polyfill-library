@@ -1,4 +1,4 @@
-('document' in self && 'documentElement' in self.document && 'style' in self.document.documentElement && 'scrollBehavior' in document.documentElement.style) || (function () {
+('document' in self && 'documentElement' in self.document && 'style' in self.document.documentElement && 'scrollBehavior' in document.documentElement.style) && (function () {
   try {
     var supportsSmoothScroll = false;
 
