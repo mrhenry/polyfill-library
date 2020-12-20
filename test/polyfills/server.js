@@ -142,21 +142,6 @@ app.get(
   }
 );
 
-app.get(
-  "/sleep.js",
-  async (request, response) => {
-    const duration = Math.max(Number.parseInt(request.query.d || 0), 10);
-    await new Promise((resolve) => setTimeout(resolve, duration));
-
-    const headers = {
-      "Content-Type": "text/javascript; charset=utf-8"
-    };
-    response.status(200);
-    response.set(headers);
-    response.send("");
-  }
-);
-
 app.listen(port, () => console.log(`Test server listening on port ${port}!`));
 
 const testablePolyfillsCache = {};
@@ -274,6 +259,7 @@ function createEndpoint(template) {
         includePolyfills: includePolyfills,
         polyfillCombinations: polyfillCombinations,
         always: always,
+        rand: Math.random(),
         afterTestSuite: `
         // During the test run, surface the test results in Browserstacks' preferred format
         function run() {

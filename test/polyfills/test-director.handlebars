@@ -115,10 +115,7 @@
 				log('<strong>All tests complete, result data populated into global_test_results.  Total: '+resultsummary.join(', ')+'.</strong>');
 			} else {
 				window.global_test_progress = { state: 'running', runnerCompletedCount: runnerCompletedCount, runnerCount: runnerTotalCount, failed: globalresults.failed, passed: globalresults.passed };
-				
-				setTimeout(function () {
-					executeTest();
-				}, 100);
+				executeTest();
 			}
 		}
 		function log(str) {
