@@ -30,9 +30,12 @@ function createPolyfillLibraryConfigFor(features, always) {
   }, {});
 }
 
+const compression = require('compression');
 const express = require("express");
 
 const app = express();
+app.use(compression());
+
 const port = 9876;
 const apicache = require('apicache');
 const cache = apicache.middleware;
@@ -131,10 +134,25 @@ app.get(
 app.get(
   "/sleep",
   async (request, response) => {
-    const duration = Math.max(Number.parseInt(request.query.d), 1000);
+    const duration = Math.max(Number.parseInt(request.query.d || 0), 10);
     await new Promise((resolve) => setTimeout(resolve, duration));
 
     response.status(200);
+    response.send("");
+  }
+);
+
+app.get(
+  "/sleep.js",
+  async (request, response) => {
+    const duration = Math.max(Number.parseInt(request.query.d || 0), 10);
+    await new Promise((resolve) => setTimeout(resolve, duration));
+
+    const headers = {
+      "Content-Type": "text/javascript; charset=utf-8"
+    };
+    response.status(200);
+    response.set(headers);
     response.send("");
   }
 );
