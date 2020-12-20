@@ -23,6 +23,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [check-for-other-pull-requests-running-this-workflow]
     strategy:
       max-parallel: 1
