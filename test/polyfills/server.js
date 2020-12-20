@@ -134,7 +134,7 @@ app.get(
 app.get(
   "/sleep",
   async (request, response) => {
-    const duration = Math.max(Number.parseInt(request.query.d || 0), 10);
+    const duration = Math.max(Number.parseInt(request.query.d), 1000);
     await new Promise((resolve) => setTimeout(resolve, duration));
 
     response.status(200);
@@ -259,7 +259,6 @@ function createEndpoint(template) {
         includePolyfills: includePolyfills,
         polyfillCombinations: polyfillCombinations,
         always: always,
-        rand: Math.random(),
         afterTestSuite: `
         // During the test run, surface the test results in Browserstacks' preferred format
         function run() {
