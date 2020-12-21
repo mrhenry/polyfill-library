@@ -1,4 +1,18 @@
-('document' in self && 'documentElement' in self.document && 'style' in self.document.documentElement && 'scrollBehavior' in document.documentElement.style) && (function () {
+(function () {
+  var supportsScrollBehaviorViaCss = ('document' in self && 'documentElement' in self.document && 'style' in self.document.documentElement && 'scrollBehavior' in document.documentElement.style);
+
+  if (supportsScrollBehaviorViaCss) {
+    return true;
+  }
+  
+  var hasNativeScrollToFunction = Element.prototype.scrollTo && Element.prototype.scrollTo.toString().indexOf('[native code]') > -1;
+  // If a browser has a native scrollTo implementation but does not support scroll-behavior via CSS, it is not possible to detect during runtime
+  // whether smooth scrolling is supported. An example browser which has native scrollTo but does not support smooth scrolling is Safari.
+  // In this situation we instead return false because it is very likely the polyfill is required.
+  if (hasNativeScrollToFunction) {
+    return false;
+  }
+
   try {
     var supportsSmoothScroll = false;
 
