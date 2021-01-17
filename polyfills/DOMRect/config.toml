@@ -8,7 +8,7 @@ docs = "https://developer.mozilla.org/en-US/docs/Web/API/DOMRect"
 [browsers]
 ie = "9 - *"
 ie_mob = "9 - *"
-chrome = "<60"
+chrome = "<61"
 ios_chr = "<10.1"
 safari = "<10.1"
 ios_saf = "<10.1"
