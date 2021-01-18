@@ -295,5 +295,45 @@ describe("polyfillio", function () {
 			});
 		});
 
+		it('should support cached streaming output', done => {
+			let bundle_a = '';
+			let bundle_b = '';
+
+			const s_a = polyfillio.getPolyfillString({
+				features: {
+					default: {}
+				},
+				uaString: 'ie/9',
+				stream: true,
+				minify: false
+			});
+
+			const buf_a = [];
+			
+			
+			s_a.on('data', chunk => buf_a.push(chunk));
+			s_a.on('end', () => {
+				bundle_a = buf_a.join('');
+
+				const s_b = polyfillio.getPolyfillString({
+					features: {
+						default: {}
+					},
+					uaString: 'ie/9',
+					stream: true,
+					minify: false
+				});
+
+				const buf_b = [];
+			
+				s_b.on('data', chunk => buf_b.push(chunk));
+				s_b.on('end', () => {
+					bundle_b = buf_b.join('');
+
+					assert.equal(bundle_a, bundle_b);
+					done();
+				});
+			});
+		});
 	});
 });
