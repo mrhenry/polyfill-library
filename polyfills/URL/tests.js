@@ -329,3 +329,8 @@ it('Regression tests', function() {
 	p.append('b', 2);
 	proclaim.equal(p.toString(), 'a=1&b=2');
 });
+
+it('URLSearchParams doesnt stringify with "Object"', function() {
+	var p = new URLSearchParams({ key: "730d67" });
+	proclaim.equal(p.toString(), "key=730d67");
+});
