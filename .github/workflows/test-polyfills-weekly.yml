@@ -59,7 +59,7 @@ jobs:
         uses: actions/cache@v2.1.4
         with:
           path: $GITHUB_WORKSPACE/witness-${{ matrix.browser }}
-          key: witness--${{ matrix.browser }}--${{ env.commit-sha }}
+          key: witness--weekly-tests--${{ matrix.browser }}--${{ env.commit-sha }}
 
       - name: Test ${{ matrix.browser }}
         run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js
