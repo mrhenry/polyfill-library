@@ -1,29 +1,167 @@
 const exec = require('child_process').exec;
-const Polyfill = require('../../tasks/buildsources/polyfill');
-const flattenPolyfillDirectories = require('../../tasks/buildsources/flatten-polyfill-directories');
 const path = require('path');
 const toposort = require('toposort');
-
-const polyfillsDirectory = path.join(process.cwd(), 'polyfills');
+const polyfillio = require('../../lib');
 
 module.exports = modifiedPolyfillsWithTests;
 
 /**
  * Get a list of polyfills that have changes when compared against master.
  * Also includes a list of polyfills that should be tested again.
- * 
- * @type {Promise} 
  */
-function modifiedPolyfillsWithTests() {
+async function modifiedPolyfillsWithTests() {
+	const polyfillsDirectory = path.join(process.cwd(), 'polyfills');
+
+	const modified = {
+		polyfills: {},
+		hasOtherChanges: false,
+		hasManyPolyfillChanges: false
+	};
+	
+	// 1. Check git to see which files changed.
+	const modifiedFiles = await getModifiedFiles();
+	if (modifiedFiles.length === 0) {
+		modified.testEverything = true; // no detectable changes, best to test everything anyway.
+		return modified;
+	}
+
+	// 2. Get all polyfill meta data.
+	const allPolyfills = await polyfillio.listAllPolyfills();
+	const polyfillMetas = {};
+	for (const polyfillName of allPolyfills) {
+		polyfillMetas[polyfillName] = await polyfillio.describePolyfill(polyfillName);
+	}
+
+	// 3. Analyse the modified files for change in polyfills.
+	for (const modifiedFilePath of modifiedFiles) {
+		// 3.a. Check if the changed file is for a polyfill or not.
+
+		if (!modifiedFilePath.startsWith('polyfills/')) {
+			modified.hasOtherChanges = true;
+			modified.testEverything = true;
+			continue;
+		}
+
+		// 3.b. It likely is a polyfill, so check the path and locate it in the library.
+
+		const polyfillPath = path.dirname(modifiedFilePath);
+		const absolute = path.join(process.cwd(), polyfillPath);
+		if (absolute === polyfillsDirectory) {
+			// 3.b.I. This is a file directly in the "polyfills" directory. (e.g. '.eslintrc')
+			modified.hasOtherChanges = true;
+			modified.testEverything = true;
+			continue;
+		}
+
+		const relative = path.relative(polyfillsDirectory, absolute);
+		const polyfillName = relative.replace(/(\/|\\)/g, '.');
+		if (!allPolyfills[polyfillName]) {
+			// 3.b.II. Polyfill was not found in the library. (this should never happen)
+			modified.hasOtherChanges = true;
+			modified.testEverything = true;
+			continue;
+		}
+
+		// 3.b.III. This is a change to a known polyfill. Add it to the list of modified polyfills.
+		modified.polyfills[polyfillName] = allPolyfills[polyfillName];
+	}
+
+	if (modified.testEverything) {
+		// 4. If we already detected changes unrelated to polyfills we stop early.
+		return modified;
+	}
+
+	if (Object.keys(modified.polyfills).length === 0) {
+		// 5. There seem to be no changes inside or outside the polyfills directory. Test everything to be sure.
+		modified.hasManyPolyfillChanges = true;
+		modified.testEverything = true;
+		return modified;
+	}
+
+	if (Object.keys(modified.polyfills).length > 20) {
+		// 6. If there are too many polyfill changes it is better to run a full test suite for all polyfills.
+		modified.hasManyPolyfillChanges = true;
+		modified.testEverything = true;
+		return modified;
+	}
+
+	// 7. Collect all dependants of modified polyfills.
+
+	// 7.a Start by adding the directly modified polyfills to a new record set.
+	const changedNames = {};
+	for (const polyfillName in modified.polyfills) {
+		changedNames[polyfillName] = true;
+
+		const polyfill = modified.polyfills[polyfillName];
+		if (polyfill.config.aliases) {
+			for (const alias of polyfill.config.aliases) {
+				changedNames[alias] = true;
+			}
+		}
+	}
+
+
+	// 7.b. Apply toposort to all polyfills.
+	const toposortedPolyfills = await toposortPolyfills(allPolyfills);
+
+	// 7.c. Check all polyfills for dependants.
+
+	// NOTE : There is probably a smarter more efficient algorithm to do this.
+	// This basically brute forces the toposorted depedency list 
+	// until no more polyfills are found that depend on changed polyfills.
+	let foundMore = true;
+	while (foundMore) {
+		foundMore = false;
+		for (const changed in changedNames) {
+			for (const dependencyPair of toposortedPolyfills) {
+				if (changed === dependencyPair[0] && !changedNames[dependencyPair[1]]) {
+					changedNames[dependencyPair[1]] = true;
+					foundMore = true;
+				}
+			}
+		}
+	}
+
+	// 7.d. Construct a record set with all affected Polyfills.
+	const affectedPolyfills = {};
+	for (const changed in changedNames) {
+		for (const polyfill of allPolyfills) {
+			if (polyfill.name === changed && polyfill.config.hasTests) {
+				affectedPolyfills[polyfill.name] = polyfill;
+			}
+		}
+	}
+
+	modified.affectedPolyfills = affectedPolyfills;
+
+	if (Object.keys(modified.affectedPolyfills).length > 50) {
+		// 7.e. If there are too many changes it is better to run a full test suite for all polyfills.
+		// We use a higher number than before as this is the resolved depedency list.
+		modified.hasManyPolyfillChanges = true;
+		modified.testEverything = true;
+		return modified;
+	}
+
+	return modified;
+}
+
+async function toposortPolyfills(polyfills) {
+	const graph = [];
+
+	for (const polyfillName of polyfills) {
+		const meta = await polyfillio.describePolyfill(polyfillName);
+		for (const dependency of meta.dependencies) {
+			graph.push([dependency, polyfillName]);
+		}
+	}
+
+	toposort(graph);
+
+	return graph;
+}
+
+function getModifiedFiles() {
 	return new Promise((resolve, reject) => {
-		// 1. Check git to see which files changed.
-
-		const modified = {
-			polyfills: {},
-			hasOtherChanges: false,
-			hasManyPolyfillChanges: false
-		};
-
 		const currentBranch = process.env.GITHUB_REF || 'HEAD'
 		const baseBranch = process.env.GITHUB_ACTIONS ? 'upstream/master' : 'master';
 
@@ -46,147 +184,7 @@ function modifiedPolyfillsWithTests() {
 				return !!x;
 			});
 
-			list.forEach((modifiedFilePath) => {
-				// 1.a. Check if the changed file is for a polyfill or not.
-
-				if (modifiedFilePath.startsWith('polyfills/')) {
-					const polyfillPath = path.dirname(modifiedFilePath);
-
-					const absolute = path.join(process.cwd(), polyfillPath);
-					if (absolute === polyfillsDirectory) {
-						// Some file directly in the "polyfills" directory (e.g. '.eslintrc')
-						modified.hasOtherChanges = true;
-						return;
-					}
-
-					const polyfill = new Polyfill(absolute, path.relative(polyfillsDirectory, absolute));
-					modified.polyfills[polyfill.name] = polyfill;
-				} else {
-					modified.hasOtherChanges = true;
-				}
-			});
-
-			if (Object.keys(modified.polyfills).length > 20) {
-				// 1.b. If there are too many changes it is better to run a full test suite for all polyfills.
-
-				modified.hasManyPolyfillChanges = true;
-			}
-
-			resolve(modified);
+			resolve(list);
 		});
-	}).then(async (modified) => {
-		// 2. If only a few polyfills were changed build a depedency graph
-
-		if (modified.hasManyPolyfillChanges) {
-			return modified;
-		}
-
-		if (!modified.polyfills || Object.keys(modified.polyfills).length === 0) {
-			return modified;
-		}
-
-		for (const polyfillName in modified.polyfills) {
-			await modified.polyfills[polyfillName].loadConfig();
-		}
-
-		// 2.a. Start by adding the directly modified polyfills to the full list.
-		const changedNames = {};
-		for (const polyfillName in modified.polyfills) {
-			changedNames[polyfillName] = true;
-
-			const polyfill = modified.polyfills[polyfillName];
-			if (polyfill.config.aliases) {
-				for (const alias of polyfill.config.aliases) {
-					changedNames[alias] = true;
-				}
-			}
-		}
-
-		// 2.b. Get all polyfills
-		const allPolyfills = [];
-		const polyfillPaths = flattenPolyfillDirectories(polyfillsDirectory);
-		for (const polyfillPath of polyfillPaths) {
-			const polyfill = new Polyfill(polyfillPath, path.relative(polyfillsDirectory, polyfillPath));
-			if (!polyfill.hasConfigFile) {
-				continue;
-			}
-
-			await polyfill.loadConfig();
-			allPolyfills.push(polyfill);
-		}
-
-		// 2.c. Apply toposort to all polyfills.
-		const toposortedPolyfills = toposortPolyfills(allPolyfills);
-
-		// 2.d. Check all polyfills for dependants.
-
-		// NOTE : There is probably a smarter more efficient algorithm to do this.
-		// This basically brute forces the toposorted depedency list 
-		// until no more polyfills are found that depend on changed polyfills.
-		let foundMore = true;
-		while (foundMore) {
-			foundMore = false;
-			for (const changed in changedNames) {
-				for (const dependencyPair of toposortedPolyfills) {
-					if (changed === dependencyPair[0] && !changedNames[dependencyPair[1]]) {
-						changedNames[dependencyPair[1]] = true;
-						foundMore = true;
-					}
-				}
-			}
-		}
-
-		// 2.e. Construct a record of <string, Polyfill> with all affected Polyfills.
-		const affectedPolyfills = {};
-		for (const changed in changedNames) {
-			for (const polyfill of allPolyfills) {
-				if (polyfill.name === changed && polyfill.config.hasTests) {
-					affectedPolyfills[polyfill.name] = polyfill;
-				}
-			}
-		}
-
-		modified.affectedPolyfills = affectedPolyfills;
-
-		if (Object.keys(modified.affectedPolyfills).length > 50) {
-			// 2.f. If there are too many changes it is better to run a full test suite for all polyfills.
-			// We use a higher number than before as this is the resolved depedency list.
-			modified.hasManyPolyfillChanges = true;
-		}
-
-		return modified;
-	}).then((modified) => {
-		// 3. Check all previous steps and set "testEverything" flag.
-
-		if (modified.hasOtherChanges) {
-			modified.testEverything = true;
-			return modified;
-		}
-
-		if (modified.hasManyPolyfillChanges) {
-			modified.testEverything = true;
-			return modified;
-		}
-
-		if (!modified.affectedPolyfills || Object.keys(modified.affectedPolyfills).length === 0) {
-			modified.testEverything = true;
-			return modified;
-		}
-
-		return modified;
 	});
-}
-
-function toposortPolyfills(polyfills) {
-	const graph = [];
-
-	for (const polyfill of polyfills) {
-		for (const dependency of polyfill.dependencies) {
-			graph.push([dependency, polyfill.name]);
-		}
-	}
-
-	toposort(graph);
-
-	return graph;
 }
