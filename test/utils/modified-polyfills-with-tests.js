@@ -8,6 +8,10 @@ module.exports = {
 	polyfillsWithTestsFrom
 };
 
+/**
+ * Get a list of polyfills that have changes when compared against master.
+ * Also includes a list of polyfills that should be tested again.
+ */
 async function modifiedPolyfillsWithTests() {
 	// 1. Check git to see which files changed.
 	const modifiedFiles = await getModifiedFiles();
@@ -23,10 +27,6 @@ async function modifiedPolyfillsWithTests() {
 	return modified;
 }
 
-/**
- * Get a list of polyfills that have changes when compared against master.
- * Also includes a list of polyfills that should be tested again.
- */
 async function polyfillsWithTestsFrom(modifiedFiles, allPolyfills, polyfillMetas) {
 	const polyfillsDirectory = path.join(process.cwd(), 'polyfills');
 
@@ -182,14 +182,14 @@ function getModifiedFiles() {
 
 		exec(`git --no-pager diff --name-only ${currentBranch} $(git merge-base ${currentBranch} ${baseBranch})`, (error, stdout, stderr) => {
 			if (error) {
-				// NOTE : it might make more sense not to reject here but resolve "{ testEverything: true }" instead.
+				// NOTE : it might make more sense not to reject here but resolve an empty list instead.
 				// If rejecting doesn't cause issues this note can be removed.
 				reject(new Error(`getting modified files : ${error.message}`));
 				return;
 			}
 			
 			if (stderr) {
-				// NOTE : it might make more sense not to reject here but resolve "{ testEverything: true }" instead.
+				// NOTE : it might make more sense not to reject here but resolve an empty list instead.
 				// If rejecting doesn't cause issues this note can be removed.
 				reject(new Error(`getting modified files : ${stderr}`));
 				return;
