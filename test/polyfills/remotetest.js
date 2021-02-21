@@ -78,7 +78,7 @@ async function main() {
         let isNeeded = false;
         for (const polyfillName in modified.affectedPolyfills) {
           const polyfill = modified.affectedPolyfills[polyfillName];
-          if (polyfill.config.browsers[ua.getFamily()] && ua.satisfies(polyfill.config.browsers[ua.getFamily()])) {
+          if (polyfill.browsers[ua.getFamily()] && ua.satisfies(polyfill.browsers[ua.getFamily()])) {
             isNeeded = true;
           }
         }

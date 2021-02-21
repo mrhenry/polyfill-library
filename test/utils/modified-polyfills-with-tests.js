@@ -55,7 +55,7 @@ async function modifiedPolyfillsWithTests() {
 
 		const relative = path.relative(polyfillsDirectory, absolute);
 		const polyfillName = relative.replace(/(\/|\\)/g, '.');
-		if (!allPolyfills[polyfillName]) {
+		if (!polyfillMetas[polyfillName]) {
 			// 3.b.II. Polyfill was not found in the library. (this should never happen)
 			modified.hasOtherChanges = true;
 			modified.testEverything = true;
@@ -63,7 +63,7 @@ async function modifiedPolyfillsWithTests() {
 		}
 
 		// 3.b.III. This is a change to a known polyfill. Add it to the list of modified polyfills.
-		modified.polyfills[polyfillName] = allPolyfills[polyfillName];
+		modified.polyfills[polyfillName] = polyfillMetas[polyfillName];
 	}
 
 	if (modified.testEverything) {
@@ -92,16 +92,15 @@ async function modifiedPolyfillsWithTests() {
 		changedNames[polyfillName] = true;
 
 		const polyfill = modified.polyfills[polyfillName];
-		if (polyfill.config.aliases) {
-			for (const alias of polyfill.config.aliases) {
+		if (polyfill.aliases) {
+			for (const alias of polyfill.aliases) {
 				changedNames[alias] = true;
 			}
 		}
 	}
 
-
 	// 7.b. Apply toposort to all polyfills.
-	const toposortedPolyfills = await toposortPolyfills(allPolyfills);
+	const toposortedPolyfills = toposortPolyfills(polyfillMetas);
 
 	// 7.c. Check all polyfills for dependants.
 
@@ -125,7 +124,7 @@ async function modifiedPolyfillsWithTests() {
 	const affectedPolyfills = {};
 	for (const changed in changedNames) {
 		for (const polyfill of allPolyfills) {
-			if (polyfill.name === changed && polyfill.config.hasTests) {
+			if (polyfill.name === changed && polyfill.hasTests) {
 				affectedPolyfills[polyfill.name] = polyfill;
 			}
 		}
@@ -144,13 +143,15 @@ async function modifiedPolyfillsWithTests() {
 	return modified;
 }
 
-async function toposortPolyfills(polyfills) {
+function toposortPolyfills(polyfillMetas) {
 	const graph = [];
 
-	for (const polyfillName of polyfills) {
-		const meta = await polyfillio.describePolyfill(polyfillName);
-		for (const dependency of meta.dependencies) {
-			graph.push([dependency, polyfillName]);
+	for (const polyfillName in polyfillMetas) {
+		const meta = polyfillMetas[polyfillName];
+		if (meta.dependencies) {
+			for (const dependency of meta.dependencies) {
+				graph.push([dependency, polyfillName]);
+			}
 		}
 	}
 
