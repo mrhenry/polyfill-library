@@ -31,7 +31,10 @@ const TOML = require("@iarna/toml");
 main();
 
 async function main() {
-  let modified = {};
+  let modified = {
+    testEverything: true // by default we test everything.
+  };
+
   if (process.argv.includes("test-modified-only")) {
     // Check if only a subset of polyfills needs to be tested.
     modified = await modifiedPolyfillsWithTests();
@@ -159,7 +162,10 @@ async function main() {
       capability: useragentToBrowserObject(browser),
     };
 
-    if (browser === 'ie/8.0' || browser === 'ie/9.0') {
+    if (
+      (browser === 'ie/8.0' || browser === 'ie/9.0') &&
+      !modified.testEverything // no need to shard tests if only a subset is tested
+    ) {
       configs = [
         {
           ...baseConfig,
