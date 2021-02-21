@@ -33,6 +33,7 @@ main();
 async function main() {
   let modified = {};
   if (process.argv.includes("test-modified-only")) {
+    // Check if only a subset of polyfills needs to be tested.
     modified = await modifiedPolyfillsWithTests();
   }
 
@@ -63,11 +64,17 @@ async function main() {
       }
 
       if (!modified.testEverything) {
+        // When a subset of polyfills is tested :
+        // - check each polyfill config
+        // - if the polyfill is required for this browser family
+        // - and this browser version satisfies the version range for the polyfill
+        // -> include this browser in the test run
+
         const ua = new UA(uaString);
-        
+
         let isNeeded = false;
-        for (const polyfillName in modified.needsTesting) {
-          const polyfill = modified.needsTesting[polyfillName];
+        for (const polyfillName in modified.affectedPolyfills) {
+          const polyfill = modified.affectedPolyfills[polyfillName];
           if (polyfill.config.browsers[ua.getFamily()] && ua.satisfies(polyfill.config.browsers[ua.getFamily()])) {
             isNeeded = true;
           }
@@ -126,9 +133,13 @@ async function main() {
 
   const director = process.argv.includes("director");
   const always = "always=" + (mode === "all" ? "yes" : "no");
+
   let feature = '';
   if (!modified.testEverything) {
-    feature = `&feature=${Object.keys(modified.needsTesting).join(',')}`;
+    // When a subset of polyfills is tested :
+    // - pass the subset as a url query param to the director
+    // - the keys of "modified.affectedPolyfills" are the names of the polyfills in the subset
+    feature = `&feature=${Object.keys(modified.affectedPolyfills).join(',')}`;
   }
   
   const includePolyfills = "includePolyfills=" + (mode !== "control" ? "yes" : "no");
@@ -169,6 +180,10 @@ async function main() {
       return configs;
     }
 
+    // Polyfill combinations run tests with all polyfills for a browser included.
+    // These tests guard against issues where polyfill A breaks polyfill B 
+    // even though there is no depedency relation between A and B.
+    // These tests are slow and only run on demand
     return configs.flatMap((config) => {
       return [
         {

@@ -1,4 +1,4 @@
-const { exec } = require('child_process');
+const exec = require('child_process').exec;
 const Polyfill = require('../../tasks/buildsources/polyfill');
 const flattenPolyfillDirectories = require('../../tasks/buildsources/flatten-polyfill-directories');
 const path = require('path');
@@ -6,8 +6,18 @@ const toposort = require('toposort');
 
 const polyfillsDirectory = path.join(process.cwd(), 'polyfills');
 
-module.exports = function modifiedPolyfillsWithTests() {
+module.exports = modifiedPolyfillsWithTests;
+
+/**
+ * Get a list of polyfills that have changes when compared against master.
+ * Also includes a list of polyfills that should be tested again.
+ * 
+ * @type {Promise} 
+ */
+function modifiedPolyfillsWithTests() {
 	return new Promise((resolve, reject) => {
+		// 1. Check git to see which files changed.
+
 		const modified = {
 			polyfills: {},
 			hasOtherChanges: false,
@@ -19,11 +29,15 @@ module.exports = function modifiedPolyfillsWithTests() {
 
 		exec(`git --no-pager diff --name-only ${currentBranch} $(git merge-base ${currentBranch} ${baseBranch})`, (error, stdout, stderr) => {
 			if (error) {
+				// NOTE : it might make more sense not to reject here but resolve "{ testEverything: true }" instead.
+				// If rejecting doesn't cause issues this note can be removed.
 				reject(new Error(`getting modified files : ${error.message}`));
 				return;
 			}
 			
 			if (stderr) {
+				// NOTE : it might make more sense not to reject here but resolve "{ testEverything: true }" instead.
+				// If rejecting doesn't cause issues this note can be removed.
 				reject(new Error(`getting modified files : ${stderr}`));
 				return;
 			}
@@ -33,6 +47,8 @@ module.exports = function modifiedPolyfillsWithTests() {
 			});
 
 			list.forEach((modifiedFilePath) => {
+				// 1.a. Check if the changed file is for a polyfill or not.
+
 				if (modifiedFilePath.startsWith('polyfills/')) {
 					const polyfillPath = path.dirname(modifiedFilePath);
 
@@ -51,13 +67,16 @@ module.exports = function modifiedPolyfillsWithTests() {
 			});
 
 			if (Object.keys(modified.polyfills).length > 20) {
-				// If there are too many changes it is better to run a full test suite for all polyfills.
+				// 1.b. If there are too many changes it is better to run a full test suite for all polyfills.
+
 				modified.hasManyPolyfillChanges = true;
 			}
 
 			resolve(modified);
 		});
 	}).then(async (modified) => {
+		// 2. If only a few polyfills were changed build a depedency graph
+
 		if (modified.hasManyPolyfillChanges) {
 			return modified;
 		}
@@ -70,6 +89,7 @@ module.exports = function modifiedPolyfillsWithTests() {
 			await modified.polyfills[polyfillName].loadConfig();
 		}
 
+		// 2.a. Start by adding the directly modified polyfills to the full list.
 		const changedNames = {};
 		for (const polyfillName in modified.polyfills) {
 			changedNames[polyfillName] = true;
@@ -82,6 +102,7 @@ module.exports = function modifiedPolyfillsWithTests() {
 			}
 		}
 
+		// 2.b. Get all polyfills
 		const allPolyfills = [];
 		const polyfillPaths = flattenPolyfillDirectories(polyfillsDirectory);
 		for (const polyfillPath of polyfillPaths) {
@@ -94,14 +115,19 @@ module.exports = function modifiedPolyfillsWithTests() {
 			allPolyfills.push(polyfill);
 		}
 
-		// There is probably a smarter more efficient algorithm to do this.
+		// 2.c. Apply toposort to all polyfills.
+		const toposortedPolyfills = toposortPolyfills(allPolyfills);
+
+		// 2.d. Check all polyfills for dependants.
+
+		// NOTE : There is probably a smarter more efficient algorithm to do this.
 		// This basically brute forces the toposorted depedency list 
 		// until no more polyfills are found that depend on changed polyfills.
 		let foundMore = true;
 		while (foundMore) {
 			foundMore = false;
 			for (const changed in changedNames) {
-				for (const dependencyPair of toposortPolyfills(allPolyfills)) {
+				for (const dependencyPair of toposortedPolyfills) {
 					if (changed === dependencyPair[0] && !changedNames[dependencyPair[1]]) {
 						changedNames[dependencyPair[1]] = true;
 						foundMore = true;
@@ -110,25 +136,28 @@ module.exports = function modifiedPolyfillsWithTests() {
 			}
 		}
 
-		const needsTesting = {};
+		// 2.e. Construct a record of <string, Polyfill> with all affected Polyfills.
+		const affectedPolyfills = {};
 		for (const changed in changedNames) {
 			for (const polyfill of allPolyfills) {
 				if (polyfill.name === changed && polyfill.config.hasTests) {
-					needsTesting[polyfill.name] = polyfill;
+					affectedPolyfills[polyfill.name] = polyfill;
 				}
 			}
 		}
 
-		modified.needsTesting = needsTesting;
+		modified.affectedPolyfills = affectedPolyfills;
 
-		if (Object.keys(modified.needsTesting).length > 50) {
-			// If there are too many changes it is better to run a full test suite for all polyfills.
+		if (Object.keys(modified.affectedPolyfills).length > 50) {
+			// 2.f. If there are too many changes it is better to run a full test suite for all polyfills.
 			// We use a higher number than before as this is the resolved depedency list.
 			modified.hasManyPolyfillChanges = true;
 		}
 
 		return modified;
 	}).then((modified) => {
+		// 3. Check all previous steps and set "testEverything" flag.
+
 		if (modified.hasOtherChanges) {
 			modified.testEverything = true;
 			return modified;
@@ -139,7 +168,7 @@ module.exports = function modifiedPolyfillsWithTests() {
 			return modified;
 		}
 
-		if (!modified.needsTesting || Object.keys(modified.needsTesting).length === 0) {
+		if (!modified.affectedPolyfills || Object.keys(modified.affectedPolyfills).length === 0) {
 			modified.testEverything = true;
 			return modified;
 		}
