@@ -73,7 +73,6 @@ async function modifiedPolyfillsWithTests() {
 
 	if (Object.keys(modified.polyfills).length === 0) {
 		// 5. There seem to be no changes inside or outside the polyfills directory. Test everything to be sure.
-		modified.hasManyPolyfillChanges = true;
 		modified.testEverything = true;
 		return modified;
 	}
