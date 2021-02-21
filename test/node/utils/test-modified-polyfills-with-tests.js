@@ -15,6 +15,11 @@ describe("polyfills subset for tests based on git changes", function () {
 		assert.ok(modified.testEverything);
 	});
 
+	it("should test everything if a polyfill was deleted", async () => {
+		const modified = await polyfillsWithTestsFrom(['polyfills/a/polyfill'], ['b.polyfill'], { 'b.polyfill': {} });
+		assert.ok(modified.testEverything);
+	});
+
 	it("should test a subset on a small change in polyfills directory", async () => {
 		const modified = await polyfillsWithTestsFrom(
 			['polyfills/a/polyfill/polyfill.js'],
