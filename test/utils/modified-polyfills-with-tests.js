@@ -3,13 +3,31 @@ const path = require('path');
 const toposort = require('toposort');
 const polyfillio = require('../../lib');
 
-module.exports = modifiedPolyfillsWithTests;
+module.exports = {
+	modifiedPolyfillsWithTests,
+	polyfillsWithTestsFrom
+};
+
+async function modifiedPolyfillsWithTests() {
+	// 1. Check git to see which files changed.
+	const modifiedFiles = await getModifiedFiles();
+
+	// 2. Get all polyfills and polyfill meta data.
+	const allPolyfills = await polyfillio.listAllPolyfills();
+	const polyfillMetas = {};
+	for (const polyfillName of allPolyfills) {
+		polyfillMetas[polyfillName] = await polyfillio.describePolyfill(polyfillName);
+	}
+
+	const modified = await polyfillsWithTestsFrom(modifiedFiles, allPolyfills, polyfillMetas);
+	return modified;
+}
 
 /**
  * Get a list of polyfills that have changes when compared against master.
  * Also includes a list of polyfills that should be tested again.
  */
-async function modifiedPolyfillsWithTests() {
+async function polyfillsWithTestsFrom(modifiedFiles, allPolyfills, polyfillMetas) {
 	const polyfillsDirectory = path.join(process.cwd(), 'polyfills');
 
 	const modified = {
@@ -18,18 +36,9 @@ async function modifiedPolyfillsWithTests() {
 		hasManyPolyfillChanges: false
 	};
 	
-	// 1. Check git to see which files changed.
-	const modifiedFiles = await getModifiedFiles();
 	if (modifiedFiles.length === 0) {
 		modified.testEverything = true; // no detectable changes, best to test everything anyway.
 		return modified;
-	}
-
-	// 2. Get all polyfill meta data.
-	const allPolyfills = await polyfillio.listAllPolyfills();
-	const polyfillMetas = {};
-	for (const polyfillName of allPolyfills) {
-		polyfillMetas[polyfillName] = await polyfillio.describePolyfill(polyfillName);
 	}
 
 	// 3. Analyse the modified files for change in polyfills.
@@ -86,7 +95,7 @@ async function modifiedPolyfillsWithTests() {
 
 	// 7. Collect all dependants of modified polyfills.
 
-	// 7.a Start by adding the directly modified polyfills to a new record set.
+	// 7.a Start by adding the directly modified polyfills and their aliases to a new record set.
 	const changedNames = {};
 	for (const polyfillName in modified.polyfills) {
 		changedNames[polyfillName] = true;
@@ -123,17 +132,23 @@ async function modifiedPolyfillsWithTests() {
 	// 7.d. Construct a record set with all affected Polyfills.
 	const affectedPolyfills = {};
 	for (const changed in changedNames) {
-		for (const polyfill of allPolyfills) {
-			if (polyfill.name === changed && polyfill.hasTests) {
-				affectedPolyfills[polyfill.name] = polyfill;
+		for (const polyfillName of allPolyfills) {
+			if (polyfillName === changed && polyfillMetas[polyfillName].hasTests) {
+				affectedPolyfills[polyfillName] = polyfillMetas[polyfillName];
 			}
 		}
 	}
 
 	modified.affectedPolyfills = affectedPolyfills;
 
+	if (Object.keys(modified.affectedPolyfills).length === 0) {
+		// 7.e. There seem to be no changes for polyfills that have tests. Test everything to be sure.
+		modified.testEverything = true;
+		return modified;
+	}
+
 	if (Object.keys(modified.affectedPolyfills).length > 50) {
-		// 7.e. If there are too many changes it is better to run a full test suite for all polyfills.
+		// 7.d. If there are too many changes it is better to run a full test suite for all polyfills.
 		// We use a higher number than before as this is the resolved depedency list.
 		modified.hasManyPolyfillChanges = true;
 		modified.testEverything = true;

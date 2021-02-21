@@ -22,7 +22,7 @@ const _ = require("lodash");
 const normalizeUserAgent = require('../../lib').normalizeUserAgent;
 const TestJob = require("./test-job");
 const Tunnel = require("browserstack-local").Local;
-const modifiedPolyfillsWithTests = require('../utils/modified-polyfills-with-tests');
+const modifiedPolyfillsWithTests = require('../utils/modified-polyfills-with-tests').modifiedPolyfillsWithTests;
 const UA = require("@financial-times/polyfill-useragent-normaliser");
 
 // Grab all the browsers from BrowserStack which are officially supported by the polyfil service.
