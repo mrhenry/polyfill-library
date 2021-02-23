@@ -10,11 +10,20 @@ module.exports = {
 
 /**
  * Get a list of polyfills that have changes when compared against master.
- * Also includes a list of polyfills that should be tested again.
+ * Also includes a list of polyfills that must be tested again.
  */
 async function modifiedPolyfillsWithTests() {
 	// 1. Check git to see which files changed.
 	const modifiedFiles = await getModifiedFiles();
+	if (modifiedFiles.length === 0) {
+		// 1.a. Indicate that everything must be tested if no changes were found in git.
+		return {
+			polyfills: {},
+			hasOtherChanges: false,
+			hasManyPolyfillChanges: false,
+			testEverything: true
+		};
+	}
 
 	// 2. Get all polyfills and polyfill meta data.
 	const allPolyfills = await polyfillio.listAllPolyfills();
@@ -23,11 +32,22 @@ async function modifiedPolyfillsWithTests() {
 		polyfillMetas[polyfillName] = await polyfillio.describePolyfill(polyfillName);
 	}
 
+	// 3. Determine which polyfills need to be tested.
 	const modified = await polyfillsWithTestsFrom(modifiedFiles, allPolyfills, polyfillMetas);
 	return modified;
 }
 
 async function polyfillsWithTestsFrom(modifiedFiles, allPolyfills, polyfillMetas) {
+	if (modifiedFiles.length === 0) {
+		// see : modifiedPolyfillsWithTests - 1.a.
+		return {
+			polyfills: {},
+			hasOtherChanges: false,
+			hasManyPolyfillChanges: false,
+			testEverything: true
+		};
+	}
+
 	const polyfillsDirectory = path.join(process.cwd(), 'polyfills');
 
 	const modified = {
@@ -36,27 +56,20 @@ async function polyfillsWithTestsFrom(modifiedFiles, allPolyfills, polyfillMetas
 		hasManyPolyfillChanges: false
 	};
 	
-	if (modifiedFiles.length === 0) {
-		modified.testEverything = true; // no detectable changes, best to test everything anyway.
-		return modified;
-	}
-
-	// 3. Analyse the modified files for change in polyfills.
+	// 1. Check the modified files for changes in polyfills.
 	for (const modifiedFilePath of modifiedFiles) {
-		// 3.a. Check if the changed file is for a polyfill or not.
-
+		// 1.a. Check if the changed file is for a polyfill or not. If not everything must be tested.
 		if (!modifiedFilePath.startsWith('polyfills/')) {
 			modified.hasOtherChanges = true;
 			modified.testEverything = true;
 			continue;
 		}
 
-		// 3.b. It likely is a polyfill, so check the path and locate it in the library.
-
+		// 1.b. It likely is a polyfill, so check the path and locate it in the library.
 		const polyfillPath = path.dirname(modifiedFilePath);
 		const absolute = path.join(process.cwd(), polyfillPath);
 		if (absolute === polyfillsDirectory) {
-			// 3.b.I. This is a file directly in the "polyfills" directory. (e.g. '.eslintrc')
+			// 1.b.I. This is a file directly in the "polyfills" directory. (e.g. '.eslintrc')
 			modified.hasOtherChanges = true;
 			modified.testEverything = true;
 			continue;
@@ -65,54 +78,47 @@ async function polyfillsWithTestsFrom(modifiedFiles, allPolyfills, polyfillMetas
 		const relative = path.relative(polyfillsDirectory, absolute);
 		const polyfillName = relative.replace(/(\/|\\)/g, '.');
 		if (!polyfillMetas[polyfillName]) {
-			// 3.b.II. Polyfill was not found in the library. (this should never happen)
+			// 1.b.II. Polyfill was not found in the library. (this should never happen)
 			modified.hasOtherChanges = true;
 			modified.testEverything = true;
 			continue;
 		}
 
-		// 3.b.III. This is a change to a known polyfill. Add it to the list of modified polyfills.
+		// 1.b.III. This is a change to a known polyfill. Add it to the list of modified polyfills.
 		modified.polyfills[polyfillName] = polyfillMetas[polyfillName];
 	}
 
+	// 2. If we already detected changes unrelated to polyfills we stop early.
 	if (modified.testEverything) {
-		// 4. If we already detected changes unrelated to polyfills we stop early.
 		return modified;
 	}
 
-	if (Object.keys(modified.polyfills).length === 0) {
-		// 5. There seem to be no changes inside or outside the polyfills directory. Test everything to be sure.
-		modified.testEverything = true;
-		return modified;
-	}
-
+	// 3. If there are too many polyfill changes it is better to run a full test suite for all polyfills.
 	if (Object.keys(modified.polyfills).length > 20) {
-		// 6. If there are too many polyfill changes it is better to run a full test suite for all polyfills.
 		modified.hasManyPolyfillChanges = true;
 		modified.testEverything = true;
 		return modified;
 	}
 
-	// 7. Collect all dependants of modified polyfills.
-
-	// 7.a Start by adding the directly modified polyfills and their aliases to a new record set.
+	// 4. Adding the directly modified polyfills and their aliases to a new record set.
 	const changedNames = {};
 	for (const polyfillName in modified.polyfills) {
+		// 4.a. Add the polyfill itself.
 		changedNames[polyfillName] = true;
 
 		const polyfill = modified.polyfills[polyfillName];
 		if (polyfill.aliases) {
 			for (const alias of polyfill.aliases) {
+				// 4.b. Add all aliases as other polyfills might declare the alias name as a depedency.
 				changedNames[alias] = true;
 			}
 		}
 	}
 
-	// 7.b. Apply toposort to all polyfills.
+	// 5. Apply toposort to all polyfills.
 	const toposortedPolyfills = toposortPolyfills(polyfillMetas);
 
-	// 7.c. Check all polyfills for dependants.
-
+	// 6. Check all polyfills for dependants and add these to the record set.
 	// NOTE : There is probably a smarter more efficient algorithm to do this.
 	// This basically brute forces the toposorted depedency list 
 	// until no more polyfills are found that depend on changed polyfills.
@@ -129,7 +135,8 @@ async function polyfillsWithTestsFrom(modifiedFiles, allPolyfills, polyfillMetas
 		}
 	}
 
-	// 7.d. Construct a record set with all affected Polyfills.
+	// 7. Construct a record set with all affected Polyfills that have tests.
+	// This only matches the original polyfill names, so aliases will be stripped at this point.
 	const affectedPolyfills = {};
 	for (const changed in changedNames) {
 		for (const polyfillName of allPolyfills) {
@@ -141,15 +148,15 @@ async function polyfillsWithTestsFrom(modifiedFiles, allPolyfills, polyfillMetas
 
 	modified.affectedPolyfills = affectedPolyfills;
 
+	// 8. There seem to be no changes for polyfills that have tests. Test everything to be sure.
 	if (Object.keys(modified.affectedPolyfills).length === 0) {
-		// 7.e. There seem to be no changes for polyfills that have tests. Test everything to be sure.
 		modified.testEverything = true;
 		return modified;
 	}
 
-	if (Object.keys(modified.affectedPolyfills).length > 50) {
-		// 7.d. If there are too many changes it is better to run a full test suite for all polyfills.
+	// 9. If there are too many changes it is better to run a full test suite for all polyfills.
 		// We use a higher number than before as this is the resolved depedency list.
+	if (Object.keys(modified.affectedPolyfills).length > 50) {
 		modified.hasManyPolyfillChanges = true;
 		modified.testEverything = true;
 		return modified;
@@ -176,22 +183,20 @@ function toposortPolyfills(polyfillMetas) {
 }
 
 function getModifiedFiles() {
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve) => {
 		const currentBranch = process.env.GITHUB_REF || 'HEAD'
 		const baseBranch = process.env.GITHUB_ACTIONS ? 'upstream/master' : 'master';
 
 		exec(`git --no-pager diff --name-only ${currentBranch} $(git merge-base ${currentBranch} ${baseBranch})`, (error, stdout, stderr) => {
 			if (error) {
-				// NOTE : it might make more sense not to reject here but resolve an empty list instead.
-				// If rejecting doesn't cause issues this note can be removed.
-				reject(new Error(`getting modified files : ${error.message}`));
+				console.warn(`error while getting modified files : ${error.message}`);
+				resolve([]);
 				return;
 			}
 			
 			if (stderr) {
-				// NOTE : it might make more sense not to reject here but resolve an empty list instead.
-				// If rejecting doesn't cause issues this note can be removed.
-				reject(new Error(`getting modified files : ${stderr}`));
+				console.warn(`error while getting modified files : ${stderr}`);
+				resolve([]);
 				return;
 			}
 
