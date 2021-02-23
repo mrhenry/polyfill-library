@@ -40,6 +40,7 @@ async function modifiedPolyfillsWithTests() {
 async function polyfillsWithTestsFrom(modifiedFiles, allPolyfills, polyfillMetas) {
 	if (modifiedFiles.length === 0) {
 		// see : modifiedPolyfillsWithTests - 1.a.
+		// Only here to match behaviour when called from tests with mock data.
 		return {
 			polyfills: {},
 			hasOtherChanges: false,
