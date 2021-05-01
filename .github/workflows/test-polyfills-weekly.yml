@@ -1,4 +1,4 @@
-name: Test Polyfills
+name: Test Polyfills Weekly
 on:
   schedule:
     - cron: '0 23 * * 0' # TODO : set convenient weekly retest time
