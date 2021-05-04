@@ -3,7 +3,8 @@ aliases = []
 
 #### Dependencies
 dependencies = [
-	"Object.defineProperty"
+	"Object.defineProperty",
+	"Object.getOwnPropertyDescriptor"
 ]
 
 #### Specification Link
