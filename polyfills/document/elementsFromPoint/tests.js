@@ -3,13 +3,24 @@
 /* globals proclaim */
 
 describe('document.elementsFromPoint', function () {
+    function getElementCenter(el) {
+        var elBounds = el.getBoundingClientRect()
+
+        var x = elBounds.x + elBounds.width / 2;
+        var y = elBounds.x + elBounds.height / 2;
+
+        return [x, y];
+    }
+
     it('returns all the elements at the specified coordinates', function() {
         var container = document.body.appendChild(document.createElement('div'));
         var p = container.appendChild(document.createElement('p'));
 
         p.innerText = 'Some text';
 
-        var elements = document.elementsFromPoint(30, 20);
+        var center = getElementCenter(p);
+
+        var elements = document.elementsFromPoint(center[0], center[1]);
         elements = [].map.call(elements, function(e) {
             return e.tagName.toLowerCase();
         });
@@ -25,7 +36,9 @@ describe('document.elementsFromPoint', function () {
         p.innerText = 'Some text';
         p.style.setProperty('pointer-events', expectedValue, expectedPriority);
 
-        document.elementsFromPoint(30, 20);
+        var center = getElementCenter(p);
+
+        document.elementsFromPoint(center[0], center[1]);
 
         var propertyValue = p.style.getPropertyValue('pointer-events');
         var propertyPriority = p.style.getPropertyPriority('pointer-events');
