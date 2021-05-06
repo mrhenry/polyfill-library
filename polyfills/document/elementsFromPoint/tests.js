@@ -4,26 +4,33 @@
 
 describe('document.elementsFromPoint', function () {
     function getElementCenter(el) {
-        var elBounds = el.getBoundingClientRect()
+        var elBounds = el.getBoundingClientRect();
 
-        var x = elBounds.x + elBounds.width / 2;
-        var y = elBounds.x + elBounds.height / 2;
+        var x = elBounds.left + elBounds.width / 2;
+        var y = elBounds.top + elBounds.height / 2;
 
         return [x, y];
+    }
+
+    function mapToTagName(elements) {
+        var elementTagNames = [];
+        for (var i = 0; i < elements.length; i++) {
+            elementTagNames.push(elements[i].tagName.toLowerCase());
+        }
+
+        return elementTagNames;
     }
 
     it('returns all the elements at the specified coordinates', function() {
         var container = document.body.appendChild(document.createElement('div'));
         var p = container.appendChild(document.createElement('p'));
 
-        p.innerText = 'Some text';
+        p.textContent = 'Some text';
 
         var center = getElementCenter(p);
 
-        var elements = document.elementsFromPoint(center[0], center[1]);
-        elements = [].map.call(elements, function(e) {
-            return e.tagName.toLowerCase();
-        });
+        var elements = mapToTagName(document.elementsFromPoint(center[0], center[1]));
+        proclaim.deepStrictEqual(elements, ['p', 'div', 'body', 'html']);
         proclaim.deepStrictEqual(elements, ['p', 'div', 'body', 'html']);
     });
 
@@ -33,8 +40,8 @@ describe('document.elementsFromPoint', function () {
         var container = document.body.appendChild(document.createElement('div'));
 
         var p = container.appendChild(document.createElement('p'));
-        p.innerText = 'Some text';
         p.style.setProperty('pointer-events', expectedValue, expectedPriority);
+        p.textContent = 'Some text';
 
         var center = getElementCenter(p);
 
@@ -48,7 +55,9 @@ describe('document.elementsFromPoint', function () {
 
         propertyValue = container.style.getPropertyValue('pointer-events');
         propertyPriority = container.style.getPropertyPriority('pointer-events');
-        proclaim.strictEqual(propertyValue, '');
-        proclaim.strictEqual(propertyPriority, '');
+
+        // It may be null or empty string on some browsers
+        proclaim.notOk(propertyValue);
+        proclaim.notOk(propertyPriority);
     });
 });
