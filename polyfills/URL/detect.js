@@ -17,11 +17,27 @@
 			if (url.href === 'http://example.com/?a=1&b=2') {
 				url.search = '';
 				if (url.href === 'http://example.com/') {
+					if (!('sort' in global.URLSearchParams.prototype)) {
+						return false
+					}
+
 					var sp1 = new global.URLSearchParams('a=1');
 					var sp2 = new global.URLSearchParams(sp1);
-					if (String(sp2) === 'a=1') {
-						return true;
+					if (String(sp2) !== 'a=1') {
+						return false;
 					}
+
+					var sp3 = new global.URLSearchParams({a: '1'});
+					if (String(sp3) !== 'a=1') {
+						return false;
+					}
+
+					var sp4 = new global.URLSearchParams([['a', '1']]);
+					if (String(sp4) !== 'a=1') {
+						return false;
+					}
+
+					return true;
 				}
 			}
 		}

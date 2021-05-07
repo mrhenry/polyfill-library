@@ -17,10 +17,6 @@
     return false;
   }
 
-  function toArray(iter) {
-    return ('from' in Array) ? Array.from(iter) : Array.prototype.slice.call(iter);
-  }
-
   (function() {
 
     // Browsers may have:
@@ -112,9 +108,9 @@
         // In ES6 init would be a sequence, but special case for ES5.
         this._list = urlencoded_parse(String(init));
       } else if (typeof init === 'object' && isSequence(init)) {
-        toArray(init).forEach(function(e) {
+        Array.from(init).forEach(function(e) {
           if (!isSequence(e)) throw TypeError();
-          var nv = toArray(e);
+          var nv = Array.from(e);
           if (nv.length !== 2) throw TypeError();
           $this._list.push({name: String(nv[0]), value: String(nv[1])});
         });
@@ -505,9 +501,9 @@
     global.URLSearchParams = function(init) {
       if (init && typeof init === 'object' && isSequence(init)) {
         var o = new orig();
-        toArray(init).forEach(function(e) {
+        Array.from(init).forEach(function (e) {
           if (!isSequence(e)) throw TypeError();
-          var nv = toArray(e);
+          var nv = Array.from(e);
           if (nv.length !== 2) throw TypeError();
           o.append(nv[0], nv[1]);
         });

@@ -1,7 +1,7 @@
 /* eslint-env mocha, browser */
 /* global proclaim */
 
-it('URL IDL', function () {
+it('URL IDL', function() {
 	var url = new URL('http://example.com:8080/foo/bar?a=1&b=2#p1');
 	proclaim.equal(typeof url.protocol, 'string', 'protocol');
 	proclaim.equal(typeof url.host, 'string', 'host');
@@ -19,7 +19,7 @@ it('URL Stringifying', function() {
 	proclaim.equal(String(new URL('http://example.com:8080')), 'http://example.com:8080/');
 });
 
-it('URL Parsing', function () {
+it('URL Parsing', function() {
 	var url = new URL('http://example.com:8080/foo/bar?a=1&b=2#p1');
 	proclaim.equal(url.protocol, 'http:');
 	proclaim.equal(url.hostname, 'example.com');
@@ -208,9 +208,6 @@ it('URLSearchParams', function () {
 	proclaim.equal(String(new URLSearchParams('a=1&b=1')), 'a=1&b=1');
 	proclaim.equal(String(new URLSearchParams('a=1&b&a')), 'a=1&b=&a=');
 
-	// The following fail in FF (tested in 38) against native impl
-	// but FF38 passes the detect
-	/*
 	proclaim.equal(String(new URLSearchParams('?')), '');
 	proclaim.equal(String(new URLSearchParams('?a=1')), 'a=1');
 	proclaim.equal(String(new URLSearchParams('?a=1&b=1')), 'a=1&b=1');
@@ -220,7 +217,6 @@ it('URLSearchParams', function () {
 	proclaim.equal(String(new URLSearchParams(new URLSearchParams('?a=1'))), 'a=1');
 	proclaim.equal(String(new URLSearchParams(new URLSearchParams('?a=1&b=1'))), 'a=1&b=1');
 	proclaim.equal(String(new URLSearchParams(new URLSearchParams('?a=1&b&a'))), 'a=1&b=&a=');
-	*/
 });
 
 it('URLSearchParams mutation', function () {
@@ -288,9 +284,7 @@ it('URLSearchParams sort', function() {
 
 	proclaim.deepEqual(String(sp), 'a=3&a=1&b=2');
 });
-// The following fail in FF (tested in 38) against native impl
-// but FF38 passes the detect
-/*
+
 it('URLSearchParams serialization', function() {
 	var p = new URLSearchParams();
 	p.append('this\x00&that\x7f\xff', '1+2=3');
@@ -304,15 +298,14 @@ it('URLSearchParams serialization', function() {
 
 it('URLSearchParams iterable methods', function () {
 	var params = new URLSearchParams('a=1&b=2');
-	proclaim.deepEqual(toArray(params.entries()), [['a', '1'], ['b', '2']]);
-	proclaim.deepEqual(toArray(params.keys()), ['a', 'b']);
-	proclaim.deepEqual(toArray(params.values()), ['1', '2']);
+	proclaim.deepEqual(Array.from(params.entries()), [['a', '1'], ['b', '2']]);
+	proclaim.deepEqual(Array.from(params.keys()), ['a', 'b']);
+	proclaim.deepEqual(Array.from(params.values()), ['1', '2']);
 
 	if ('Symbol' in self && 'iterator' in self.Symbol) {
-		proclaim.deepEqual(toArray(params[Symbol.iterator]()), [['a', '1'], ['b', '2']]);
+		proclaim.deepEqual(Array.from(params[self.Symbol.iterator]()), [['a', '1'], ['b', '2']]);
 	}
 });
-*/
 
 // Not implemented by the polyfill!
 /*
@@ -333,4 +326,317 @@ it('Regression tests', function() {
 it('URLSearchParams doesnt stringify with "Object"', function() {
 	var p = new URLSearchParams({ key: "730d67" });
 	proclaim.equal(p.toString(), "key=730d67");
+});
+
+describe('WPT tests', function () {
+	it('appends same name correctly', function() {
+		var params = new URLSearchParams();
+		params.append('a', 'b');
+		proclaim.equal(params + '', 'a=b');
+		params.append('a', 'b');
+		proclaim.equal(params + '', 'a=b&a=b');
+		params.append('a', 'c');
+		proclaim.equal(params + '', 'a=b&a=b&a=c');
+	});
+
+	it('appends empty strings', function() {
+		var params = new URLSearchParams();
+		params.append('', '');
+		proclaim.equal(params + '', '=');
+		params.append('', '');
+		proclaim.equal(params + '', '=&=');
+	});
+
+	it('appends null', function() {
+		var params = new URLSearchParams();
+		params.append(null, null);
+		proclaim.equal(params + '', 'null=null');
+		params.append(null, null);
+		proclaim.equal(params + '', 'null=null&null=null');
+	});
+
+	it('appends multiple', function() {
+		var params = new URLSearchParams();
+		params.append('first', 1);
+		params.append('second', 2);
+		params.append('third', '');
+		params.append('first', 10);
+		proclaim.ok(params.has('first'), 'Search params object has name "first"');
+		proclaim.equal(params.get('first'), '1', 'Search params object has name "first" with value "1"');
+		proclaim.equal(params.get('second'), '2', 'Search params object has name "second" with value "2"');
+		proclaim.equal(params.get('third'), '', 'Search params object has name "third" with value ""');
+		params.append('first', 10);
+		proclaim.equal(params.get('first'), '1', 'Search params object has name "first" with value "1"');
+	});
+
+	it('constructs', function() {
+		var params = new URLSearchParams();
+		proclaim.equal(params + '', '');
+		params = new URLSearchParams('');
+		proclaim.equal(params + '', '');
+		params = new URLSearchParams('a=b');
+		proclaim.equal(params + '', 'a=b');
+		params = new URLSearchParams(params);
+		proclaim.equal(params + '', 'a=b');
+	});
+
+	it('constructs without arguments', function() {
+			var params = new URLSearchParams()
+			proclaim.equal(params.toString(), "")
+	})
+
+	it('removes leading ?', function() {
+			var params = new URLSearchParams("?a=b")
+			proclaim.equal(params.toString(), "a=b")
+	})
+
+	// TODO : does not throw
+	it.skip('throws with DOMException as argument', function() {
+		var params = new URLSearchParams(DOMException);
+		proclaim.equal(params.toString(), "INDEX_SIZE_ERR=1&DOMSTRING_SIZE_ERR=2&HIERARCHY_REQUEST_ERR=3&WRONG_DOCUMENT_ERR=4&INVALID_CHARACTER_ERR=5&NO_DATA_ALLOWED_ERR=6&NO_MODIFICATION_ALLOWED_ERR=7&NOT_FOUND_ERR=8&NOT_SUPPORTED_ERR=9&INUSE_ATTRIBUTE_ERR=10&INVALID_STATE_ERR=11&SYNTAX_ERR=12&INVALID_MODIFICATION_ERR=13&NAMESPACE_ERR=14&INVALID_ACCESS_ERR=15&VALIDATION_ERR=16&TYPE_MISMATCH_ERR=17&SECURITY_ERR=18&NETWORK_ERR=19&ABORT_ERR=20&URL_MISMATCH_ERR=21&QUOTA_EXCEEDED_ERR=22&TIMEOUT_ERR=23&INVALID_NODE_TYPE_ERR=24&DATA_CLONE_ERR=25")
+		proclaim["throws"](function() { new URLSearchParams(DOMException.prototype) },
+			"Constructing a URLSearchParams from DOMException.prototype should throw due to branding checks"
+		);
+	})
+
+	it('constructs from an empty string', function() {
+		var params = new URLSearchParams('');
+		proclaim.ok(params != null, 'constructor returned non-null value.');
+		proclaim.equal(Object.getPrototypeOf(params), URLSearchParams.prototype, 'expected URLSearchParams.prototype as prototype.');
+	})
+
+	it('constructs from {}', function() {
+		var params = new URLSearchParams({});
+		proclaim.equal(params + '', "");
+	});
+
+	// TODO : fails
+	it.skip('constructs from an various weird strings', function() {
+		var params = new URLSearchParams('a=b');
+		proclaim.ok(params != null, 'constructor returned non-null value.');
+		proclaim.ok(params.has('a'), 'Search params object has name "a"');
+		proclaim.notOk(params.has('b'), 'Search params object has not got name "b"');
+
+		params = new URLSearchParams('a=b&c');
+		proclaim.ok(params != null, 'constructor returned non-null value.');
+		proclaim.ok(params.has('a'), 'Search params object has name "a"');
+		proclaim.ok(params.has('c'), 'Search params object has name "c"');
+
+		params = new URLSearchParams('&a&&& &&&&&a+b=& c&m%c3%b8%c3%b8');
+		proclaim.ok(params != null, 'constructor returned non-null value.');
+		proclaim.ok(params.has('a'), 'Search params object has name "a"');
+		proclaim.ok(params.has('a b'), 'Search params object has name "a b"');
+		proclaim.ok(params.has(' '), 'Search params object has name " "');
+		proclaim.notOk(params.has('c'), 'Search params object did not have the name "c"');
+		proclaim.ok(params.has(' c'), 'Search params object has name " c"');
+		proclaim.ok(params.has('møø'), 'Search params object has name "møø"');
+
+		params = new URLSearchParams('id=0&value=%');
+		proclaim.ok(params != null, 'constructor returned non-null value.');
+		proclaim.ok(params.has('id'), 'Search params object has name "id"');
+		proclaim.ok(params.has('value'), 'Search params object has name "value"');
+		proclaim.equal(params.get('id'), '0');
+		proclaim.equal(params.get('value'), '%');
+
+		params = new URLSearchParams('b=%2sf%2a');
+		proclaim.ok(params != null, 'constructor returned non-null value.');
+		proclaim.ok(params.has('b'), 'Search params object has name "b"');
+		proclaim.equal(params.get('b'), '%2sf*');
+
+		params = new URLSearchParams('b=%2%2af%2a');
+		proclaim.ok(params != null, 'constructor returned non-null value.');
+		proclaim.ok(params.has('b'), 'Search params object has name "b"');
+		proclaim.equal(params.get('b'), '%2*f*');
+
+		params = new URLSearchParams('b=%%2a');
+		proclaim.ok(params != null, 'constructor returned non-null value.');
+		proclaim.ok(params.has('b'), 'Search params object has name "b"');
+		proclaim.equal(params.get('b'), '%*');
+	});
+
+	it('constructs from URLSearchParams', function() {
+		var seed = new URLSearchParams('a=b&c=d');
+		var params = new URLSearchParams(seed);
+		proclaim.ok(params != null, 'constructor returned non-null value.');
+		proclaim.equal(params.get('a'), 'b');
+		proclaim.equal(params.get('c'), 'd');
+		proclaim.notOk(params.has('d'));
+		// The name-value pairs are copied when created; later updates
+		// should not be observable.
+		seed.append('e', 'f');
+		proclaim.notOk(params.has('e'));
+		params.append('g', 'h');
+		proclaim.notOk(seed.has('g'));
+	});
+
+	if ('FormData' in self) {
+		// TODO : does not work
+		it.skip('works with FormData', function () {
+			var formData = new FormData()
+			formData.append('a', 'b')
+			formData.append('c', 'd')
+			var params = new URLSearchParams(formData);
+			proclaim.ok(params != null, 'constructor returned non-null value.');
+			proclaim.equal(params.get('a'), 'b');
+			proclaim.equal(params.get('c'), 'd');
+			proclaim.notOk(params.has('d'));
+			// The name-value pairs are copied when created; later updates
+			// should not be observable.
+			formData.append('e', 'f');
+			proclaim.notOk(params.has('e'));
+			params.append('g', 'h');
+			proclaim.notOk(formData.has('g'));
+		});
+	}
+
+	it('parses +', function() {
+		var params = new URLSearchParams('a=b+c');
+		proclaim.equal(params.get('a'), 'b c');
+		params = new URLSearchParams('a+b=c');
+		proclaim.equal(params.get('a b'), 'c');
+	});
+
+	it('parses encoded +', function() {
+		var testValue = '+15555555555';
+		var params = new URLSearchParams();
+		params.set('query', testValue);
+		var newParams = new URLSearchParams(params.toString());
+
+		proclaim.equal(params.toString(), 'query=%2B15555555555');
+		proclaim.equal(params.get('query'), testValue);
+		proclaim.equal(newParams.get('query'), testValue);
+	});
+
+	it('parses space', function() {
+		var params = new URLSearchParams('a=b c');
+		proclaim.equal(params.get('a'), 'b c');
+		params = new URLSearchParams('a b=c');
+		proclaim.equal(params.get('a b'), 'c');
+	});
+
+	it('parses %20', function() {
+		var params = new URLSearchParams('a=b%20c');
+		proclaim.equal(params.get('a'), 'b c');
+		params = new URLSearchParams('a%20b=c');
+		proclaim.equal(params.get('a b'), 'c');
+	});
+
+	it('parses \\0', function() {
+		var params = new URLSearchParams('a=b\0c');
+		proclaim.equal(params.get('a'), 'b\0c');
+		params = new URLSearchParams('a\0b=c');
+		proclaim.equal(params.get('a\0b'), 'c');
+	});
+
+	it('parses %00', function() {
+		var params = new URLSearchParams('a=b%00c');
+		proclaim.equal(params.get('a'), 'b\0c');
+		params = new URLSearchParams('a%00b=c');
+		proclaim.equal(params.get('a\0b'), 'c');
+	});
+
+	it('parses \u2384', function() {
+		var params = new URLSearchParams('a=b\u2384');
+		proclaim.equal(params.get('a'), 'b\u2384');
+		params = new URLSearchParams('a\u2384b=c');
+		proclaim.equal(params.get('a\u2384b'), 'c');
+	});  // Unicode Character 'COMPOSITION SYMBOL' (U+2384)
+
+	it('parses %e2%8e%84', function() {
+		var params = new URLSearchParams('a=b%e2%8e%84');
+		proclaim.equal(params.get('a'), 'b\u2384');
+		params = new URLSearchParams('a%e2%8e%84b=c');
+		proclaim.equal(params.get('a\u2384b'), 'c');
+	});  // Unicode Character 'COMPOSITION SYMBOL' (U+2384)
+
+	it('parses \uD83D\uDCA9', function() {
+		var params = new URLSearchParams('a=b\uD83D\uDCA9c');
+		proclaim.equal(params.get('a'), 'b\uD83D\uDCA9c');
+		params = new URLSearchParams('a\uD83D\uDCA9b=c');
+		proclaim.equal(params.get('a\uD83D\uDCA9b'), 'c');
+	});  // Unicode Character 'PILE OF POO' (U+1F4A9)
+
+	it('parses %f0%9f%92%a9', function() {
+		var params = new URLSearchParams('a=b%f0%9f%92%a9c');
+		proclaim.equal(params.get('a'), 'b\uD83D\uDCA9c');
+		params = new URLSearchParams('a%f0%9f%92%a9b=c');
+		proclaim.equal(params.get('a\uD83D\uDCA9b'), 'c');
+	});  // Unicode Character 'PILE OF POO' (U+1F4A9)
+
+	it('constructs with sequence of sequences of strings', function() {
+		var params = new URLSearchParams([]);
+		proclaim.ok(params != null, 'constructor returned non-null value.');
+		params = new URLSearchParams([['a', 'b'], ['c', 'd']]);
+		proclaim.equal(params.get("a"), "b");
+		proclaim.equal(params.get("c"), "d");
+		
+		proclaim["throws"](function() { new URLSearchParams([[1]]); });
+		proclaim["throws"](function() { new URLSearchParams([[1,2,3]]); });
+	});
+
+	[
+		{
+			input: "z=b&a=b&z=a&a=a",
+			output: [["a", "b"], ["a", "a"], ["z", "b"], ["z", "a"]]
+		},
+		{
+			input: "\uFFFD=x&\uFFFC&\uFFFD=a",
+			output: [["\uFFFC", ""], ["\uFFFD", "x"], ["\uFFFD", "a"]]
+		},
+		{
+			input: "ﬃ&🌈", // 🌈 > code point, but < code unit because two code units
+			output: [["🌈", ""], ["ﬃ", ""]]
+		},
+		// Fails in Safari 9.1
+		// {
+		// 	input: "é&e\uFFFD&e\u0301",
+		// 	output: [["e\u0301", ""], ["e\uFFFD", ""], ["é", ""]]
+		// },
+		{
+			input: "z=z&a=a&z=y&a=b&z=x&a=c&z=w&a=d&z=v&a=e&z=u&a=f&z=t&a=g",
+			output: [["a", "a"], ["a", "b"], ["a", "c"], ["a", "d"], ["a", "e"], ["a", "f"], ["a", "g"], ["z", "z"], ["z", "y"], ["z", "x"], ["z", "w"], ["z", "v"], ["z", "u"], ["z", "t"]]
+		},
+		{
+			input: "bbb&bb&aaa&aa=x&aa=y",
+			output: [["aa", "x"], ["aa", "y"], ["aaa", ""], ["bb", ""], ["bbb", ""]]
+		},
+		{
+			input: "z=z&=f&=t&=x",
+			output: [["", "f"], ["", "t"], ["", "x"], ["z", "z"]]
+		},
+		{
+			input: "a🌈&a💩",
+			output: [["a🌈", ""], ["a💩", ""]]
+		}
+	].forEach(function(val) {
+		it( "parses and sorts: " + val.input, function() {
+			var params = new URLSearchParams(val.input);
+			params.sort();
+
+			var pairs = Array.from(params.entries());
+			for (var i = 0; i < val.output.length; i++) {
+				proclaim.deepEqual(val.output[i], pairs[i]);
+			}
+		})
+
+		it("parses a URL and sorts: " + val.input, function () {
+			var url = new URL("?" + val.input, "https://example/");
+			url.searchParams.sort();
+			var params = new URLSearchParams(url.search);
+			params.sort();
+
+			var pairs = Array.from(params.entries());
+			for (var i = 0; i < val.output.length; i++) {
+				proclaim.deepEqual(val.output[i], pairs[i]);
+			}
+		})
+	})
+
+	// TODO : does not work
+	it.skip('removes ? from URL after sorting', function() {
+		var url = new URL("http://example.com/?");
+		url.searchParams.sort();
+		proclaim.equal(url.href, "http://example.com/");
+		proclaim.equal(url.search, "");
+	})
 });
