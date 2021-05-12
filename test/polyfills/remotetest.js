@@ -24,6 +24,7 @@ const TestJob = require("./test-job");
 const Tunnel = require("browserstack-local").Local;
 const modifiedPolyfillsWithTests = require('../utils/modified-polyfills-with-tests').modifiedPolyfillsWithTests;
 const UA = require("@financial-times/polyfill-useragent-normaliser");
+const { URL } = require('url');
 
 // Grab all the browsers from BrowserStack which are officially supported by the polyfil service.
 const TOML = require("@iarna/toml");
@@ -402,11 +403,14 @@ async function main() {
         for (const job of jobs) {
           if (job.results && job.results.tests) {
             for (const test of job.results.tests) {
+              const failingTestURL = new URL(url);
+              failingTestURL.searchParams.delete('feature');
+
               console.log(" - " + job.name + ":");
               console.log("    -> " + test.name);
               console.log(
                 "       " +
-                url.replace("http://bs-local.com:9876/", "http://bs-local.com:9876/test") +
+                failingTestURL.toString().replace("http://bs-local.com:9876/", "http://bs-local.com:9876/test") +
                 "&feature=" +
                 test.failingSuite
               );
