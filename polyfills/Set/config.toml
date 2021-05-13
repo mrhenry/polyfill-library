@@ -26,10 +26,10 @@ notes = [
 
 [browsers]
 ie = "*"
-edge = "<12"
+edge = "<13"
 safari = "<9"
 firefox = "<36"
-chrome = "<45"
+chrome = "<49"
 android = "<5.1"
 firefox_mob = "<29"
 ie_mob = "*"

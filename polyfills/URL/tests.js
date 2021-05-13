@@ -296,11 +296,23 @@ it('URLSearchParams serialization', function() {
 	proclaim.equal(p.get('a  b'), 'a  b');
 });
 
-it('URLSearchParams iterable methods', function () {
+it('URLSearchParams iterable methods - entries', function () {
 	var params = new URLSearchParams('a=1&b=2');
 	proclaim.deepEqual(Array.from(params.entries()), [['a', '1'], ['b', '2']]);
+});
+
+it('URLSearchParams iterable methods - keys', function () {
+	var params = new URLSearchParams('a=1&b=2');
 	proclaim.deepEqual(Array.from(params.keys()), ['a', 'b']);
+});
+
+it('URLSearchParams iterable methods - values', function () {
+	var params = new URLSearchParams('a=1&b=2');
 	proclaim.deepEqual(Array.from(params.values()), ['1', '2']);
+});
+
+it('URLSearchParams iterable methods - Symbol.iterator', function () {
+	var params = new URLSearchParams('a=1&b=2');
 
 	if ('Symbol' in self && 'iterator' in self.Symbol) {
 		proclaim.deepEqual(Array.from(params[self.Symbol.iterator]()), [['a', '1'], ['b', '2']]);

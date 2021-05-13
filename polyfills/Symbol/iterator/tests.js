@@ -1,5 +1,5 @@
 /* eslint-env mocha, browser */
-/* global proclaim, Symbol */
+/* global proclaim, Symbol, Set, Map */
 
 var arePropertyDescriptorsSupported = function () {
 	var obj = {};
@@ -63,3 +63,43 @@ hasNodeListGlobal('can attach to a NodeList correctly', function() {
 
 	proclaim.equal(dom[0].innerHTML, 'Test');
 });
+
+if ('from' in Array) {
+	it('does not break "Array.from" with an Array', function () {
+		var a = [];
+		a.push('a');
+		proclaim.equal(Array.from(a)[0], 'a');
+	});
+
+	if ('Set' in self) {
+		it('does not break "Array.from" with a Set', function () {
+			var s = new Set();
+			s.add('a');
+			proclaim.equal(Array.from(s)[0], 'a')
+		});
+	}
+
+	if ('Map' in self) {
+		it('does not break "Array.from" with a Map', function () {
+			var m = new Map();
+			m.set('a', '1');
+			proclaim.equal(Array.from(m)[0][0], 'a');
+		});
+	}
+
+	it('does not break "Array.from" with function arguments', function () {
+		function f() {
+			return Array.from(arguments);
+		}
+		proclaim.equal(Array.from(f('a', 'b'))[0], 'a');
+	});
+
+	it('does not break "Array.from" with a NodeList', function () {
+		var imgA = document.createElement('IMG');
+		var imgB = document.createElement('IMG');
+		document.body.appendChild(imgA);
+		document.body.appendChild(imgB);
+		var images = document.getElementsByTagName('img');
+		proclaim.equal(Array.from(images)[0], imgA);
+	});
+}
