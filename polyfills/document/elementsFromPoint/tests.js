@@ -23,7 +23,12 @@ describe('document.elementsFromPoint', function () {
         return elementTagNames;
     }
 
-    it('returns all the elements at the specified coordinates', function() {
+    it('should return and empty array if negative coordinates are passed', function() {
+        var result = document.elementsFromPoint(-1000, 1000);
+        proclaim.isArray(result);
+    });
+
+    it('should return all the elements at the specified coordinates', function() {
         var container = document.body.appendChild(document.createElement('div'));
         var p = container.appendChild(document.createElement('p'));
 
@@ -37,7 +42,6 @@ describe('document.elementsFromPoint', function () {
     });
 
     it('should not change hit-testing property if set', function() {
-        // var expectedPriority = 'important';
         var container = document.body.appendChild(document.createElement('div'));
         var isIE =  (/msie|trident/i).test(navigator && navigator.userAgent);
         var expectedPriority = 'important';
@@ -86,7 +90,5 @@ describe('document.elementsFromPoint', function () {
             // It may be null or empty string on some browsers
             proclaim.notOk(propertyValue);
         }
-
-
     });
 });
