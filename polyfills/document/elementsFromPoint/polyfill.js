@@ -1,4 +1,8 @@
-document.elementsFromPoint = document.msElementsFromPoint || function elementsFromPoint(x, y) {
+document.elementsFromPoint = function elementsFromPoint(x, y) {
+    if ('msElementsFromPoint' in this) {
+        return this.msElementsFromPoint(x, y) || [];
+    }
+
     var stack = [];
     var element = document.elementFromPoint(x, y);
 
@@ -19,6 +23,8 @@ document.elementsFromPoint = document.msElementsFromPoint || function elementsFr
             element.style.setProperty(name, value, priority);
         } else {
             element.style[name] = value;
+            // need to force a reflow on IE8 in some cases
+            element.getClientRects();
         }
     }
 
