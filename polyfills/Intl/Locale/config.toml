@@ -32,4 +32,4 @@ samsung_mob = "*"
 
 [install]
 module = "@formatjs/intl-locale"
-paths = ["polyfill.umd.js"]
+paths = ["polyfill.iife.js"]

@@ -426,7 +426,7 @@ before(function () {
           AFN: {
             displayName: { other: "Afghan Afghanis", one: "Afghan Afghani" },
             symbol: "AFN",
-            narrow: "AFN"
+            narrow: "؋"
           },
           ALK: {
             displayName: {
@@ -444,7 +444,7 @@ before(function () {
           AMD: {
             displayName: { other: "Armenian drams", one: "Armenian dram" },
             symbol: "AMD",
-            narrow: "AMD"
+            narrow: "֏"
           },
           ANG: {
             displayName: {
@@ -555,7 +555,7 @@ before(function () {
               one: "Azerbaijani manat"
             },
             symbol: "AZN",
-            narrow: "AZN"
+            narrow: "₼"
           },
           BAD: {
             displayName: {
@@ -1077,7 +1077,7 @@ before(function () {
           GHS: {
             displayName: { other: "Ghanaian cedis", one: "Ghanaian cedi" },
             symbol: "GHS",
-            narrow: "GHS"
+            narrow: "GH₵"
           },
           GIP: {
             displayName: { other: "Gibraltar pounds", one: "Gibraltar pound" },
@@ -1672,7 +1672,7 @@ before(function () {
           },
           PHP: {
             displayName: { other: "Philippine pisos", one: "Philippine piso" },
-            symbol: "PHP",
+            symbol: "₱",
             narrow: "₱"
           },
           PKR: {
@@ -2219,8 +2219,8 @@ before(function () {
               other: "West African CFA francs",
               one: "West African CFA franc"
             },
-            symbol: "CFA",
-            narrow: "CFA"
+            symbol: "F CFA",
+            narrow: "F CFA"
           },
           XPD: {
             displayName: {
@@ -2399,6 +2399,7 @@ before(function () {
               percentSign: "%",
               plusSign: "+",
               minusSign: "-",
+              approximatelySign: "~",
               exponential: "E",
               superscriptingExponent: "×",
               perMille: "‰",

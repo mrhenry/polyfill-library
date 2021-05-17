@@ -42,366 +42,366 @@ before(function () {
         units: {
           simple: {
             degree: {
-              "long": { other: "{0} degrees", one: "{0} degree" },
-              "short": { other: "{0} deg" },
+              long: { other: "{0} degrees", one: "{0} degree" },
+              short: { other: "{0} deg" },
               narrow: { other: "{0}°" },
               perUnit: {}
             },
             hectare: {
-              "long": { other: "{0} hectares", one: "{0} hectare" },
-              "short": { other: "{0} ha" },
+              long: { other: "{0} hectares", one: "{0} hectare" },
+              short: { other: "{0} ha" },
               narrow: { other: "{0}ha" },
               perUnit: {}
             },
             acre: {
-              "long": { other: "{0} acres", one: "{0} acre" },
-              "short": { other: "{0} ac" },
+              long: { other: "{0} acres", one: "{0} acre" },
+              short: { other: "{0} ac" },
               narrow: { other: "{0}ac" },
               perUnit: {}
             },
             percent: {
-              "long": { other: "{0} percent" },
-              "short": { other: "{0}%" },
+              long: { other: "{0} percent" },
+              short: { other: "{0}%" },
               narrow: { other: "{0}%" },
               perUnit: {}
             },
             "liter-per-kilometer": {
-              "long": {
+              long: {
                 other: "{0} liters per kilometer",
                 one: "{0} liter per kilometer"
               },
-              "short": { other: "{0} L/km" },
+              short: { other: "{0} L/km" },
               narrow: { other: "{0}L/km" },
               perUnit: {}
             },
             "mile-per-gallon": {
-              "long": {
+              long: {
                 other: "{0} miles per gallon",
                 one: "{0} mile per gallon"
               },
-              "short": { other: "{0} mpg" },
+              short: { other: "{0} mpg" },
               narrow: { other: "{0}mpg" },
               perUnit: {}
             },
             petabyte: {
-              "long": { other: "{0} petabytes", one: "{0} petabyte" },
-              "short": { other: "{0} PB" },
+              long: { other: "{0} petabytes", one: "{0} petabyte" },
+              short: { other: "{0} PB" },
               narrow: { other: "{0}PB" },
               perUnit: {}
             },
             terabyte: {
-              "long": { other: "{0} terabytes", one: "{0} terabyte" },
-              "short": { other: "{0} TB" },
+              long: { other: "{0} terabytes", one: "{0} terabyte" },
+              short: { other: "{0} TB" },
               narrow: { other: "{0}TB" },
               perUnit: {}
             },
             terabit: {
-              "long": { other: "{0} terabits", one: "{0} terabit" },
-              "short": { other: "{0} Tb" },
+              long: { other: "{0} terabits", one: "{0} terabit" },
+              short: { other: "{0} Tb" },
               narrow: { other: "{0}Tb" },
               perUnit: {}
             },
             gigabyte: {
-              "long": { other: "{0} gigabytes", one: "{0} gigabyte" },
-              "short": { other: "{0} GB" },
+              long: { other: "{0} gigabytes", one: "{0} gigabyte" },
+              short: { other: "{0} GB" },
               narrow: { other: "{0}GB" },
               perUnit: {}
             },
             gigabit: {
-              "long": { other: "{0} gigabits", one: "{0} gigabit" },
-              "short": { other: "{0} Gb" },
+              long: { other: "{0} gigabits", one: "{0} gigabit" },
+              short: { other: "{0} Gb" },
               narrow: { other: "{0}Gb" },
               perUnit: {}
             },
             megabyte: {
-              "long": { other: "{0} megabytes", one: "{0} megabyte" },
-              "short": { other: "{0} MB" },
+              long: { other: "{0} megabytes", one: "{0} megabyte" },
+              short: { other: "{0} MB" },
               narrow: { other: "{0}MB" },
               perUnit: {}
             },
             megabit: {
-              "long": { other: "{0} megabits", one: "{0} megabit" },
-              "short": { other: "{0} Mb" },
+              long: { other: "{0} megabits", one: "{0} megabit" },
+              short: { other: "{0} Mb" },
               narrow: { other: "{0}Mb" },
               perUnit: {}
             },
             kilobyte: {
-              "long": { other: "{0} kilobytes", one: "{0} kilobyte" },
-              "short": { other: "{0} kB" },
+              long: { other: "{0} kilobytes", one: "{0} kilobyte" },
+              short: { other: "{0} kB" },
               narrow: { other: "{0}kB" },
               perUnit: {}
             },
             kilobit: {
-              "long": { other: "{0} kilobits", one: "{0} kilobit" },
-              "short": { other: "{0} kb" },
+              long: { other: "{0} kilobits", one: "{0} kilobit" },
+              short: { other: "{0} kb" },
               narrow: { other: "{0}kb" },
               perUnit: {}
             },
-            "byte": {
-              "long": { other: "{0} bytes", one: "{0} byte" },
-              "short": { other: "{0} byte" },
+            byte: {
+              long: { other: "{0} bytes", one: "{0} byte" },
+              short: { other: "{0} byte" },
               narrow: { other: "{0}B" },
               perUnit: {}
             },
             bit: {
-              "long": { other: "{0} bits", one: "{0} bit" },
-              "short": { other: "{0} bit" },
+              long: { other: "{0} bits", one: "{0} bit" },
+              short: { other: "{0} bit" },
               narrow: { other: "{0}bit" },
               perUnit: {}
             },
             year: {
-              "long": { other: "{0} years", one: "{0} year" },
-              "short": { other: "{0} yrs", one: "{0} yr" },
+              long: { other: "{0} years", one: "{0} year" },
+              short: { other: "{0} yrs", one: "{0} yr" },
               narrow: { other: "{0}y" },
-              perUnit: { "long": "{0} per year", "short": "{0}/y", narrow: "{0}/y" }
+              perUnit: { long: "{0} per year", short: "{0}/y", narrow: "{0}/y" }
             },
             month: {
-              "long": { other: "{0} months", one: "{0} month" },
-              "short": { other: "{0} mths", one: "{0} mth" },
+              long: { other: "{0} months", one: "{0} month" },
+              short: { other: "{0} mths", one: "{0} mth" },
               narrow: { other: "{0}m" },
               perUnit: {
-                "long": "{0} per month",
-                "short": "{0}/m",
+                long: "{0} per month",
+                short: "{0}/m",
                 narrow: "{0}/m"
               }
             },
             week: {
-              "long": { other: "{0} weeks", one: "{0} week" },
-              "short": { other: "{0} wks", one: "{0} wk" },
+              long: { other: "{0} weeks", one: "{0} week" },
+              short: { other: "{0} wks", one: "{0} wk" },
               narrow: { other: "{0}w" },
-              perUnit: { "long": "{0} per week", "short": "{0}/w", narrow: "{0}/w" }
+              perUnit: { long: "{0} per week", short: "{0}/w", narrow: "{0}/w" }
             },
             day: {
-              "long": { other: "{0} days", one: "{0} day" },
-              "short": { other: "{0} days", one: "{0} day" },
+              long: { other: "{0} days", one: "{0} day" },
+              short: { other: "{0} days", one: "{0} day" },
               narrow: { other: "{0}d" },
-              perUnit: { "long": "{0} per day", "short": "{0}/d", narrow: "{0}/d" }
+              perUnit: { long: "{0} per day", short: "{0}/d", narrow: "{0}/d" }
             },
             hour: {
-              "long": { other: "{0} hours", one: "{0} hour" },
-              "short": { other: "{0} hr" },
+              long: { other: "{0} hours", one: "{0} hour" },
+              short: { other: "{0} hr" },
               narrow: { other: "{0}h" },
-              perUnit: { "long": "{0} per hour", "short": "{0}/h", narrow: "{0}/h" }
+              perUnit: { long: "{0} per hour", short: "{0}/h", narrow: "{0}/h" }
             },
             minute: {
-              "long": { other: "{0} minutes", one: "{0} minute" },
-              "short": { other: "{0} min" },
+              long: { other: "{0} minutes", one: "{0} minute" },
+              short: { other: "{0} min" },
               narrow: { other: "{0}m" },
               perUnit: {
-                "long": "{0} per minute",
-                "short": "{0}/min",
+                long: "{0} per minute",
+                short: "{0}/min",
                 narrow: "{0}/min"
               }
             },
             second: {
-              "long": { other: "{0} seconds", one: "{0} second" },
-              "short": { other: "{0} sec" },
+              long: { other: "{0} seconds", one: "{0} second" },
+              short: { other: "{0} sec" },
               narrow: { other: "{0}s" },
               perUnit: {
-                "long": "{0} per second",
-                "short": "{0}/s",
+                long: "{0} per second",
+                short: "{0}/s",
                 narrow: "{0}/s"
               }
             },
             millisecond: {
-              "long": { other: "{0} milliseconds", one: "{0} millisecond" },
-              "short": { other: "{0} ms" },
+              long: { other: "{0} milliseconds", one: "{0} millisecond" },
+              short: { other: "{0} ms" },
               narrow: { other: "{0}ms" },
               perUnit: {}
             },
             kilometer: {
-              "long": { other: "{0} kilometers", one: "{0} kilometer" },
-              "short": { other: "{0} km" },
+              long: { other: "{0} kilometers", one: "{0} kilometer" },
+              short: { other: "{0} km" },
               narrow: { other: "{0}km" },
               perUnit: {
-                "long": "{0} per kilometer",
-                "short": "{0}/km",
+                long: "{0} per kilometer",
+                short: "{0}/km",
                 narrow: "{0}/km"
               }
             },
             meter: {
-              "long": { other: "{0} meters", one: "{0} meter" },
-              "short": { other: "{0} m" },
+              long: { other: "{0} meters", one: "{0} meter" },
+              short: { other: "{0} m" },
               narrow: { other: "{0}m" },
               perUnit: {
-                "long": "{0} per meter",
-                "short": "{0}/m",
+                long: "{0} per meter",
+                short: "{0}/m",
                 narrow: "{0}/m"
               }
             },
             centimeter: {
-              "long": { other: "{0} centimeters", one: "{0} centimeter" },
-              "short": { other: "{0} cm" },
+              long: { other: "{0} centimeters", one: "{0} centimeter" },
+              short: { other: "{0} cm" },
               narrow: { other: "{0}cm" },
               perUnit: {
-                "long": "{0} per centimeter",
-                "short": "{0}/cm",
+                long: "{0} per centimeter",
+                short: "{0}/cm",
                 narrow: "{0}/cm"
               }
             },
             millimeter: {
-              "long": { other: "{0} millimeters", one: "{0} millimeter" },
-              "short": { other: "{0} mm" },
+              long: { other: "{0} millimeters", one: "{0} millimeter" },
+              short: { other: "{0} mm" },
               narrow: { other: "{0}mm" },
               perUnit: {}
             },
             mile: {
-              "long": { other: "{0} miles", one: "{0} mile" },
-              "short": { other: "{0} mi" },
+              long: { other: "{0} miles", one: "{0} mile" },
+              short: { other: "{0} mi" },
               narrow: { other: "{0}mi" },
               perUnit: {}
             },
             yard: {
-              "long": { other: "{0} yards", one: "{0} yard" },
-              "short": { other: "{0} yd" },
+              long: { other: "{0} yards", one: "{0} yard" },
+              short: { other: "{0} yd" },
               narrow: { other: "{0}yd" },
               perUnit: {}
             },
             foot: {
-              "long": { other: "{0} feet", one: "{0} foot" },
-              "short": { other: "{0} ft" },
+              long: { other: "{0} feet", one: "{0} foot" },
+              short: { other: "{0} ft" },
               narrow: { other: "{0}′" },
               perUnit: {
-                "long": "{0} per foot",
-                "short": "{0}/ft",
+                long: "{0} per foot",
+                short: "{0}/ft",
                 narrow: "{0}/ft"
               }
             },
             inch: {
-              "long": { other: "{0} inches", one: "{0} inch" },
-              "short": { other: "{0} in" },
+              long: { other: "{0} inches", one: "{0} inch" },
+              short: { other: "{0} in" },
               narrow: { other: "{0}″" },
               perUnit: {
-                "long": "{0} per inch",
-                "short": "{0}/in",
+                long: "{0} per inch",
+                short: "{0}/in",
                 narrow: "{0}/in"
               }
             },
             "mile-scandinavian": {
-              "long": {
+              long: {
                 other: "{0} miles-scandinavian",
                 one: "{0} mile-scandinavian"
               },
-              "short": { other: "{0} smi" },
+              short: { other: "{0} smi" },
               narrow: { other: "{0}smi" },
               perUnit: {}
             },
             kilogram: {
-              "long": { other: "{0} kilograms", one: "{0} kilogram" },
-              "short": { other: "{0} kg" },
+              long: { other: "{0} kilograms", one: "{0} kilogram" },
+              short: { other: "{0} kg" },
               narrow: { other: "{0}kg" },
               perUnit: {
-                "long": "{0} per kilogram",
-                "short": "{0}/kg",
+                long: "{0} per kilogram",
+                short: "{0}/kg",
                 narrow: "{0}/kg"
               }
             },
             gram: {
-              "long": { other: "{0} grams", one: "{0} gram" },
-              "short": { other: "{0} g" },
+              long: { other: "{0} grams", one: "{0} gram" },
+              short: { other: "{0} g" },
               narrow: { other: "{0}g" },
-              perUnit: { "long": "{0} per gram", "short": "{0}/g", narrow: "{0}/g" }
+              perUnit: { long: "{0} per gram", short: "{0}/g", narrow: "{0}/g" }
             },
             stone: {
-              "long": { other: "{0} stones", one: "{0} stone" },
-              "short": { other: "{0} st" },
+              long: { other: "{0} stones", one: "{0} stone" },
+              short: { other: "{0} st" },
               narrow: { other: "{0}st" },
               perUnit: {}
             },
             pound: {
-              "long": { other: "{0} pounds", one: "{0} pound" },
-              "short": { other: "{0} lb" },
+              long: { other: "{0} pounds", one: "{0} pound" },
+              short: { other: "{0} lb" },
               narrow: { other: "{0}#" },
               perUnit: {
-                "long": "{0} per pound",
-                "short": "{0}/lb",
+                long: "{0} per pound",
+                short: "{0}/lb",
                 narrow: "{0}/lb"
               }
             },
             ounce: {
-              "long": { other: "{0} ounces", one: "{0} ounce" },
-              "short": { other: "{0} oz" },
+              long: { other: "{0} ounces", one: "{0} ounce" },
+              short: { other: "{0} oz" },
               narrow: { other: "{0}oz" },
               perUnit: {
-                "long": "{0} per ounce",
-                "short": "{0}/oz",
+                long: "{0} per ounce",
+                short: "{0}/oz",
                 narrow: "{0}/oz"
               }
             },
             "kilometer-per-hour": {
-              "long": {
+              long: {
                 other: "{0} kilometers per hour",
                 one: "{0} kilometer per hour"
               },
-              "short": { other: "{0} km/h" },
+              short: { other: "{0} km/h" },
               narrow: { other: "{0}km/h" },
               perUnit: {}
             },
             "meter-per-second": {
-              "long": {
+              long: {
                 other: "{0} meters per second",
                 one: "{0} meter per second"
               },
-              "short": { other: "{0} m/s" },
+              short: { other: "{0} m/s" },
               narrow: { other: "{0}m/s" },
               perUnit: {}
             },
             "mile-per-hour": {
-              "long": { other: "{0} miles per hour", one: "{0} mile per hour" },
-              "short": { other: "{0} mph" },
+              long: { other: "{0} miles per hour", one: "{0} mile per hour" },
+              short: { other: "{0} mph" },
               narrow: { other: "{0}mph" },
               perUnit: {}
             },
             celsius: {
-              "long": { other: "{0} degrees Celsius", one: "{0} degree Celsius" },
-              "short": { other: "{0}°C" },
+              long: { other: "{0} degrees Celsius", one: "{0} degree Celsius" },
+              short: { other: "{0}°C" },
               narrow: { other: "{0}°C" },
               perUnit: {}
             },
             fahrenheit: {
-              "long": {
+              long: {
                 other: "{0} degrees Fahrenheit",
                 one: "{0} degree Fahrenheit"
               },
-              "short": { other: "{0}°F" },
+              short: { other: "{0}°F" },
               narrow: { other: "{0}°" },
               perUnit: {}
             },
             liter: {
-              "long": { other: "{0} liters", one: "{0} liter" },
-              "short": { other: "{0} L" },
+              long: { other: "{0} liters", one: "{0} liter" },
+              short: { other: "{0} L" },
               narrow: { other: "{0}L" },
               perUnit: {
-                "long": "{0} per liter",
-                "short": "{0}/L",
+                long: "{0} per liter",
+                short: "{0}/L",
                 narrow: "{0}/L"
               }
             },
             milliliter: {
-              "long": { other: "{0} milliliters", one: "{0} milliliter" },
-              "short": { other: "{0} mL" },
+              long: { other: "{0} milliliters", one: "{0} milliliter" },
+              short: { other: "{0} mL" },
               narrow: { other: "{0}mL" },
               perUnit: {}
             },
             gallon: {
-              "long": { other: "{0} gallons", one: "{0} gallon" },
-              "short": { other: "{0} gal" },
+              long: { other: "{0} gallons", one: "{0} gallon" },
+              short: { other: "{0} gal" },
               narrow: { other: "{0}gal" },
               perUnit: {
-                "long": "{0} per gallon",
-                "short": "{0}/gal US",
+                long: "{0} per gallon",
+                short: "{0}/gal US",
                 narrow: "{0}/gal"
               }
             },
             "fluid-ounce": {
-              "long": { other: "{0} fluid ounces", one: "{0} fluid ounce" },
-              "short": { other: "{0} fl oz" },
+              long: { other: "{0} fluid ounces", one: "{0} fluid ounce" },
+              short: { other: "{0} fl oz" },
               narrow: { other: "{0}fl oz" },
               perUnit: {}
             }
           },
           compound: {
-            per: { "long": "{0} per {1}", "short": "{0}/{1}", narrow: "{0}/{1}" }
+            per: { long: "{0} per {1}", short: "{0}/{1}", narrow: "{0}/{1}" }
           }
         },
         currencies: {
@@ -426,7 +426,7 @@ before(function () {
           AFN: {
             displayName: { other: "Afghan Afghanis", one: "Afghan Afghani" },
             symbol: "AFN",
-            narrow: "AFN"
+            narrow: "؋"
           },
           ALK: {
             displayName: {
@@ -444,7 +444,7 @@ before(function () {
           AMD: {
             displayName: { other: "Armenian drams", one: "Armenian dram" },
             symbol: "AMD",
-            narrow: "AMD"
+            narrow: "֏"
           },
           ANG: {
             displayName: {
@@ -555,7 +555,7 @@ before(function () {
               one: "Azerbaijani manat"
             },
             symbol: "AZN",
-            narrow: "AZN"
+            narrow: "₼"
           },
           BAD: {
             displayName: {
@@ -1077,7 +1077,7 @@ before(function () {
           GHS: {
             displayName: { other: "Ghanaian cedis", one: "Ghanaian cedi" },
             symbol: "GHS",
-            narrow: "GHS"
+            narrow: "GH₵"
           },
           GIP: {
             displayName: { other: "Gibraltar pounds", one: "Gibraltar pound" },
@@ -1672,7 +1672,7 @@ before(function () {
           },
           PHP: {
             displayName: { other: "Philippine pisos", one: "Philippine piso" },
-            symbol: "PHP",
+            symbol: "₱",
             narrow: "₱"
           },
           PKR: {
@@ -2219,8 +2219,8 @@ before(function () {
               other: "West African CFA francs",
               one: "West African CFA franc"
             },
-            symbol: "CFA",
-            narrow: "CFA"
+            symbol: "F CFA",
+            narrow: "F CFA"
           },
           XPD: {
             displayName: {
@@ -2399,6 +2399,7 @@ before(function () {
               percentSign: "%",
               plusSign: "+",
               minusSign: "-",
+              approximatelySign: "~",
               exponential: "E",
               superscriptingExponent: "×",
               perMille: "‰",
@@ -2411,7 +2412,7 @@ before(function () {
           decimal: {
             latn: {
               standard: "#,##0.###",
-              "long": {
+              long: {
                 1000: { other: "0 thousand" },
                 10000: { other: "00 thousand" },
                 100000: { other: "000 thousand" },
@@ -2425,7 +2426,7 @@ before(function () {
                 10000000000000: { other: "00 trillion" },
                 100000000000000: { other: "000 trillion" }
               },
-              "short": {
+              short: {
                 1000: { other: "0K" },
                 10000: { other: "00K" },
                 100000: { other: "000K" },
@@ -2450,7 +2451,7 @@ before(function () {
               standard: "¤#,##0.00",
               accounting: "¤#,##0.00;(¤#,##0.00)",
               unitPattern: "{0} {1}",
-              "short": {
+              short: {
                 1000: { other: "¤0K" },
                 10000: { other: "¤00K" },
                 100000: { other: "¤000K" },

@@ -29,7 +29,7 @@ samsung_mob = "*"
 
 [install]
 module = "@formatjs/intl-getcanonicallocales"
-paths = ["polyfill.umd.js"]
+paths = ["polyfill.iife.js"]
 clean = [
   "~locale",
   "polyfill.js",

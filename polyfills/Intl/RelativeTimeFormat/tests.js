@@ -453,7 +453,7 @@ describe("Intl.RelativeTimeFormat", function () {
             AFN: {
               displayName: { other: "Afghan Afghanis", one: "Afghan Afghani" },
               symbol: "AFN",
-              narrow: "AFN"
+              narrow: "؋"
             },
             ALK: {
               displayName: {
@@ -471,7 +471,7 @@ describe("Intl.RelativeTimeFormat", function () {
             AMD: {
               displayName: { other: "Armenian drams", one: "Armenian dram" },
               symbol: "AMD",
-              narrow: "AMD"
+              narrow: "֏"
             },
             ANG: {
               displayName: {
@@ -582,7 +582,7 @@ describe("Intl.RelativeTimeFormat", function () {
                 one: "Azerbaijani manat"
               },
               symbol: "AZN",
-              narrow: "AZN"
+              narrow: "₼"
             },
             BAD: {
               displayName: {
@@ -1119,7 +1119,7 @@ describe("Intl.RelativeTimeFormat", function () {
             GHS: {
               displayName: { other: "Ghanaian cedis", one: "Ghanaian cedi" },
               symbol: "GHS",
-              narrow: "GHS"
+              narrow: "GH₵"
             },
             GIP: {
               displayName: {
@@ -1759,7 +1759,7 @@ describe("Intl.RelativeTimeFormat", function () {
                 other: "Philippine pisos",
                 one: "Philippine piso"
               },
-              symbol: "PHP",
+              symbol: "₱",
               narrow: "₱"
             },
             PKR: {
@@ -2321,8 +2321,8 @@ describe("Intl.RelativeTimeFormat", function () {
                 other: "West African CFA francs",
                 one: "West African CFA franc"
               },
-              symbol: "CFA",
-              narrow: "CFA"
+              symbol: "F CFA",
+              narrow: "F CFA"
             },
             XPD: {
               displayName: {
@@ -2501,6 +2501,7 @@ describe("Intl.RelativeTimeFormat", function () {
                 percentSign: "%",
                 plusSign: "+",
                 minusSign: "-",
+                approximatelySign: "~",
                 exponential: "E",
                 superscriptingExponent: "×",
                 perMille: "‰",
