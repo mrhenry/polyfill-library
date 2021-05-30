@@ -1,0 +1,40 @@
+#### Dependencies
+dependencies = [
+  "Intl.DateTimeFormat"
+]
+
+#### Specification Link
+spec = "https://tc39.es/ecma402/#sec-initializedatetimeformat"
+
+#### Documentation Link
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat#using_options"
+
+#### License
+license = "MIT"
+
+#### Notes
+notes = [
+  "See formatjs documentation for more info on 'golden' vs 'all' timezones. https://formatjs.io/docs/polyfills/intl-datetimeformat"
+]
+
+#### Browser compatibility
+[browsers]
+android = "*"
+ie = "9 - *"
+ie_mob = "9 - *"
+edge = "<79"
+edge_mob = "<79"
+firefox = "*"
+opera = "*"
+chrome = "<76"
+safari = "*"
+ios_saf = "*"
+firefox_mob = "*"
+samsung_mob = "*"
+
+[install]
+module = "@formatjs/intl-datetimeformat"
+paths = [ "/add-golden-tz.js" ]
+clean = [
+  "polyfill.js",
+]
