@@ -4,7 +4,7 @@
 				return (new Intl.DateTimeFormat('en', {
 					timeZone: 'Australia/Sydney',
 					timeZoneName: 'short'
-				}).format(new Date(Date.UTC(2012, 11, 20, 3, 0, 0, 200))).slice(-6) === 'GMT+11');
+				})).resolvedOptions().timeZone === 'Australia/Sydney';
 			} catch(e) {
 				return false;
 			}
