@@ -18,10 +18,12 @@
 var fs = require('graceful-fs');
 var path = require('path');
 var LocalesPath = path.dirname(require.resolve('@formatjs/intl-numberformat/locale-data/en.js'));
+var PluralRulesLocalesPath = path.dirname(require.resolve('@formatjs/intl-pluralrules/locale-data/en.js'));
 var IntlPolyfillOutput = path.resolve('polyfills/Intl/NumberFormat');
 var LocalesPolyfillOutput = path.resolve('polyfills/Intl/NumberFormat/~locale');
 var mkdirp = require('mkdirp');
 var TOML = require('@iarna/toml');
+var localeMatcher = require('@formatjs/intl-localematcher');
 
 function writeFileIfChanged (filePath, newFile) {
 	if (fs.existsSync(filePath)) {
@@ -33,6 +35,25 @@ function writeFileIfChanged (filePath, newFile) {
 	} else {
 		fs.writeFileSync(filePath, newFile);
 	}
+}
+
+var pluralRulesLocales = new Set(
+	fs.readdirSync(PluralRulesLocalesPath).filter(function(f)  {
+		return f.endsWith('.js');
+	}).map((f) => {
+		return f.slice(0, f.indexOf('.'));
+	})
+);
+
+function localeDependencies(locale) {
+	const match = localeMatcher.match([locale], Array.from(pluralRulesLocales));
+	if (!match) {
+		return [];
+	}
+
+	return [
+		`Intl.PluralRules.~locale.${match}`
+	];
 }
 
 var configSource = TOML.parse(fs.readFileSync(path.join(IntlPolyfillOutput, 'config.toml'), 'utf-8'));
@@ -70,7 +91,17 @@ locales.filter(function(locale) {
 	var configOutputPath = path.join(localeOutputPath, 'config.toml');
 	writeFileIfChanged(polyfillOutputPath, localePolyfillSource);
 	writeFileIfChanged(detectOutputPath, intlLocaleDetectFor(locale));
-	writeFileIfChanged(configOutputPath, TOML.stringify({...configSource, aliases: [`Intl.~locale.${locale}`].concat(locale === 'en' ? ['Intl'] : [])}));
+	writeFileIfChanged(
+		configOutputPath,
+		TOML.stringify({
+			...configSource,
+			dependencies: [
+				...configSource.dependencies,
+				...localeDependencies(locale)
+			].sort(),
+			aliases: [`Intl.~locale.${locale}`].concat(locale === 'en' ? ['Intl'] : [])
+		})
+	);
 });
 
 

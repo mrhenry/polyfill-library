@@ -20,12 +20,16 @@ var path = require("path");
 var LocalesPath = path.dirname(
 	require.resolve("@formatjs/intl-datetimeformat/locale-data/en.js")
 );
+
+var NumberFormatLocalesPath = path.dirname(require.resolve('@formatjs/intl-numberformat/locale-data/en.js'));
+
 var IntlPolyfillOutput = path.resolve("polyfills/Intl/DateTimeFormat");
 var LocalesPolyfillOutput = path.resolve(
 	"polyfills/Intl/DateTimeFormat/~locale"
 );
 var mkdirp = require("mkdirp");
 var TOML = require("@iarna/toml");
+var localeMatcher = require('@formatjs/intl-localematcher');
 
 function writeFileIfChanged(filePath, newFile) {
 	if (fs.existsSync(filePath)) {
@@ -37,6 +41,25 @@ function writeFileIfChanged(filePath, newFile) {
 	} else {
 		fs.writeFileSync(filePath, newFile);
 	}
+}
+
+var numberFormatLocales = new Set(
+  fs.readdirSync(NumberFormatLocalesPath).filter(function(f)  {
+    return f.endsWith('.js');
+  }).map((f) => {
+    return f.slice(0, f.indexOf('.'));
+  })
+);
+
+function localeDependencies(locale) {
+  const match = localeMatcher.match([locale], Array.from(numberFormatLocales));
+  if (!match) {
+    return [];
+  }
+
+  return [
+    `Intl.NumberFormat.~locale.${match}`
+  ];
 }
 
 var configSource = TOML.parse(
@@ -87,6 +110,10 @@ locales
 			configOutputPath,
 			TOML.stringify({
 				...configSource,
+				dependencies: [
+					...configSource.dependencies,
+					...localeDependencies(locale)
+				].sort(),
 				aliases: [`Intl.~locale.${locale}`].concat(locale === 'en' ? ['Intl'] : [])
 			})
 		);

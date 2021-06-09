@@ -92,6 +92,7 @@
     "yaku": "1.0.1"
   },
   "devDependencies": {
+    "@formatjs/intl-localematcher": "^0.2.13",
     "@iarna/toml": "^2.2.3",
     "apicache": "^1.5.3",
     "array.prototype.flatmap": "^1.2.1",
