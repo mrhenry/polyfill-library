@@ -85,7 +85,17 @@ app.get(
 
 		if (includePolyfills === "yes") {
 			const polyfillsWithTests = await testablePolyfills(isIE8);
-			const features = polyfillsWithTests.map(polyfill => polyfill.feature);
+			let features = polyfillsWithTests.map(polyfill => polyfill.feature);
+
+			// Exclude polyfills which must not be loaded together
+			if (polyfillCombinations) {
+				// "timeZone.golden" and "timeZone.all" overlap.
+				// Including both is a user error.
+				features = features.filter((x) => {
+					return x !== 'Intl.DateTimeFormat.~timeZone.golden';
+				})
+			}
+
 			const parameters = {
 				features: createPolyfillLibraryConfigFor(
 					(feature && !polyfillCombinations) ? feature : features.join(","),
