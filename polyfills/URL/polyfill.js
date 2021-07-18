@@ -17,7 +17,7 @@
 		return false;
 	}
 
-	(function() {
+	;(function() { // eslint-disable-line no-extra-semi
 
 		// Browsers may have:
 		// * No global URL object
@@ -489,7 +489,7 @@
 
 		global.URL = URL;
 		global.URLSearchParams = URLSearchParams;
-	}());
+	})();
 
 	// Patch native URLSearchParams constructor to handle sequences/records
 	// if necessary.
@@ -518,6 +518,6 @@
 				return new orig(init);
 			}
 		};
-	}());
+	})();
 
 }(self));

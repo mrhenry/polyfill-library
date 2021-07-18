@@ -340,6 +340,14 @@ it('URLSearchParams doesnt stringify with "Object"', function() {
 	proclaim.equal(p.toString(), "key=730d67");
 });
 
+it('URLSearchParams constructed form a Record has working "get"', function() {
+	var p1 = new URLSearchParams({ "key": "alpha" }); // eslint-disable-line
+	proclaim.equal(p1.get('key'), "alpha");
+
+	var p2 = new URLSearchParams({ key: "beta" });
+	proclaim.equal(p2.get('key'), "beta");
+});
+
 describe('WPT tests', function () {
 	it('appends same name correctly', function() {
 		var params = new URLSearchParams();
