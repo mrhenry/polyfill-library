@@ -1,0 +1,19 @@
+aliases = [
+	"MediaQueryList.prototype.addEventListener",
+	"MediaQueryList.prototype.removeEventListener",
+	"MediaQueryList.prototype.dispatchEvent",
+]
+dependencies = [ "matchMedia" ]
+docs = "https://developer.mozilla.org/en-US/docs/Web/API/MediaQueryList"
+spec = "http://dev.w3.org/csswg/cssom-view/#the-mediaquerylist-interface"
+
+[browsers]
+android = "2.1 - 4.4.4"
+chrome = "<37"
+edge = "<16"
+firefox = "<55"
+ie = "*"
+opera = "<77"
+op_mini = "*"
+op_mob = "<62"
+safari = "<14"
