@@ -18,6 +18,7 @@ notes = [
 ]
 
 #### Browser compatibility
+# Browser compatibility list sourced from Intl.DateTimeFormat.
 [browsers]
 android = "*"
 ie = "9 - *"

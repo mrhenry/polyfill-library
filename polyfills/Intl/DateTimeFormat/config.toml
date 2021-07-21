@@ -28,6 +28,7 @@ notes = [
 	"Locales must be specified separately by prefixing the locale name with `Intl.DateTimeFormat.~locale`, eg `Intl.DateTimeFormat.~locale.en-GB`."
 ]
 
+# Browser compatibility list for Int.DateTimeFormat.~timeZone.all and Int.DateTimeFormat.~timeZone.golden must match this one, update both if a change is needed here.
 [browsers]
 android = "*"
 ie = "9 - *"
