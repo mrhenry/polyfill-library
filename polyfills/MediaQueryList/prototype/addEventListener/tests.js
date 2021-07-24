@@ -23,42 +23,49 @@ if (typeof (self.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
 		});
 
 		// helpers are defined with `var` so they are globally accessible
-		function createMQL(cb) {
+		function createMQL(cb, cbErr) {
 			createIFrame(function (iframe) {
-				var mql = iframe.contentWindow.matchMedia('(max-width: ' + IFRAME_DEFAULT_SIZE + 'px)');
-				proclaim.ok(mql.matches);
-				iframes[mql] = iframe;
-				cb(mql);
+				try {
+					var mql = iframe.contentWindow.matchMedia('(max-width: ' + IFRAME_DEFAULT_SIZE + 'px)');
+					proclaim.ok(mql.matches);
+					iframes[mql] = iframe;
+					cb(mql);
+				} catch (err) {
+					cbErr(err);
+				}
 			});
 		}
 
-		function createIFrame(cb, width, height) {
-			if (typeof width === 'undefined') {
-				width = IFRAME_DEFAULT_SIZE;
+		function createIFrame(cb, cbErr) {
+			try {
+				var width = IFRAME_DEFAULT_SIZE;
+				var height = IFRAME_DEFAULT_SIZE;
+
+				proclaim.ok(document.body);
+
+				var iframe = document.createElement("iframe");
+				iframe.src = document.getElementById('test-iframe-src').getAttribute('content');
+				iframe.width = String(width);
+				iframe.height = String(height);
+				iframe.style.border = "none";
+
+				cleanup.push(function () {
+					document.body.removeChild(iframe);
+				});
+
+				iframe.addEventListener("load", function () {
+					try {
+						iframe.contentDocument.body.offsetWidth; // reflow
+						cb(iframe);
+					} catch (err) {
+						cbErr(err);
+					}
+				});
+
+				document.body.appendChild(iframe);
+			} catch (err) {
+				cbErr(err);
 			}
-
-			if (typeof height === 'undefined') {
-				height = width;
-			}
-
-			proclaim.ok(document.body);
-
-			var iframe = document.createElement("iframe");
-			iframe.src = document.getElementById('test-iframe-src').getAttribute('content');
-			iframe.width = String(width);
-			iframe.height = String(height);
-			iframe.style.border = "none";
-
-			cleanup.push(function () {
-				document.body.removeChild(iframe);
-			});
-
-			iframe.addEventListener("load", function () {
-				iframe.contentDocument.body.offsetWidth; // reflow
-				cb(iframe);
-			});
-
-			document.body.appendChild(iframe);
 		}
 
 		function triggerMQLEvent(mql) {
@@ -107,7 +114,7 @@ if (typeof (self.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
 						done(err);
 					}
 				});
-			});
+			}, done);
 		});
 
 		it("calls listeners added through addEventListener", function (done) {
@@ -129,7 +136,7 @@ if (typeof (self.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
 						done(err);
 					}
 				});
-			});
+			}, done);
 		});
 
 		it("calls listeners once that are added with addListener and addEventListener", function (done) {
@@ -154,7 +161,7 @@ if (typeof (self.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
 						done(err);
 					}
 				});
-			});
+			}, done);
 		});
 
 		it("removes listener added with addListener through removeEventListener", function (done) {
@@ -179,7 +186,7 @@ if (typeof (self.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
 						done(err);
 					}
 				});
-			});
+			}, done);
 		});
 
 		it("removes listener added with addEventListener through removeListener", function (done) {
@@ -204,7 +211,7 @@ if (typeof (self.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
 						done(err);
 					}
 				});
-			});
+			}, done);
 		});
 
 		it("does not call listeners of other types", function (done) {
@@ -226,7 +233,7 @@ if (typeof (self.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
 						done(err);
 					}
 				});
-			});
+			}, done);
 		});
 
 		it("respects once", function (done) {
@@ -257,7 +264,7 @@ if (typeof (self.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
 						done(err);
 					}
 				});
-			});
+			}, done);
 		});
 
 		if ((function () {
@@ -299,7 +306,7 @@ if (typeof (self.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
 							done(err);
 						}
 					});
-				});
+				}, done);
 			});
 
 			it("removes a listener through onchange", function (done) {
@@ -330,7 +337,7 @@ if (typeof (self.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
 							done(err);
 						}
 					});
-				});
+				}, done);
 			});
 
 			it("does not remove an onchange listener through removeEventListener", function (done) {
@@ -351,7 +358,7 @@ if (typeof (self.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
 							done(err);
 						}
 					});
-				});
+				}, done);
 			});
 		}
 	});
