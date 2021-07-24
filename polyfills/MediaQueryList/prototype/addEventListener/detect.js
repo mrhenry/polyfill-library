@@ -1,1 +1,1 @@
-'MediaQueryList' in self && 'addEventListener' in self.MediaQueryList.prototype
+'matchMedia' in self && 'addEventListener' in (self.matchMedia('all'))

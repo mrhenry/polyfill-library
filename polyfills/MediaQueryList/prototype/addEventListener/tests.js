@@ -2,15 +2,15 @@
 /* global proclaim */
 
 it("should define the EventTarget methods on the MediaQueryList prototype", function() {
-	proclaim.ok('addEventListener' in MediaQueryList.prototype);
-	proclaim.ok('removeEventListener' in MediaQueryList.prototype);
+	proclaim.ok('addEventListener' in (self.matchMedia('(min-width: 1px)')));
+	proclaim.ok('removeEventListener' in (self.matchMedia('(min-width: 1px)')));
 });
 
 
 // WPT
-// We can only test these behaviours with native `matchMedia` as iframes don't trigger resize events.
-if (typeof (window.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
-	describe('WPT', function () {
+// We can only test these behaviors with native `matchMedia` as iframes don't trigger resize events.
+if (typeof (self.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
+	describe('WPT (with native matchMedia)', function () {
 		var IFRAME_DEFAULT_SIZE = "200";
 		var iframes = {};
 
@@ -352,6 +352,124 @@ if (typeof (window.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
 						}
 					});
 				});
+			});
+		}
+	});
+} else {
+	describe('WPT (with polyfilled matchMedia)', function () {
+		it("adds listeners through addListener", function () {
+			var mql = window.matchMedia('(min-width: 1px)');
+			var listener = function () {
+				/* noop */
+			};
+
+			mql.addListener(listener);
+			proclaim.ok(mql.listeners.indexOf(listener) !== -1);
+		});
+
+		it("adds listeners through addEventListener", function () {
+			var mql = window.matchMedia('(min-width: 1px)');
+			var listener = function () {
+				/* noop */
+			};
+
+			mql.addEventListener('change', listener);
+			proclaim.ok(mql.listeners.indexOf(listener) !== -1);
+		});
+
+		it("calls listeners once that are added with addListener and addEventListener", function () {
+			var mql = window.matchMedia('(min-width: 1px)');
+			var listener = {
+				handleEvent: function () {
+					/* noop */
+				}
+			};
+
+			mql.addListener(listener);
+			mql.addEventListener('change', listener);
+			proclaim.ok(mql.listeners.indexOf(listener.handleEvent) !== -1);
+			proclaim.equal(mql.listeners.length, 1);
+		});
+
+		it("removes listener added with addListener through removeEventListener", function () {
+			var mql = window.matchMedia('(min-width: 1px)');
+			var listener = {
+				handleEvent: function () {
+					/* noop */
+				}
+			};
+
+			mql.addListener(listener);
+			mql.removeEventListener('change', listener);
+			proclaim.ok(mql.listeners.indexOf(listener.handleEvent) === -1);
+			proclaim.equal(mql.listeners.length, 0);
+		});
+
+		it("removes listener added with addEventListener through removeListener", function () {
+			var mql = window.matchMedia('(min-width: 1px)');
+			var listener = function () {
+					/* noop */
+				};
+
+			mql.addEventListener('change', listener);
+			mql.removeListener(listener);
+			proclaim.ok(mql.listeners.indexOf(listener) === -1);
+			proclaim.equal(mql.listeners.length, 0);
+		});
+
+		it("does not call listeners of other types", function () {
+			var mql = window.matchMedia('(min-width: 1px)');
+			var listener = function () {
+					/* noop */
+				};
+
+			mql.addEventListener('matches', listener);
+			proclaim.ok(mql.listeners.indexOf(listener) === -1);
+			proclaim.equal(mql.listeners.length, 0);
+		});
+
+		if ((function () {
+			// supports setters (not IE8)
+			try {
+				var a = {};
+				Object.defineProperty(a, 't', {
+					configurable: true,
+					enumerable: false,
+					get: function () {
+						return this._v;
+					},
+					set: function (v) {
+						this._v = v + v;
+					}
+				});
+
+				a.t = 1;
+				return (a.t === 2);
+			} catch (e) {
+				return false;
+			}
+		}())) {
+			it("adds a listener through onchange", function () {
+				var mql = window.matchMedia('(min-width: 1px)');
+				var listener = function () {
+						/* noop */
+					};
+
+				mql.onchange = listener;
+
+				proclaim.equal(mql.listeners.length, 1);
+			});
+
+			it("does not remove an onchange listener through removeEventListener", function () {
+				var mql = window.matchMedia('(min-width: 1px)');
+				var listener = function () {
+						/* noop */
+					};
+
+				mql.onchange = listener;
+				mql.removeEventListener('change', listener);
+
+				proclaim.equal(mql.listeners.length, 1);
 			});
 		}
 	});
