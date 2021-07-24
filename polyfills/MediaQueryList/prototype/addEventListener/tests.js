@@ -33,7 +33,6 @@ if (typeof (window.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
 		}
 
 		function createIFrame(cb, width, height) {
-			document.domain = 'bs-local.com';
 			if (typeof width === 'undefined') {
 				width = IFRAME_DEFAULT_SIZE;
 			}

@@ -6,6 +6,9 @@
 	<title>Mocha test suite for polyfill-library</title>
 
 	<link rel="stylesheet" type="text/css" href="/mocha.css">
+	<script>
+		window.document.domain = "bs-local.com";
+	</script>
 	<meta id="test-iframe-src" name="test-iframe-src" content="/iframe.html?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}&feature={{features}}">
 	<script src="/polyfill.js?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}&feature={{features}}"></script>
 	<script src="/mocha.js"></script>
