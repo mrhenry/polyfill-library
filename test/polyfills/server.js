@@ -19,6 +19,11 @@ const runnerTemplate = handlebars.compile(
 		encoding: "UTF-8"
 	})
 );
+const testIframeTemplate = handlebars.compile(
+	fs.readFileSync(path.join(__dirname, "./test-iframe.handlebars"), {
+		encoding: "UTF-8"
+	})
+);
 
 function createPolyfillLibraryConfigFor(features, always) {
 	const config = {};
@@ -55,6 +60,7 @@ const cacheFor1Day = cache("1 day", () => true, {
 });
 
 app.get(["/test"], createEndpoint(runnerTemplate));
+app.get(["/iframe.html"], createEndpoint(testIframeTemplate));
 app.get(["/"], createEndpoint(directorTemplate));
 app.get("/mocha.js", cacheFor1Day,(request, response) => {
 	response.sendFile(require.resolve("mocha/mocha.js"));

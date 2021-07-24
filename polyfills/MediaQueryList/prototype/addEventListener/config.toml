@@ -1,11 +1,19 @@
 aliases = [
-	"MediaQueryList.prototype.addEventListener",
 	"MediaQueryList.prototype.removeEventListener",
-	"MediaQueryList.prototype.dispatchEvent",
 ]
-dependencies = [ "matchMedia" ]
+
+dependencies = [
+	"matchMedia",
+	"Object.defineProperty"
+]
 docs = "https://developer.mozilla.org/en-US/docs/Web/API/MediaQueryList"
 spec = "http://dev.w3.org/csswg/cssom-view/#the-mediaquerylist-interface"
+license = "MIT"
+notes = [
+	"Does not implement the full EventTarget interface. Misses 'dispatchEvent', 'capture' option.",
+	"Does not differentiate between listeners added with different options.",
+	"onchange property only works in browsers with Object setter support."
+]
 
 [browsers]
 android = "2.1 - 4.4.4"
