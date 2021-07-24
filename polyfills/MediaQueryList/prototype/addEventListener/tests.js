@@ -33,7 +33,7 @@ if (typeof (self.matchMedia('(min-width: 1px)').listeners) === 'undefined') {
 				} catch (err) {
 					cbErr(err);
 				}
-			});
+			}, cbErr);
 		}
 
 		function createIFrame(cb, cbErr) {
