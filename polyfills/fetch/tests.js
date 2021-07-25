@@ -32,3 +32,11 @@ if ('URLSearchParams' in self) {
 		});
 	});
 }
+
+if ('AbortController' in self) {
+	it('sets signal on Request instantiation', function () {
+		var req = new Request('#');
+		proclaim.ok(req.signal);
+		proclaim.equal(req.signal.aborted, false);
+	});
+}
