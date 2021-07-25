@@ -35,8 +35,10 @@ if ('URLSearchParams' in self) {
 
 if ('AbortController' in self) {
 	it('sets signal on Request instantiation', function () {
-		var req = new Request('#');
+		var ctrl = new AbortController();
+		ctrl.abort();
+		var req = new Request('#', { signal: ctrl.signal });
 		proclaim.ok(req.signal);
-		proclaim.equal(req.signal.aborted, false);
+		proclaim.ok(req.signal.aborted);
 	});
 }
