@@ -80,7 +80,7 @@ configSource.test = { ci: false };
 function intlLocaleDetectFor(locale) {
 	return `'Intl' in self &&
 	'DateTimeFormat' in self.Intl &&
-	'formatToParts' in self.Intl.DateTimeFormat &&
+	'formatRangeToParts' in self.Intl.DateTimeFormat &&
 	self.Intl.DateTimeFormat.supportedLocalesOf('${locale}').length`;
 }
 
