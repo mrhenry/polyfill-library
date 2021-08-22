@@ -1,7 +1,7 @@
 /* eslint-env mocha, browser */
 /* global proclaim */
 
- describe('constructor', function () {
+describe('constructor', function () {
 	it('should create DOMRect with specified x, y, width, and height properties', function () {
 		var domRect = new DOMRect(12, 34, 56, 78);
 		proclaim.strictEqual(domRect.x, 12);
@@ -40,7 +40,7 @@
 	});
 });
 
- describe('writable properties', function () {
+describe('writable properties', function () {
 	it('should define `x` as writable', function () {
 		var domRect = new DOMRect();
 		domRect.x = 321;
@@ -66,7 +66,7 @@
 	});
 });
 
- describe('readonly properties', function () {
+describe('readonly properties', function () {
 	it('should define `left` as readonly', function () {
 		var domRect = new DOMRect(10, 20, 30, 40);
 		domRect.left = 321;
