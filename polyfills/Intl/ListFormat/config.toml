@@ -24,18 +24,18 @@ notes = [
 ]
 
 [browsers]
-android = "*"
+android = "<72"
 ie = "9 - *"
 ie_mob = "9 - *"
-edge = "*"
-edge_mob = "*"
-firefox = "*"
-opera = "*"
+edge = "<79"
+edge_mob = "<79"
+firefox = "<78"
+opera = "<60"
 chrome = "<72"
-safari = "*"
-ios_saf = "*"
-firefox_mob = "*"
-samsung_mob = "*"
+safari = "<14.1"
+ios_saf = "<14.5"
+firefox_mob = "<79"
+samsung_mob = "<11"
 
 [install]
 module = "@formatjs/intl-listformat"

@@ -22,18 +22,18 @@ notes = [
 ]
 
 [browsers]
-android = "*"
+android = "<81"
 ie = "9 - *"
 ie_mob = "9 - *"
 edge = "<81"
 edge_mob = "<81"
-firefox = "*"
-opera = "*"
+firefox = "<86"
+opera = "<68"
 chrome = "<81"
-safari = "*"
-ios_saf = "*"
-firefox_mob = "*"
-samsung_mob = "*"
+safari = "<14.1"
+ios_saf = "<14.5"
+firefox_mob = "<86"
+samsung_mob = "<13"
 
 [install]
 module = "@formatjs/intl-displaynames"

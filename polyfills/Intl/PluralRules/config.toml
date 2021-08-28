@@ -33,10 +33,10 @@ edge_mob = "<18"
 firefox = "<58"
 opera = "<50"
 chrome = "<63"
-safari = "*"
-ios_saf = "*"
+safari = "<13"
+ios_saf = "<13"
 firefox_mob = "<58"
-samsung_mob = "*"
+samsung_mob = "<8"
 
 [install]
 module = "@formatjs/intl-pluralrules"
