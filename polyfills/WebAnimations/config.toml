@@ -1,7 +1,9 @@
 aliases = [
 	"Element.prototype.animate"
 ]
-dependencies = [ ]
+dependencies = [
+	"requestAnimationFrame"
+]
 license = "Apache-2.0"
 spec = "https://w3c.github.io/web-animations/"
 repo = "https://github.com/web-animations/web-animations-js"
