@@ -1,1 +1,1 @@
-"document" in self
+"document" in self && "Document" in self
