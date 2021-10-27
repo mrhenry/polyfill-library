@@ -5,5 +5,5 @@
 describe('Document', function () {
 	it('exists', function () {
 		proclaim.ok(Document);
-	})
-})
+	});
+});
