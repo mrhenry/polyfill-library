@@ -4,10 +4,6 @@ on:
   repository_dispatch:
     types: [ok-to-test-command]
 
-concurrency:
-  group: Test Polyfills
-  cancel-in-progress: true
-
 jobs:
   # Branch-based pull request
   integration-trusted:
