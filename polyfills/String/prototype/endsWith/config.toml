@@ -19,7 +19,7 @@ docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global
 spec = "https://tc39.github.io/ecma262/#sec-string.prototype.endswith"
 
 [browsers]
-android = "*"
+android = "<37"
 bb = "*"
 chrome = "<=40"
 edge = "<14"

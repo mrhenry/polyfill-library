@@ -19,7 +19,7 @@ spec = "https://tc39.github.io/ecma262/#sec-string.prototype.startswith"
 docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith"
 
 [browsers]
-android = "*"
+android = "<37"
 bb = "*"
 chrome = "<=40"
 firefox = "3.6 - 17"

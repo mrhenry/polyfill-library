@@ -29,7 +29,7 @@ opera = "*"
 safari = "*"
 chrome = "* - 60"
 ios_saf = "*"
-android = "*"
+android = "<61"
 
 [install]
 module = "seamless-scroll-polyfill"

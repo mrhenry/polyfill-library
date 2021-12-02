@@ -12,7 +12,7 @@ license = "MIT"
 docs = "https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame"
 
 [browsers]
-android = "*"
+android = "<37"
 bb = "7"
 chrome = "<46"
 ie = "6 - 9"
