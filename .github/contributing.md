@@ -85,14 +85,14 @@ Browsers that can be listed:
 
 The browser list uses a form of semantic versioning to indicate which browser requires polyfilling.
 
-If all versions of a browser require the polyfill you can use the wildcard asterisk (*):
+If all versions of a browser require the polyfill you can use the wildcard asterisk (`*`):
 
 ```toml
 [browsers]
 android = "*"
 ```
 
-For specific versions you can specify a number, for example if a polyfill is required in Internet Explorer 8 and below you can use "<9":
+For specific versions you can specify a number, for example if a polyfill is required in Internet Explorer 8 and below you can use "`<9`":
 
 ```toml
 [browsers]
@@ -140,9 +140,31 @@ Setup you local environment :
 
 `$ npm install`
 
-Start the watcher :
+Start the build watcher :
 
 `$ npm run watch`
+
+Or build once using `npm run build`.
+
+### Testing locally
+
+You can run the tests locally in a headless browser, e.g. if you don't have BrowserStack
+credentials, are working offline, or want to run the tests in an isolated environment
+without access to your host machine.
+
+To run the `URL` tests once :
+
+```
+$ npm run test-polyfills -- --features=URL --browsers=FirefoxHeadless --singleRun=true
+
+...
+Finished in 0.019 secs
+
+SUMMARY:
+✔ 53 tests completed
+```
+
+### Testing with BrowserStack
 
 After a file change you will see :
 

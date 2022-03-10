@@ -110,6 +110,7 @@
     "json3": "^3.3.2",
     "karma": "^6.0.0",
     "karma-browserstack-launcher": "^1.4.0",
+    "karma-firefox-launcher": "^2.1.2",
     "karma-mocha": "^2.0.1",
     "karma-mocha-reporter": "^2.2.5",
     "karma-summary-optional-console-reporter": "^1.6.1",
