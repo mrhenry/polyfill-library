@@ -594,6 +594,7 @@ describe('WPT tests', function () {
 		proclaim["throws"](function() { new URLSearchParams([[1,2,3]]); });
 	});
 
+	// Examples from wpt/url/urlencoded-parser.any.js
 	[
 		{
 			input: "z=b&a=b&z=a&a=a",
@@ -602,6 +603,26 @@ describe('WPT tests', function () {
 		{
 			input: "\uFFFD=x&\uFFFC&\uFFFD=a",
 			output: [["\uFFFC", ""], ["\uFFFD", "x"], ["\uFFFD", "a"]]
+		},
+		{
+			input: '%a=a',
+			output: [['%a', 'a']]
+		},
+		{
+			input: "id=0&value=%",
+			output: [['id', '0'], ['value', '%']]
+		},
+		{
+			input: "b=%2sf%2a",
+			output: [['b', '%2sf*']]
+		},
+		{
+			input: "b=%2%2af%2a",
+			output: [['b', '%2*f*']]
+		},
+		{
+			input: "b=%%2a",
+			output: [['b', '%*']]
 		},
 		{
 			input: "ﬃ&🌈", // 🌈 > code point, but < code unit because two code units

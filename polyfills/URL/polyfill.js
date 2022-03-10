@@ -60,7 +60,29 @@
 			return output.replace(/%20/g, '+');
 		}
 
+		// NOTE: URL API accepts inputs like `?x=%`, `?x=%a`, and `?x=%2sf`
+		// as literals, whereas legacy decodeURIComponent would throw
+		// URIError (as specified by ECMAScript).
+		//
+		// https://url.spec.whatwg.org/#percent-decode
+		function percent_decode(bytes) {
+			// NOTE:
+			// * Only decode pairs of exactly two bytes.
+			// * Only decode bytes in range 0-9, A-F, a-f.
+			// * Decode as many pairs at the same time as possible.
+			//   This is because we're not actually operating on internal bytes,
+			//   but on a valid UTF string, and the string must remain valid at
+			//   all times, and decodeURIComponent will throw when attempting to
+			//   decode a byte that represents only part of a codepoint, for example
+			//   "%7F" separately from "%7F%C3%BF".
+			return bytes.replace(/((%[0-9A-Fa-f]{2})*)/g, function (_, m) {
+				return decodeURIComponent(m);
+			});
+		}
+
 		// NOTE: Doesn't do the encoding/decoding dance
+		//
+		// https://url.spec.whatwg.org/#concept-urlencoded-parser
 		function urlencoded_parse(input, isindex) {
 			var sequences = input.split('&');
 			if (isindex && sequences[0].indexOf('=') === -1)
@@ -83,8 +105,8 @@
 			var output = [];
 			pairs.forEach(function (pair) {
 				output.push({
-					name: decodeURIComponent(pair.name),
-					value: decodeURIComponent(pair.value)
+					name: percent_decode(pair.name),
+					value: percent_decode(pair.value)
 				});
 			});
 			return output;
