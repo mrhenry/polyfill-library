@@ -14,4 +14,4 @@ jobs:
       - run: hub pr checkout ${{ github.event.inputs.number }} && git push origin
           HEAD:pr${{ github.event.inputs.number }} -f
         env:
-          GITHUB_TOKEN: "${{ secrets.POLYFILL_GH_TOKEN }}"
+          GITHUB_TOKEN: "${{ secrets.ORIGAMI_GITHUB_TOKEN }}"
