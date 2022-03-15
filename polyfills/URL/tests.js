@@ -594,8 +594,47 @@ describe('WPT tests', function () {
 		proclaim["throws"](function() { new URLSearchParams([[1,2,3]]); });
 	});
 
-	// Examples from wpt/url/urlencoded-parser.any.js
+	/* eslint-disable quote-props */
 	[
+		// Cases from WPT: urlencoded-parser
+		// https://github.com/web-platform-tests/wpt/blob/5f5ec4cff4/url/urlencoded-parser.any.js
+		{ "input": "test", "output": [["test", ""]] },
+		{ "input": "\uFEFFtest=\uFEFF", "output": [["\uFEFFtest", "\uFEFF"]] },
+		{ "input": "%EF%BB%BFtest=%EF%BB%BF", "output": [["\uFEFFtest", "\uFEFF"]] },
+		{ "input": "%FE%FF", "output": [["\uFFFD\uFFFD", ""]] },
+		{ "input": "%FF%FE", "output": [["\uFFFD\uFFFD", ""]] },
+		{ "input": "†&†=x", "output": [["†", ""], ["†", "x"]] },
+		{ "input": "%C2", "output": [["\uFFFD", ""]] },
+		{ "input": "%C2x", "output": [["\uFFFDx", ""]] },
+		{ "input": "_charset_=windows-1252&test=%C2x", "output": [["_charset_", "windows-1252"], ["test", "\uFFFDx"]] },
+		{ "input": '', "output": [] },
+		{ "input": 'a', "output": [['a', '']] },
+		{ "input": 'a=b', "output": [['a', 'b']] },
+		{ "input": 'a=', "output": [['a', '']] },
+		{ "input": '=b', "output": [['', 'b']] },
+		{ "input": '&', "output": [] },
+		{ "input": '&a', "output": [['a', '']] },
+		{ "input": 'a&', "output": [['a', '']] },
+		{ "input": 'a&a', "output": [['a', ''], ['a', '']] },
+		{ "input": 'a&b&c', "output": [['a', ''], ['b', ''], ['c', '']] },
+		{ "input": 'a=b&c=d', "output": [['a', 'b'], ['c', 'd']] },
+		{ "input": 'a=b&c=d&', "output": [['a', 'b'], ['c', 'd']] },
+		{ "input": '&&&a=b&&&&c=d&', "output": [['a', 'b'], ['c', 'd']] },
+		{ "input": 'a=a&a=b&a=c', "output": [['a', 'a'], ['a', 'b'], ['a', 'c']] },
+		{ "input": 'a==a', "output": [['a', '=a']] },
+		{ "input": 'a=a+b+c+d', "output": [['a', 'a b c d']] },
+		{ "input": '%=a', "output": [['%', 'a']] },
+		{ "input": '%a=a', "output": [['%a', 'a']] },
+		{ "input": '%a_=a', "output": [['%a_', 'a']] },
+		{ "input": '%61=a', "output": [['a', 'a']] },
+		{ "input": '%61+%4d%4D=', "output": [['a MM', '']] },
+		{ "input": "id=0&value=%", "output": [['id', '0'], ['value', '%']] },
+		{ "input": "b=%2sf%2a", "output": [['b', '%2sf*']]},
+		{ "input": "b=%2%2af%2a", "output": [['b', '%2*f*']]},
+		{ "input": "b=%%2a", "output": [['b', '%*']]},
+
+		// Cases from WPT: urlencoded-sort
+		// https://github.com/web-platform-tests/wpt/blob/5f5ec4cff4/url/urlsearchparams-sort.any.js
 		{
 			input: "z=b&a=b&z=a&a=a",
 			output: [["a", "b"], ["a", "a"], ["z", "b"], ["z", "a"]]
@@ -603,26 +642,6 @@ describe('WPT tests', function () {
 		{
 			input: "\uFFFD=x&\uFFFC&\uFFFD=a",
 			output: [["\uFFFC", ""], ["\uFFFD", "x"], ["\uFFFD", "a"]]
-		},
-		{
-			input: '%a=a',
-			output: [['%a', 'a']]
-		},
-		{
-			input: "id=0&value=%",
-			output: [['id', '0'], ['value', '%']]
-		},
-		{
-			input: "b=%2sf%2a",
-			output: [['b', '%2sf*']]
-		},
-		{
-			input: "b=%2%2af%2a",
-			output: [['b', '%2*f*']]
-		},
-		{
-			input: "b=%%2a",
-			output: [['b', '%*']]
 		},
 		{
 			input: "ﬃ&🌈", // 🌈 > code point, but < code unit because two code units
@@ -649,6 +668,7 @@ describe('WPT tests', function () {
 			input: "a🌈&a💩",
 			output: [["a🌈", ""], ["a💩", ""]]
 		}
+		/* eslint-enable */
 	].forEach(function(val) {
 		it( "parses and sorts: " + val.input, function() {
 			var params = new URLSearchParams(val.input);
