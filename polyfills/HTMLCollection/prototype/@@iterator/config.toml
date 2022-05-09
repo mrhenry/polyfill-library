@@ -3,3 +3,7 @@ dependencies = [ "_ArrayIterator", "Symbol.iterator" ]
 [browsers]
 edge = "<18"
 edge_mob = "<18"
+chrome = "<51"
+firefox = "<13"
+ie = "*"
+safari = "<10"
