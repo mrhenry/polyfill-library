@@ -1,12 +1,11 @@
 /* eslint-env mocha, browser */
 /* global proclaim, Symbol */
 
-var collectionId = 0;
 function getHTMLCollection() {
-	collectionId++;
-	document.body.appendChild(document.createElement('something' + collectionId));
-	document.body.appendChild(document.createElement('something' + collectionId));
-	return document.getElementsByTagName('something' + collectionId);
+	var element = document.createElement('div');
+	element.appendChild(document.createElement('span'));
+	element.appendChild(document.createElement('span'));
+	return element.children;
 }
 
 it('exists', function () {
