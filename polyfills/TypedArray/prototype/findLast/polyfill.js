@@ -31,20 +31,21 @@
 		return undefined;
 	}
 
+	var fnName = 'findLast'
 	// in IE11, `Int8Array.prototype` inherits directly from `Object.prototype`
 	// in that case, don't define it on the parent; define it directly on the prototype
 	if ('__proto__' in self.Int8Array.prototype && self.Int8Array.prototype.__proto__ !== Object.prototype) {
 		// set this on the underlying "TypedArrayPrototype", which is shared with all "TypedArray" subclasses
-		CreateMethodProperty(self.Int8Array.prototype.__proto__, 'findLast', findLast);
+		CreateMethodProperty(self.Int8Array.prototype.__proto__, fnName, findLast);
 	} else {
-		CreateMethodProperty(self.Int8Array.prototype, 'findLast', findLast);
-		CreateMethodProperty(self.Uint8Array.prototype, 'findLast', findLast);
-		CreateMethodProperty(self.Uint8ClampedArray.prototype, 'findLast', findLast);
-		CreateMethodProperty(self.Int16Array.prototype, 'findLast', findLast);
-		CreateMethodProperty(self.Uint16Array.prototype, 'findLast', findLast);
-		CreateMethodProperty(self.Int32Array.prototype, 'findLast', findLast);
-		CreateMethodProperty(self.Uint32Array.prototype, 'findLast', findLast);
-		CreateMethodProperty(self.Float32Array.prototype, 'findLast', findLast);
-		CreateMethodProperty(self.Float64Array.prototype, 'findLast', findLast);
+		CreateMethodProperty(self.Int8Array.prototype, fnName, findLast);
+		CreateMethodProperty(self.Uint8Array.prototype, fnName, findLast);
+		CreateMethodProperty(self.Uint8ClampedArray.prototype, fnName, findLast);
+		CreateMethodProperty(self.Int16Array.prototype, fnName, findLast);
+		CreateMethodProperty(self.Uint16Array.prototype, fnName, findLast);
+		CreateMethodProperty(self.Int32Array.prototype, fnName, findLast);
+		CreateMethodProperty(self.Uint32Array.prototype, fnName, findLast);
+		CreateMethodProperty(self.Float32Array.prototype, fnName, findLast);
+		CreateMethodProperty(self.Float64Array.prototype, fnName, findLast);
 	}
 })();
