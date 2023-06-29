@@ -1,47 +1,31 @@
-/* global CreateMethodProperty, IsArray, SameValue, ToInteger, ToNumber, UTF16Encoding */
+/* global CreateMethodProperty, IsInteger, ToNumber, UTF16EncodeCodePoint */
 
 // 21.1.2.2. String.fromCodePoint ( ...codePoints )
-CreateMethodProperty(String, 'fromCodePoint', function fromCodePoint(_) {
-	// Polyfill.io - List to store the characters whilst iterating over the code points.
-	var result = [];
-	// 1. Let codePoints be a List containing the arguments passed to this function.
+CreateMethodProperty(String, "fromCodePoint", function fromCodePoint(_) {
+	// 1. Let result be the empty String.
+	var result = "";
+	// 2. For each element next of codePoints, do
 	var codePoints = arguments;
-	// 2. Let length be the number of elements in codePoints.
-	var length = arguments.length;
-	// 3. Let elements be a new empty List.
-	var elements = [];
-	// 4. Let nextIndex be 0.
-	var nextIndex = 0;
-	// 5. Repeat, while nextIndex < length
-	while (nextIndex < length) {
-		// Polyfill.io - We reset the elements List as we store the partial results in the result List.
-		elements = [];
-		// a. Let next be codePoints[nextIndex].
-		var next = codePoints[nextIndex];
-		// b. Let nextCP be ? ToNumber(next).
+	for (var i = 0; i < codePoints.length; i++) {
+		var next = codePoints[i];
+		// a. Let nextCP be ? ToNumber(next).
 		var nextCP = ToNumber(next);
-		// c. If SameValue(nextCP, ToInteger(nextCP)) is false, throw a RangeError exception.
-		if (SameValue(nextCP, ToInteger(nextCP)) === false) {
-			throw new RangeError('Invalid code point ' + Object.prototype.toString.call(nextCP));
+		// b. If IsIntegralNumber(nextCP) is false, throw a RangeError exception.
+		if (IsInteger(nextCP) === false) {
+			throw new RangeError(
+				"Invalid code point " + Object.prototype.toString.call(nextCP)
+			);
 		}
-		// d. If nextCP < 0 or nextCP > 0x10FFFF, throw a RangeError exception.
-		if (nextCP < 0 || nextCP > 0x10FFFF) {
-			throw new RangeError('Invalid code point ' + Object.prototype.toString.call(nextCP));
+		// c. If ℝ(nextCP) < 0 or ℝ(nextCP) > 0x10FFFF, throw a RangeError exception.
+		if (nextCP < 0 || nextCP > 0x10ffff) {
+			throw new RangeError(
+				"Invalid code point " + Object.prototype.toString.call(nextCP)
+			);
 		}
-		// e. Append the elements of the UTF16Encoding of nextCP to the end of elements.
-		// Polyfill.io - UTF16Encoding can return a single codepoint or a list of multiple codepoints.
-		var cp = UTF16Encoding(nextCP);
-		if (IsArray(cp)) {
-			elements = elements.concat(cp);
-		} else {
-			elements.push(cp);
-		}
-		// f. Let nextIndex be nextIndex + 1.
-		nextIndex = nextIndex + 1;
-
-		// Polyfill.io - Retrieving the characters whilst iterating enables the function to work in a memory efficient and performant way.
-		result.push(String.fromCharCode.apply(null, elements));
+		// d. Set result to the string-concatenation of result and UTF16EncodeCodePoint(ℝ(nextCP)).
+		result = result + UTF16EncodeCodePoint(nextCP);
 	}
-	// 6. Return the String value whose elements are, in order, the elements in the List elements. If length is 0, the empty string is returned.
-	return length === 0 ? '' : result.join('');
+	// 3. Assert: If codePoints is empty, then result is the empty String.
+	// 4. Return result.
+	return result;
 });
