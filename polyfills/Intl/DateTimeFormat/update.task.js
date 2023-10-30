@@ -68,7 +68,7 @@ configSource.test = { ci: false };
 function intlLocaleDetectFor(locale) {
 	return `'Intl' in self &&
 	'DateTimeFormat' in self.Intl &&
-	'formatRangeToParts' in self.Intl.DateTimeFormat &&
+	'formatRangeToParts' in self.Intl.DateTimeFormat.prototype &&
 	self.Intl.DateTimeFormat.supportedLocalesOf('${locale}').length`;
 }
 
