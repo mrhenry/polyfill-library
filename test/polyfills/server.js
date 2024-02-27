@@ -112,7 +112,7 @@ app.get(
 				),
 				minify: false,
 				stream: false,
-				ua: always === "yes" ? "other/0.0.0" : request.get("user-agent")
+				ua: always === "yes" ? new UA("other/0.0.0") : new UA(request.get("user-agent"))
 			};
 
 			const bundle = await polyfillio.getPolyfillString(parameters);
