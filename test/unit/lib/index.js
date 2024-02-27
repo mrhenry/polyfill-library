@@ -111,6 +111,22 @@ describe("polyfillio", () => {
 	});
 
 	describe('.getOptions(opts)', () => {
+		it('returns fallback UA objects', () => {
+			const polyfillio = require('../../../lib');
+
+			const actual = polyfillio.getOptions();
+
+			assert.deepStrictEqual({
+				family: actual.ua.getFamily(),
+				satisfies: actual.ua.satisfies("14.0.0"),
+				unknown: actual.ua.isUnknown(),
+			}, {
+				family: 'other',
+				satisfies: false,
+				unknown: true,
+			});
+		});
+
 		it('returns the default options if called without any arguments', () => {
 			const polyfillio = require('../../../lib');
 

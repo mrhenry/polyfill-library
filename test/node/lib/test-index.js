@@ -117,8 +117,8 @@ describe("polyfillio", function () {
 			}));
 		});
 
-		it("should return polyfills for unknown UA when unknown is set to `polyfill` and `uaString` param is not set", () => {
-			// ... even when `uaString` param is missing entirely
+		it("should return polyfills for unknown UA when unknown is set to `polyfill` and `ua` param is not set", () => {
+			// ... even when `ua` param is missing entirely
 			return polyfillio.getPolyfills({
 				features: {
 					'Math.sign': {}
