@@ -23,11 +23,11 @@ jobs:
       with:
         fetch-depth: 50
 
-    # Fetch master branch to determine which polyfills have changed and need testing.
+    # Fetch main branch to determine which polyfills have changed and need testing.
     - name: Fetch upstream to determine diff
       run: |
         git remote add upstream https://github.com/mrhenry/polyfill-library.git
-        git fetch --depth=50 upstream master
+        git fetch --depth=50 upstream main
 
     # <insert integration tests needing secrets>
     - uses: actions/setup-node@v2.2.0
