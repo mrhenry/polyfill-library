@@ -51,7 +51,7 @@ Create an options object for use with `getPolyfills` or `getPolyfillString`.
 - `@param {'ignore'|'polyfill'} [opts.unknown='polyfill']` - Whether to return all polyfills or no polyfills if the user-agent is unknown or unsupported.
 - `@param {Object} [opts.features={}]` - Which features should be returned if the user-agent does not support them natively.
 - `@param {Array<String>} [opts.excludes=[]]` - Which features should be excluded from the returned object.
-- `@param {Object} [opts.ua={}]` - The user-agent string to check each feature against.
+- `@param {Object} [opts.ua={}]` - The user-agent object to check each feature against.
 
 Returns an object which has merged `opts` with the defaults option values.
 
@@ -64,7 +64,7 @@ Given a set of features that should be polyfilled in 'opts.features' (with flags
 - `@param {'ignore'|'polyfill'} [opts.unknown='polyfill']` - Whether to return all polyfills or no polyfills if the user-agent is unknown or unsupported.
 - `@param {Object} [opts.features={}]` - Which features should be returned if the user-agent does not support them natively.
 - `@param {Array<String>} [opts.excludes=[]]` - Which features should be excluded from the returned object.
-- `@param {String} [opts.ua={}]` - The user-agent object to check each feature against.
+- `@param {Object} [opts.ua={}]` - The user-agent object to check each feature against.
 
 Returns a Promise which resolves to an Object which contains the canonicalised feature definitions filtered for UA.
 
@@ -77,7 +77,7 @@ Create a polyfill bundle.
 - `@param {'ignore'|'polyfill'} [opts.unknown='polyfill']` - Whether to return all polyfills or no polyfills if the user-agent is unknown or unsupported.
 - `@param {Object} [opts.features={}]` - Which features should be returned if the user-agent does not support them natively.
 - `@param {Array<String>} [opts.excludes=[]]` - Which features should be excluded from the returned object.
-- `@param {String} [opts.ua={}]` - The user-agent string to check each feature against.
+- `@param {Object} [opts.ua={}]` - The user-agent object to check each feature against.
 - `@param {Boolean} [opts.stream=false]` - Whether to return a stream or a string of the polyfill bundle.
 
 Returns a polyfill bundle as either a utf-8 ReadStream or as a Promise of a utf-8 String.

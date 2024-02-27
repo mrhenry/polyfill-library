@@ -110,8 +110,7 @@
     "unorm": "^1.6.0",
     "usertiming": "^0.1.8",
     "web-animations-js": "^2.2.5",
-    "webdriverio": "^8.0.0",
-    "whatwg-fetch": "^3.6.2"
+    "webdriverio": "^8.0.0"
   },
   "volta": {
     "node": "16.20.0"
