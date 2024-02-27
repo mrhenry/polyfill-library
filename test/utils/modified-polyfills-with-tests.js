@@ -9,7 +9,7 @@ module.exports = {
 };
 
 /**
- * Get a list of polyfills that have changes when compared against master.
+ * Get a list of polyfills that have changes when compared against main.
  * Also includes a list of polyfills that must be tested again.
  */
 async function modifiedPolyfillsWithTests() {
@@ -185,7 +185,7 @@ function toposortPolyfills(polyfillMetas) {
 
 function getModifiedFiles() {
 	return new Promise((resolve) => {
-		const baseBranch = process.env.GITHUB_ACTIONS ? 'upstream/main' : 'master';
+		const baseBranch = process.env.GITHUB_ACTIONS ? 'upstream/main' : 'main';
 
 		exec(`git --no-pager diff --name-only HEAD $(git merge-base --fork-point ${baseBranch})`, (error, stdout, stderr) => {
 			if (error) {
