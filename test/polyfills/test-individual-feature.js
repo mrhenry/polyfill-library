@@ -19,7 +19,7 @@ function generateDependencyTreeForFeature(feature) {
 			[feature]: {}
 		},
 		unknown: 'polyfill',
-		uaString: ''
+		ua: new UA('')
 	}).then(Object.keys);
 }
 
@@ -41,6 +41,7 @@ function findDifferenceInObjects(inclusionObject, exclusionObject) {
 	return result;
 }
 const TOML = require('@iarna/toml');
+const UA = require('@financial-times/polyfill-useragent-normaliser');
 async function findAllThirdPartyPolyfills () {
 	const configs = await globby(['polyfills/**/config.toml', '!polyfills/__dist']);
 	return configs.map(file => {

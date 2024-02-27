@@ -1,6 +1,7 @@
 'use strict';
 
-const {assert} = require('chai');
+const { assert } = require('chai');
+const UA = require("@financial-times/polyfill-useragent-normaliser");
 const polyfillLibrary = require('../..');
 
 describe("polyfill-library", function () {
@@ -11,7 +12,7 @@ describe("polyfill-library", function () {
 			features: {
 				all: {}
 			},
-			uaString: 'other/0.0.0',
+			ua: new UA('other/0.0.0'),
 			unknown: 'polyfill'
 		});
 
@@ -19,7 +20,7 @@ describe("polyfill-library", function () {
 			features: {
 				all: {}
 			},
-			uaString: 'other/0.0.0',
+			ua: new UA('other/0.0.0'),
 			unknown: 'polyfill'
 		});
 
@@ -42,7 +43,7 @@ describe("polyfill-library", function () {
 				'__proto__': {},
 				'toLocaleString': {},
 			},
-			uaString: 'other/0.0.0',
+			ua: new UA('other/0.0.0'),
 			unknown: 'polyfill'
 		});
 	});
