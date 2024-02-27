@@ -27,7 +27,7 @@
 			j = j + 1;
 		}
 
-		// Polyfill.io - These steps are handled by native `%TypedArray%.prototype.sort`, below
+		// These steps are handled by native `%TypedArray%.prototype.sort`, below
 		// 6. NOTE: The following closure performs a numeric comparison rather than the string comparison used in 23.1.3.34.
 		// 7. Let SortCompare be a new Abstract Closure with parameters (x, y) that captures comparefn and performs the following steps when called:
 		// a. Return ? CompareTypedArrayElements(x, y, comparefn).

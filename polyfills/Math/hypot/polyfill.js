@@ -20,7 +20,7 @@ CreateMethodProperty(Math, 'hypot', function hypot(value1, value2) { // eslint-d
 
 		// If no argument is +∞ or -∞, and any argument is NaN, the result is NaN.
 		// If all arguments are either +0 or -0, the result is +0.
-		// Polyfill.io - The two conditions above are handled in the math.
+		// The two conditions above are handled in the math.
 
 		var arg = Math.abs(Number(arguments[i]));
 		if (arg > max) {

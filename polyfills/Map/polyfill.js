@@ -114,7 +114,7 @@
 		});
 
 		// 3. Set map.[[MapData]] to a new empty List.
-		// Polyfill.io - This step was done as part of step two.
+		// This step was done as part of step two.
 
 		// 4. If iterable is not present, let iterable be undefined.
 		var iterable = arguments.length > 0 ? arguments[0] : undefined;
@@ -157,7 +157,7 @@
 					}
 				}
 				try {
-					// Polyfill.io - The try catch accounts for steps: f, h, and j.
+					// The try catch accounts for steps: f, h, and j.
 
 					// e. Let k be Get(nextItem, "0").
 					var k = nextItem[0];
@@ -173,7 +173,7 @@
 				}
 			}
 		} catch (e) {
-			// Polyfill.io - For user agents which do not have iteration methods on argument objects or arrays, we can special case those.
+			// For user agents which do not have iteration methods on argument objects or arrays, we can special case those.
 			if (Array.isArray(iterable) ||
 				Object.prototype.toString.call(iterable) === '[object Arguments]') {
 				var index;
@@ -489,7 +489,7 @@
 		configurable: true
 	});
 
-	// Polyfill.io - Safari 8 implements Map.name but as a non-configurable property, which means it would throw an error if we try and configure it here.
+	// Safari 8 implements Map.name but as a non-configurable property, which means it would throw an error if we try and configure it here.
 	if (!('name' in Map)) {
 		// 19.2.4.2 name
 		Object.defineProperty(Map, 'name', {
@@ -539,7 +539,7 @@
 
 	// 23.1.5.2. The %MapIteratorPrototype% Object
 	var MapIteratorPrototype = {};
-	// Polyfill.io - We use this as a quick way to check if an object is a Map Iterator instance.
+	// We use this as a quick way to check if an object is a Map Iterator instance.
 	Object.defineProperty(MapIteratorPrototype, 'isMapIterator', {
 		configurable: false,
 		enumerable: false,

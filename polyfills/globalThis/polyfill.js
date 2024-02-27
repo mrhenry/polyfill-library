@@ -2,7 +2,7 @@
 (function() {
 
 	/*
-		polyfill.io - This code ensures that the referenced object is not an
+		This code ensures that the referenced object is not an
 		object which is not infact the global object. This is needed because
 		the Firefox Content Script environment does some funky stuff
 		such as creating a frozen `self` global object which is not the same
@@ -41,7 +41,7 @@
 		// NodeJS
 		freeGlobal ||
 		// Everything else so long as they are not running with a Content Security Policy which forbids using `Function`.
-		// If you reach here and have CSP forbidding `Function`, please open an issue on https://github.com/Financial-Times/polyfill-library
+		// If you reach here and have CSP forbidding `Function`, please open an issue on https://github.com/mrhenry/polyfill-library
 		Function("return this")();
 
 	// Export the object

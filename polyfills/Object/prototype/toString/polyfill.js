@@ -14,7 +14,7 @@
 		// 3. Let O be ! ToObject(this value).
 		var O = ToObject(this);
 
-		// Polyfill.io - We will not implement these; we will use the original `Object.prototype.toString` to determine the object class
+		// We will not implement these; we will use the original `Object.prototype.toString` to determine the object class
 		// 4. Let isArray be ? IsArray(O).
 		// 5. If isArray is true, let builtinTag be "Array".
 		// 6. Else if O has a [[ParameterMap]] internal slot, let builtinTag be "Arguments".

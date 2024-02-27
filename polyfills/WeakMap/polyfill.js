@@ -16,7 +16,7 @@
 		});
 
 		// 3. Set map.[[WeakMapData]] to a new empty List.
-		// Polyfill.io - This step was done as part of step two.
+		// This step was done as part of step two.
 
 		// 4. If iterable is not present, let iterable be undefined.
 		var iterable = arguments.length > 0 ? arguments[0] : undefined;
@@ -59,7 +59,7 @@
 					}
 				}
 				try {
-					// Polyfill.io - The try catch accounts for steps: f, h, and j.
+					// The try catch accounts for steps: f, h, and j.
 
 					// e. Let k be Get(nextItem, "0").
 					var k = Get(nextItem, "0");
@@ -75,7 +75,7 @@
 				}
 			}
 		} catch (e) {
-			// Polyfill.io - For user agents which do not have iteration methods on argument objects or arrays, we can special case those.
+			// For user agents which do not have iteration methods on argument objects or arrays, we can special case those.
 			if (Array.isArray(iterable) ||
 				Object.prototype.toString.call(iterable) === '[object Arguments]') {
 				var index;
@@ -246,7 +246,7 @@
 		value: 'WeakMap'
 	});
 
-	// Polyfill.io - Safari 8 implements WeakMap.name but as a non-writable property, which means it would throw an error if we try and write to it here.
+	// Safari 8 implements WeakMap.name but as a non-writable property, which means it would throw an error if we try and write to it here.
 	if (!('name' in WeakMap)) {
 		// 19.2.4.2 name
 		Object.defineProperty(WeakMap, 'name', {

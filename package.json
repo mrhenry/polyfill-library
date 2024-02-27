@@ -1,26 +1,14 @@
 {
-  "name": "polyfill-library",
+  "name": "@mrhenry/polyfill-library",
   "version": "4.8.0",
   "description": "A polyfill combinator",
   "main": "lib/index.js",
-  "contributors": [
-    {
-      "name": "Jonathan Neal",
-      "email": "jonathantneal+github@gmail.com",
-      "url": "http://jonathantneal.com/"
-    },
-    {
-      "name": "FT Origami",
-      "email": "origami.support@ft.com",
-      "url": "https://origami.ft.com"
-    }
-  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/financial-times/polyfill-library.git"
+    "url": "https://github.com/mrhenry/polyfill-library.git"
   },
   "bugs": {
-    "url": "https://github.com/financial-times/polyfill-library/issues"
+    "url": "https://github.com/mrhenry/polyfill-library/issues"
   },
   "scripts": {
     "lint": "eslint polyfills lib tasks test",
@@ -51,7 +39,6 @@
     "/README.md",
     "/SECURITY.md",
     "/lib",
-    "/origami.json",
     "/polyfills/__dist"
   ],
   "dependencies": {

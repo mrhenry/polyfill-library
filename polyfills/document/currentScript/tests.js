@@ -12,8 +12,7 @@ it('returns the current script element when invoked during synchronous evaluatio
 	proclaim.equal(cs.tagName.toUpperCase(), 'SCRIPT');
 	proclaim.equal(cs.ownerDocument, document);
 
-	// The rest of this test is highly dependent on the inner workings of
-	// Polyfill.io's test runner...
+	// The rest of this test is highly dependent on the inner workings of the test runner...
 	proclaim.include(cs.src, 'http://bs-local.com:9876/tests.js');
 	proclaim.equal(cs.innerHTML, '');
 });

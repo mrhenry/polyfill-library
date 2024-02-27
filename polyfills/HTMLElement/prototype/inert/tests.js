@@ -26,7 +26,7 @@ describe('inert', function () {
 
 	it('set', function (done) {
 		var el = document.getElementById('inert-tests-present');
-		// Polyfill.io This needs to be async due to the MutationObserver polyfill being async.
+		// This needs to be async due to the MutationObserver polyfill being async.
 		// MutationObserver polyfill executes in a 30 ms timeout, which is why we run this in a timeout that is longer than 30 ms.
 		setTimeout(function() {
 			el.inert = false;

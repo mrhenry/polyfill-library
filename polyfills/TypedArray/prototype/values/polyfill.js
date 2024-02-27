@@ -24,7 +24,7 @@
 		}
 	}
 
-	// Polyfill.io - Firefox, Chrome and Opera have %TypedArray%.prototype[Symbol.iterator], which is the exact same function as %TypedArray%.prototype.values.
+	// Firefox, Chrome and Opera have %TypedArray%.prototype[Symbol.iterator], which is the exact same function as %TypedArray%.prototype.values.
 	if ('Symbol' in self && 'iterator' in Symbol && typeof self.Int8Array.prototype[Symbol.iterator] === 'function') {
 		createMethodProperties(self.Int8Array.prototype[Symbol.iterator])
 	} else {

@@ -24,7 +24,7 @@ CreateMethodProperty(Array.prototype, 'toSorted', function toSorted(comparefn) {
 		j = j + 1;
 	}
 
-	// Polyfill.io - These steps are handled by native `Array.prototype.sort`, below
+	// These steps are handled by native `Array.prototype.sort`, below
 	// 5. Let SortCompare be a new Abstract Closure with parameters (x, y) that captures comparefn and performs the following steps when called:
 	// a. Return ? CompareArrayElements(x, y, comparefn).
 	// 6. Let sortedList be ? SortIndexedProperties(O, len, SortCompare, read-through-holes).

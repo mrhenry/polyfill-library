@@ -8,7 +8,7 @@ if (
 	!process.env.BROWSERSTACK_ACCESS_KEY
 ) {
 	throw new Error(
-		"BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY must be set in the environment to run tests on BrowserStack.  For more information about how to set this up or for alternative methods of testing, see https://polyfill.io/v2/docs/contributing/testing"
+		"BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY must be set in the environment to run tests on BrowserStack."
 	);
 }
 

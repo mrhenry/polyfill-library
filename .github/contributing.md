@@ -15,7 +15,7 @@ patches and features.
 
 To generate the correct folder structure and files you can run `npm run create-new-polyfill <feature>`, where `<feature>` is the name of the feature. E.G. To create a new polyfill for `Element.prototype.nextElementSibling` it would be `npm run create-new-polyfill Element.prototype.nextElementSibling`.
 
-This documentation will use the [`Element.prototype.nextElementSibling` polyfill as an example](https://github.com/Financial-Times/polyfill-library/tree/master/polyfills/Element/prototype/nextElementSibling).
+This documentation will use the [`Element.prototype.nextElementSibling` polyfill as an example](https://github.com/mrhenry/polyfill-library/tree/main/polyfills/Element/prototype/nextElementSibling).
 
 If you run into any issues please ask us a question, we are happy to help.
 
@@ -64,7 +64,7 @@ List what browsers require the polyfill.
 
 You can check the related Mozilla Developer Network (MDN) page for the compatibility, they also have their browser compatibility data on GitHub.
 
-For example: [MDN nextElementSibling browser support](https://github.com/mdn/browser-compat-data/blob/master/api/NonDocumentTypeChildNode.json#L99-L149)
+For example: [MDN nextElementSibling browser support](https://github.com/mdn/browser-compat-data/blob/main/api/NonDocumentTypeChildNode.json#L99-L149)
 
 Browsers that can be listed:
 - android
@@ -222,7 +222,3 @@ Please also provide a **test plan**, i.e. specify how you verified that your add
 
 **IMPORTANT**: By submitting a patch, you agree to allow the project
 owners to license your work under the terms of the [MIT License](../LICENSE.md) and the [CLA](./contribution_licence_agreement.md).
-
----
-
-_Many thanks to [create-react-app](https://github.com/facebook/create-react-app/blob/master/CONTRIBUTING.md) for the inspiration with this contributing guide_
