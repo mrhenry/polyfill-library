@@ -6,7 +6,6 @@ dependencies = [
 ]
 license = "MIT"
 spec = "https://fetch.spec.whatwg.org/"
-repo = "https://github.com/github/fetch"
 notes = [
 	"Makes use of FormData, FileReader and Blob if they exist. Readable streams not supported. CORS (Cross Origin Resource Sharing) requests do not work in IE 9 or lower."
 ]
@@ -27,7 +26,3 @@ op_mob = "<47"
 safari = "<12.1"
 ios_saf = "<12.2"
 samsung_mob = "<9.0"
-
-[install]
-module = "whatwg-fetch"
-postinstall = "update.task.js"
