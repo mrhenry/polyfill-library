@@ -15,7 +15,7 @@
 		// 4. Let len be obj.[[ArrayLength]].
 		var len = obj.length;
 
-		// Polyfill.io - This is based on https://github.com/inexorabletash/polyfill/blob/716a3f36ca10fad032083014faf1a47c638e2502/typedarray.js#L848-L858
+		// This is based on https://github.com/inexorabletash/polyfill/blob/716a3f36ca10fad032083014faf1a47c638e2502/typedarray.js#L848-L858
 		// 5. NOTE: The following closure performs a numeric comparison rather than the string comparison used in 23.1.3.30.
 		// 6. Let SortCompare be a new Abstract Closure with parameters (x, y) that captures comparefn and performs the following steps when called:
 		// a. Return ? CompareTypedArrayElements(x, y, comparefn).

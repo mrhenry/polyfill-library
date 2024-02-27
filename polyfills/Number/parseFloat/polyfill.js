@@ -1,6 +1,6 @@
 /* global CreateMethodProperty */
 (function (nativeparseFloat, global) {
-	// Polyfill.io - parseFloat is incorrect in older browsers
+	// parseFloat is incorrect in older browsers
 	var parseFloat = function parseFloat(str) {
 		var string = String(str).trim();
 		var result = nativeparseFloat(string);

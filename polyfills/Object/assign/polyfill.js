@@ -24,7 +24,7 @@ CreateMethodProperty(Object, 'assign', function assign(target, source) { // esli
 			keys = [];
 			// b. Else,
 		} else {
-			// Polyfill.io - In order to get strings in ES3 and old V8 working correctly we need to split them into an array ourselves.
+			// In order to get strings in ES3 and old V8 working correctly we need to split them into an array ourselves.
 			// i. Let from be ! ToObject(nextSource).
 			from = Object.prototype.toString.call(nextSource) === '[object String]' ? String(nextSource).split('') : ToObject(nextSource);
 			// ii. Let keys be ? from.[[OwnPropertyKeys]]().
@@ -46,7 +46,7 @@ CreateMethodProperty(Object, 'assign', function assign(target, source) { // esli
 				// ii. If desc is not undefined and desc.[[Enumerable]] is true, then
 				enumerable = desc !== undefined && desc.enumerable === true;
 			} catch (e) {
-				// Polyfill.io - We use Object.prototype.propertyIsEnumerable as a fallback
+				// We use Object.prototype.propertyIsEnumerable as a fallback
 				// because `Object.getOwnPropertyDescriptor(window.location, 'hash')` causes Internet Explorer 11 to crash.
 				enumerable = Object.prototype.propertyIsEnumerable.call(from, nextKey);
 			}

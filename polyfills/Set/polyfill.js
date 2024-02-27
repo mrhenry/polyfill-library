@@ -16,7 +16,7 @@
 		});
 
 		// 3. Set set.[[SetData]] to a new empty List.
-		// Polyfill.io - This step was done as part of step two.
+		// This step was done as part of step two.
 
 		// 4. If iterable is not present, let iterable be undefined.
 		var iterable = arguments.length > 0 ? arguments[0] : undefined;
@@ -56,7 +56,7 @@
 				}
 			}
 		} catch (e) {
-			// Polyfill.io - For user agents which do not have iteration methods on argument objects or arrays, we can special case those.
+			// For user agents which do not have iteration methods on argument objects or arrays, we can special case those.
 			if (Array.isArray(iterable) ||
 				Object.prototype.toString.call(iterable) === '[object Arguments]') {
 				var index;
@@ -258,7 +258,7 @@
 		}
 	);
 
-	// Polyfill.io - We need to define Set.prototype.values before Set.prototype.keys because keys is a reference to values.
+	// We need to define Set.prototype.values before Set.prototype.keys because keys is a reference to values.
 	// 23.2.3.10. Set.prototype.values()
 	var values = function values() {
 		// 1. Let S be the this value.
@@ -319,7 +319,7 @@
 		configurable: true
 	});
 
-	// Polyfill.io - Safari 8 implements Set.name but as a non-configurable property, which means it would throw an error if we try and configure it here.
+	// Safari 8 implements Set.name but as a non-configurable property, which means it would throw an error if we try and configure it here.
 	if (!('name' in Set)) {
 		// 19.2.4.2 name
 		Object.defineProperty(Set, 'name', {
@@ -369,7 +369,7 @@
 
 	// 23.2.5.2. The %SetIteratorPrototype% Object
 	var SetIteratorPrototype = {};
-	//Polyfill.io - We add this property to help us identify what is a set iterator.
+	//We add this property to help us identify what is a set iterator.
 	Object.defineProperty(SetIteratorPrototype, 'isSetIterator', {
 		configurable: false,
 		enumerable: false,

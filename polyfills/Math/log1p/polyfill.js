@@ -3,7 +3,7 @@
 CreateMethodProperty(Math, 'log1p', function log1p(x) {
 	x = Number(x);
 	if (-1 < x && x < 1) {
-		// Polyfill.io - For numbers in the range −1 < x < 1
+		// For numbers in the range −1 < x < 1
 		// Because we are using log, the precision of the result will be identical to log(1).
 		// To fix this we avoid using log and use the Taylor Series expansion of log.
 		// This series converges when |x| < 1. As we can not sum to infinity,

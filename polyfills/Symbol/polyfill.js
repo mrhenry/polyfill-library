@@ -267,7 +267,7 @@
 	} else {
 		descriptor.value = function () {
 			// https://github.com/Financial-Times/polyfill-library/issues/164#issuecomment-486965300
-			// Polyfill.io this code is here for the situation where a browser does not
+			// this code is here for the situation where a browser does not
 			// support strict mode and is executing `Object.prototype.toString.call(null)`.
 			// This code ensures that we return the correct result in that situation however,
 			// this code also introduces a bug where it will return the incorrect result for

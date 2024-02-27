@@ -80,7 +80,7 @@
 				// vi. If mapping is true, then
 				if (mapping) {
 					try {
-						// Polyfill.io - The try catch accounts for step 2.
+						// The try catch accounts for step 2.
 						// 1. Let mappedValue be Call(mapfn, T, « nextValue, k »).
 						var mappedValue = Call(mapfn, T, [nextValue, k]);
 						// 2. If mappedValue is an abrupt completion, return ? IteratorClose(iteratorRecord, mappedValue).
@@ -94,7 +94,7 @@
 					mappedValue = nextValue;
 				}
 				try {
-					// Polyfill.io - The try catch accounts for step ix.
+					// The try catch accounts for step ix.
 					// viii. Let defineStatus be CreateDataPropertyOrThrow(A, Pk, mappedValue).
 					CreateDataPropertyOrThrow(A, Pk, mappedValue);
 					// ix. If defineStatus is an abrupt completion, return ? IteratorClose(iteratorRecord, defineStatus).
@@ -107,7 +107,7 @@
 		}
 		// 6. NOTE: items is not an Iterable so assume it is an array-like object.
 		// 7. Let arrayLike be ! ToObject(items).
-		// Polyfill.io - For Strings we need to split astral symbols into surrogate pairs.
+		// For Strings we need to split astral symbols into surrogate pairs.
 		if (isString(items)) {
 			var arrayLike = stringMatch.call(items, /[\uD800-\uDBFF][\uDC00-\uDFFF]?|[^\uD800-\uDFFF]|./g) || [];
 		} else {

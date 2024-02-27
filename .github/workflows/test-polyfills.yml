@@ -28,7 +28,7 @@ jobs:
     # Fetch master branch to determine which polyfills have changed and need testing.
     - name: Fetch upstream to determine diff
       run: |
-        git remote add upstream https://github.com/Financial-Times/polyfill-library.git
+        git remote add upstream https://github.com/mrhenry/polyfill-library.git
         git fetch --depth=50 upstream master
 
     # <insert integration tests needing secrets>
@@ -83,7 +83,7 @@ jobs:
       # Fetch master branch to determine which polyfills have changed and need testing.
       - name: Fetch upstream to determine diff
         run: |
-          git remote add upstream https://github.com/Financial-Times/polyfill-library.git
+          git remote add upstream https://github.com/mrhenry/polyfill-library.git
           git fetch --depth=50 upstream master
 
       # <insert integration tests needing secrets>

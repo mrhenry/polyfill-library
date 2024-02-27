@@ -128,7 +128,7 @@ node ./scripts/polyfills-serverless.mjs
 
 ## Contributing
 
-Development of polyfill-library happens on GitHub. Read below to learn how you can take part in contributing to Polyfill.io.
+Development of polyfill-library happens on GitHub. Read below to learn how you can take part in contributing.
 
 ### [Contributing Guide][contributing-guide]
 
@@ -146,7 +146,7 @@ npm run test-polyfills -- --features=Array.from --browserstack # Run the tests f
 
 Polyfill-library is [MIT licensed][license].
 
-[contributing-guide]: https://github.com/Financial-Times/polyfill-library/blob/master/.github/contributing.md
-[license]: https://github.com/Financial-Times/polyfill-library/blob/master/LICENSE.md
+[contributing-guide]: https://github.com/mrhenry/polyfill-library/blob/main/.github/contributing.md
+[license]: https://github.com/mrhenry/polyfill-library/blob/main/LICENSE.md
 [license-badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [pull-requests-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg

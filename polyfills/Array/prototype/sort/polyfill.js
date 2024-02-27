@@ -19,7 +19,7 @@ CreateMethodProperty(Array.prototype, "sort", function sort(compareFn) {
 		);
 	}
 
-	// Polyfill.io - the steps below are handled by the native
+	// the steps below are handled by the native
 	// Array.prototype.sort method that we call.
 	// 2.Let obj be ? ToObject(this value).
 	// 3.Let len be ? LengthOfArrayLike(obj).

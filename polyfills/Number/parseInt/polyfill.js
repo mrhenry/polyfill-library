@@ -1,6 +1,6 @@
 /* global CreateMethodProperty */
 (function (nativeParseInt, global) {
-	// Polyfill.io - parseInt is incorrect in older browsers
+	// parseInt is incorrect in older browsers
 	var parseInt = function parseInt(str, radix) {
 		var string = String(str).trim();
 		return nativeParseInt(string, (radix >>> 0) || (/^[-+]?0[xX]/.test(string) ? 16 : 10));
