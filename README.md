@@ -1,18 +1,18 @@
 
-# Polyfill-library &middot; [![license][license-badge]][license] [![PRs Welcome][pull-requests-badge]][contributing-guide]
+# @mhrenry/polyfill-library &middot; [![license][license-badge]][license] [![PRs Welcome][pull-requests-badge]][contributing-guide]
 
 > NodeJS module to create polyfill bundles tailored to individual user-agents
 
 ## Install
 
 ```bash
-npm install polyfill-library --save
+npm install @mrhenry/polyfill-library --save
 ```
 
 ## Usage
 
 ```javascript
-const polyfillLibrary = require('polyfill-library');
+const polyfillLibrary = require('@mrhenry/polyfill-library');
 
 const polyfillBundle = polyfillLibrary.getPolyfillString({
 	uaString: 'Mozilla/5.0 (Windows; U; MSIE 7.0; Windows NT 6.0; en-US)',
@@ -86,7 +86,7 @@ Returns a polyfill bundle as either a utf-8 ReadStream or as a Promise of a utf-
 
 ## AWS Lambda
 
-To use this package in an AWS Lambda function, you need to include the distribution Polyfills located in `./node_modules/polyfill-library/polyfills/__dist` in the root directory of your Lambda. In AWS, Lambdas are executed in the `/var/task/...` directory. Therefore, during execution, the directory where the polyfills will be located will be `/var/task/polyfill-library/__dist`.
+To use this package in an AWS Lambda function, you need to include the distribution Polyfills located in `./node_modules/@mrhenry/polyfill-library/polyfills/__dist` in the root directory of your Lambda. In AWS, Lambdas are executed in the `/var/task/...` directory. Therefore, during execution, the directory where the polyfills will be located will be `/var/task/@mrhenry/polyfill-library/__dist`.
 
 ### Example of a script to copy files
 
@@ -104,7 +104,7 @@ In the example, we will use the directory `./.serverless_nextjs/api-lambda`, whi
 import { copySync } from 'fs-extra/esm';
 import makeDir from 'make-dir';
 
-const DIR_POLYFILLS = './node_modules/polyfill-library/polyfills/__dist';
+const DIR_POLYFILLS = './node_modules/@mrhenry/polyfill-library/polyfills/__dist';
 // const DIR_SERVERLESS = 'YOUR_BUNDELED_LAMBDA_DIRECTORY/polyfills/__dist';
 const DIR_SERVERLESS = './.serverless_nextjs/api-lambda/polyfills/__dist';
 
@@ -128,7 +128,7 @@ node ./scripts/polyfills-serverless.mjs
 
 ## Contributing
 
-Development of polyfill-library happens on GitHub. Read below to learn how you can take part in contributing.
+Development of @mrhenry/polyfill-library happens on GitHub. Read below to learn how you can take part in contributing.
 
 ### [Contributing Guide][contributing-guide]
 
@@ -144,7 +144,7 @@ npm run test-polyfills -- --features=Array.from --browserstack # Run the tests f
 
 ### License
 
-Polyfill-library is [MIT licensed][license].
+@mrhenry/polyfill-library is [MIT licensed][license].
 
 [contributing-guide]: https://github.com/mrhenry/polyfill-library/blob/main/.github/contributing.md
 [license]: https://github.com/mrhenry/polyfill-library/blob/main/LICENSE.md
