@@ -12,7 +12,6 @@ polyfills/UserTiming/polyfill.js
 polyfills/WebAnimations/polyfill.js
 polyfills/ArrayBuffer/polyfill.js
 polyfills/atob/polyfill.js
-polyfills/fetch/polyfill.js
 polyfills/HTMLTemplateElement/polyfill.js
 .nyc_output/
 coverage
