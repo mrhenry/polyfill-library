@@ -1,0 +1,11 @@
+{
+  "name": "@mrhenry/polyfill-library--arraybuffer",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "js-polyfills": "^0.1.40"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

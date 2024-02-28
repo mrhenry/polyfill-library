@@ -10,6 +10,9 @@
   "bugs": {
     "url": "https://github.com/mrhenry/polyfill-library/issues"
   },
+  "workspaces": [
+    "polyfills/**/*"
+  ],
   "scripts": {
     "lint": "eslint polyfills lib tasks test",
     "lint-config": "node tasks/lint-config/index.js",
@@ -51,23 +54,9 @@
   },
   "devDependencies": {
     "@financial-times/polyfill-useragent-normaliser": "^2.0.1",
-    "@formatjs/intl-datetimeformat": "4.1.0",
-    "@formatjs/intl-displaynames": "5.1.0",
-    "@formatjs/intl-getcanonicallocales": "1.6.0",
-    "@formatjs/intl-listformat": "6.1.0",
-    "@formatjs/intl-locale": "2.4.26",
-    "@formatjs/intl-localematcher": "^0.2.21",
-    "@formatjs/intl-numberformat": "7.1.0",
-    "@formatjs/intl-pluralrules": "4.0.20",
-    "@formatjs/intl-relativetimeformat": "9.1.0",
     "@iarna/toml": "^2.2.3",
-    "@juggle/resize-observer": "^3.3.1",
-    "@webcomponents/template": "^1.5.0",
-    "Base64": "^1.0.0",
-    "abort-controller": "^3.0.0",
     "apicache": "^1.6.3",
     "array.prototype.flatmap": "^1.2.1",
-    "audio-context-polyfill": "^1.0.0",
     "browserstack": "1.6.1",
     "browserstack-local": "^1.5.2",
     "chai": "^4.3.4",
@@ -84,8 +73,6 @@
     "globby": "^11.0.0",
     "handlebars": "^4.7.2",
     "hard-rejection": "^2.1.0",
-    "html5shiv": "^3.7.3",
-    "js-polyfills": "^0.1.40",
     "karma": "^6.0.0",
     "karma-browserstack-launcher": "^1.6.0",
     "karma-firefox-launcher": "^2.1.2",
@@ -94,18 +81,12 @@
     "lodash": "^4.17.14",
     "mocha": "^3.5.3",
     "mockery": "^2.1.0",
-    "mutationobserver-shim": "^0.3.2",
     "nyc": "^15.0.0",
-    "picturefill": "^3.0.1",
     "proclaim": "^3.6.0",
-    "seamless-scroll-polyfill": "1.2.4",
     "semver": "^7.3.7",
     "sinon": "^15.0.0",
     "spdx-licenses": "^1.0.0",
     "uglify-js": "^3.17.4",
-    "unorm": "^1.6.0",
-    "usertiming": "^0.1.8",
-    "web-animations-js": "^2.2.5",
     "webdriverio": "^8.0.0"
   },
   "volta": {

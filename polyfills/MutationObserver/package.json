@@ -1,0 +1,11 @@
+{
+  "name": "@mrhenry/polyfill-library--mutationobserver",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "mutationobserver-shim": "^0.3.2"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

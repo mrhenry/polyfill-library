@@ -1,0 +1,11 @@
+{
+  "name": "@mrhenry/polyfill-library--htmlpictureelement",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "picturefill": "^3.0.1"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

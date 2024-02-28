@@ -1,0 +1,11 @@
+{
+  "name": "@mrhenry/polyfill-library--smoothscroll",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "seamless-scroll-polyfill": "1.2.4"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

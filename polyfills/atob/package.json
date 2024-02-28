@@ -1,0 +1,11 @@
+{
+  "name": "@mrhenry/polyfill-library--atob",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "Base64": "^1.0.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
