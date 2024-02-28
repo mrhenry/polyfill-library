@@ -1,13 +1,10 @@
 "use strict";
 
-// Ensure Array.prototype.flatMap exists
-// We support NodeJS 8 and above and Array.prototype.flatMap was added in NodeJS 11
-require('array.prototype.flatmap').shim();
 const intersection = require('lodash').intersection;
 const fs = require('fs');
 const path = require('path');
 const execa = require('execa');
-const globby = require('globby');
+const glob = require('glob');
 const polyfillLibrary = require('../../lib');
 const feature = process.argv.slice(2)[0];
 
@@ -43,7 +40,7 @@ function findDifferenceInObjects(inclusionObject, exclusionObject) {
 const TOML = require('@iarna/toml');
 const UA = require('@financial-times/polyfill-useragent-normaliser');
 async function findAllThirdPartyPolyfills () {
-	const configs = await globby(['polyfills/**/config.toml', '!polyfills/__dist']);
+	const configs = glob.sync('polyfills/**/config.toml', { ignore: ['polyfills/__dist/**'] })
 	return configs.map(file => {
 		const config = TOML.parse(fs.readFileSync(path.join(__dirname, '../../', file), 'utf-8'));
 		return config.install && config.install.module;

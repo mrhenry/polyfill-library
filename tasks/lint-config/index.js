@@ -11,7 +11,7 @@ const { mdnBrowserKey } = require('./mdn-browser-key');
 const { parseRange, replaceInRange } = require('./parse-range');
 const { forEachPolyfillConfigPath } = require('./for-each-polyfill-config');
 const assert = require('assert');
-const { fetchMCD } = require('./mcd');
+const { fetchBCD } = require('./bcd');
 const { ChromeToOpera, ChromeAndroidToOperaAndroid, SafariToIOS, ChromeAndroidToSamsung } = require('./static-mapping');
 
 const deadBrowsers = new Set(['ie', 'ie_mob', 'android', 'bb', 'op_mini', 'edge', 'edge_mob']);
@@ -40,7 +40,7 @@ function processLog(logs) {
 	}
 }
 
-fetchMCD().then((browserData) => {
+fetchBCD().then((browserData) => {
 	return forEachPolyfillConfigPath((configPath) => {
 		if (configPath === 'polyfills/IntersectionObserverEntry/config.toml') {
 			// Very specific polyfill and doesn't fit the config linter.

@@ -1,0 +1,38 @@
+aliases = [ "Intl.~locale.en-UG" ]
+dependencies = [
+  "Intl.DateTimeFormat",
+  "Intl.Locale",
+  "Intl.NumberFormat",
+  "Intl.NumberFormat.~locale.en-UG",
+  "Intl.getCanonicalLocales",
+  "Object.assign",
+  "Object.keys",
+  "Object.setPrototypeOf",
+  "Set",
+  "WeakMap"
+]
+license = "MIT"
+spec = "https://tc39.es/ecma402/#datetimeformat-objects"
+repo = "https://github.com/formatjs/formatjs/tree/master/packages/intl-datetimeformat"
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat"
+notes = [
+  "Locales must be specified separately by prefixing the locale name with `Intl.DateTimeFormat.~locale`, eg `Intl.DateTimeFormat.~locale.en-GB`."
+]
+
+[browsers]
+android = "*"
+chrome = "<76"
+edge = "*"
+edge_mob = "*"
+firefox = "<91"
+firefox_mob = "<91"
+ie = ">=9"
+ie_mob = ">=9"
+opera = "<63"
+op_mob = "<54"
+safari = "<14.1"
+ios_saf = "<14.5"
+samsung_mob = "<12.0"
+
+[test]
+ci = false

@@ -2,13 +2,13 @@
 
 const path = require('path');
 const execa = require('execa');
-const globby = require('globby');
+const glob = require('glob');
 
 (async function () {
 	let feature;
 	try {
 		// This turns ./polyfills/Array/from/tests.js into Array.from, which is the format that the Karma config accepts in the `--features` flag.
-		const polyfillsWhichHaveTests = await globby(['polyfills/**/tests.js', '!polyfills/__dist'], { transform: (entry) => entry.replace('polyfills/', '').replace('/tests.js','').replace(/\//g, '.') });
+		const polyfillsWhichHaveTests = glob.sync('polyfills/**/tests.js', { ignore: ['polyfills/__dist/**'] }).map((entry) => entry.replace('polyfills/', '').replace('/tests.js', '').replace(/\//g, '.'));
 		for (feature of polyfillsWhichHaveTests) {
 			console.log(`Testing ${feature}`);
 			const result = execa('karma', ['start', path.join(__dirname, '../../', 'karma.conf.js'), `--browserstack`, `--features=${feature}`], {
