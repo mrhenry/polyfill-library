@@ -1,6 +1,6 @@
 {
   "name": "@mrhenry/polyfill-library",
-  "version": "4.8.1",
+  "version": "5.0.0",
   "description": "A polyfill combinator",
   "main": "lib/index.js",
   "repository": {
@@ -13,7 +13,7 @@
   "scripts": {
     "lint": "eslint polyfills lib tasks test",
     "lint-config": "node tasks/lint-config/index.js",
-    "clean": "rimraf ./polyfills/__dist && node tasks/clean",
+    "clean": "node tasks/clean",
     "build": "npm run clean && node tasks/updatesources && node tasks/buildsources/buildsources",
     "watch": "npm run clean && node tasks/updatesources && node tasks/buildsources/watchsource",
     "fmt": "eslint . --fix",
@@ -24,10 +24,9 @@
     "test-node": "nyc mocha test/node/**/*.js",
     "test-node-unit": "mocha test/unit --recursive",
     "test": "npm run build && npm run test-node && npm run test-node-unit && npm run test-polyfills",
-    "prepublishOnly": "npm run build && mv polyfills/__dist __dist && rimraf polyfills && mkdir polyfills && mv __dist polyfills/__dist",
+    "prepublishOnly": "npm run build",
     "create-new-polyfill": "node ./tasks/create-new-polyfill.js",
-    "update-browserstack-list": "node ./tasks/updatebrowserstacklist.js",
-    "version": "auto-changelog -p"
+    "update-browserstack-list": "node ./tasks/updatebrowserstacklist.js"
   },
   "license": "MIT",
   "engines": {
@@ -69,8 +68,6 @@
     "apicache": "^1.6.3",
     "array.prototype.flatmap": "^1.2.1",
     "audio-context-polyfill": "^1.0.0",
-    "auto-changelog": "^2.2.1",
-    "bluebird": "^3.7.2",
     "browserstack": "1.6.1",
     "browserstack-local": "^1.5.2",
     "chai": "^4.3.4",
@@ -101,7 +98,6 @@
     "nyc": "^15.0.0",
     "picturefill": "^3.0.1",
     "proclaim": "^3.6.0",
-    "rimraf": "^3.0.0",
     "seamless-scroll-polyfill": "1.2.4",
     "semver": "^7.3.7",
     "sinon": "^15.0.0",
