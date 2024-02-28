@@ -1,11 +1,5 @@
 "use strict";
 
-global.Promise = require("bluebird");
-// Enable long stack traces
-Promise.config({
-	longStackTraces: true
-});
-
 const wait = duration => new Promise(resolve => setTimeout(resolve, duration));
 
 // By default, promises fail silently if you don't attach a .catch() handler to them.
