@@ -3,6 +3,7 @@
 const {assert} = require('chai');
 const mockery = require('mockery');
 const setsToArrays = require('../../utils/sets-to-arrays');
+const realUA = require('@financial-times/polyfill-useragent-normaliser');
 
 describe("polyfillio", () => {
 	const packageMock = {};
@@ -81,11 +82,6 @@ describe("polyfillio", () => {
 			const polyfillio = require('../../../lib');
 			assert.isFunction(polyfillio.getPolyfillString);
 		});
-
-		it('normalizeUserAgent is an exported function', () => {
-			const polyfillio = require('../../../lib');
-			assert.isFunction(polyfillio.normalizeUserAgent);
-		});
 	});
 
 	describe('.listAllPolyfills()', () => {
@@ -114,159 +110,258 @@ describe("polyfillio", () => {
 		});
 	});
 
-	describe('.normalizeUserAgent()', () => {
-		it('calls and returns UA.normalize() with passed argument and UA', () => {
-			const polyfillio = require('../../../lib');
-			UA.normalize.returns('return value for UA.normalize');
-			assert.equal(polyfillio.normalizeUserAgent('test'), 'return value for UA.normalize');
-			assert.calledOnce(UA.normalize);
-			assert.calledWithExactly(UA.normalize, 'test');
-		});
-	});
-
 	describe('.getOptions(opts)', () => {
+		it('returns fallback UA objects', () => {
+			const polyfillio = require('../../../lib');
+
+			const actual = polyfillio.getOptions();
+
+			assert.deepStrictEqual({
+				family: actual.ua.getFamily(),
+				satisfies: actual.ua.satisfies("14.0.0"),
+				unknown: actual.ua.isUnknown(),
+			}, {
+				family: 'other',
+				satisfies: false,
+				unknown: true,
+			});
+		});
+
 		it('returns the default options if called without any arguments', () => {
 			const polyfillio = require('../../../lib');
-			assert.deepStrictEqual(polyfillio.getOptions(), {
+
+			const actual = polyfillio.getOptions();
+
+			assert.deepStrictEqual({
+				...actual,
+				ua: undefined
+			}, {
 				callback: false,
-				uaString: '',
+				ua: undefined,
 				minify: true,
 				unknown: 'polyfill',
 				features: {},
 				excludes: [],
-				rum: false
 			});
 		});
 
 		it('does not assign a default value if the property exists in the argument', () => {
 			const polyfillio = require('../../../lib');
-			assert.deepStrictEqual(polyfillio.getOptions({}), {
-				callback: false,
-				uaString: '',
-				minify: true,
-				unknown: 'polyfill',
-				features: {},
-				excludes: [],
-				rum: false
-			});
-			assert.deepStrictEqual(polyfillio.getOptions({
-				callback: 'app'
-			}), {
-				callback: 'app',
-				uaString: '',
-				minify: true,
-				unknown: 'polyfill',
-				features: {},
-				excludes: [],
-				rum: false
-			});
-			assert.deepStrictEqual(polyfillio.getOptions({
-				callback: ''
-			}), {
-				callback: false,
-				uaString: '',
-				minify: true,
-				unknown: 'polyfill',
-				features: {},
-				excludes: [],
-				rum: false
-			});
-			assert.deepStrictEqual(polyfillio.getOptions({
-				callback: 'hello world'
-			}), {
-				callback: false,
-				uaString: '',
-				minify: true,
-				unknown: 'polyfill',
-				features: {},
-				excludes: [],
-				rum: false
-			});
-			assert.deepStrictEqual(polyfillio.getOptions({
-				uaString: 'example'
-			}), {
-				callback: false,
-				uaString: 'example',
-				minify: true,
-				unknown: 'polyfill',
-				features: {},
-				excludes: [],
-				rum: false
-			});
-			assert.deepStrictEqual(polyfillio.getOptions({
-				minify: false
-			}), {
-				callback: false,
-				uaString: '',
-				minify: false,
-				unknown: 'polyfill',
-				features: {},
-				excludes: [],
-				rum: false
-			});
-			assert.deepStrictEqual(polyfillio.getOptions({
-				unknown: 'ignore'
-			}), {
-				callback: false,
-				uaString: '',
-				minify: true,
-				unknown: 'ignore',
-				features: {},
-				excludes: [],
-				rum: false
-			});
-			assert.deepStrictEqual(polyfillio.getOptions({
-				features: {
-					'Array.of': {}
-				}
-			}), {
-				callback: false,
-				uaString: '',
-				minify: true,
-				unknown: 'polyfill',
-				features: {
-					'Array.of': {
-						flags: new Set
+
+			{
+				const actual = polyfillio.getOptions({});
+
+				assert.deepStrictEqual({
+					...actual,
+					ua: undefined
+				}, {
+					callback: false,
+					ua: undefined,
+					minify: true,
+					unknown: 'polyfill',
+					features: {},
+					excludes: [],
+				});
+			}
+
+			{
+				const actual = polyfillio.getOptions({
+					callback: 'app'
+				});
+
+				assert.deepStrictEqual({
+					...actual,
+					ua: undefined
+				}, {
+					callback: 'app',
+					ua: undefined,
+					minify: true,
+					unknown: 'polyfill',
+					features: {},
+					excludes: [],
+				});
+			}
+
+			{
+				const actual = polyfillio.getOptions({
+					callback: ''
+				});
+
+				assert.deepStrictEqual({
+					...actual,
+					ua: undefined
+				}, {
+					callback: false,
+					ua: undefined,
+					minify: true,
+					unknown: 'polyfill',
+					features: {},
+					excludes: [],
+				});
+			}
+
+			{
+				const actual = polyfillio.getOptions({
+					callback: 'hello world'
+				});
+
+				assert.deepStrictEqual({
+					...actual,
+					ua: undefined
+				}, {
+					callback: false,
+					ua: undefined,
+					minify: true,
+					unknown: 'polyfill',
+					features: {},
+					excludes: [],
+				});
+			}
+
+			{
+				const actual = polyfillio.getOptions({
+					ua: new realUA('example')
+				});
+
+				assert.deepStrictEqual({
+					...actual,
+					ua: {
+						family: actual.ua.getFamily(),
+						isUnknown: actual.ua.isUnknown(),
 					}
-				},
-				excludes: [],
-				rum: false
-			});
-			assert.deepStrictEqual(polyfillio.getOptions({
-				excludes: ['Array.of']
-			}), {
-				callback: false,
-				uaString: '',
-				minify: true,
-				unknown: 'polyfill',
-				features: {},
-				excludes: ['Array.of'],
-				rum: false
-			});
-			assert.deepStrictEqual(polyfillio.getOptions({
-				rum: true
-			}), {
-				callback: false,
-				uaString: '',
-				minify: true,
-				unknown: 'polyfill',
-				features: {},
-				excludes: [],
-				rum: true
-			});
+				}, {
+					callback: false,
+					ua: {
+						family: 'other',
+						isUnknown: true,
+					},
+					minify: true,
+					unknown: 'polyfill',
+					features: {},
+					excludes: [],
+				});
+			}
+
+			{
+				const actual = polyfillio.getOptions({
+					ua: new realUA('chrome/38')
+				});
+
+				assert.deepStrictEqual({
+					...actual,
+					ua: {
+						family: actual.ua.getFamily(),
+						isUnknown: actual.ua.isUnknown(),
+					}
+				}, {
+					callback: false,
+					ua: {
+						family: 'chrome',
+						isUnknown: false,
+					},
+					minify: true,
+					unknown: 'polyfill',
+					features: {},
+					excludes: [],
+				});
+			}
+
+			{
+				const actual = polyfillio.getOptions({
+					minify: false
+				});
+
+				assert.deepStrictEqual({
+					...actual,
+					ua: undefined
+				}, {
+					callback: false,
+					ua: undefined,
+					minify: false,
+					unknown: 'polyfill',
+					features: {},
+					excludes: [],
+				});
+			}
+
+			{
+				const actual = polyfillio.getOptions({
+					unknown: 'ignore'
+				});
+
+				assert.deepStrictEqual({
+					...actual,
+					ua: undefined
+				}, {
+					callback: false,
+					ua: undefined,
+					minify: true,
+					unknown: 'ignore',
+					features: {},
+					excludes: [],
+				});
+			}
+
+			{
+				const actual = polyfillio.getOptions({
+					features: {
+						'Array.of': {}
+					}
+				});
+
+				assert.deepStrictEqual({
+					...actual,
+					ua: undefined
+				}, {
+					callback: false,
+					ua: undefined,
+					minify: true,
+					unknown: 'polyfill',
+					features: {
+						'Array.of': {
+							flags: new Set
+						}
+					},
+					excludes: [],
+				});
+			}
+
+			{
+				const actual = polyfillio.getOptions({
+					excludes: ['Array.of']
+				});
+
+				assert.deepStrictEqual({
+					...actual,
+					ua: undefined
+				}, {
+					callback: false,
+					ua: undefined,
+					minify: true,
+					unknown: 'polyfill',
+					features: {},
+					excludes: ['Array.of'],
+				});
+			}
 		});
 
 		it('converts feature flag Arrays into Sets', () => {
 			const polyfillio = require('../../../lib');
-			assert.deepStrictEqual(polyfillio.getOptions({
+
+			const actual = polyfillio.getOptions({
 				features: {
 					'Array.from': {
 						flags: ['a', 'b', 'c']
 					}
 				}
-			}), {
+			});
+
+			assert.deepStrictEqual({
+				...actual,
+				ua: undefined
+			}, {
 				callback: false,
-				uaString: '',
+				ua: undefined,
 				minify: true,
 				unknown: 'polyfill',
 				features: {
@@ -275,7 +370,6 @@ describe("polyfillio", () => {
 					}
 				},
 				excludes: [],
-				rum: false
 			});
 		});
 	});
@@ -299,35 +393,13 @@ describe("polyfillio", () => {
 					'__proto__': {},
 					'toLocaleString': {},
 				},
-				uaString: 'ie/9'
+				ua: new UA('ie/9')
 			};
 			try {
 				await polyfillio.getPolyfills(options);
 			} catch (error) {
 				assert.fail(error, undefined, `Expected 'await polyfillio.getPolyfills(options)' to not throw an error but it threw "${error.message}"  -- ${error.stack}`)
 			}
-		});
-
-		describe('when options.uaString is not set', () => {
-			it('calls UA with options.uAString set to an empty string', () => {
-				const polyfillio = require('../../../lib');
-				const options = {};
-				return polyfillio.getPolyfills(options).then(() => {
-					assert.calledWithExactly(UA, '');
-				});
-			});
-		});
-
-		describe('when options.uaString is set', () => {
-			it('calls UA with options.uAString', () => {
-				const polyfillio = require('../../../lib');
-				const options = {
-					uaString: 'chrome/38'
-				};
-				return polyfillio.getPolyfills(options).then(() => {
-					assert.calledWithExactly(UA, 'chrome/38');
-				});
-			});
 		});
 
 		it("should remove features not appropriate for the current UA", () => {
@@ -345,7 +417,7 @@ describe("polyfillio", () => {
 				features: {
 					'Array.prototype.map': {}
 				},
-				uaString: 'ie/9'
+				ua: new UA('ie/9')
 			};
 
 			return polyfillio.getPolyfills(options).then(result => {
@@ -370,7 +442,7 @@ describe("polyfillio", () => {
 						flags: new Set(['always'])
 					}
 				},
-				uaString: 'ie/9'
+				ua: new UA('ie/9')
 			};
 			const expectedResult = {
 				'Array.prototype.map': {
@@ -421,7 +493,7 @@ describe("polyfillio", () => {
 						flags: new Set()
 					}
 				},
-				uaString: 'ie/8'
+				ua: new UA('ie/8')
 			};
 
 			return polyfillio.getPolyfills(input).then((polyfills) => {

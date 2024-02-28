@@ -1,6 +1,8 @@
 'use strict';
 
-const {assert} = require('chai');
+const { assert } = require('chai');
+const UA = require("@financial-times/polyfill-useragent-normaliser");
+
 const appVersion = require("../../../package.json").version;
 const setsToArrays = require('../../utils/sets-to-arrays');
 
@@ -16,7 +18,7 @@ describe("polyfillio", function () {
 				features: {
 					'Promise': {}
 				},
-				uaString: 'chrome/45'
+				ua: new UA('chrome/45')
 			};
 			return polyfillio.getPolyfills(input).then(result => assert.deepEqual(setsToArrays(result), {}));
 		});
@@ -29,7 +31,7 @@ describe("polyfillio", function () {
 					'es7': {},
 				},
 				excludes: ['Array.prototype.values'],
-				uaString: 'chrome/61'
+				ua: new UA('chrome/61')
 			};
 			return polyfillio.getPolyfills(input).then(result => assert.deepEqual(setsToArrays(result), {
 				"Array.prototype.sort": {
@@ -65,7 +67,7 @@ describe("polyfillio", function () {
 				features: {
 					'Math.sign': {}
 				},
-				uaString: ''
+				ua: new UA('')
 			}).then(result => assert.deepEqual(setsToArrays(result), {
 				'Math.sign': {
 					"flags": ["gated"],
@@ -87,7 +89,7 @@ describe("polyfillio", function () {
 				features: {
 					'Math.sign': {}
 				},
-				uaString: '',
+				ua: new UA(''),
 				unknown: 'ignore',
 			}).then(result => assert.deepEqual(setsToArrays(result), {}));
 		});
@@ -98,7 +100,7 @@ describe("polyfillio", function () {
 					'Math.sign': {}
 				},
 				unknown: 'polyfill',
-				uaString: ''
+				ua: new UA('')
 			}).then(result => assert.deepEqual(setsToArrays(result), {
 				'Math.sign': {
 					"flags": ["gated"],
@@ -115,8 +117,8 @@ describe("polyfillio", function () {
 			}));
 		});
 
-		it("should return polyfills for unknown UA when unknown is set to `polyfill` and `uaString` param is not set", () => {
-			// ... even when `uaString` param is missing entirely
+		it("should return polyfills for unknown UA when unknown is set to `polyfill` and `ua` param is not set", () => {
+			// ... even when `ua` param is missing entirely
 			return polyfillio.getPolyfills({
 				features: {
 					'Math.sign': {}
@@ -145,7 +147,7 @@ describe("polyfillio", function () {
 						flags: []
 					}
 				},
-				uaString: 'ie/8'
+				ua: new UA('ie/8')
 			}).then(result => assert(Object.keys(result).length > 0));
 		});
 
@@ -154,7 +156,7 @@ describe("polyfillio", function () {
 				features: {
 					"Math.fround": {}
 				},
-				uaString: "ie/9"
+				ua: new UA("ie/9")
 			});
 
 			assert.deepEqual(setsToArrays(noExcludes), {
@@ -180,7 +182,7 @@ describe("polyfillio", function () {
 					"Math.fround": {}
 				},
 				excludes: ["ArrayBuffer", "non-existent-feature"],
-				uaString: "ie/9"
+				ua: new UA("ie/9")
 			});
 
 			assert.deepEqual(setsToArrays(excludes), {
@@ -206,7 +208,7 @@ describe("polyfillio", function () {
 					features: {
 						default: {}
 					},
-					uaString: 'chrome/30'
+					ua: new UA('chrome/30')
 				}),
 				polyfillio.getPolyfillString({
 					features: {
@@ -214,7 +216,7 @@ describe("polyfillio", function () {
 							flags: new Set(['gated'])
 						}
 					},
-					uaString: 'chrome/30'
+					ua: new UA('chrome/30')
 				})
 			]).then(results => {
 				assert.notEqual(setsToArrays(results[0]), setsToArrays(results[1]));
@@ -231,13 +233,13 @@ describe("polyfillio", function () {
 					features: {
 						default: {}
 					},
-					uaString: 'chrome/30',
+					ua: new UA('chrome/30'),
 					minify: false
 				}, polyfillio.getPolyfillString({
 					features: {
 						default: {}
 					},
-					uaString: 'chrome/30',
+					ua: new UA('chrome/30'),
 					minify: true
 				}))
 			]).then(results => {
@@ -257,7 +259,7 @@ describe("polyfillio", function () {
 				features: {
 					default: {}
 				},
-				uaString: 'chrome/30',
+				ua: new UA('chrome/30'),
 				stream: true,
 				minify: false
 			});
@@ -279,7 +281,7 @@ describe("polyfillio", function () {
 				features: {
 					default: {}
 				},
-				uaString: 'ie/9',
+				ua: new UA('ie/9'),
 				stream: true,
 				minify: false
 			});
@@ -295,7 +297,7 @@ describe("polyfillio", function () {
 					features: {
 						default: {}
 					},
-					uaString: 'ie/9',
+					ua: new UA('ie/9'),
 					stream: true,
 					minify: false
 				});
