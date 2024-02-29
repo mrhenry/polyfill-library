@@ -19,7 +19,7 @@ jobs:
     steps:
 
     - name: Branch based PR checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         fetch-depth: 50
 
@@ -30,7 +30,7 @@ jobs:
         git fetch --depth=50 upstream main
 
     # <insert integration tests needing secrets>
-    - uses: actions/setup-node@v2.2.0
+    - uses: actions/setup-node@v4
       with:
         node-version: 16.x
         cache: 'npm'
@@ -42,7 +42,7 @@ jobs:
 
     - name: cache __dist
       id: cache-dist
-      uses: actions/cache@v2.1.5
+      uses: actions/cache@v4
       with:
         path: polyfills/__dist
         key: cache--dist--${{ env.commit-sha }}

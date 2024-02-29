@@ -1,0 +1,48 @@
+name: "codeql"
+
+on:
+  schedule:
+    - cron: '0 4 * * 1'
+  pull_request:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        queries: security-extended
+        config: |
+          paths-ignore:
+          - polyfills/Intl
+          - polyfills/__dist/Intl
+          - polyfills/__dist/Intl.*
+
+    - name: setup node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 16.x
+        cache: 'npm'
+
+    - run: npm ci
+    - run: npm run build
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3

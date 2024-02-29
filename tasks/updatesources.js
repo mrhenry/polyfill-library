@@ -15,28 +15,15 @@ const loadSource = polyfillPaths => {
 const installPolyfill = config => {
 	const polyfillOutputFolder = path.dirname(config.src);
 	const polyfillOutputPath = path.join(polyfillOutputFolder, 'polyfill.js');
-	const polyfillAlreadyExists = fs.existsSync(polyfillOutputPath);
 
-	const polyfillSourcePaths = (config.install.paths || [''])
-		.map(p => require.resolve(path.join(config.install.module, p), [polyfillOutputFolder]))
-	;
+	const polyfillSourcePaths = (config.install.paths || ['']).map((p) => {
+		return require.resolve(path.join(config.install.module, p), [polyfillOutputFolder])
+	});
+
 	const newPolyfill = loadSource(polyfillSourcePaths);
 
-	const logPrefix = path.basename(polyfillOutputFolder) + ': ';
-	if (polyfillAlreadyExists) {
-		const currentPolyfill = fs.readFileSync(polyfillOutputPath, 'utf-8');
-		if (newPolyfill === currentPolyfill) {
-			console.log(logPrefix + 'No change');
-			return;
-		} else {
-			console.log(logPrefix + 'Polyfill updated, replacing old version');
-			fs.unlinkSync(polyfillOutputPath);
-		}
-	} else {
-		console.log(logPrefix + 'New polyfill');
-	}
+	polyfillSourcePaths.map(p => console.log('  from ' + path.relative(cwd, p)));
 
-	polyfillSourcePaths.map(p => console.log('  from '+path.relative(cwd, p)));
 	fs.writeFileSync(polyfillOutputPath, newPolyfill);
 
 	if (config.install.postinstall) {
