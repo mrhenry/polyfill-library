@@ -18,12 +18,12 @@ jobs:
         browser: [ ie, android, chrome, edge, firefox, ios, safari ]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
 
-      - uses: actions/setup-node@v2.2.0
+      - uses: actions/setup-node@v4
         with:
           node-version: 16.x
           cache: 'npm'
@@ -35,7 +35,7 @@ jobs:
 
       - name: cache __dist
         id: cache-dist
-        uses: actions/cache@v2.1.5
+        uses: actions/cache@v4
         with:
           path: polyfills/__dist
           key: cache--dist--${{ env.commit-sha }}
@@ -46,7 +46,7 @@ jobs:
       - run: echo "${{ matrix.browser }}" > $GITHUB_WORKSPACE/witness-${{ matrix.browser }}
       - name: record ${{ matrix.browser }} witness
         id: witness
-        uses: actions/cache@v2.1.5
+        uses: actions/cache@v4
         with:
           path: $GITHUB_WORKSPACE/witness-${{ matrix.browser }}
           key: witness--weekly-tests--${{ matrix.browser }}--${{ env.commit-sha }}
