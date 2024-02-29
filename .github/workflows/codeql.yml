@@ -29,6 +29,9 @@ jobs:
       with:
         languages: ${{ matrix.language }}
         queries: security-extended
+        config: |
+          paths-ignore:
+          - polyfills/Intl
 
     - name: setup node
       uses: actions/setup-node@v4
