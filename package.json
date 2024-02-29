@@ -66,13 +66,11 @@
     "handlebars": "^4.7.2",
     "hard-rejection": "^2.1.0",
     "lodash": "^4.17.14",
-    "mocha": "^3.5.3",
     "mockery": "^2.1.0",
     "nyc": "^15.0.0",
     "proclaim": "^3.6.0",
     "semver": "^7.3.7",
     "sinon": "^15.0.0",
-    "spdx-licenses": "^1.0.0",
     "uglify-js": "^3.17.4",
     "webdriverio": "^8.0.0"
   },

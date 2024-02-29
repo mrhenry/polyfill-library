@@ -68,10 +68,10 @@ app.get(["/empty-document.html"], cacheFor1Day, (request, response) => {
 });
 app.get(["/"], createEndpoint(directorTemplate));
 app.get("/mocha.js", cacheFor1Day,(request, response) => {
-	response.sendFile(require.resolve("mocha/mocha.js"));
+	response.sendFile(path.resolve(__dirname, "./mocha.js"));
 });
 app.get("/mocha.css", cacheFor1Day, (request, response) => {
-	response.sendFile(require.resolve("mocha/mocha.css"));
+	response.sendFile(path.resolve(__dirname, "./mocha.css"));
 });
 app.get("/proclaim.js", cacheFor1Day, (request, response) => {
 	response.sendFile(require.resolve("proclaim/lib/proclaim.js"), "utf-8");

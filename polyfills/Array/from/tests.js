@@ -5,7 +5,7 @@ it('is a function', function () {
 });
 
 it('has correct arity', function () {
-	proclaim.arity(Array.from, 1);
+	proclaim.arity(Array.from, 2);
 });
 
 it('has correct name', function () {
