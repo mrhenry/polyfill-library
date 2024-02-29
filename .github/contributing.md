@@ -145,25 +145,6 @@ Start the build watcher :
 
 Or build once using `npm run build`.
 
-### Testing locally
-
-You can run the tests locally in a headless browser, e.g. if you don't have BrowserStack
-credentials, are working offline, or want to run the tests in an isolated environment
-without access to your host machine.
-
-To run the `URL` tests once :
-
-```
-$ npm run test-polyfills -- --features=URL --browsers=FirefoxHeadless --singleRun=true
-
-...
-Finished in 0.019 secs
-
-SUMMARY:
-✔ 53 tests completed
-```
-
-### Testing with BrowserStack
 
 After a file change you will see :
 
@@ -185,14 +166,14 @@ Only you will have access to these credentials.
 
 1. visit `Settings` > `Actions` on github and make sure actions are allowed to run.
 2. visit `Settings` > `Secrets` on github and add credentials for Browserstack.
-3. visit `Actions` on github and disable all workflows except `Test From Fork`.
+3. visit `Actions` on github and disable all workflows except `Test Polyfills`.
 
 These credentials are required :
 - `BROWSERSTACK_ACCESS_KEY`
 - `BROWSERSTACK_USERNAME`
 
 When you want to verify your changes just push to your fork and visit `Actions`.
-Select `Test From Fork` and click `Run workflow` selecting the branch where you pushed your changes.
+Select `Test Polyfills` and click `Run workflow` selecting the branch where you pushed your changes.
 
 Notes :
 - tests can take a long time to run (>1h for a full run)

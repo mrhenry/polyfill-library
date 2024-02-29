@@ -1,8 +1,8 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const child_process = require('child_process');
+const fs = require('node:fs');
+const path = require('node:path');
+const child_process = require('node:child_process');
 
 const source = path.join(__dirname, '../../polyfills');
 const destination = path.join(source, '__dist');
@@ -27,7 +27,7 @@ module.exports = function build(feature) {
 			const queues = [];
 
 			const maxProc = Math.max(
-				require("os").cpus().length,
+				require("node:os").cpus().length,
 				6
 			);
 

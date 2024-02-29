@@ -57,6 +57,8 @@ it('works as expected when called with positive integers', function () {
 	} catch (err) {
 		proclaim.almostEqual(Math.cosh(709), 4.109203730777486e307, -307);
 	}
+
+	// eslint-disable-next-line no-loss-of-precision
 	proclaim.isTrue(Math.cosh(710) >= 1.1169973830808552e+308);
 	proclaim.notStrictEqual(Math.cosh(710), Infinity);
 	proclaim.isNotNaN(Math.cosh(710));

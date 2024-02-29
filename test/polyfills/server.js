@@ -3,10 +3,10 @@
 require("hard-rejection/register");
 const semver = require("semver");
 const polyfillio = require('../../lib');
-const fs = require("fs");
-const promisify = require("util").promisify;
+const fs = require("node:fs");
+const promisify = require("node:util").promisify;
 const readFile = promisify(fs.readFile);
-const path = require("path");
+const path = require("node:path");
 const handlebars = require("handlebars");
 const UA = require("@financial-times/polyfill-useragent-normaliser");
 const normalizeUserAgent = UA.normalize;

@@ -1,6 +1,6 @@
 'use strict';
 
-const { assert } = require('chai');
+const assert = require('node:assert');
 const UA = require("@financial-times/polyfill-useragent-normaliser");
 const polyfillLibrary = require('../..');
 

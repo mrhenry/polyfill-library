@@ -28,5 +28,7 @@ it('works as expected', function () {
 	proclaim.strictEqual(Math.expm1(709.8), Infinity);
 	proclaim.strictEqual(Math.expm1(0), 0);
 	proclaim.strictEqual(Math.expm1(Math.pow(2, -55)), Math.pow(2, -55));
+
+	// eslint-disable-next-line no-loss-of-precision
 	proclaim.almostEqual(Math.expm1(10), 22025.4657948067165168, -10);
 });

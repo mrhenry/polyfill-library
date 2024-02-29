@@ -7,7 +7,8 @@
 	},
 	"parserOptions": {
 		"ecmaVersion": 3,
-		"sourceType": "script"
+		"sourceType": "script",
+		"allowReserved": true
 	},
 	"rules": {
 		"comma-dangle": ["error", "never"],
@@ -25,7 +26,8 @@
 		{
 			"files": ["update.task.js"],
 			"parserOptions": {
-				"ecmaVersion": 2018
+				"ecmaVersion": 2018,
+				"allowReserved": false
 			},
 			"env": {
 				"es6": true,

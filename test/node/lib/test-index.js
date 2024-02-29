@@ -1,6 +1,6 @@
 'use strict';
 
-const { assert } = require('chai');
+const assert = require('node:assert');
 const UA = require("@financial-times/polyfill-useragent-normaliser");
 
 const appVersion = require("../../../package.json").version;
@@ -253,7 +253,7 @@ describe("polyfillio", function () {
 		});
 
 		it('should support streaming output', done => {
-			const ReadableStream = require('stream').Readable;
+			const ReadableStream = require('node:stream').Readable;
 			const buf = [];
 			const s = polyfillio.getPolyfillString({
 				features: {
@@ -263,12 +263,12 @@ describe("polyfillio", function () {
 				stream: true,
 				minify: false
 			});
-			assert.instanceOf(s, ReadableStream);
+			assert.ok(s instanceof ReadableStream);
 			s.on('data', chunk => buf.push(chunk));
 			s.on('end', () => {
 				const bundle = buf.join('');
-				assert.include(bundle, 'Polyfill service');
-				assert.include(bundle, "function(self, undefined)");
+				assert.ok(bundle.includes('Polyfill service'));
+				assert.ok(bundle.includes("function(self, undefined)"));
 				done();
 			});
 		});

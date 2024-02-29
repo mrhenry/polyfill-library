@@ -1,12 +1,9 @@
 "use strict";
 
-const path = require("path");
-const fs = require("fs");
+const path = require("node:path");
+const fs = require("node:fs");
 const BrowserStack = require("browserstack");
-const dotenv = require("dotenv");
-dotenv.config({
-	path: path.join(__dirname, "../../.env")
-});
+
 const browserStackCredentials = {
 	username: process.env.BROWSERSTACK_USERNAME,
 	password: process.env.BROWSERSTACK_ACCESS_KEY
