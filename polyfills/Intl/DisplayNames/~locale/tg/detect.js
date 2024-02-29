@@ -1,0 +1,1 @@
+'Intl' in self && Intl.DisplayNames && Intl.DisplayNames.supportedLocalesOf && Intl.DisplayNames.supportedLocalesOf('tg').length === 1

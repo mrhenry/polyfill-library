@@ -1,0 +1,1 @@
+'Intl' in self && Intl.DisplayNames && Intl.DisplayNames.supportedLocalesOf && Intl.DisplayNames.supportedLocalesOf('shi-Tfng').length === 1

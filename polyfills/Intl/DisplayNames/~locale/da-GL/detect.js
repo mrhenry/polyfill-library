@@ -1,0 +1,1 @@
+'Intl' in self && Intl.DisplayNames && Intl.DisplayNames.supportedLocalesOf && Intl.DisplayNames.supportedLocalesOf('da-GL').length === 1

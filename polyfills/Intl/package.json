@@ -1,0 +1,19 @@
+{
+  "name": "@mrhenry/polyfill-library--intl",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "@formatjs/intl-datetimeformat": "4.1.0",
+    "@formatjs/intl-displaynames": "5.1.0",
+    "@formatjs/intl-getcanonicallocales": "1.6.0",
+    "@formatjs/intl-listformat": "6.1.0",
+    "@formatjs/intl-locale": "2.4.26",
+    "@formatjs/intl-localematcher": "^0.2.21",
+    "@formatjs/intl-numberformat": "7.1.0",
+    "@formatjs/intl-pluralrules": "4.0.20",
+    "@formatjs/intl-relativetimeformat": "9.1.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

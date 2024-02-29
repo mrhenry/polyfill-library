@@ -1,0 +1,1 @@
+'Intl' in self && Intl.ListFormat && Intl.ListFormat.supportedLocalesOf && Intl.ListFormat.supportedLocalesOf('sw-CD').length === 1

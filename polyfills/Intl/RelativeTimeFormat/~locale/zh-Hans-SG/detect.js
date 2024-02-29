@@ -1,0 +1,1 @@
+'Intl' in self && Intl.RelativeTimeFormat && Intl.RelativeTimeFormat.supportedLocalesOf && Intl.RelativeTimeFormat.supportedLocalesOf('zh-Hans-SG').length === 1

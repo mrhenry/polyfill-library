@@ -1,0 +1,1 @@
+'Intl' in self && Intl.ListFormat && Intl.ListFormat.supportedLocalesOf && Intl.ListFormat.supportedLocalesOf('ms-SG').length === 1

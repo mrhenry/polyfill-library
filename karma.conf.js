@@ -3,7 +3,6 @@
 
 const path = require('path');
 const karmaPolyfillLibraryPlugin = require('./karma-polyfill-library-plugin');
-const globby = require('globby');
 
 const proclaim = path.resolve(require.resolve('proclaim'));
 const fs = require('fs');
@@ -60,7 +59,7 @@ function generateKarmaConfigTestFiles(config) {
 	features = features.map(feature => feature.replace(/\./g, path.sep));
 	features = features.map(feature => path.join(__dirname, './polyfills', feature, 'tests.js'));
 
-	const featureTests = globby.sync(features);
+	const featureTests = features.filter(feature => fs.existsSync(feature));
 
 	return featureTests.map((element) => createKarmaFileObject(element));
 }
@@ -154,7 +153,7 @@ module.exports = async function (config) {
 				project: 'polyfill-library',
 				retryLimit: 10
 			},
-			reporters: [...config.reporters, 'summary-optional-console', 'BrowserStack'],
+			reporters: [...config.reporters, 'BrowserStack'],
 			summaryOptionalConsoleReporter: {
 				// 'failed', 'skipped' or 'all'
 				show: 'failed',

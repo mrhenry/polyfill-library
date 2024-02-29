@@ -1,0 +1,1 @@
+'Intl' in self && Intl.ListFormat && Intl.ListFormat.supportedLocalesOf && Intl.ListFormat.supportedLocalesOf('da-GL').length === 1

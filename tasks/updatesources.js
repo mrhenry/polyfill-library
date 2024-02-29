@@ -18,7 +18,7 @@ const installPolyfill = config => {
 	const polyfillAlreadyExists = fs.existsSync(polyfillOutputPath);
 
 	const polyfillSourcePaths = (config.install.paths || [''])
-		.map(p => require.resolve(path.join(config.install.module, p)))
+		.map(p => require.resolve(path.join(config.install.module, p), [polyfillOutputFolder]))
 	;
 	const newPolyfill = loadSource(polyfillSourcePaths);
 

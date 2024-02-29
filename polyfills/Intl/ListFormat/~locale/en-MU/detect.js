@@ -1,0 +1,1 @@
+'Intl' in self && Intl.ListFormat && Intl.ListFormat.supportedLocalesOf && Intl.ListFormat.supportedLocalesOf('en-MU').length === 1

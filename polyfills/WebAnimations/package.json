@@ -1,0 +1,11 @@
+{
+  "name": "@mrhenry/polyfill-library--webanimations",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "web-animations-js": "^2.2.5"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

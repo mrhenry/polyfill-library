@@ -1,0 +1,11 @@
+{
+  "name": "@mrhenry/polyfill-library--string-prototype-normalize",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "unorm": "^1.6.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
