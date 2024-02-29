@@ -1,6 +1,6 @@
 'use strict';
 
-const {assert} = require('chai');
+const assert = require('assert');
 const mockery = require('mockery');
 const sinon = require('sinon');
 
@@ -33,32 +33,32 @@ describe('lib/sources', () => {
 
 	it('exports an object', () => {
 		sources = require('../../../lib/sources');
-		assert.isObject(sources);
+		assert.ok(typeof sources === 'object');
 	});
 
 	it('has a getPolyfillMeta method', () => {
 		const sources = require('../../../lib/sources');
-		assert.isFunction(sources.getPolyfillMeta);
+		assert.ok(typeof sources.getPolyfillMeta === 'function');
 	});
 
 	it('has a listPolyfills method', () => {
 		const sources = require('../../../lib/sources');
-		assert.isFunction(sources.listPolyfills);
+		assert.ok(typeof sources.listPolyfills === 'function');
 	});
 
 	it('has a listPolyfills method', () => {
 		const sources = require('../../../lib/sources');
-		assert.isFunction(sources.listPolyfills);
+		assert.ok(typeof sources.listPolyfills === 'function');
 	});
 
 	it('has a getConfigAliases method', () => {
 		const sources = require('../../../lib/sources');
-		assert.isFunction(sources.getConfigAliases);
+		assert.ok(typeof sources.getConfigAliases === 'function');
 	});
 
 	it('has a streamPolyfillSource method', () => {
 		const sources = require('../../../lib/sources');
-		assert.isFunction(sources.streamPolyfillSource);
+		assert.ok(typeof sources.streamPolyfillSource === 'function');
 	});
 
 	describe('sources.listPolyfills()', () => {
@@ -95,7 +95,7 @@ describe('lib/sources', () => {
 				es6: ["Array.from", "Array.of", "Map", "Object.assign", "Object.is", "Promise", "Set", "Symbol", "WeakMap", "WeakSet"]
 			}));
 			const sources = require('../../../lib/sources');
-			return sources.getConfigAliases('es7').then(config => assert.isUndefined(config));
+			return sources.getConfigAliases('es7').then(config => assert.ok(typeof config) === 'undefined');
 		});
 
 		it('issue 1137 - returns `undefined` for properties which exist directly on Object.prototype', async () => {
@@ -103,7 +103,7 @@ describe('lib/sources', () => {
 			const sources = require('../../../lib/sources');
 			for (const aliasName of ['constructor','__defineGetter__','__defineSetter__','hasOwnProperty','__lookupGetter__','__lookupSetter__','isPrototypeOf','propertyIsEnumerable','toString','valueOf','__proto__','toLocaleString',]) {
 				const config = await sources.getConfigAliases(aliasName);
-				assert.isUndefined(config);
+				assert.ok(typeof config === 'undefined');
 			}
 		});
 	});
