@@ -1,11 +1,11 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const uglify = require('uglify-js');
 const {
 	promisify
-} = require('util');
+} = require('node:util');
 const spdxLicenses = require('spdx-licenses');
 const UA = require('@financial-times/polyfill-useragent-normaliser');
 const TOML = require('@iarna/toml');

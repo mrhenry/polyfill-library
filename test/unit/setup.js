@@ -1,10 +1,10 @@
 'use strict';
 
-const chai = require('chai');
+const assert = require('node:assert');
 const mockery = require('mockery');
 const sinon = require('sinon');
 
-sinon.assert.expose(chai.assert, {
+sinon.assert.expose(assert, {
 	includeFail: false,
 	prefix: ''
 });

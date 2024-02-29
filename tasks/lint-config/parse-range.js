@@ -21,10 +21,10 @@ function parseRange(range) {
 			case '<':
 			case '>':
 			case '=':
-			case '-':
+			case '-': {
 				operatorBuffer += char;
 				break;
-
+			}
 			case '1':
 			case '2':
 			case '3':
@@ -35,24 +35,24 @@ function parseRange(range) {
 			case '8':
 			case '9':
 			case '0':
-			case '*':
-				{
-					if (operatorBuffer.length > 0) {
-						operators.push(operatorBuffer)
-						operatorBuffer = '';
-					}
-
-					const version = consumeVersionToken(range.slice(index));
-					index += version.length - 1;
-
-					if (version !== '*') {
-						versions.push(version);
-					}
-					break;
+			case '*': {
+				if (operatorBuffer.length > 0) {
+					operators.push(operatorBuffer)
+					operatorBuffer = '';
 				}
 
-			default:
+				const version = consumeVersionToken(range.slice(index));
+				index += version.length - 1;
+
+				if (version !== '*') {
+					versions.push(version);
+				}
+				break;
+			}
+
+			default: {
 				throw new Error('Invalid range: ' + range);
+			}
 		}
 	}
 
@@ -86,10 +86,10 @@ function replaceInRange(range, replacer) {
 			case '<':
 			case '>':
 			case '=':
-			case '-':
+			case '-': {
 				buffer += char;
 				break;
-
+			}
 			case '1':
 			case '2':
 			case '3':
@@ -100,22 +100,22 @@ function replaceInRange(range, replacer) {
 			case '8':
 			case '9':
 			case '0':
-			case '*':
-				{
-					const version = consumeVersionToken(range.slice(index));
-					index += version.length - 1;
+			case '*': {
+				const version = consumeVersionToken(range.slice(index));
+				index += version.length - 1;
 
-					const modifiedVersion = replacer(version);
-					if (!modifiedVersion) {
-						return;
-					}
-
-					buffer += modifiedVersion;
-					break;
+				const modifiedVersion = replacer(version);
+				if (!modifiedVersion) {
+					return;
 				}
 
-			default:
+				buffer += modifiedVersion;
+				break;
+			}
+
+			default: {
 				throw new Error('Invalid range: ' + range);
+			}
 		}
 	}
 
@@ -133,12 +133,14 @@ function consumeVersionToken(x) {
 			case '|':
 			case ' ':
 			case '~':
-			case '^':
+			case '^': {
 				return buffer;
+			}
 
-			default:
+			default: {
 				buffer += char;
 				break;
+			}
 		}
 	}
 

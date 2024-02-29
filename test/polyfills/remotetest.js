@@ -8,17 +8,16 @@ const hardRejection = require("hard-rejection");
 // Install the unhandledRejection listeners
 hardRejection();
 
-const promisify = require("util").promisify;
-const path = require("path");
-const fs = require("fs");
-const cli = require("cli-color");
+const promisify = require("node:util").promisify;
+const path = require("node:path");
+const fs = require("node:fs");
 const _ = require("lodash");
 const normalizeUserAgent = require('@financial-times/polyfill-useragent-normaliser').normalize;
 const TestJob = require("./test-job");
 const Tunnel = require("browserstack-local").Local;
 const modifiedPolyfillsWithTests = require('../utils/modified-polyfills-with-tests').modifiedPolyfillsWithTests;
 const UA = require("@financial-times/polyfill-useragent-normaliser");
-const { URL } = require('url');
+const { URL } = require('node:url');
 
 // Grab all the browsers from BrowserStack which are officially supported by the polyfil service.
 const TOML = require("@iarna/toml");
@@ -229,17 +228,15 @@ async function main() {
 				switch (job.state) {
 					case "complete": {
 						if (job.results.failed) {
-							message = cli.red(
-								`✘ ${job.results.total} tests, ${job.results.failed} failures`
-							);
+							message = `✘ ${job.results.total} tests, ${job.results.failed} failures`;
 						} else {
-							message = cli.green(`✓ ${job.results.total} tests`);
+							message = `✓ ${job.results.total} tests`;
 						}
 						message += `  ${job.duration} seconds to complete`;
 						break;
 					}
 					case "error": {
-						message = cli.red(`⚠️  ${job.results}`);
+						message = `⚠️  ${job.results}`;
 						break;
 					}
 					case "ready": {
@@ -250,13 +247,13 @@ async function main() {
 						message =
 							job.results.runnerCompletedCount + "/" + job.results.runnerCount;
 						if (job.results.failed) {
-							message += cli.red("  ✘ " + job.results.failed);
+							message += "  ✘ " + job.results.failed;
 						}
 						const timeWaiting = Math.floor(
 							(Date.now() - job.lastUpdateTime) / 1000
 						);
 						if (timeWaiting > 5) {
-							message += cli.yellow("  🕒  " + timeWaiting + "s");
+							message += "  🕒  " + timeWaiting + "s";
 						}
 						break;
 					}
@@ -266,7 +263,7 @@ async function main() {
 							(Date.now() - job.lastUpdateTime) / 1000
 						);
 						if (timeWaiting > 5) {
-							message += cli.yellow("  🕒  " + timeWaiting + "s");
+							message += "  🕒  " + timeWaiting + "s";
 						}
 					}
 				}
@@ -393,7 +390,7 @@ async function main() {
 				}
 			}
 			if (totalFailureCount) {
-				console.log(cli.bold.white("\nFailures:"));
+				console.log("\nFailures:");
 				for (const job of jobs) {
 					if (job.results && job.results.tests) {
 						for (const test of job.results.tests) {
@@ -417,7 +414,7 @@ async function main() {
 							" (" +
 							job.mode +
 							"): " +
-							cli.red(job.results || "No results")
+							(job.results || "No results")
 						);
 					}
 				}

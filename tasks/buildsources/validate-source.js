@@ -1,6 +1,6 @@
 'use strict';
 
-const vm = require('vm');
+const vm = require('node:vm');
 
 /**
  * Validate JS source code by compiling it in a separate V8 context

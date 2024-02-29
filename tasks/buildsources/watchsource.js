@@ -1,8 +1,8 @@
 'use strict';
 
-const path = require('path');
-const child_process = require('child_process');
-const fs = require('fs');
+const path = require('node:path');
+const child_process = require('node:child_process');
+const fs = require('node:fs');
 
 const source = path.join(__dirname, '../../polyfills');
 

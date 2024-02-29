@@ -1,10 +1,10 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const {
 	promisify
-} = require('util');
+} = require('node:util');
 
 const writeFile = promisify(fs.writeFile);
 

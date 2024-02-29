@@ -1,5 +1,5 @@
-const exec = require('child_process').exec;
-const path = require('path');
+const exec = require('node:child_process').exec;
+const path = require('node:path');
 const toposort = require('toposort');
 const polyfillio = require('../../lib');
 

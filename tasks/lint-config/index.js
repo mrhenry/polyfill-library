@@ -3,14 +3,14 @@
 
 /* eslint-disable unicorn/no-process-exit */
 
-const fs = require('fs');
+const fs = require('node:fs');
 const TOML = require('@iarna/toml');
 const semver = require('semver');
 const { simplifyRange } = require('./simplify-versions');
 const { mdnBrowserKey } = require('./mdn-browser-key');
 const { parseRange, replaceInRange } = require('./parse-range');
 const { forEachPolyfillConfigPath } = require('./for-each-polyfill-config');
-const assert = require('assert');
+const assert = require('node:assert');
 const { fetchBCD } = require('./bcd');
 const { ChromeToOpera, ChromeAndroidToOperaAndroid, SafariToIOS, ChromeAndroidToSamsung } = require('./static-mapping');
 

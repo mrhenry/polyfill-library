@@ -1,6 +1,6 @@
 'use strict';
 
-const path = require('path');
+const path = require('node:path');
 
 const source = path.join(__dirname, '../../polyfills');
 const destination = path.join(source, '__dist');

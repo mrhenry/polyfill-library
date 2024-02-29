@@ -1,6 +1,6 @@
 'use strict';
 
-const {assert} = require('chai');
+const assert = require('node:assert');
 const mockery = require('mockery');
 const setsToArrays = require('../../utils/sets-to-arrays');
 const realUA = require('@financial-times/polyfill-useragent-normaliser');
@@ -23,7 +23,7 @@ describe("polyfillio", () => {
 		mockery.registerMock('graceful-fs', fs);
 
 		path = require('../mock/path.mock');
-		mockery.registerMock('path', path);
+		mockery.registerMock('node:path', path);
 
 		toposort = require('../mock/toposort.mock');
 		mockery.registerMock('toposort', toposort);
@@ -55,32 +55,32 @@ describe("polyfillio", () => {
 
 	describe('exported property/properties', () => {
 		it('is an object', () => {
-			assert.isObject(require('../../../lib'));
+			assert.ok(typeof require('../../../lib') === 'object');
 		});
 
 		it('describePolyfill is an exported function', () => {
 			const polyfillio = require('../../../lib');
-			assert.isFunction(polyfillio.describePolyfill);
+			assert.ok(typeof polyfillio.describePolyfill === 'function');
 		});
 
 		it('listAllPolyfills is an exported function', () => {
 			const polyfillio = require('../../../lib');
-			assert.isFunction(polyfillio.listAllPolyfills);
+			assert.ok(typeof polyfillio.listAllPolyfills === 'function');
 		});
 
 		it('listAliases is an exported function', () => {
 			const polyfillio = require('../../../lib');
-			assert.isFunction(polyfillio.listAliases);
+			assert.ok(typeof polyfillio.listAliases === 'function');
 		});
 
 		it('getPolyfills is an exported function', () => {
 			const polyfillio = require('../../../lib');
-			assert.isFunction(polyfillio.getPolyfills);
+			assert.ok(typeof polyfillio.getPolyfills === 'function');
 		});
 
 		it('getPolyfillString is an exported function', () => {
 			const polyfillio = require('../../../lib');
-			assert.isFunction(polyfillio.getPolyfillString);
+			assert.ok(typeof polyfillio.getPolyfillString === 'function');
 		});
 	});
 
