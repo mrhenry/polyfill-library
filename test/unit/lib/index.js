@@ -1,6 +1,6 @@
 'use strict';
 
-const assert = require('assert');
+const assert = require('node:assert');
 const mockery = require('mockery');
 const setsToArrays = require('../../utils/sets-to-arrays');
 const realUA = require('@financial-times/polyfill-useragent-normaliser');
@@ -23,7 +23,7 @@ describe("polyfillio", () => {
 		mockery.registerMock('graceful-fs', fs);
 
 		path = require('../mock/path.mock');
-		mockery.registerMock('path', path);
+		mockery.registerMock('node:path', path);
 
 		toposort = require('../mock/toposort.mock');
 		mockery.registerMock('toposort', toposort);

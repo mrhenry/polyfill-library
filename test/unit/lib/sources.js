@@ -1,6 +1,6 @@
 'use strict';
 
-const assert = require('assert');
+const assert = require('node:assert');
 const mockery = require('mockery');
 const sinon = require('sinon');
 
@@ -25,7 +25,7 @@ describe('lib/sources', () => {
 		mockery.registerMock('console', consoleMock);
 
 		pathMock = require('../mock/path.mock');
-		mockery.registerMock('path', pathMock);
+		mockery.registerMock('node:path', pathMock);
 
 		aliases = {};
 		mockery.registerMock('../polyfills/__dist/aliases.json', aliases);

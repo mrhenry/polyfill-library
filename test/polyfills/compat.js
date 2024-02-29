@@ -1,7 +1,7 @@
 "use strict";
 
-const fs = require("fs");
-const path = require("path");
+const fs = require("node:fs");
+const path = require("node:path");
 const _ = require('lodash');
 
 const intersection = (a, b) =>
@@ -52,9 +52,9 @@ for (const browserName of Object.keys(compat)) {
 			);
 		}
 
-		const allTests = new Set([...testResults.control.testedSuites.map(x => trimFeatureName(x))]);
-		const failedNative = new Set([...testResults.control.failingSuites.map(x => trimFeatureName(x))]);
-		const failedPolyfilled = new Set([...testResults.all.failingSuites.map(x => trimFeatureName(x))]);
+		const allTests = new Set(testResults.control.testedSuites.map(x => trimFeatureName(x)));
+		const failedNative = new Set(testResults.control.failingSuites.map(x => trimFeatureName(x)));
+		const failedPolyfilled = new Set(testResults.all.failingSuites.map(x => trimFeatureName(x)));
 
 		// test suite fails without and with requesting the polyfill.
 		// -> this should indicate that the polyfill was not served to the browser.

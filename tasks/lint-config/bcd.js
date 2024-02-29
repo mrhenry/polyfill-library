@@ -1,4 +1,4 @@
-const https = require('https');
+const https = require('node:https');
 const semver = require('semver');
 
 const browsersFiles = [

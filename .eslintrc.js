@@ -10,10 +10,19 @@ module.exports = {
 		SharedArrayBuffer: "readonly"
 	},
 	parserOptions: {
-		ecmaVersion: 2018
+		ecmaVersion: 2018,
+		allowReserved: false
 	},
 	rules: {
 		"unicorn/prefer-optional-catch-binding": "off",
 		"unicorn/prefer-ternary": "off",
+		"unicorn/prefer-module": "off",
+		"unicorn/prefer-string-replace-all": "off",
+		"unicorn/text-encoding-identifier-case": "off",
+		"unicorn/no-typeof-undefined": "off",
+		"unicorn/numeric-separators-style": "off",
+		"unicorn/switch-case-braces": "off",
+		"unicorn/prefer-at": "off",
+		"unicorn/prefer-top-level-await": "off",
 	}
 };

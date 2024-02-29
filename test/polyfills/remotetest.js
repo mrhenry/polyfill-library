@@ -8,16 +8,16 @@ const hardRejection = require("hard-rejection");
 // Install the unhandledRejection listeners
 hardRejection();
 
-const promisify = require("util").promisify;
-const path = require("path");
-const fs = require("fs");
+const promisify = require("node:util").promisify;
+const path = require("node:path");
+const fs = require("node:fs");
 const _ = require("lodash");
 const normalizeUserAgent = require('@financial-times/polyfill-useragent-normaliser').normalize;
 const TestJob = require("./test-job");
 const Tunnel = require("browserstack-local").Local;
 const modifiedPolyfillsWithTests = require('../utils/modified-polyfills-with-tests').modifiedPolyfillsWithTests;
 const UA = require("@financial-times/polyfill-useragent-normaliser");
-const { URL } = require('url');
+const { URL } = require('node:url');
 
 // Grab all the browsers from BrowserStack which are officially supported by the polyfil service.
 const TOML = require("@iarna/toml");
