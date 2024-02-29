@@ -32,6 +32,8 @@ jobs:
         config: |
           paths-ignore:
           - polyfills/Intl
+          - polyfills/__dist/Intl
+          - polyfills/__dist/Intl.*
 
     - name: setup node
       uses: actions/setup-node@v4
