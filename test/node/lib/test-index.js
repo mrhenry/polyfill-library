@@ -1,258 +1,257 @@
 'use strict';
 
+const test = require('node:test');
+const { describe, it } = test;
+
 const assert = require('node:assert');
 const UA = require("@financial-times/polyfill-useragent-normaliser");
 
 const appVersion = require("../../../package.json").version;
-const setsToArrays = require('../../utils/sets-to-arrays');
 
 const polyfillio = require('../../../lib');
 
-describe("polyfillio", function () {
-	this.timeout(30000);
+describe(".getPolyfills(features)", async () => {
+	it("should not include unused dependencies", () => {
+		const input = {
+			features: {
+				'Promise': {}
+			},
+			ua: new UA('chrome/45')
+		};
+		return polyfillio.getPolyfills(input).then(result => assert.deepEqual(result, {}));
+	});
 
-	describe(".getPolyfills(features)", () => {
+	it("https://github.com/Financial-Times/polyfill-library/issues/125", () => {
+		// es6,es7&excludes=Array.prototype.values
+		const input = {
+			features: {
+				'es6': {},
+				'es7': {},
+			},
+			excludes: ['Array.prototype.values'],
+			ua: new UA('chrome/61')
+		};
+		return polyfillio.getPolyfills(input).then(result => assert.deepEqual(result, {
+			"Array.prototype.sort": {
+				"aliasOf": new Set([
+					"es6"
+				]),
+				"dependencyOf": new Set([]),
+				"flags": new Set([]),
+			},
+			"_ESAbstract.CreateMethodProperty": {
+				"aliasOf": new Set([
+					"es6"
+				]),
+				"dependencyOf": new Set([
+					"Array.prototype.sort"
+				]),
+				"flags": new Set([]),
+			},
+			"_ESAbstract.IsCallable": {
+				"aliasOf": new Set([
+					"es6"
+				]),
+				"dependencyOf": new Set([
+					"Array.prototype.sort"
+				]),
+				"flags": new Set([]),
+			}
+		}));
+	});
 
-		it("should not include unused dependencies", () => {
-			const input = {
-				features: {
-					'Promise': {}
-				},
-				ua: new UA('chrome/45')
-			};
-			return polyfillio.getPolyfills(input).then(result => assert.deepEqual(setsToArrays(result), {}));
-		});
+	it("should return polyfills for unknown UA when unknown is not set", () => {
+		return polyfillio.getPolyfills({
+			features: {
+				'Math.sign': {}
+			},
+			ua: new UA('')
+		}).then(result => assert.deepEqual(result, {
+			'Math.sign': {
+				"flags": new Set(["gated"]),
+				aliasOf: new Set([]),
+				dependencyOf: new Set([])
+			},
+			"_ESAbstract.CreateMethodProperty": {
+				"dependencyOf": new Set([
+					"Math.sign"
+				]),
+				"flags": new Set(["gated"]),
+				aliasOf: new Set([])
+			}
+		}));
+	});
 
-		it("https://github.com/Financial-Times/polyfill-library/issues/125", () => {
-			// es6,es7&excludes=Array.prototype.values
-			const input = {
-				features: {
-					'es6': {},
-					'es7': {},
-				},
-				excludes: ['Array.prototype.values'],
-				ua: new UA('chrome/61')
-			};
-			return polyfillio.getPolyfills(input).then(result => assert.deepEqual(setsToArrays(result), {
-				"Array.prototype.sort": {
-					"aliasOf": [
-						"es6"
-					],
-					"dependencyOf": [],
-					"flags": [],
-				},
-				"_ESAbstract.CreateMethodProperty": {
-					"aliasOf": [
-						"es6"
-					],
-					"dependencyOf": [
-						"Array.prototype.sort"
-					],
-					"flags": [],
-				},
-				"_ESAbstract.IsCallable": {
-					"aliasOf": [
-						"es6"
-					],
-					"dependencyOf": [
-						"Array.prototype.sort"
-					],
-					"flags": [],
+	it("should return no polyfills for unknown UA when unknown is set to ignore", () => {
+		return polyfillio.getPolyfills({
+			features: {
+				'Math.sign': {}
+			},
+			ua: new UA(''),
+			unknown: 'ignore',
+		}).then(result => assert.deepEqual(result, {}));
+	});
+
+	it("should return polyfills for unknown UA when unknown is set to `polyfill`", () => {
+		return polyfillio.getPolyfills({
+			features: {
+				'Math.sign': {}
+			},
+			unknown: 'polyfill',
+			ua: new UA('')
+		}).then(result => assert.deepEqual(result, {
+			'Math.sign': {
+				"flags": new Set(["gated"]),
+				aliasOf: new Set([]),
+				dependencyOf: new Set([])
+			},
+			"_ESAbstract.CreateMethodProperty": {
+				"dependencyOf": new Set([
+					"Math.sign"
+				]),
+				"flags": new Set(["gated"]),
+				aliasOf: new Set([])
+			}
+		}));
+	});
+
+	it("should return polyfills for unknown UA when unknown is set to `polyfill` and `ua` param is not set", () => {
+		// ... even when `ua` param is missing entirely
+		return polyfillio.getPolyfills({
+			features: {
+				'Math.sign': {}
+			},
+			unknown: 'polyfill',
+		}).then(result => assert.deepEqual(result, {
+			'Math.sign': {
+				"flags": new Set(["gated"]),
+				"aliasOf": new Set([]),
+				"dependencyOf": new Set([])
+			},
+			"_ESAbstract.CreateMethodProperty": {
+				"dependencyOf": new Set([
+					"Math.sign"
+				]),
+				"flags": new Set(["gated"]),
+				aliasOf: new Set([])
+			}
+		}));
+	});
+
+	it("should understand the 'all' alias", () => {
+		return polyfillio.getPolyfills({
+			features: {
+				'all': {
+					flags: []
 				}
-			}));
+			},
+			ua: new UA('ie/8')
+		}).then(result => assert(Object.keys(result).length > 0));
+	});
+
+	it("should respect the excludes option", async () => {
+		const noExcludes = await polyfillio.getPolyfills({
+			features: {
+				"Math.fround": {}
+			},
+			ua: new UA("ie/9")
 		});
 
-		it("should return polyfills for unknown UA when unknown is not set", () => {
-			return polyfillio.getPolyfills({
-				features: {
-					'Math.sign': {}
-				},
-				ua: new UA('')
-			}).then(result => assert.deepEqual(setsToArrays(result), {
-				'Math.sign': {
-					"flags": ["gated"],
-					aliasOf: [],
-					dependencyOf: []
-				},
-				"_ESAbstract.CreateMethodProperty": {
-					"dependencyOf": [
-						"Math.sign"
-					],
-					"flags": ["gated"],
-					aliasOf: []
-				}
-			}));
+		assert.deepEqual(noExcludes, {
+			"Math.fround": {
+				flags: new Set([]),
+				dependencyOf: new Set([]),
+				aliasOf: new Set([])
+			},
+			"_ESAbstract.CreateMethodProperty": {
+				flags: new Set([]),
+				dependencyOf: new Set(["Math.fround"]),
+				aliasOf: new Set([])
+			},
+			ArrayBuffer: {
+				flags: new Set([]),
+				dependencyOf: new Set(["Math.fround"]),
+				aliasOf: new Set([])
+			}
 		});
 
-		it("should return no polyfills for unknown UA when unknown is set to ignore", () => {
-			return polyfillio.getPolyfills({
-				features: {
-					'Math.sign': {}
-				},
-				ua: new UA(''),
-				unknown: 'ignore',
-			}).then(result => assert.deepEqual(setsToArrays(result), {}));
+		const excludes = await polyfillio.getPolyfills({
+			features: {
+				"Math.fround": {}
+			},
+			excludes: ["ArrayBuffer", "non-existent-feature"],
+			ua: new UA("ie/9")
 		});
 
-		it("should return polyfills for unknown UA when unknown is set to `polyfill`", () => {
-			return polyfillio.getPolyfills({
-				features: {
-					'Math.sign': {}
-				},
-				unknown: 'polyfill',
-				ua: new UA('')
-			}).then(result => assert.deepEqual(setsToArrays(result), {
-				'Math.sign': {
-					"flags": ["gated"],
-					aliasOf: [],
-					dependencyOf: []
-				},
-				"_ESAbstract.CreateMethodProperty": {
-					"dependencyOf": [
-						"Math.sign"
-					],
-					"flags": ["gated"],
-					aliasOf: []
-				}
-			}));
+		assert.deepEqual(excludes, {
+			"Math.fround": {
+				flags: new Set([]),
+				dependencyOf: new Set([]),
+				aliasOf: new Set([])
+			},
+			"_ESAbstract.CreateMethodProperty": {
+				flags: new Set([]),
+				dependencyOf: new Set(["Math.fround"]),
+				aliasOf: new Set([])
+			}
 		});
+	});
+});
 
-		it("should return polyfills for unknown UA when unknown is set to `polyfill` and `ua` param is not set", () => {
-			// ... even when `ua` param is missing entirely
-			return polyfillio.getPolyfills({
-				features: {
-					'Math.sign': {}
-				},
-				unknown: 'polyfill',
-			}).then(result => assert.deepEqual(setsToArrays(result), {
-				'Math.sign': {
-					"flags": ["gated"],
-					"aliasOf": [],
-					"dependencyOf": []
-				},
-				"_ESAbstract.CreateMethodProperty": {
-					"dependencyOf": [
-						"Math.sign"
-					],
-					"flags": ["gated"],
-					aliasOf: []
-				}
-			}));
-		});
+describe('.getPolyfillString', async () => {
 
-		it("should understand the 'all' alias", () => {
-			return polyfillio.getPolyfills({
+	it('should produce different output when gated flag is enabled', () => {
+		return Promise.all([
+			polyfillio.getPolyfillString({
 				features: {
-					'all': {
-						flags: []
+					default: {}
+				},
+				ua: new UA('chrome/30')
+			}),
+			polyfillio.getPolyfillString({
+				features: {
+					default: {
+						flags: new Set(['gated'])
 					}
 				},
-				ua: new UA('ie/8')
-			}).then(result => assert(Object.keys(result).length > 0));
-		});
-
-		it("should respect the excludes option", async () => {
-			const noExcludes = await polyfillio.getPolyfills({
-				features: {
-					"Math.fround": {}
-				},
-				ua: new UA("ie/9")
-			});
-
-			assert.deepEqual(setsToArrays(noExcludes), {
-				"Math.fround": {
-					flags: [],
-					dependencyOf: [],
-					aliasOf: []
-				},
-				"_ESAbstract.CreateMethodProperty": {
-					flags: [],
-					dependencyOf: ["Math.fround"],
-					aliasOf: []
-				},
-				ArrayBuffer: {
-					flags: [],
-					dependencyOf: ["Math.fround"],
-					aliasOf: []
-				}
-			});
-
-			const excludes = await polyfillio.getPolyfills({
-				features: {
-					"Math.fround": {}
-				},
-				excludes: ["ArrayBuffer", "non-existent-feature"],
-				ua: new UA("ie/9")
-			});
-
-			assert.deepEqual(setsToArrays(excludes), {
-				"Math.fround": {
-					flags: [],
-					dependencyOf: [],
-					aliasOf: []
-				},
-				"_ESAbstract.CreateMethodProperty": {
-					flags: [],
-					dependencyOf: ["Math.fround"],
-					aliasOf: []
-				}
-			});
+				ua: new UA('chrome/30')
+			})
+		]).then(results => {
+			assert.notEqual(results[0], results[1]);
 		});
 	});
 
-	describe('.getPolyfillString', () => {
+	it('should render the version string for a production bundle', () => {
+		const NODE_ENV = process.env.NODE_ENV;
 
-		it('should produce different output when gated flag is enabled', () => {
-			return Promise.all([
-				polyfillio.getPolyfillString({
-					features: {
-						default: {}
-					},
-					ua: new UA('chrome/30')
-				}),
-				polyfillio.getPolyfillString({
-					features: {
-						default: {
-							flags: new Set(['gated'])
-						}
-					},
-					ua: new UA('chrome/30')
-				})
-			]).then(results => {
-				assert.notEqual(setsToArrays(results[0]), setsToArrays(results[1]));
-			});
+		process.env.NODE_ENV = "production";
+
+		return Promise.all([
+			polyfillio.getPolyfillString({
+				features: {
+					default: {}
+				},
+				ua: new UA('chrome/30'),
+				minify: false
+			}, polyfillio.getPolyfillString({
+				features: {
+					default: {}
+				},
+				ua: new UA('chrome/30'),
+				minify: true
+			}))
+		]).then(results => {
+			assert.include(results[0].slice(0, 500), 'Polyfill service ' + appVersion);
+			assert.include(results[1].slice(0, 500), 'Polyfill service ' + appVersion);
+
+			process.env.NODE_ENV = NODE_ENV;
+		}).catch(() => {
+			process.env.NODE_ENV = NODE_ENV;
 		});
+	});
 
-		it('should render the version string for a production bundle', () => {
-			const NODE_ENV = process.env.NODE_ENV;
-
-			process.env.NODE_ENV = "production";
-
-			return Promise.all([
-				polyfillio.getPolyfillString({
-					features: {
-						default: {}
-					},
-					ua: new UA('chrome/30'),
-					minify: false
-				}, polyfillio.getPolyfillString({
-					features: {
-						default: {}
-					},
-					ua: new UA('chrome/30'),
-					minify: true
-				}))
-			]).then(results => {
-				assert.include(results[0].slice(0, 500), 'Polyfill service ' + appVersion);
-				assert.include(results[1].slice(0, 500), 'Polyfill service ' + appVersion);
-
-				process.env.NODE_ENV = NODE_ENV;
-			}).catch(() => {
-				process.env.NODE_ENV = NODE_ENV;
-			});
-		});
-
-		it('should support streaming output', done => {
+	await it('should support streaming output', async () => {
+		return new Promise((resolve) => {
 			const ReadableStream = require('node:stream').Readable;
 			const buf = [];
 			const s = polyfillio.getPolyfillString({
@@ -269,11 +268,13 @@ describe("polyfillio", function () {
 				const bundle = buf.join('');
 				assert.ok(bundle.includes('Polyfill service'));
 				assert.ok(bundle.includes("function(self, undefined)"));
-				done();
+				resolve();
 			});
-		});
+		})
+	});
 
-		it('should support cached streaming output', done => {
+	await it('should support cached streaming output', async () => {
+		return new Promise((resolve) => {
 			let bundle_a = '';
 			let bundle_b = '';
 
@@ -287,7 +288,6 @@ describe("polyfillio", function () {
 			});
 
 			const buf_a = [];
-
 
 			s_a.on('data', chunk => buf_a.push(chunk));
 			s_a.on('end', () => {
@@ -309,7 +309,7 @@ describe("polyfillio", function () {
 					bundle_b = buf_b.join('');
 
 					assert.equal(bundle_a, bundle_b);
-					done();
+					resolve();
 				});
 			});
 		});
