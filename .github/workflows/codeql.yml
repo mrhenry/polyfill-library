@@ -34,11 +34,12 @@ jobs:
           - polyfills/Intl
           - polyfills/__dist/Intl
           - polyfills/__dist/Intl.*
+          - test/polyfills
 
     - name: setup node
       uses: actions/setup-node@v4
       with:
-        node-version: 16.x
+        node-version: 20
         cache: 'npm'
 
     - run: npm ci

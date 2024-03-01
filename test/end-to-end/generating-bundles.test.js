@@ -1,12 +1,13 @@
 'use strict';
 
+const test = require('node:test');
+const { describe, it } = test;
+
 const assert = require('node:assert');
 const UA = require("@financial-times/polyfill-useragent-normaliser");
 const polyfillLibrary = require('../..');
 
 describe("polyfill-library", function () {
-	this.timeout(30000);
-
 	it('should produce same output for same bundle', async () => {
 		const bundle1 = await polyfillLibrary.getPolyfillString({
 			features: {

@@ -20,11 +20,10 @@
     "build": "npm run clean && node tasks/updatesources && node tasks/buildsources/buildsources",
     "watch": "npm run clean && node tasks/updatesources && node tasks/buildsources/watchsource",
     "fmt": "eslint . --fix",
-    "test-library": "npm run build && npm run test-node && npm run test-node-unit && npm run test-end-to-end",
-    "test-end-to-end": "mocha test/end-to-end/**/*.test.js",
-    "test-node": "nyc mocha test/node/**/*.js",
-    "test-node-unit": "mocha test/unit --recursive",
-    "test": "npm run build && npm run test-node && npm run test-node-unit",
+    "test-end-to-end": "node --test test/end-to-end",
+    "test-node": "node --test test/node",
+    "test-unit": "node --test test/unit",
+    "test": "node --test test/unit && node --test test/node && node --test test/end-to-end",
     "prepublishOnly": "npm run build",
     "create-new-polyfill": "node ./tasks/create-new-polyfill.js",
     "update-browserstack-list": "node ./tasks/updatebrowserstacklist.js"
@@ -66,17 +65,12 @@
     "handlebars": "^4.7.2",
     "hard-rejection": "^2.1.0",
     "lodash": "^4.17.14",
-    "mocha": "^3.5.3",
-    "mockery": "^2.1.0",
-    "nyc": "^15.0.0",
     "proclaim": "^3.6.0",
     "semver": "^7.3.7",
-    "sinon": "^15.0.0",
-    "spdx-licenses": "^1.0.0",
     "uglify-js": "^3.17.4",
     "webdriverio": "^8.0.0"
   },
   "volta": {
-    "node": "16.20.0"
+    "node": "20.11.1"
   }
 }

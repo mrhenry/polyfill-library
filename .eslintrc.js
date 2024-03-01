@@ -24,5 +24,6 @@ module.exports = {
 		"unicorn/switch-case-braces": "off",
 		"unicorn/prefer-at": "off",
 		"unicorn/prefer-top-level-await": "off",
+		"unicorn/no-abusive-eslint-disable": "off",
 	}
 };

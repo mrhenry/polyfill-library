@@ -1,5 +1,8 @@
 'use strict';
 
+const test = require('node:test');
+const { describe, it } = test;
+
 const assert = require('node:assert');
 const { polyfillsWithTestsFrom } = require('../../utils/modified-polyfills-with-tests');
 

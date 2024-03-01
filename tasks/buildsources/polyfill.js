@@ -6,7 +6,6 @@ const uglify = require('uglify-js');
 const {
 	promisify
 } = require('node:util');
-const spdxLicenses = require('spdx-licenses');
 const UA = require('@financial-times/polyfill-useragent-normaliser');
 const TOML = require('@iarna/toml');
 
@@ -15,6 +14,7 @@ const readFile = promisify(fs.readFile);
 
 const validateSource = require('./validate-source');
 const semver = require('semver');
+const osiApproved = require('./osi-approved');
 
 const uaBaselines = UA.getBaselines();
 delete uaBaselines.ios_chr; // https://github.com/Financial-Times/polyfill-library/issues/1202#issuecomment-1193403165
@@ -192,16 +192,12 @@ module.exports = class Polyfill {
 	 */
 	checkLicense() {
 		if ('license' in this.config) {
-			const license = spdxLicenses.spdx(this.config.license);
-			if (license) {
-				// We allow CC0-1.0 and WTFPL as they are GPL compatible.
-				// https://www.gnu.org/licenses/license-list.html#WTFPL
-				// https://www.gnu.org/licenses/license-list.en.html#CC0
-				if (this.config.license !== 'CC0-1.0' && this.config.license !== 'WTFPL' && !license.OSIApproved) {
-					throw new Error(`The license ${this.config.license} (${license.name}) is not OSI approved.`);
-				}
-			} else {
-				throw new Error(`The license ${this.config.license} is not on the SPDX list of licenses ( https://spdx.org/licenses/ ).`);
+			// We allow CC0-1.0 and WTFPL as they are GPL compatible.
+			// https://www.gnu.org/licenses/license-list.html#WTFPL
+			// https://www.gnu.org/licenses/license-list.en.html#CC0
+			const licenseIsOSIApproved = osiApproved.includes(this.config.license) || this.config.license === 'CC0-1.0' || this.config.license === 'WTFPL';
+			if (!licenseIsOSIApproved) {
+				throw new Error(`The license ${this.config.license} is not OSI approved.`);
 			}
 		}
 	}
