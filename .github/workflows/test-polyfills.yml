@@ -32,7 +32,7 @@ jobs:
     # <insert integration tests needing secrets>
     - uses: actions/setup-node@v4
       with:
-        node-version: 16.x
+        node-version: 20
         cache: 'npm'
 
     - name: env
