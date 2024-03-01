@@ -22,7 +22,8 @@
     "fmt": "eslint . --fix",
     "test-end-to-end": "node --test test/end-to-end",
     "test-node": "node --test test/node",
-    "test": "node --test test/node && node --test test/end-to-end",
+    "test-unit": "node --test test/unit",
+    "test": "node --test test/unit && node --test test/node && node --test test/end-to-end",
     "prepublishOnly": "npm run build",
     "create-new-polyfill": "node ./tasks/create-new-polyfill.js",
     "update-browserstack-list": "node ./tasks/updatebrowserstacklist.js"
