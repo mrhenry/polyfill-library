@@ -47,9 +47,27 @@ async function main() {
 			return a.startsWith("browser=");
 		}) || "")
 		.replace("browser=", "");
+
+	const browserVersion = (process.argv
+		.find(a => {
+			return a.startsWith("browser-version=");
+		}) || "")
+		.replace("browser-version=", "");
+
 	const browsers = browserlist
 		.filter(b => {
-			return browser ? b.startsWith(browser) : true;
+			if (!browser) {
+				return true;
+			}
+
+			return b.split("/")[0] === browser;
+		})
+		.filter(b => {
+			if (!browserVersion) {
+				return true;
+			}
+
+			return b.split("/")[1] === browserVersion;
 		})
 		.filter(uaString => {
 			if (uaString.startsWith("ios/")) {
@@ -157,6 +175,7 @@ async function main() {
 		};
 
 		if (
+			// IE 8 and IE 9 have memory leaks and will fail when testing too many features at once in a single tab.
 			(browser === 'ie/8.0' || browser === 'ie/9.0') &&
 			modified.testEverything // no need to shard tests if only a subset is tested
 		) {
@@ -182,7 +201,7 @@ async function main() {
 
 		// Polyfill combinations run tests with all polyfills for a browser included.
 		// These tests guard against issues where polyfill A breaks polyfill B
-		// even though there is no depedency relation between A and B.
+		// even though there is no dependency relation between A and B.
 		// These tests are slow and only run on demand
 		return configs.flatMap((config) => {
 			return [

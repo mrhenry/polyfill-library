@@ -1,0 +1,70 @@
+name: Test Polyfills IE
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: browserstack
+  cancel-in-progress: false
+
+jobs:
+  # Branch-based pull request
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        browser_version:
+          - '11.0'
+          - '10.0'
+          - '9.0'
+          - '8.0'
+          - '7.0'
+          - '6.0'
+          - '5.0'
+          - '4.0'
+          - '3.0'
+          - '2.0'
+          - '1.0'
+    steps:
+
+    - name: Branch based PR checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 50
+
+    # Fetch main branch to determine which polyfills have changed and need testing.
+    - name: Fetch upstream to determine diff
+      run: |
+        git remote add upstream https://github.com/mrhenry/polyfill-library.git
+        git fetch --depth=50 upstream main
+
+    # <insert integration tests needing secrets>
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: env
+      run: echo "commit-sha=$(echo ${GITHUB_SHA})" >> $GITHUB_ENV
+
+    - run: npm ci
+
+    - name: cache __dist
+      id: cache-dist
+      uses: actions/cache@v4
+      with:
+        path: polyfills/__dist
+        key: cache--dist--${{ env.commit-sha }}
+
+    - run: npm run build
+      if: steps.cache-dist.outputs.cache-hit != 'true'
+
+    - name: Test IE ${{ matrix.browser_version }}
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js
+        test-modified-only targeted director browser=ie browser-version=${{ matrix.browser_version }}
+      timeout-minutes: 10
+      env:
+        BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+        BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
