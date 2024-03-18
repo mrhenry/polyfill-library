@@ -1,5 +1,5 @@
 {
-  "name": "Test Polyfills IE",
+  "name": "Test Polyfills Safari",
   "on": {
     "pull_request": null,
     "workflow_dispatch": null
@@ -24,7 +24,7 @@
       "uses": "./.github/workflows/test-polyfills-base.yml",
       "secrets": "inherit",
       "with": {
-        "browser": "ie",
+        "browser": "safari",
         "browser_version": "${{ matrix.browser_version }}",
       },
     }

@@ -1,21 +1,25 @@
 name: Test Polyfills
 on:
-  pull_request:
-  workflow_dispatch:
-
-concurrency:
-  group: browserstack
-  cancel-in-progress: false
+  workflow_call:
+    inputs:
+      browser:
+        type: string
+        description: The browser to test
+        required: true
+      browser_version:
+        type: string
+        description: The browser version to test
+        required: true
+    secrets:
+      BROWSERSTACK_USERNAME:
+        required: true
+      BROWSERSTACK_ACCESS_KEY:
+        required: true
 
 jobs:
   # Branch-based pull request
   test:
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 1
-      fail-fast: false
-      matrix:
-        browser: [ ie, android, chrome, edge, firefox, ios, safari ]
     steps:
 
     - name: Branch based PR checkout
@@ -50,10 +54,10 @@ jobs:
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
 
-    - name: Test ${{ matrix.browser }}
+    - name: Test ${{ inputs.browser }} ${{ inputs.browser_version }}
       run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js
-        test-modified-only targeted director browser=${{ matrix.browser }}
-      timeout-minutes: 30
+        test-modified-only targeted director browser=${{ matrix.browser }} browser-version=${{ matrix.browser_version }}
+      timeout-minutes: 10
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}

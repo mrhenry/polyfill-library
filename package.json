@@ -17,8 +17,8 @@
     "lint": "eslint polyfills lib tasks test",
     "lint-config": "node tasks/lint-config/index.js",
     "clean": "node tasks/clean",
-    "build": "npm run clean && node tasks/updatesources && node tasks/buildsources/buildsources",
-    "watch": "npm run clean && node tasks/updatesources && node tasks/buildsources/watchsource",
+    "build": "npm run clean && node tasks/update-sources && node tasks/buildsources/buildsources",
+    "watch": "npm run clean && node tasks/update-sources && node tasks/buildsources/watchsource",
     "fmt": "eslint . --fix",
     "test-end-to-end": "node --test test/end-to-end",
     "test-node": "node --test test/node",
@@ -26,7 +26,8 @@
     "test": "node --test test/unit && node --test test/node && node --test test/end-to-end",
     "prepublishOnly": "npm run build",
     "create-new-polyfill": "node ./tasks/create-new-polyfill.js",
-    "update-browserstack-list": "node ./tasks/updatebrowserstacklist.js"
+    "update-browserstack-list": "node ./tasks/update-browserstack-list.js",
+    "update-browserstack-workflows": "node ./tasks/update-browserstack-workflows.mjs"
   },
   "license": "MIT",
   "engines": {
