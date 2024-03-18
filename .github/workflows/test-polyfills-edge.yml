@@ -5,13 +5,13 @@
     "workflow_dispatch": null
   },
   "concurrency": {
-    "group": "browserstack",
+    "group": "browserstack-microsoft",
     "cancel-in-progress": false
   },
   "jobs": {
     "test": {
       "strategy": {
-        "max-parallel": 4,
+        "max-parallel": 1,
         "fail-fast": false,
         "matrix": {
           "browser_version": [
