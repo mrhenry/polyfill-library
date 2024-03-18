@@ -15,9 +15,14 @@
         "fail-fast": false,
         "matrix": {
           "browser_version": [
-            "9.0",
-            "10.0",
-            "11.0"
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17"
           ]
         }
       },
@@ -25,8 +30,8 @@
       "secrets": "inherit",
       "with": {
         "browser": "ios",
-        "browser_version": "${{ matrix.browser_version }}",
-      },
+        "browser_version": "${{ matrix.browser_version }}"
+      }
     }
   }
 }
