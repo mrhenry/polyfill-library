@@ -1,0 +1,30 @@
+aliases = [ "es2025" ]
+dependencies = [
+	"_ESAbstract.Call",
+	"_ESAbstract.CreateMethodProperty",
+	"_ESAbstract.GetIterator",
+	"_ESAbstract.GetSetRecord",
+	"_ESAbstract.IteratorStep",
+	"_ESAbstract.IteratorValue",
+	"_ESAbstract.ToBoolean",
+	"Set",
+]
+license = "MIT"
+spec = "https://tc39.es/proposal-set-methods/#sec-set.prototype.difference"
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/difference"
+
+[browsers]
+android = "*"
+bb = "*"
+chrome = "<122"
+edge = "*"
+firefox = "*"
+firefox_mob = "*"
+ie = "*"
+ie_mob = "*"
+opera = "*"
+op_mob = "*"
+op_mini = "*"
+safari = "<17.0"
+ios_saf = "<17.0"
+samsung_mob = "*"
