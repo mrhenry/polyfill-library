@@ -1,6 +1,6 @@
 {
   "name": "@mrhenry/polyfill-library",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "A polyfill combinator",
   "main": "lib/index.js",
   "repository": {
