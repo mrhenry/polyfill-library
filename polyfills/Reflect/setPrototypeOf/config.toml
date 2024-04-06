@@ -5,7 +5,10 @@ dependencies = [
 	"_ESAbstract.Type",
 	"Object.setPrototypeOf"
 ]
+
 spec = "https://tc39.github.io/ecma262/#sec-reflect.setprototypeof"
+
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/setPrototypeOf"
 
 [browsers]
 android = "<5"

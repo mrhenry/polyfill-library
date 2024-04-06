@@ -1,6 +1,8 @@
 dependencies = [ ]
 spec = "https://tc39.github.io/ecma262/#sec-reflect-object"
 
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect"
+
 [browsers]
 android = "<5"
 bb = "*"
