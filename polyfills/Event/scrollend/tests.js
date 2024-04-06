@@ -7,9 +7,11 @@ describe('Event.scrollend', function () {
 
 	before(function () {
 		el = document.body.appendChild(document.createElement("div"));
-		el.style = "height: 10000px; overflow: auto;";
+		el.setAttribute("style", "height: 10000px; overflow: auto; width: 10px; background-color: blue;");
+
 		var content = document.createElement("div");
-		content.style = "height: 20000px;";
+		content.setAttribute("style", "height: 20000px; width: 10px; background-color: cyan;");
+
 		el.appendChild(content);
 	});
 
@@ -19,7 +21,9 @@ describe('Event.scrollend', function () {
 
 	afterEach(function () {
 		el.scrollTo(0, 0);
+		el.scrollTop = 0;
 		window.scrollTo(0, 0);
+		window.scrollTop = 0;
 	});
 
 	it('is a function', function () {
