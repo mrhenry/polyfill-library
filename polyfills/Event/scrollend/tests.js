@@ -22,6 +22,48 @@ describe('Event.scrollend', function () {
 		window.scrollTo(0, 0);
 	});
 
+	it('is a function', function () {
+		proclaim.isTypeOf(Element.prototype.addEventListener, 'function');
+		proclaim.isTypeOf(Element.prototype.removeEventListener, 'function');
+
+		proclaim.isTypeOf(el.addEventListener, 'function');
+		proclaim.isTypeOf(el.removeEventListener, 'function');
+
+		proclaim.isTypeOf(document.addEventListener, 'function');
+		proclaim.isTypeOf(document.removeEventListener, 'function');
+
+		proclaim.isTypeOf(window.addEventListener, 'function');
+		proclaim.isTypeOf(window.removeEventListener, 'function');
+	});
+
+	it('has correct arity', function () {
+		proclaim.arity(Element.prototype.addEventListener, 2);
+		proclaim.arity(Element.prototype.removeEventListener, 2);
+
+		proclaim.arity(el.addEventListener, 2);
+		proclaim.arity(el.removeEventListener, 2);
+
+		proclaim.arity(document.addEventListener, 2);
+		proclaim.arity(document.removeEventListener, 2);
+
+		proclaim.arity(window.addEventListener, 2);
+		proclaim.arity(window.removeEventListener, 2);
+	});
+
+	it('has correct name', function () {
+		proclaim.hasName(Element.prototype.addEventListener, 'addEventListener');
+		proclaim.hasName(Element.prototype.removeEventListener, 'removeEventListener');
+
+		proclaim.hasName(el.addEventListener, 'addEventListener');
+		proclaim.hasName(el.removeEventListener, 'removeEventListener');
+
+		proclaim.hasName(document.addEventListener, 'addEventListener');
+		proclaim.hasName(document.removeEventListener, 'removeEventListener');
+
+		proclaim.hasName(window.addEventListener, 'addEventListener');
+		proclaim.hasName(window.removeEventListener, 'removeEventListener');
+	});
+
 	it('fires a scrollend event when the user has stopped scrolling in an element', function (done) {
 		var listener = function listener() {
 			done();

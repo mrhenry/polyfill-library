@@ -18,17 +18,6 @@
 	// Map of scroll-observed elements.
 	var observed = new global.WeakMap();
 
-	// Forward and observe calls to a native method.
-	function observe(proto, method, handler) {
-		var native = proto[method];
-		proto[method] = function () {
-			var args = global.Array.prototype.slice.apply(arguments, [0]);
-			native.apply(this, args);
-			args.unshift(native);
-			handler.apply(this, args);
-		}
-	}
-
 	function onAddListener(originalFn, type, handler, options) { // eslint-disable-line no-unused-vars
 		// Polyfill scrollend event on any element for which the developer listens
 		// to 'scrollend' explicitly or 'scroll' (so that adding a scrollend listener
@@ -98,12 +87,32 @@
 		observed.delete(scrollPort);
 	}
 
-	observe(global.Element.prototype, 'addEventListener', onAddListener);
-	observe(global, 'addEventListener', onAddListener);
-	observe(global.document, 'addEventListener', onAddListener);
-	observe(global.Element.prototype, 'removeEventListener', onRemoveListener);
-	observe(global, 'removeEventListener', onRemoveListener);
-	observe(global.document, 'removeEventListener', onRemoveListener);
+	function polyfillAddEventListener(proto) {
+		var native = proto.addEventListener;
+		proto.addEventListener = function addEventListener(type, callback) { // eslint-disable-line no-unused-vars
+			var args = global.Array.prototype.slice.apply(arguments, [0]);
+			native.apply(this, args);
+			args.unshift(native);
+			onAddListener.apply(this, args);
+		}
+	}
+
+	function polyfillRemoveEventListener(proto) {
+		var native = proto.removeEventListener;
+		proto.removeEventListener = function removeEventListener(type, callback) { // eslint-disable-line no-unused-vars
+			var args = global.Array.prototype.slice.apply(arguments, [0]);
+			native.apply(this, args);
+			args.unshift(native);
+			onRemoveListener.apply(this, args);
+		}
+	}
+
+	polyfillAddEventListener(global.Element.prototype);
+	polyfillAddEventListener(global);
+	polyfillAddEventListener(global.document);
+	polyfillRemoveEventListener(global.Element.prototype);
+	polyfillRemoveEventListener(global);
+	polyfillRemoveEventListener(global.document);
 
 	if (!('onscrollend' in self)) {
 		// Make sure a check for 'onhashchange' in window will pass
