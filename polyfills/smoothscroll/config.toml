@@ -1,7 +1,7 @@
 aliases = [
 	"scroll",
 	"scrollBy",
-	"window.scrollTo",
+	"scrollTo",
 	"scrollIntoView",
 	"Element.prototype.scroll",
 	"Element.prototype.scrollBy",
