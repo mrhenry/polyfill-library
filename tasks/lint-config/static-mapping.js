@@ -71,7 +71,7 @@ module.exports = {
 		[75, '12.5'],
 		[76, '12.9'],
 		[77, '12.11'],
-		[78, '13.0'],
+		[78, '12.16'],
 		[79, '13.2'],
 		[81, '14.0'],
 		[83, '14.5'],
@@ -88,7 +88,10 @@ module.exports = {
 		[102, '18.3'],
 		[107, '19.0'],
 		[108, '19.2'],
+		[113, '20.0'],
+		[118, '21.0'],
 	],
+	// https://github.com/denoland/deno/releases
 	// https://github.com/mdn/browser-compat-data/blob/main/browsers/deno.json
 	ChromeToDeno: [
 		[84, '1.0'],
@@ -112,8 +115,23 @@ module.exports = {
 		[107, '1.26'],
 		[108, '1.27'],
 		[109, '1.28'],
-		[109, '1.29'],
+		[110, '1.31'],
+		[112, '1.32'],
+		[114, '1.33'],
+		[115, '1.34'],
+		[116, '1.35'],
+		[116, '1.36'],
+		// [117, '1.36.2'], reverted to 11.6 in 1.36.3
+		[118, '1.37'],
+		[120, '1.38'],
+		[120, '1.39'],
+		[121, '1.40'],
+		[121, '1.41'],
+		[123, '1.41.3'],
+		[123, '1.42'],
 	],
+	// https://releases.electronjs.org/
+	// https://github.com/electron/electron/releases
 	// https://github.com/Kilian/electron-to-chromium/blob/master/chromium-versions.js
 	// Maybe also required to handle used Node versions?
 	// https://github.com/electron/releases/blob/master/lite.json
@@ -154,6 +172,14 @@ module.exports = {
 		[104, '20.0'],
 		[106, '21.0'],
 		[108, '22.0'],
+		[110, '23.0'],
+		[112, '24.0'],
+		[114, '25.0'],
+		[116, '26.0'],
+		[118, '27.0'],
+		[120, '28.0'],
+		[122, '29.0'],
+		[124, '30.0'],
 	],
 	// https://github.com/mdn/browser-compat-data/blob/main/browsers/opera.json
 	ChromeToOpera(chrome) {
@@ -200,8 +226,15 @@ module.exports = {
 		[96, '17.0'],
 		[99, '18.0'],
 		[102, '19.0'],
+		[106, '20.0'],
+		[110, '21.0'],
+		[111, '22.0'],
+		[115, '23.0'],
+		[117, '24.0'],
+		[121, '25.0'],
 	],
 	// https://github.com/mdn/browser-compat-data/blob/main/browsers/opera_android.json
+	// https://forums.opera.com/category/20/opera-for-android
 	ChromeAndroidToOperaAndroid: [
 		[59, 43],
 		[60, 44],
@@ -233,6 +266,15 @@ module.exports = {
 		[102, 70],
 		[104, 71],
 		[106, 72],
+		[108, 73],
+		[110, 74],
+		[112, 75],
+		[114, 76],
+		[115, 77],
+		[117, 78],
+		[119, 79],
+		[120, 80],
+		[122, 81],
 	],
 	// https://developer.oculus.com/documentation/web/browser-release-notes/
 	// Need to find another data source since release notes are not available for new versions.
@@ -261,11 +303,20 @@ module.exports = {
 		[102, '22.0'],
 		[104, '23.0'],
 		[106, '24.0'],
+		[108, '25.0'],
+		[110, '26.0'],
+		[112, '27.0'],
+		[114, '28.0'],
+		[116, '29.0'],
+		[118, '30.0'],
+		[120, '31.0'],
+		[122, '32.0'],
 	],
-	// https://github.com/mdn/browser-compat-data/blob/main/browsers/opera.json
+	// https://github.com/mdn/browser-compat-data/blob/main/browsers/firefox_android.json
 	FirefoxToFirefoxAndroid(firefox) {
 		return firefox <= 4 ? 4 : firefox;
 	},
+	// https://github.com/oven-sh/bun/releases
 	// This is the base data. Since it have no direct Safari equals by the
 	// WebKit / JavaScriptCore version, don't use mapping for future releases.
 	// https://github.com/oven-sh/bun/issues/396
@@ -274,6 +325,7 @@ module.exports = {
 	],
 	// https://github.com/mdn/browser-compat-data/blob/main/browsers/safari_ios.json
 	// https://en.wikipedia.org/wiki/Safari_version_history
+	// iOS 15+ uses similar to the desktop Safari versioning
 	SafariToIOS: [
 		['3.0', '1.0'],
 		['3.1', '2.0'],
@@ -296,15 +348,6 @@ module.exports = {
 		['13.1', '13.4'],
 		['14.0', '14.0'],
 		['14.1', '14.5'],
-		['15.0', '15.0'],
-		['15.1', '15.1'],
-		['15.2', '15.2'],
-		['15.3', '15.3'],
-		['15.4', '15.4'],
-		['15.5', '15.5'],
-		['15.6', '15.6'],
-		['16.0', '16.0'],
-		['16.1', '16.1'],
 	],
 	SafariToPhantom: [
 		['4.1', '1.9'],

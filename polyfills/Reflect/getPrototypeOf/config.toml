@@ -5,6 +5,8 @@ dependencies = [
 ]
 spec = "https://tc39.github.io/ecma262/#sec-reflect.getprototypeof"
 
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/getPrototypeOf"
+
 [browsers]
 android = "<5"
 bb = "*"
