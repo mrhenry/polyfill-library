@@ -86,17 +86,20 @@
 				return;
 			}
 
+			if (arguments[2] && arguments[2].once) {
+				var removerArgs = global.Array.prototype.slice.apply(arguments, [0]);
+				var _this = this;
+
+				var remover = function () {
+					_this.removeEventListener(type, remover);
+					_this.removeEventListener.apply(_this, removerArgs);
+				}
+
+				_this.addEventListener(type, remover);
+			}
+
 			args.unshift(native);
 			onAddListener.apply(this, args);
-
-			if (arguments[2] && arguments[2].once) {
-				var _this = this;
-				var remover = function () {
-					_this.removeEventListener('scrollend', remover);
-					_this.removeEventListener('scrollend', callback);
-				}
-				this.addEventListener('scrollend', remover);
-			}
 		}
 	}
 
