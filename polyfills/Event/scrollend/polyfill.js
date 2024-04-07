@@ -78,7 +78,7 @@
 
 	function polyfillAddEventListener(proto) {
 		var native = proto.addEventListener;
-		proto.addEventListener = function addEventListener(type, callback) {
+		proto.addEventListener = function addEventListener(type, callback) { // eslint-disable-line no-unused-vars
 			var args = global.Array.prototype.slice.apply(arguments, [0]);
 			native.apply(this, args);
 
