@@ -18,14 +18,7 @@
 	// Map of scroll-observed elements.
 	var observed = new global.WeakMap();
 
-	function onAddListener(originalFn, type, handler, options) { // eslint-disable-line no-unused-vars
-		// Polyfill scrollend event on any element for which the developer listens
-		// to 'scrollend' explicitly or 'scroll' (so that adding a scrollend listener
-		// from within a scroll listener works).
-		if (type !== 'scroll' && type !== 'scrollend') {
-			return;
-		}
-
+	function onAddListener(originalFn, type) {
 		var scrollPort = this;
 
 		var data = observed.get(scrollPort);
@@ -64,11 +57,7 @@
 		observed.set(scrollPort, data);
 	}
 
-	function onRemoveListener(originalFn, type, handler) { // eslint-disable-line no-unused-vars
-		if (type !== 'scroll' && type !== 'scrollend') {
-			return;
-		}
-
+	function onRemoveListener(originalFn, type) {
 		var scrollPort = this;
 		var data = observed.get(scrollPort);
 
@@ -89,11 +78,25 @@
 
 	function polyfillAddEventListener(proto) {
 		var native = proto.addEventListener;
-		proto.addEventListener = function addEventListener(type, callback) { // eslint-disable-line no-unused-vars
+		proto.addEventListener = function addEventListener(type, callback) {
 			var args = global.Array.prototype.slice.apply(arguments, [0]);
 			native.apply(this, args);
+
+			if (type !== 'scroll' && type !== 'scrollend') {
+				return;
+			}
+
 			args.unshift(native);
 			onAddListener.apply(this, args);
+
+			if (arguments[2] && arguments[2].once) {
+				var _this = this;
+				var remover = function () {
+					_this.removeEventListener('scrollend', remover);
+					_this.removeEventListener('scrollend', callback);
+				}
+				this.addEventListener('scrollend', remover);
+			}
 		}
 	}
 
@@ -102,6 +105,11 @@
 		proto.removeEventListener = function removeEventListener(type, callback) { // eslint-disable-line no-unused-vars
 			var args = global.Array.prototype.slice.apply(arguments, [0]);
 			native.apply(this, args);
+
+			if (type !== 'scroll' && type !== 'scrollend') {
+				return;
+			}
+
 			args.unshift(native);
 			onRemoveListener.apply(this, args);
 		}

@@ -97,6 +97,75 @@ describe('Event.scrollend', function () {
 		window.scrollTo(0, 10000);
 	});
 
+	it('respects once on elements', function (done) {
+		var counter = 0;
+		var listener = function listener() {
+			counter++;
+		};
+
+		el.addEventListener('scrollend', listener, { once: true });
+
+		el.scrollTop = 10000;
+		setTimeout(function () {
+			el.scrollTop = 0;
+		}, 200);
+
+		setTimeout(function () {
+			if (counter === 1) {
+				done();
+				return;
+			}
+
+			throw new Error('Listener was called ' + counter + ' times, expected 1');
+		}, 400);
+	});
+
+	it('respects once on the document', function (done) {
+		var counter = 0;
+		var listener = function listener() {
+			counter++;
+		};
+
+		document.addEventListener('scrollend', listener, { once: true });
+
+		window.scrollTo(0, 10000);
+		setTimeout(function () {
+			window.scrollTo(0, 0);
+		}, 200);
+
+		setTimeout(function () {
+			if (counter === 1) {
+				done();
+				return;
+			}
+
+			throw new Error('Listener was called ' + counter + ' times, expected 1');
+		}, 400);
+	});
+
+	it('respects once on the window', function (done) {
+		var counter = 0;
+		var listener = function listener() {
+			counter++;
+		};
+
+		window.addEventListener('scrollend', listener, { once: true });
+
+		window.scrollTo(0, 10000);
+		setTimeout(function () {
+			window.scrollTo(0, 0);
+		}, 200);
+
+		setTimeout(function () {
+			if (counter === 1) {
+				done();
+				return;
+			}
+
+			throw new Error('Listener was called ' + counter + ' times, expected 1' );
+		}, 400);
+	});
+
 	it('removes listeners on elements', function (done) {
 		var counter = 0;
 		var listener = function listener() {
