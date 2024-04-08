@@ -1,0 +1,40 @@
+#### Aliases
+aliases = []
+
+#### Dependencies
+dependencies = [
+	"Event",
+	"Set",
+	"WeakMap",
+	"smoothscroll"
+]
+
+#### Specification Link
+spec = "https://html.spec.whatwg.org/multipage/webappapis.html#handler-onscrollend"
+
+#### Documentation Link
+docs = "https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event"
+
+#### License
+license = "ISC"
+
+# The polyfill code was ported to ES3 for compatibility with older browsers.
+repo = "https://github.com/argyleink/scrollyfills"
+
+#### Browser compatibility
+[browsers]
+android = "*"
+bb = "*"
+chrome = "<114"
+edge = "*"
+edge_mob = "*"
+firefox = "<109"
+firefox_mob = "<109"
+ie = "*"
+ie_mob = "*"
+opera = "<100"
+op_mob = "<76"
+op_mini = "*"
+safari = "*"
+ios_saf = "*"
+samsung_mob = "<23.0"
