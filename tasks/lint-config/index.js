@@ -191,7 +191,7 @@ fetchBCD().then((browserData) => {
 							}
 						}).filter((x) => !!x);
 
-						if (mapped && mapped.length > 0) {
+						if (mapped && mapped.length > 0 && mapped.length !== ChromeAndroidToOperaAndroid.length) {
 							config.browsers[browser] = mapped.join(' || ');
 						}
 					}
@@ -209,7 +209,7 @@ fetchBCD().then((browserData) => {
 							}
 						}).filter((x) => !!x);
 
-						if (mapped && mapped.length > 0) {
+						if (mapped && mapped.length > 0 && mapped.length !== ChromeAndroidToSamsung.length) {
 							config.browsers[browser] = mapped.join(' || ');
 						}
 					}
@@ -227,7 +227,7 @@ fetchBCD().then((browserData) => {
 							}
 						}).filter((x) => !!x);
 
-						if (mapped && mapped.length > 0) {
+						if (mapped && mapped.length > 0 && mapped.length !== SafariToIOS.length) {
 							config.browsers[browser] = mapped.join(' || ');
 						}
 					}

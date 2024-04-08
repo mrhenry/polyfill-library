@@ -6,6 +6,8 @@ dependencies = [
 ]
 spec = "https://tc39.github.io/ecma262/#sec-reflect.preventextensions"
 
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/preventExtensions#"
+
 [browsers]
 android = "<5"
 bb = "*"
