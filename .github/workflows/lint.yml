@@ -1,5 +1,7 @@
 name: Lint
-on: [pull_request]
+on:
+  merge_group:
+  pull_request:
 jobs:
   lint:
     runs-on: ubuntu-latest

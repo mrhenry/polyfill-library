@@ -1,5 +1,6 @@
 name: Test Polyfills
 on:
+  merge_group:
   pull_request:
   workflow_dispatch:
 
