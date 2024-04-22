@@ -120,16 +120,16 @@ module.exports = class TestJob {
 				await wait(30 * 1000);
 				this.setState(`retrying browser -- attempt ${this.runCount}`);
 				return this.run();
-			} else {
-				this.results = error;
-				this.setState("error");
-				throw error;
 			}
+
+			this.results = error;
+			this.setState("error");
+			throw error;
 		}
 
-			this.lastUpdateTime = 0;
-			this.setState("initialising browser");
-			this.startTime = Date.now();
+		this.lastUpdateTime = 0;
+		this.setState("initialising browser");
+		this.startTime = Date.now();
 
 		try {
 			await this.setState("started");
@@ -140,6 +140,27 @@ module.exports = class TestJob {
 			});
 			await this.browser.navigateTo(this.url);
 			await this.setState("loaded URL");
+		} catch (error) {
+			if (this.runCount < 3) {
+				console.log({ error });
+
+				try { await this.browser.closeWindow(); } catch (_) {} // eslint-disable-line no-empty
+
+				this.runCount += 1;
+				this.setState("waiting 30 seconds to retry");
+				await wait(30 * 1000);
+				this.setState(`retrying browser -- attempt ${this.runCount}`);
+				return this.run();
+			}
+
+			console.log({ error });
+			await this.browser.closeWindow();
+			this.results = error;
+			this.setState("error");
+			throw error;
+		}
+
+		try {
 			await wait(this.pollTick);
 			await this.setState("polling for results");
 			await this.pollForResults();
