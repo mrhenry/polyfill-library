@@ -1,7 +1,8 @@
-name: Test Polyfills Weekly
+name: Test Polyfills Exhaustive
 on:
-  schedule:
-    - cron: '0 23 * * 0' # TODO : set convenient weekly retest time
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 concurrency:
