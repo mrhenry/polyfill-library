@@ -44,7 +44,6 @@
 				}
 				nativeURL = undefined;
 			}
-		 
 		} catch (_) {}
 
 		// NOTE: Doesn't do the encoding/decoding dance

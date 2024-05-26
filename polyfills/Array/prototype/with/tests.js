@@ -32,7 +32,6 @@ it('is not enumerable', function () {
 
 describe('with', function () {
 	[
-		 
 		{ kind: 'array', thing: [3, 4, 5, 6] },
 		{ kind: 'array-like object', thing: {0: 3, 1: 4, 2: 5, 3: 6, length: 4} }
 	].forEach(function (test) {

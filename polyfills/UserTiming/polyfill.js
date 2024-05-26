@@ -1,3 +1,4 @@
+/* eslint-env browser,amd,node */
 //
 // usertiming.js
 //

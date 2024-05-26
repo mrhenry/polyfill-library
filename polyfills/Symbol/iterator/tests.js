@@ -39,7 +39,7 @@ hasNodeListGlobal('can attach to a NodeList correctly', function() {
 
 	var iterator = dom[Symbol.iterator]();
 	var entry;
-	 
+
 	while(true) {
 		entry = iterator.next();
 		if (entry.done !== false) break;

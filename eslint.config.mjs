@@ -8,9 +8,9 @@ const browserScriptDefaults = {
 		"comma-dangle": ["error", "never"],
 		"quote-props": ["error", "as-needed", { "keywords": true }],
 		"dot-notation": ["error"],
-		"radix": "error",
-		"no-catch-shadow": "error",
-		"no-dupe-else-if": "error",
+		"radix": ["error"],
+		"no-catch-shadow": ["error"],
+		"no-dupe-else-if": ["error"],
 		"no-unused-vars": ["error", {
 			"argsIgnorePattern": "^_",
 			"caughtErrors": "none",

@@ -16,6 +16,6 @@ build()
 	.catch(error => {
 		console.log(error);
 		console.log(JSON.stringify(error));
-		 
+
 		process.exit(1);
 	});
