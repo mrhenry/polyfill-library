@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 var div = document.createElement('div');
 var tokenList = div.classList;
 

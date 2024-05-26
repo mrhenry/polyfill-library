@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 it('has a hidden property', function () {
 	proclaim.notEqual(typeof document.hidden, 'undefined');
 });

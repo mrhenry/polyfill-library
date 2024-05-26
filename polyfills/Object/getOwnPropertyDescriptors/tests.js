@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* global proclaim, Symbol */
+/* global Symbol */
 
 it('is a function', function () {
 	proclaim.isFunction(Object.getOwnPropertyDescriptors);

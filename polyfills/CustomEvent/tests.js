@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 /* Not supported by the polyfill
 it('should have an initCustomEvent function', function() {
 	proclaim.isInstanceOf(typeof CustomEvent.prototype.initCustomEvent, Function);

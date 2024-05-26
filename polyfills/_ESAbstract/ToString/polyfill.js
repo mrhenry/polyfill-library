@@ -24,13 +24,14 @@
 |               | Return ? ToString(primValue).                          |
 |---------------|--------------------------------------------------------|
 */
-function ToString(argument) { // eslint-disable-line no-unused-vars
+// eslint-disable-next-line no-unused-vars
+function ToString(argument) {
 	switch(Type(argument)) {
 		case 'symbol':
 			throw new TypeError('Cannot convert a Symbol value to a string');
 		case 'object':
 			var primValue = ToPrimitive(argument, String);
-			return ToString(primValue); // eslint-disable-line no-unused-vars
+			return ToString(primValue);
 		default:
 			return String(argument);
 	}

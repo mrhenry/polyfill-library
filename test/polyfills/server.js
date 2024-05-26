@@ -168,7 +168,7 @@ async function testablePolyfills(ua) {
 	}
 
 	const polyfills = await polyfillio.listAllPolyfills();
-	const polyfilldata = [];
+	const polyfillData = [];
 
 	for (const polyfill of polyfills) {
 		const config = await polyfillio.describePolyfill(polyfill);
@@ -193,14 +193,14 @@ async function testablePolyfills(ua) {
 
 				${await readFile(testFile)}
 			});`;
-			polyfilldata.push({
+			polyfillData.push({
 				feature: polyfill,
 				testSuite
 			});
 		}
 	}
 
-	polyfilldata.sort(function (a, b) {
+	polyfillData.sort(function (a, b) {
 		// console.clear() test must run first to preserve console output of other tests.
 		// to run first it must be last in the list.
 		if (a.feature === 'console.clear') {
@@ -214,8 +214,8 @@ async function testablePolyfills(ua) {
 		return a.feature > b.feature ? -1 : 1;
 	});
 
-	testablePolyfillsCache[`ua:${ua}`] = polyfilldata;
-	return polyfilldata;
+	testablePolyfillsCache[`ua:${ua}`] = polyfillData;
+	return polyfillData;
 }
 
 function createEndpoint(template) {
@@ -281,7 +281,7 @@ function createEndpoint(template) {
 				polyfillCombinations: polyfillCombinations,
 				always: always,
 				afterTestSuite: `
-				// During the test run, surface the test results in Browserstacks' preferred format
+				// During the test run, surface the test results in Browserstack their preferred format
 				function run() {
 					// Given a test, get the first level suite that it is contained within
 					// Not the top level, the first one down.

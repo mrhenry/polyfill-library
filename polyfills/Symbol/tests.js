@@ -1,5 +1,5 @@
 
-/* globals proclaim, Symbol */
+/* globals Symbol */
 
 it('is a function', function () {
 	proclaim.isFunction(Symbol);
@@ -22,7 +22,7 @@ var strictModeSupported = (function(){ return this; }).call(null) === null;
 // https://tc39.github.io/ecma262/#sec-symbol-constructor
 it('should throw if being used via `new`', function() {
 	var test = function () {
-		// eslint-disable-next-line no-new-symbol
+		// eslint-disable-next-line no-new-native-nonconstructor
 		return new Symbol();
 	};
 	proclaim.throws(test);

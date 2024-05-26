@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 var supportsDefiningFunctionName = (function () {
 	var fn = function () {};
 	try {
@@ -35,7 +32,7 @@ it('is not enumerable', function () {
 
 describe('with', function () {
 	[
-		// eslint-disable-next-line no-sparse-arrays
+		 
 		{ kind: 'array', thing: [3, 4, 5, 6] },
 		{ kind: 'array-like object', thing: {0: 3, 1: 4, 2: 5, 3: 6, length: 4} }
 	].forEach(function (test) {

@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* globals proclaim, Symbol */
+/* globals Symbol */
 
 var supportsUnicodeRegexpFlag = (function () {
 	try {

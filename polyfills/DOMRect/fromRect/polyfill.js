@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 (function (global) {
 	function number(v) {
 		return v === undefined ? 0 : Number(v);

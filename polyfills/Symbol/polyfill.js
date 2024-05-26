@@ -327,9 +327,7 @@
 	}()) {
 		var getInferredName;
 		try {
-			// eslint-disable-next-line no-new-func
 			getInferredName = Function("s", "var v = s.valueOf(); return { [v]() {} }[v].name;");
-			// eslint-disable-next-line no-empty
 		} catch (e) { }
 
 		var inferred = function () { };

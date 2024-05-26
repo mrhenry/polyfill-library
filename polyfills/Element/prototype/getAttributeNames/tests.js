@@ -1,7 +1,3 @@
-/* eslint-env mocha, browser */
-// eslint-disable-next-line no-unused-vars
-/* globals proclaim */
-
 describe('Element.prototype.getAttributeNames', function () {
 	it('should return the attribute names', function () {
 		var el = document.body.appendChild(document.createElement('DIV'));

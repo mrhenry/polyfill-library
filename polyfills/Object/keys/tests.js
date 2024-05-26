@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 it('is a function', function () {
 	proclaim.isFunction(Object.keys);
 });
@@ -43,7 +40,6 @@ it('works as expected', function () {
 			try {
 				Object.keys(value);
 				return true;
-			// eslint-disable-next-line no-empty
 			} catch (e) {}
 		}
 		function fn1$(){

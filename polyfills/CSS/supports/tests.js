@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 describe("CSS", function() {
 	it("is a function", function() {
 		proclaim.isFunction(CSS.supports);

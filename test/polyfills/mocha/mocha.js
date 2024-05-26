@@ -1,11 +1,6 @@
-/* eslint-disable */
-
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,global){(function (){
 'use strict';
-
-/* eslint no-unused-vars: off */
-/* eslint-env commonjs */
 
 var Mocha = require('./lib/mocha');
 
@@ -1938,8 +1933,6 @@ function sameType (a, b) {
 }).call(this)}).call(this,require('_process'))
 },{"../ms":11,"../utils":21,"_process":24,"diff":28,"tty":4}],14:[function(require,module,exports){
 'use strict';
-
-/* eslint-env browser */
 
 /**
  * Module dependencies.
@@ -4117,8 +4110,6 @@ module.exports = toISOString;
 },{}],21:[function(require,module,exports){
 (function (Buffer){(function (){
 'use strict';
-
-/* eslint-env browser */
 
 /**
  * Module dependencies.
@@ -7561,7 +7552,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(false)
-		define([], factory);
+		{ }
 	else if(typeof exports === 'object')
 		exports["JsDiff"] = factory();
 	else
@@ -9702,9 +9693,6 @@ module.exports = function (str) {
 	if (
 		false
 	) {
-		define(function() {
-			return he;
-		});
 	}	else if (freeExports && !freeExports.nodeType) {
 		if (freeModule) { // in Node.js, io.js, or RingoJS v0.8.0+
 			freeModule.exports = he;

@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* global proclaim, Symbol */
+/* global Symbol */
 
 var hasStrictMode = (function () {
 	'use strict';

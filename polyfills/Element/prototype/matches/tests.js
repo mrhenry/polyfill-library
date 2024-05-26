@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 it("should return true if the element matches the tag selector", function() {
 	var el = document.body.appendChild(document.createElement("p"));
 

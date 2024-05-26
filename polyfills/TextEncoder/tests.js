@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 describe("TextEncoder", function() {
 	it("has a valid constructor", function() {
 		proclaim.isInstanceOf(new TextEncoder(), TextEncoder);

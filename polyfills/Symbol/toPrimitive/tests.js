@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* global proclaim, Symbol */
+/* global Symbol */
 
 it('has the well known symbol toPrimitive as static properties on Symbol', function() {
 	proclaim.notEqual(Symbol.toPrimitive, undefined);

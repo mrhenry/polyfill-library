@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 describe("Intl.ListFormat", function () {
 	before(function () {
 		if (

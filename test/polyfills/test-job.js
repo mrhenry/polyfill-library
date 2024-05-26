@@ -61,14 +61,14 @@ module.exports = class TestJob {
 	}
 
 	async pollForResults() {
-		const browserdata = await this.browser.execute(function () {
+		const browserData = await this.browser.execute(function () {
 			// browser context - you may not access client or console
 			// eslint-disable-next-line no-undef
 			return window.global_test_results || window.global_test_progress;
 		});
-		if (browserdata && browserdata.state === "complete") {
+		if (browserData && browserData.state === "complete") {
 			this.browser.deleteSession();
-			this.results = browserdata;
+			this.results = browserData;
 			this.duration = Math.floor((Date.now() - this.startTime) / 1000);
 			this.setState("complete");
 			return this;
@@ -78,12 +78,12 @@ module.exports = class TestJob {
 		) {
 			throw new Error(`Timed out at "${this.state}" on "${this.name}"`);
 		} else {
-			if (browserdata && browserdata.state === "running") {
+			if (browserData && browserData.state === "running") {
 				if (
 					!this.results ||
-					browserdata.runnerCompletedCount > this.results.runnerCompletedCount
+					browserData.runnerCompletedCount > this.results.runnerCompletedCount
 				) {
-					this.results = browserdata;
+					this.results = browserData;
 					this.lastUpdateTime = Date.now();
 				}
 				this.setState("running");
@@ -128,7 +128,7 @@ module.exports = class TestJob {
 		}
 
 		this.lastUpdateTime = 0;
-		this.setState("initialising browser");
+		this.setState("initializing browser");
 		this.startTime = Date.now();
 
 		try {
@@ -144,7 +144,7 @@ module.exports = class TestJob {
 			if (this.runCount < 3) {
 				console.log({ error });
 
-				try { await this.browser.closeWindow(); } catch (_) {} // eslint-disable-line no-empty
+				try { await this.browser.closeWindow(); } catch {}
 
 				this.runCount += 1;
 				this.setState("waiting 30 seconds to retry");

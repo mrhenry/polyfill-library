@@ -1,5 +1,4 @@
-
-/* globals proclaim, Reflect */
+/* globals Reflect */
 
 it('is an object', function () {
 	proclaim.isObject(Reflect);

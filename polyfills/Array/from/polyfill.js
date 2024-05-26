@@ -13,7 +13,7 @@
 	}
 
 	// 22.1.2.1. Array.from ( items [ , mapfn [ , thisArg ] ] )
-	CreateMethodProperty(Array, 'from', function from(items /* [ , mapfn [ , thisArg ] ] */) { // eslint-disable-line no-undef
+	CreateMethodProperty(Array, 'from', function from(items /* [ , mapfn [ , thisArg ] ] */) {
 		// 1. Let C be the this value.
 		var C = this;
 		// 2. If mapfn is undefined, let mapping be false.
@@ -55,7 +55,6 @@
 			// d. Let k be 0.
 			var k = 0;
 			// e. Repeat,
-			// eslint-disable-next-line no-constant-condition
 			while (true) {
 				// i. If k ≥ 2^53-1, then
 				if (k >= (Math.pow(2, 53) - 1)) {

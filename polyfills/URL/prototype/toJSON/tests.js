@@ -1,7 +1,3 @@
-/* eslint-env mocha, browser */
-// eslint-disable-next-line no-unused-vars
-/* globals proclaim */
-
 // minimal test
 describe('URL.prototype.toJSON', function () {
 	it('is a function', function () {

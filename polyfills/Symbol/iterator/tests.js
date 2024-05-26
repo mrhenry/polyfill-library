@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* global proclaim, Symbol, Set, Map */
+/* global Symbol, Set, Map */
 
 it('has the well known symbol iterator as static properties on Symbol', function() {
 	proclaim.notEqual(Symbol.iterator, undefined);
@@ -40,7 +39,7 @@ hasNodeListGlobal('can attach to a NodeList correctly', function() {
 
 	var iterator = dom[Symbol.iterator]();
 	var entry;
-	// eslint-disable-next-line no-constant-condition
+	 
 	while(true) {
 		entry = iterator.next();
 		if (entry.done !== false) break;

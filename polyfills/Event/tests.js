@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 // Safari fails this test.  However, no-one would ever do this
 // as it would just create an event that can never be dispatched/listened for
 // it doesn't cause any problem

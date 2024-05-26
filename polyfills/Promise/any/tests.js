@@ -1,5 +1,5 @@
 
-/* globals proclaim, Promise */
+/* globals Promise */
 
 function makeArrayIterator (array) {
 	var i = 0;

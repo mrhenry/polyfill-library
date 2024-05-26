@@ -55,7 +55,7 @@ processFeatureAndStartServer().then(() => {
 		});
 	} else {
 		console.warn('Polyfills directory does not exist.');
-		// eslint-disable-next-line unicorn/no-process-exit
+
 		process.exit(1);
 	}
 });

@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 var fragment;
 
 function nameOf(fn) {

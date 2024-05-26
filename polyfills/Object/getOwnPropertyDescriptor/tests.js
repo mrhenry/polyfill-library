@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 it('is a function', function () {
 	proclaim.isFunction(Object.getOwnPropertyDescriptor);
 });

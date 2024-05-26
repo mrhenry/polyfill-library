@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 describe('IntersectionObserverEntry', function () {
 	var scrollArea;
 	var childElement;

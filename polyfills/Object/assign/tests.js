@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 it('has the correct length', function() {
 	proclaim.deepEqual(Object.assign.length, 2);
 });

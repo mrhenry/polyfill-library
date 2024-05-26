@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 it("should output a PNG blob", function(done) {
 	var canvas = document.createElement("canvas");
 	var ctx = canvas.getContext("2d");

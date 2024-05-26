@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 it("Should be able to add a class using #toggle", function() {
 	var el = document.createElement("p");
 	var classList = el.classList;

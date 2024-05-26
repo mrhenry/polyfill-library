@@ -1,7 +1,3 @@
-/* eslint-env mocha, browser */
-// eslint-disable-next-line no-unused-vars
-/* globals proclaim */
-
 /*
  * These tests include a large set of dates to brute force check for issues.
  * Because of the size it is better to not run these always.
@@ -10,6 +6,8 @@
  *
  * To run change the filename to `tests.js`.
  */
+
+/* globals JSON */
 
 function testValueAsDateGetter(element, cases) {
 	for (var i = 0; i < cases.length; i++) {

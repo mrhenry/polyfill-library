@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 describe("Template", function() {
 	var template;
 	before(function() {

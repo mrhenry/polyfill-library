@@ -1,4 +1,4 @@
-/* globals proclaim, Int8Array */
+/* globals Int8Array */
 
 // use "Int8Array" as a proxy for all "TypedArray" subclasses
 

@@ -1,7 +1,3 @@
-/* eslint-env mocha, browser */
-// eslint-disable-next-line no-unused-vars
-/* globals proclaim */
-
 describe('HTMLSelectElement.prototype.selectedOptions', function () {
 	function createHTML(args) {
 		var select = document.createElement('SELECT');

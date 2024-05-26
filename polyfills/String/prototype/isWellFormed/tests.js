@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* globals proclaim */
-
 it("is a function", function () {
 	proclaim.isFunction(String.prototype.isWellFormed);
 });

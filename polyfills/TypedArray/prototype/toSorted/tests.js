@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* global proclaim, Int8Array */
+/* global Int8Array */
 
 // use "Int8Array" as a proxy for all "TypedArray" subclasses
 

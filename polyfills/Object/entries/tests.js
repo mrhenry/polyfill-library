@@ -1,5 +1,5 @@
 
-/* globals proclaim, Symbol */
+/* globals Symbol */
 
 it('is a function', function () {
 	proclaim.isFunction(Object.entries);
@@ -288,10 +288,8 @@ it('works as expected', function () {
 	}
 	try {
 		proclaim.deepEqual(Function('return Object.entries({a: 1, get b(){delete this.c;return 2},c: 3})')(), [['a', 1], ['b', 2]]);
-	// eslint-disable-next-line no-empty
 	} catch (e) {}
 	try {
 		proclaim.deepEqual(Function('return Object.entries({a: 1, get b(){Object.defineProperty(this, "c", {value:4,enumerable:false});return 2},c: 3})')(), [['a', 1], ['b', 2]]);
-	// eslint-disable-next-line no-empty
 	} catch (e) {}
 });

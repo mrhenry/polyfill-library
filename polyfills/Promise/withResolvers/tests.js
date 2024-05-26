@@ -1,4 +1,4 @@
-/* globals proclaim, Promise */
+/* globals Promise */
 
 it("is a function", function () {
 	proclaim.isFunction(Promise.withResolvers);

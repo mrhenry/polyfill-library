@@ -19,7 +19,7 @@ const modifiedPolyfillsWithTests = require('../utils/modified-polyfills-with-tes
 const UA = require("@financial-times/polyfill-useragent-normaliser");
 const { URL } = require('node:url');
 
-// Grab all the browsers from BrowserStack which are officially supported by the polyfil service.
+// Grab all the browsers from BrowserStack which are officially supported by the polyfill service.
 const TOML = require("@iarna/toml");
 
 main();
@@ -38,7 +38,7 @@ async function main() {
 		fs.readFileSync(path.join(__dirname, "./browsers.toml"), "utf-8")
 	).browsers;
 
-	const browserstacklist = TOML.parse(
+	const browserstackList = TOML.parse(
 		fs.readFileSync(path.join(__dirname, "./browserstackBrowsers.toml"), "utf-8")
 	).browsers;
 
@@ -85,7 +85,7 @@ async function main() {
 
 	if (browsers.length === 0) {
 		console.log("nothing to test");
-		// eslint-disable-next-line unicorn/no-process-exit
+
 		process.exit(0);
 	}
 
@@ -93,7 +93,7 @@ async function main() {
 
 	const useragentToBrowserObject = browserWithVersion => {
 		const [browser, version] = browserWithVersion.split("/");
-		for (const browserObject of browserstacklist) {
+		for (const browserObject of browserstackList) {
 			if (browser === browserObject.os && version === browserObject.os_version) {
 				return {
 					deviceName: browserObject.device,
@@ -182,7 +182,7 @@ async function main() {
 
 		// Polyfill combinations run tests with all polyfills for a browser included.
 		// These tests guard against issues where polyfill A breaks polyfill B
-		// even though there is no depedency relation between A and B.
+		// even though there is no dependency relation between A and B.
 		// These tests are slow and only run on demand
 		return configs.flatMap((config) => {
 			return [
@@ -354,13 +354,13 @@ async function main() {
 											.catch(error => {
 												console.log(error.stack || error);
 												process.exitCode = 1;
-												// eslint-disable-next-line unicorn/no-process-exit
+
 												process.exit(1);
 											}));
 								} else {
 									console.log(error.stack || error);
 									process.exitCode = 1;
-									// eslint-disable-next-line unicorn/no-process-exit
+
 									process.exit(1);
 								}
 							})
@@ -424,7 +424,7 @@ async function main() {
 		} catch (error) {
 			console.error(error);
 			process.exitCode = 1;
-			// eslint-disable-next-line unicorn/no-process-exit
+
 			process.exit(1);
 		}
 	}());
