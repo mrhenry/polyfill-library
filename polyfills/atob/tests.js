@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 // Doesn't throw in IE9, otherwise works fine, so tolerate this
 it.skip("should throw exception for invalid characters in code", function () {
 	proclaim.throws(function() {

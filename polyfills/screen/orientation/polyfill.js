@@ -54,7 +54,6 @@
 			// screen is read-only in some browsers
 			try {
 				window.screen.orientation = getVal();
-			// eslint-disable-next-line no-empty
 			} catch (e2) {}
 		}
 	}

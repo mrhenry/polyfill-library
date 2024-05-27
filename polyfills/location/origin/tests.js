@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 it('should be defined', function() {
 	proclaim.notEqual(window.location.origin, undefined);
 });

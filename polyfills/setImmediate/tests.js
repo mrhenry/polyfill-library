@@ -1,5 +1,4 @@
-
-/* globals proclaim, setImmediate, clearImmediate */
+/* globals setImmediate, clearImmediate */
 
 describe('setImmediate', function () {
 	it('is a function', function () {

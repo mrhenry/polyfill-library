@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 it("should define the EventTarget methods on the MediaQueryList prototype", function() {
 	proclaim.ok('addEventListener' in (self.matchMedia('(min-width: 1px)')));
 	proclaim.ok('removeEventListener' in (self.matchMedia('(min-width: 1px)')));

@@ -1,4 +1,4 @@
-/* globals proclaim, ArrayBuffer, DataView, Int8Array */
+/* globals ArrayBuffer, DataView, Int8Array */
 
 it('is a function', function () {
 	proclaim.isFunction(ArrayBuffer.isView);

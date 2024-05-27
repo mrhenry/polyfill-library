@@ -1,5 +1,4 @@
-
-/* globals proclaim, WeakSet, Symbol */
+/* globals  WeakSet, Symbol */
 
 it('is a function', function () {
 	proclaim.isFunction(WeakSet);

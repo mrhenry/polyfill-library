@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 var perf = window.performance;
 
 describe("mark()", function() {

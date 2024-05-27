@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 describe('scroll', function () {
 	it('is defined as a function on window', function () {
 		proclaim.isTypeOf(window.scroll, 'function');

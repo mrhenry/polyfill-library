@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* global proclaim, Set, Symbol */
+/* global Set, Symbol */
 
 it('is a function', function () {
 	proclaim.isFunction(Set);

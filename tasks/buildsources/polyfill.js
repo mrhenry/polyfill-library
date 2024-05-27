@@ -75,7 +75,7 @@ module.exports = class Polyfill {
 	}
 
 	/**
-	 * Depedencies for the Polyfill.
+	 * Dependencies for the Polyfill.
 	 *
 	 * @type {Array<string>}
 	 */
@@ -166,7 +166,7 @@ module.exports = class Polyfill {
 						// This throws on invalid ranges, which in turn fails the build, acting as a smell.
 						try {
 							new semver.Range(this.config.browsers[browser])
-						} catch (_) {
+						} catch {
 							throw new Error("Polyfill " + this.name + " has an incorrect version range for " + browser + ": " + this.config.browsers[browser]);
 						}
 					}

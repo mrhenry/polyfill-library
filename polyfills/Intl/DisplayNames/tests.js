@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 describe("Intl.DisplayNames", function () {
 	before(function () {
 		if (

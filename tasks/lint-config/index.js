@@ -1,7 +1,4 @@
-/* eslint-disable unicorn/no-array-push-push */
 'use strict';
-
-/* eslint-disable unicorn/no-process-exit */
 
 const fs = require('node:fs');
 const TOML = require('@iarna/toml');
@@ -333,7 +330,7 @@ fetchBCD().then((browserData) => {
 		try {
 			assert.deepStrictEqual(config.browsers, originalBrowsers);
 			assert.deepStrictEqual(Object.keys(config.browsers), Object.keys(originalBrowsers));
-		} catch (_) {
+		} catch {
 			logBuffer.push(['\n\nupdated browser config:\n', 'error']);
 			logBuffer.push([TOML.stringify({ browsers: config.browsers }), 'error']);
 		}

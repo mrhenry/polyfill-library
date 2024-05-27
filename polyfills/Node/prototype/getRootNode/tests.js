@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-/* globals proclaim */
-
 function supportsShadowRoot() {
 	return typeof Element.prototype.attachShadow === "function";
 }

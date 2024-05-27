@@ -12,7 +12,6 @@
 	if ('HTMLElement' in self && 'isSameNode' in HTMLElement.prototype) {
 		try {
 			delete HTMLElement.prototype.isSameNode;
-		// eslint-disable-next-line no-empty
 		} catch (e) {}
 	}
 

@@ -1,4 +1,4 @@
-/* globals proclaim, Map, Symbol, Set */
+/* globals Map, Symbol, Set */
 
 it('is a function', function () {
 	proclaim.isFunction(Array.from);

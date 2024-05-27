@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* global proclaim, Symbol */
+/* global Symbol */
 
 it('has the well known symbol search as static properties on Symbol', function() {
 	proclaim.notEqual(Symbol.search, undefined);

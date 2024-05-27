@@ -1,7 +1,3 @@
-/* eslint-env mocha, browser */
-// eslint-disable-next-line no-unused-vars
-/* globals proclaim */
-
 describe('document.elementsFromPoint', function () {
 	function getElementCenter(el) {
 		var elBounds = el.getBoundingClientRect();

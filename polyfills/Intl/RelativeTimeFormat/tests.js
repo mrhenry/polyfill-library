@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 describe("Intl.RelativeTimeFormat", function () {
 	before(function () {
 		if (

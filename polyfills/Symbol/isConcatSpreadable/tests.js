@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* global proclaim, Symbol */
+/* global Symbol */
 
 it('has the well known symbol isConcatSpreadable as static properties on Symbol', function() {
 	proclaim.notEqual(Symbol.isConcatSpreadable, undefined);

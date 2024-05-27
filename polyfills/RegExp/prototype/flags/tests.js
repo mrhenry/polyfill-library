@@ -1,6 +1,3 @@
-
-/* globals proclaim */
-
 proclaim.isGetter = function (obj, prop) {
 	if ('getOwnPropertyDescriptor' in Object) {
 		proclaim.isFunction(Object.getOwnPropertyDescriptor(obj, prop).get);

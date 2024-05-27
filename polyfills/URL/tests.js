@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 it('URL IDL', function() {
 	var url = new URL('http://example.com:8080/foo/bar?a=1&b=2#p1');
 	proclaim.equal(typeof url.protocol, 'string', 'protocol');

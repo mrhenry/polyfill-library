@@ -1,5 +1,5 @@
 
-/* globals proclaim, Promise, Symbol */
+/* globals Promise, Symbol, JSON */
 
 it('is a function', function () {
 	proclaim.isFunction(Promise);

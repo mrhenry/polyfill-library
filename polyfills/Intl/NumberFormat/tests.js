@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 before(function () {
 	if (
 		Intl.PluralRules &&

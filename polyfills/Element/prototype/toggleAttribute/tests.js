@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 describe('Element.prototype.toggleAttribute', function() {
 	var el;
 

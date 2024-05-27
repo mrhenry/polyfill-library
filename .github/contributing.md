@@ -202,4 +202,4 @@ Please **ask first** if somebody else is already working on this or the core dev
 Please also provide a **test plan**, i.e. specify how you verified that your addition works.
 
 **IMPORTANT**: By submitting a patch, you agree to allow the project
-owners to license your work under the terms of the [MIT License](../LICENSE.md) and the [CLA](./contribution_licence_agreement.md).
+owners to license your work under the terms of the [MIT License](../LICENSE.md).

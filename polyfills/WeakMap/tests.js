@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* global proclaim, WeakMap, Symbol */
+/* global WeakMap, Symbol */
 
 it('is a function', function () {
 	proclaim.isFunction(WeakMap);

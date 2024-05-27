@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* global proclaim, ArrayBuffer, DataView, Symbol */
+/* global ArrayBuffer, DataView, Symbol */
 
 describe('ArrayBuffer.prototype[Symbol.toStringTag]', function () {
 	it('has correct descriptors defined for ArrayBuffer.prototype[Symbol.toStringTag]', function () {

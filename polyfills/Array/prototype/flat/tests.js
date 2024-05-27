@@ -1,5 +1,5 @@
 
-/* globals proclaim, Symbol */
+/* globals Symbol */
 
 var supportsStrictModeTests = (function () {
 	'use strict';

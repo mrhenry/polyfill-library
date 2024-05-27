@@ -19,7 +19,7 @@ fs.writeFileSync(path.join(polyfillFolderPath, 'config.toml'), configTemplate, {
 fs.writeFileSync(path.join(polyfillFolderPath, 'detect.js'), detectTemplate, {encoding: 'utf-8'});
 fs.writeFileSync(path.join(polyfillFolderPath, 'tests.js'), testsTemplate.replace('REPLACE_ME', newPolyfill), {encoding: 'utf-8'});
 
-console.log(`Created a new polyfill template at ${polyfillFolderPath}. Woohoo!`);
+console.log(`Created a new polyfill template at ${polyfillFolderPath}.`);
 
 /**
  * Converts `.`s to `/`s

@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* globals proclaim */
-
 describe('DOMRect.fromRect', function () {
 	it('should create DOMRect with specified x, y, width, and height properties', function () {
 		var domRect = DOMRect.fromRect(new DOMRect(12, 34, 56, 78));

@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 var testCases = [
 	{_Error: Error, name: 'Error', arity: 1},
 	{_Error: EvalError, name: 'EvalError', arity: 1},

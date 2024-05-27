@@ -1,5 +1,3 @@
-/* eslint-env node */
-
 /*
  * This script will copy all of the localisation language files from the Intl.DateTimeFormat
  * module and install them within a folder in this directory named ~locale.

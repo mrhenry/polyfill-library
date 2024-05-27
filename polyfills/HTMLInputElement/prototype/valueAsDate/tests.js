@@ -1,6 +1,4 @@
-/* eslint-env mocha, browser */
-// eslint-disable-next-line no-unused-vars
-/* globals proclaim */
+/* globals JSON */
 
 function testValueAsDateGetter(element, cases) {
 	for (var i = 0; i < cases.length; i++) {

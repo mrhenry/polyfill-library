@@ -1,6 +1,3 @@
-
-/* globals proclaim */
-
 it('is a function', function () {
 	proclaim.isFunction(String.prototype.repeat);
 });

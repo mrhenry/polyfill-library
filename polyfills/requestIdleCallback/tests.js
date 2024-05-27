@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 describe('IdleDeadline', function () {
 
 	it('is defined as a function', function () {
