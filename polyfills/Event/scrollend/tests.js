@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* globals proclaim */
-
 describe('Event.scrollend', function () {
 	var el;
 

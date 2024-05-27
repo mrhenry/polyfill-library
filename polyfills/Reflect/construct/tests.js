@@ -1,5 +1,5 @@
 
-/* globals proclaim, Reflect */
+/* globals Reflect */
 
 it('is a function', function () {
 	proclaim.isFunction(Reflect.construct);

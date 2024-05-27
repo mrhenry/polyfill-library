@@ -1,7 +1,3 @@
-
-/* globals proclaim */
-
-
 it('is a function', function () {
 	proclaim.isFunction(Array.prototype.includes);
 });

@@ -1,5 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
 describe('Blob', function () {
 
 	it('should expose a property named Blob on the global object', function() {

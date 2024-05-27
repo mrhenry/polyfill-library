@@ -1,5 +1,5 @@
 
-/* globals proclaim, Symbol */
+/* globals Symbol */
 
 it('is defined', function () {
 	proclaim.include(Symbol.prototype, 'description');

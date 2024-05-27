@@ -1,5 +1,5 @@
 
-/* globals proclaim, Map, Symbol */
+/* globals Map, Symbol */
 
 it('is a function', function () {
 	proclaim.isFunction(Map);
@@ -232,7 +232,7 @@ describe('Map', function () {
 
 		it('throws error if called without NewTarget set. I.E. Called as a normal function and not a constructor', function () {
 			proclaim.throws(function () {
-				Map(); // eslint-disable-line new-cap
+				Map();
 			});
 		});
 
@@ -475,10 +475,10 @@ describe('Map', function () {
 		proclaim.equal(o.get(""), 'test value');
 
 		if (Object.create && Object.setPrototypeOf) {
-			function BaseClass() { // eslint-disable-line no-inner-declarations
+			function BaseClass() {
 				// Empty class
 			}
-			function SubClass() { // eslint-disable-line no-inner-declarations
+			function SubClass() {
 				// Empty class
 			}
 

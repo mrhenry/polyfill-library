@@ -52,7 +52,7 @@ describe("polyfills subset for tests based on git changes", function () {
 		});
 	});
 
-	it("should include polyfill dependants", async () => {
+	it("should include polyfill dependents", async () => {
 		const modified = await polyfillsWithTestsFrom(
 			['polyfills/a/polyfill/polyfill.js'],
 			['a.polyfill', 'b.polyfill'],
@@ -86,7 +86,7 @@ describe("polyfills subset for tests based on git changes", function () {
 		});
 	});
 
-	it("should include polyfill dependants, even when the graph has gaps in tests", async () => {
+	it("should include polyfill dependents, even when the graph has gaps in tests", async () => {
 		const modified = await polyfillsWithTestsFrom(
 			['polyfills/a/polyfill/polyfill.js'],
 			['a.polyfill', 'b.polyfill', 'c.polyfill'],
@@ -149,7 +149,7 @@ describe("polyfills subset for tests based on git changes", function () {
 		assert.deepEqual(modified.affectedPolyfills, {});
 	});
 
-	it("should skip polyfills without tests but include it's dependants", async () => {
+	it("should skip polyfills without tests but include it's dependents", async () => {
 		const modified = await polyfillsWithTestsFrom(
 			['polyfills/a/polyfill/polyfill.js'],
 			['a.polyfill', 'b.polyfill'],

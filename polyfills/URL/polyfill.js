@@ -17,7 +17,7 @@
 		return false;
 	}
 
-	;(function() { // eslint-disable-line no-extra-semi
+	;(function() {
 
 		// Browsers may have:
 		// * No global URL object
@@ -44,7 +44,6 @@
 				}
 				nativeURL = undefined;
 			}
-		// eslint-disable-next-line no-empty
 		} catch (_) {}
 
 		// NOTE: Doesn't do the encoding/decoding dance

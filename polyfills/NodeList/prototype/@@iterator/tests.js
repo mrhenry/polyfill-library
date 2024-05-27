@@ -1,7 +1,6 @@
-/* eslint-env mocha, browser */
-/* global proclaim, Symbol */
+/* global Symbol */
 
-function getNodeList () {
+function getNodeList() {
 	var fragment = document.createDocumentFragment();
 	fragment.appendChild(document.createElement('div'));
 	fragment.appendChild(document.createElement('div'));

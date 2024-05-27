@@ -1,5 +1,4 @@
-
-/* globals proclaim, globalThis */
+/* globals globalThis, JSON */
 
 describe("globalThis", function() {
 	it("is an object", function() {

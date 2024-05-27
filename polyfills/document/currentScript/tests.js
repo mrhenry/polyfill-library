@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 var currentScriptDuringSynchronousEval = document.currentScript;
 
 it('returns the current script element when invoked during synchronous evaluation', function () {

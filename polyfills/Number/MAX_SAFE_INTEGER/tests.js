@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 it('should have max safe integer defined', function() {
 	proclaim.isDefined(Number.MAX_SAFE_INTEGER);
 });

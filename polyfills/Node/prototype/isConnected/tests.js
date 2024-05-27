@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-/* globals proclaim */
-
 describe('on an element', function () {
 	var element = document.createElement('div');
 

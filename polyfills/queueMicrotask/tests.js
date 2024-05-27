@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* global proclaim Promise*/
+/* global Promise*/
 
 describe('queueMicrotask', function() {
 	it('is defined as a function in the global scope', function() {

@@ -61,17 +61,13 @@
 			sPOf = createAndCopy;
 		} else {
 			// verify if null objects are buggy
-			/* eslint-disable no-proto */
 			set.__proto__ = objProto;
-			/* eslint-enable no-proto */
 			// if null objects are buggy
 			// nodejs 0.8 to 0.10
 			if (set instanceof Object) {
 				sPOf = function setPrototypeOf(origin, proto) {
 					// use such bug to promote
-					/* eslint-disable no-proto */
 					origin.__proto__ = proto;
-					/* eslint-enable no-proto */
 					return origin;
 				};
 			} else {
@@ -81,9 +77,7 @@
 					// if proto is not null
 					if (getPrototypeOf(origin)) {
 						// use __proto__ to promote
-						/* eslint-disable no-proto */
 						origin.__proto__ = proto;
-						/* eslint-enable no-proto */
 						return origin;
 					} else {
 						// otherwise unable to promote: fallback

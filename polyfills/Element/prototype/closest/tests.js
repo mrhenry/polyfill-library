@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 it("should return the first ancestor that matches selectors", function() {
 	var el = document.body.appendChild(document.createElement("p"));
 	var firstInnerEl = document.createElement("a");

@@ -16,7 +16,6 @@ function GroupBy(items, callbackfn, keyCoercion) {
 	// 5. Let k be 0.
 	var k = 0;
 	// 6. Repeat,
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		// a. If k ≥ 253 - 1, then
 		if (k >= Number.MAX_SAFE_INTEGER) {

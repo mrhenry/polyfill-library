@@ -1,4 +1,4 @@
-/* globals proclaim, Map */
+/* globals Map */
 
 it("is a function", function () {
 	proclaim.isFunction(Map.groupBy);

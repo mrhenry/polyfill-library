@@ -1,5 +1,5 @@
 
-/* globals proclaim, AggregateError */
+/* globals AggregateError */
 
 function makeArrayIterator (array) {
 	var i = 0;

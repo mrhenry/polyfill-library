@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* globals proclaim, BigInt, Map, Set, Uint32Array */
+/* globals BigInt, Map, Set, Uint32Array */
 
 describe('structuredClone', function () {
 	it('is a function', function () {

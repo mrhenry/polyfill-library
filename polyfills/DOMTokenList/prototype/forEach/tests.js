@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 function getDOMTokenList () {
 	var div = document.createElement('div');
 	div.className = 'class1 class2';

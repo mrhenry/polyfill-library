@@ -1,5 +1,5 @@
 
-/* globals proclaim, Symbol */
+/* globals Symbol */
 
 it('is a function', function () {
 	proclaim.isFunction(String.raw);

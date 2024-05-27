@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* global proclaim */
-
 it('should be defined', function () {
 	proclaim.isInstanceOf(window.requestAnimationFrame, Function);
 	proclaim.isInstanceOf(window.cancelAnimationFrame, Function);

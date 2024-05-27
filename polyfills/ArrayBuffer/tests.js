@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* global proclaim, ArrayBuffer, DataView, Int8Array */
+/* global ArrayBuffer, DataView, Int8Array */
 
 describe('ArrayBuffer', function () {
 	it('should expose a property named ArrayBuffer on the global object', function() {

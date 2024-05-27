@@ -1,6 +1,3 @@
-/* eslint-env mocha, browser */
-/* globals proclaim */
-
 describe('String.prototype.replaceAll', function () {
 	it('is a function', function () {
 		proclaim.isFunction(String.prototype.replaceAll);

@@ -13,7 +13,7 @@ var AddEntriesFromIterable = (function() {
 		// 3. Let iteratorRecord be ? GetIterator(iterable).
 		var iteratorRecord = GetIterator(iterable);
 		// 4. Repeat,
-		// eslint-disable-next-line no-constant-condition
+		 
 		while (true) {
 			// a. Let next be ? IteratorStep(iteratorRecord).
 			var next = IteratorStep(iteratorRecord);
@@ -40,27 +40,24 @@ var AddEntriesFromIterable = (function() {
 			try {
 				// e. Let k be Get(nextItem, "0").
 				k = Get(nextItem, "0");
-				// eslint-disable-next-line no-catch-shadow
-			} catch (e) {
+			} catch (e1) {
 				// f. If k is an abrupt completion, return ? IteratorClose(iteratorRecord, k).
-				return IteratorClose(iteratorRecord, ThrowCompletion(e));
+				return IteratorClose(iteratorRecord, ThrowCompletion(e1));
 			}
 			var v;
 			try {
 				// g. Let v be Get(nextItem, "1").
 				v = Get(nextItem, "1");
-				// eslint-disable-next-line no-catch-shadow
-			} catch (e) {
+			} catch (e2) {
 				// h. If v is an abrupt completion, return ? IteratorClose(iteratorRecord, v).
-				return IteratorClose(iteratorRecord, ThrowCompletion(e));
+				return IteratorClose(iteratorRecord, ThrowCompletion(e2));
 			}
 			try {
 				// i. Let status be Call(adder, target, « k.[[Value]], v.[[Value]] »).
 				Call(adder, target, [k, v]);
-				// eslint-disable-next-line no-catch-shadow
-			} catch (e) {
+			} catch (e3) {
 				// j. If status is an abrupt completion, return ? IteratorClose(iteratorRecord, status).
-				return IteratorClose(iteratorRecord, ThrowCompletion(e));
+				return IteratorClose(iteratorRecord, ThrowCompletion(e3));
 			}
 		}
 	};

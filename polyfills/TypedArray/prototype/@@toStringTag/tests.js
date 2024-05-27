@@ -1,5 +1,4 @@
-/* eslint-env mocha, browser */
-/* global proclaim, Int8Array, Symbol */
+/* global Int8Array, Symbol */
 
 var supportsDefiningFunctionName = (function () {
 	var fn = function () {};
