@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### v5.1.0
+
+- Add `Promise.withResolvers` [`#23`](https://github.com/mrhenry/polyfill-library/pull/23) by @mhassan1
+- Add `Event.scrollend` [`#30`](https://github.com/mrhenry/polyfill-library/pull/30)
+- Fix `IteratorClose` to throw correctly [`#25`](https://github.com/mrhenry/polyfill-library/pull/25) by @mhassan1
+
 #### v5.0.0
 
 - Remove direct dependency on `@financial-times/polyfill-useragent-normaliser`.
