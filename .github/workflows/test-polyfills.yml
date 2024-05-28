@@ -64,7 +64,7 @@ jobs:
 
     - name: Test ${{ matrix.browser }}
       run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js
-        test-modified-only targeted director browser=${{ matrix.browser }}
+        test-modified-only targeted director browser="${{ matrix.browser }}"
       timeout-minutes: 30
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}

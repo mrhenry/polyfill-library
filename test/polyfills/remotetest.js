@@ -50,6 +50,8 @@ async function main() {
 		.replace("browser=", "")
 		.split("/");
 
+	console.log({ browser, browserVersionRanges });
+
 	const browsers = browserlist
 		.filter(b => {
 			if (!browser) {
