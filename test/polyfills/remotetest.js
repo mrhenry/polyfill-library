@@ -43,14 +43,12 @@ async function main() {
 		fs.readFileSync(path.join(__dirname, "./browserstackBrowsers.toml"), "utf-8")
 	).browsers;
 
-	let [browser, browserVersionRanges] = (process.argv
+	const [browser, browserVersionRanges] = (process.argv
 		.find(a => {
 			return a.startsWith("browser=");
 		}) || "")
 		.replace("browser=", "")
 		.split("/");
-
-	console.log({ browser, browserVersionRanges });
 
 	const browsers = browserlist
 		.filter(b => {
