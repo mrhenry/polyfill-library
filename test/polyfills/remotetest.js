@@ -21,6 +21,7 @@ const { URL } = require('node:url');
 
 // Grab all the browsers from BrowserStack which are officially supported by the polyfill service.
 const TOML = require("@iarna/toml");
+const semver = require("semver");
 
 main();
 
@@ -42,14 +43,36 @@ async function main() {
 		fs.readFileSync(path.join(__dirname, "./browserstackBrowsers.toml"), "utf-8")
 	).browsers;
 
-	const browser = (process.argv
+	let [browser, browserVersionRanges] = (process.argv
 		.find(a => {
 			return a.startsWith("browser=");
 		}) || "")
-		.replace("browser=", "");
+		.replace("browser=", "")
+		.split("/");
+
+	console.log({ browser, browserVersionRanges });
+
 	const browsers = browserlist
 		.filter(b => {
-			return browser ? b.startsWith(browser) : true;
+			if (!browser) {
+				return true;
+			}
+
+			if (!b.startsWith(browser)) {
+				return false;
+			}
+
+			if (!browserVersionRanges) {
+				return true;
+			}
+
+			return semver.satisfies(
+				semver.coerce(b.split("/")[1]),
+				browserVersionRanges,
+				{
+
+				}
+			);
 		})
 		.filter(uaString => {
 			if (uaString.startsWith("ios/")) {
