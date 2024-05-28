@@ -16,7 +16,18 @@ jobs:
       max-parallel: 1
       fail-fast: false
       matrix:
-        browser: [ ie, android, chrome, edge, firefox, ios, safari ]
+        browser:
+        - ie
+        - android
+        - chrome/1 - 50
+        - chrome/51 - 100
+        - chrome/>= 101
+        - edge
+        - firefox/1 - 50
+        - firefox/51 - 100
+        - firefox/>= 101
+        - ios
+        - safari
 
     steps:
       - uses: actions/checkout@v4
@@ -44,18 +55,9 @@ jobs:
       - run: npm run build
         if: steps.cache-dist.outputs.cache-hit != 'true'
 
-      - run: echo "${{ matrix.browser }}" > $GITHUB_WORKSPACE/witness-${{ matrix.browser }}
-      - name: record ${{ matrix.browser }} witness
-        id: witness
-        uses: actions/cache@v4
-        with:
-          path: $GITHUB_WORKSPACE/witness-${{ matrix.browser }}
-          key: witness--weekly-tests--${{ matrix.browser }}--${{ env.commit-sha }}
-
       - name: Test ${{ matrix.browser }}
         run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js
-          test-polyfill-combinations targeted director browser=${{ matrix.browser }}
-        if: steps.witness.outputs.cache-hit != 'true'
+          test-polyfill-combinations targeted director browser="${{ matrix.browser }}"
         timeout-minutes: 30
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}

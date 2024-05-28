@@ -16,7 +16,18 @@ jobs:
       max-parallel: 1
       fail-fast: false
       matrix:
-        browser: [ ie, android, chrome, edge, firefox, ios, safari ]
+        browser:
+        - ie
+        - android
+        - chrome/1 - 50
+        - chrome/51 - 100
+        - chrome/>= 101
+        - edge
+        - firefox/1 - 50
+        - firefox/51 - 100
+        - firefox/>= 101
+        - ios
+        - safari
     steps:
 
     - name: Branch based PR checkout
@@ -46,14 +57,14 @@ jobs:
       uses: actions/cache@v4
       with:
         path: polyfills/__dist
-        key: cache--dist--${{ env.commit-sha }}
+        key: cache--dist--${{ env.GITHUB_SHA }}
 
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
 
     - name: Test ${{ matrix.browser }}
       run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js
-        test-modified-only targeted director browser=${{ matrix.browser }}
+        test-modified-only targeted director browser="${{ matrix.browser }}"
       timeout-minutes: 30
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
