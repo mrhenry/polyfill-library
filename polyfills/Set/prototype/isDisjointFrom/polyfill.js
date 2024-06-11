@@ -55,14 +55,14 @@ CreateMethodProperty(
 				otherRec["[[SetObject]]"],
 				otherRec["[[Keys]]"]
 			);
-			// b. Let next be not-started.
+			// b. Let next be NOT-STARTED.
 			var next;
-			// c. Repeat, while next is not done,
-			while (!keysIter["[[Done]]"]) {
+			// c. Repeat, while next is not DONE,
+			while (next !== IteratorStepValue.DONE) {
 				// i. Set next to ? IteratorStepValue(keysIter).
 				next = IteratorStepValue(keysIter);
-				// ii. If next is not done, then
-				if (!keysIter["[[Done]]"]) {
+				// ii. If next is not DONE, then
+				if (next !== IteratorStepValue.DONE) {
 					// 1. If SetDataHas(O.[[SetData]], next) is true, then
 					if (O.has(next) === true) {
 						// a. Perform ? IteratorClose(keysIter, NormalCompletion(unused)).

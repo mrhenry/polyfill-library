@@ -1,4 +1,4 @@
-/* globals Symbol, OrdinaryCreateFromConstructor, IsCallable, GetIterator, IteratorStep, IteratorValue, IteratorClose, Get, Call, CreateMethodProperty, ThrowCompletion, Type, SameValue */
+/* globals Symbol, OrdinaryCreateFromConstructor, IsCallable, GetIterator, IteratorStepValue, IteratorClose, Get, Call, CreateMethodProperty, ThrowCompletion, Type, SameValue */
 (function (global) {
 	// Deleted map items mess with iterator pointers, so rather than removing them mark them as deleted. Can't use undefined or null since those both valid keys so use a private symbol.
 	var undefMarker = Symbol('undef');
@@ -39,34 +39,32 @@
 			var iteratorRecord = GetIterator(iterable);
 			// 9. Repeat,
 			while (true) {
-				// a. Let next be ? IteratorStep(iteratorRecord).
-				var next = IteratorStep(iteratorRecord);
-				// b. If next is false, return map.
-				if (next === false) {
+				// a. Let next be ? IteratorStepValue(iteratorRecord).
+				var next = IteratorStepValue(iteratorRecord);
+				// b. If next is DONE, return map.
+				if (next === IteratorStepValue.DONE) {
 					return map;
 				}
-				// c. Let nextItem be ? IteratorValue(next).
-				var nextItem = IteratorValue(next);
-				// d. If Type(nextItem) is not Object, then
-				if (Type(nextItem) !== 'object') {
+				// c. If next is not an Object, then
+				if (Type(next) !== 'object') {
 					// i. Let error be Completion{[[Type]]: throw, [[Value]]: a newly created TypeError object, [[Target]]: empty}.
-					var error = ThrowCompletion(new TypeError('Iterator value ' + nextItem + ' is not an entry object'));
+					var error = ThrowCompletion(new TypeError('Iterator value ' + next + ' is not an entry object'));
 					// ii. Return ? IteratorClose(iteratorRecord, error).
 					return IteratorClose(iteratorRecord, error);
 				}
 				try {
-					// The try catch accounts for steps: f, h, and j.
+					// The try catch accounts for steps: e, g, and i.
 
-					// e. Let k be Get(nextItem, "0").
-					var k = Get(nextItem, "0");
-					// f. If k is an abrupt completion, return ? IteratorClose(iteratorRecord, k).
-					// g. Let v be Get(nextItem, "1").
-					var v = Get(nextItem, "1");
-					// h. If v is an abrupt completion, return ? IteratorClose(iteratorRecord, v).
-					// i. Let status be Call(adder, map, « k.[[Value]], v.[[Value]] »).
+					// d. Let k be Get(next, "0").
+					var k = Get(next, "0");
+					// e. If k is an abrupt completion, return ? IteratorClose(iteratorRecord, k).
+					// f. Let v be Get(next, "1").
+					var v = Get(next, "1");
+					// g. If v is an abrupt completion, return ? IteratorClose(iteratorRecord, v).
+					// h. Let status be Call(adder, map, « k.[[Value]], v.[[Value]] »).
 					Call(adder, map, [k, v]);
 				} catch (e) {
-					// j. If status is an abrupt completion, return ? IteratorClose(iteratorRecord, status).
+					// i. If status is an abrupt completion, return ? IteratorClose(iteratorRecord, status).
 					return IteratorClose(iteratorRecord, ThrowCompletion(e));
 				}
 			}

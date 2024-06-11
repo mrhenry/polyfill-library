@@ -1,4 +1,4 @@
-/* global AddValueToKeyedGroup, Call, GetIterator, IsCallable, IteratorClose, IteratorStep, IteratorValue, RequireObjectCoercible, ThrowCompletion, ToPropertyKey */
+/* global AddValueToKeyedGroup, Call, GetIterator, IsCallable, IteratorClose, IteratorStepValue, RequireObjectCoercible, ThrowCompletion, ToPropertyKey */
 
 // 7.3.36 GroupBy ( items, callbackfn, keyCoercion )
 // eslint-disable-next-line no-unused-vars
@@ -24,15 +24,15 @@ function GroupBy(items, callbackfn, keyCoercion) {
 			// ii. Return ? IteratorClose(iteratorRecord, error).
 			return IteratorClose(iteratorRecord, error);
 		}
-		// b. Let next be ? IteratorStep(iteratorRecord).
-		var next = IteratorStep(iteratorRecord);
-		// c. If next is false, then
-		if (next === false) {
+		// b. Let next be ? IteratorStepValue(iteratorRecord).
+		var next = IteratorStepValue(iteratorRecord);
+		// c. If next is DONE, then
+		if (next === IteratorStepValue.DONE) {
 			// i. Return groups.
 			return groups;
 		}
-		// d. Let value be ? IteratorValue(next).
-		var value = IteratorValue(next);
+		// d. Let value be next.
+		var value = next;
 		// e. Let key be Completion(Call(callbackfn, undefined, « value, 𝔽(k) »)).
 		var key;
 		try {

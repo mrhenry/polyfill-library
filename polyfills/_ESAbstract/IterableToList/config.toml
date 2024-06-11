@@ -1,7 +1,6 @@
 dependencies = [
 	"_ESAbstract.GetIterator",
-	"_ESAbstract.IteratorStep",
-	"_ESAbstract.IteratorValue",
+	"_ESAbstract.IteratorStepValue",
 ]
 spec = "https://tc39.github.io/ecma262/#sec-iterabletolist"
 

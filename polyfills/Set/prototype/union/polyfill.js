@@ -14,14 +14,14 @@ CreateMethodProperty(Set.prototype, "union", function union(other) {
 	O.forEach(function (value) {
 		result.add(value);
 	});
-	// 6. Let next be not-started.
+	// 6. Let next be NOT-STARTED.
 	var next;
-	// 7. Repeat, while next is not done,
-	while (!keysIter["[[Done]]"]) {
+	// 7. Repeat, while next is not DONE,
+	while (next !== IteratorStepValue.DONE) {
 		// a. Set next to ? IteratorStepValue(keysIter).
 		next = IteratorStepValue(keysIter);
-		// b. If next is not done, then
-		if (!keysIter["[[Done]]"]) {
+		// b. If next is not DONE, then
+		if (next !== IteratorStepValue.DONE) {
 			// i. Set next to CanonicalizeKeyedCollectionKey(next).
 			// eslint-disable-next-line no-compare-neg-zero
 			if (next === -0) next = 0;
