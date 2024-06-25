@@ -1,8 +1,7 @@
 dependencies = [
 	"_ESAbstract.IsCallable",
 	"_ESAbstract.GetIterator",
-	"_ESAbstract.IteratorStep",
-	"_ESAbstract.IteratorValue",
+	"_ESAbstract.IteratorStepValue",
 	"_ESAbstract.IteratorClose",
 	"_ESAbstract.Get",
 	"_ESAbstract.Call",

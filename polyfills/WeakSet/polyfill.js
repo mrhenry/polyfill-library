@@ -1,4 +1,4 @@
-/* global Call, CreateMethodProperty, Get, GetIterator, IsArray, IsCallable, IteratorClose, IteratorStep, IteratorValue, OrdinaryCreateFromConstructor, SameValueZero, ThrowCompletion, Type, Symbol */
+/* global Call, CreateMethodProperty, Get, GetIterator, IsArray, IsCallable, IteratorClose, IteratorStepValue, OrdinaryCreateFromConstructor, SameValueZero, ThrowCompletion, Type, Symbol */
 (function (global) {
 	// Deleted set items mess with iterator pointers, so rather than removing them mark them as deleted. Can't use undefined or null since those both valid keys so use a private symbol.
 	var undefMarker = Symbol('undef');
@@ -35,19 +35,17 @@
 			var iteratorRecord = GetIterator(iterable);
 			// 9. Repeat,
 			while (true) {
-				// a. Let next be ? IteratorStep(iteratorRecord).
-				var next = IteratorStep(iteratorRecord);
-				// b. If next is false, return set.
-				if (next === false) {
+				// a. Let next be ? IteratorStepValue(iteratorRecord).
+				var next = IteratorStepValue(iteratorRecord);
+				// b. If next is DONE, return set.
+				if (next === IteratorStepValue.DONE) {
 					return set;
 				}
-				// c. Let nextValue be ? IteratorValue(next).
-				var nextValue = IteratorValue(next);
-				// d. Let status be Call(adder, set, « nextValue »).
+				// c. Let status be Call(adder, set, « next »).
 				try {
-					Call(adder, set, [nextValue]);
+					Call(adder, set, [next]);
 				} catch (e) {
-					// e. If status is an abrupt completion, return ? IteratorClose(iteratorRecord, status).
+					// d. If status is an abrupt completion, return ? IteratorClose(iteratorRecord, status).
 					return IteratorClose(iteratorRecord, ThrowCompletion(e));
 				}
 			}

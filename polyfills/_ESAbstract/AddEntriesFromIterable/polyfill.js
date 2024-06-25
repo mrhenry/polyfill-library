@@ -1,4 +1,4 @@
-/* global IsCallable, GetIterator, IteratorStep, IteratorValue, IteratorClose, Get, Call, ThrowCompletion, Type */
+/* global IsCallable, GetIterator, IteratorStepValue, IteratorClose, Get, Call, ThrowCompletion, Type */
 // eslint-disable-next-line no-unused-vars
 var AddEntriesFromIterable = (function() {
 	var toString = {}.toString;
@@ -13,50 +13,48 @@ var AddEntriesFromIterable = (function() {
 		// 3. Let iteratorRecord be ? GetIterator(iterable).
 		var iteratorRecord = GetIterator(iterable);
 		// 4. Repeat,
-		 
+
 		while (true) {
-			// a. Let next be ? IteratorStep(iteratorRecord).
-			var next = IteratorStep(iteratorRecord);
-			// b. If next is false, return target.
-			if (next === false) {
+			// a. Let next be ? IteratorStepValue(iteratorRecord).
+			var next = IteratorStepValue(iteratorRecord);
+			// b. If next is DONE, return target.
+			if (next === IteratorStepValue.DONE) {
 				return target;
 			}
-			// c. Let nextItem be ? IteratorValue(next).
-			var nextItem = IteratorValue(next);
-			// d. If Type(nextItem) is not Object, then
-			if (Type(nextItem) !== "object") {
+			// c. If next is not an Object, then
+			if (Type(next) !== "object") {
 				// i. Let error be ThrowCompletion(a newly created TypeError object).
-				var error = ThrowCompletion(new TypeError("nextItem is not an object"));
+				var error = ThrowCompletion(new TypeError("next is not an object"));
 				// ii. Return ? IteratorClose(iteratorRecord, error).
 				return IteratorClose(iteratorRecord, error);
 			}
 			// fallback for non-array-like strings which exist in some ES3 user-agents
-			nextItem =
-				(Type(nextItem) === "string" || nextItem instanceof String) &&
-				toString.call(nextItem) == "[object String]"
-					? split.call(nextItem, "")
-					: nextItem;
+			next =
+				(Type(next) === "string" || next instanceof String) &&
+				toString.call(next) == "[object String]"
+					? split.call(next, "")
+					: next;
 			var k;
 			try {
-				// e. Let k be Get(nextItem, "0").
-				k = Get(nextItem, "0");
+				// d. Let k be Completion(Get(next, "0")).
+				k = Get(next, "0");
 			} catch (e1) {
-				// f. If k is an abrupt completion, return ? IteratorClose(iteratorRecord, k).
+				// e. IfAbruptCloseIterator(k, iteratorRecord).
 				return IteratorClose(iteratorRecord, ThrowCompletion(e1));
 			}
 			var v;
 			try {
-				// g. Let v be Get(nextItem, "1").
-				v = Get(nextItem, "1");
+				// f. Let v be Completion(Get(next, "1")).
+				v = Get(next, "1");
 			} catch (e2) {
-				// h. If v is an abrupt completion, return ? IteratorClose(iteratorRecord, v).
+				// g. IfAbruptCloseIterator(v, iteratorRecord).
 				return IteratorClose(iteratorRecord, ThrowCompletion(e2));
 			}
 			try {
-				// i. Let status be Call(adder, target, « k.[[Value]], v.[[Value]] »).
+				// h. Let status be Completion(Call(adder, target, « k, v »)).
 				Call(adder, target, [k, v]);
 			} catch (e3) {
-				// j. If status is an abrupt completion, return ? IteratorClose(iteratorRecord, status).
+				// i. IfAbruptCloseIterator(status, iteratorRecord).
 				return IteratorClose(iteratorRecord, ThrowCompletion(e3));
 			}
 		}

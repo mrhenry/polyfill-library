@@ -1,6 +1,6 @@
 /* globals
 	IsCallable, GetMethod, Symbol, IsConstructor, Construct, ArrayCreate, GetIterator, IteratorClose, ThrowCompletion,
-	ToString, IteratorStep, IteratorValue, Call, CreateDataPropertyOrThrow, ToObject, ToLength, Get, CreateMethodProperty
+	ToString, IteratorStepValue, Call, CreateDataPropertyOrThrow, ToObject, ToLength, Get, CreateMethodProperty
 */
 (function () {
 	var toString = Object.prototype.toString;
@@ -65,42 +65,43 @@
 				}
 				// ii. Let Pk be ! ToString(k).
 				var Pk = ToString(k);
-				// iii. Let next be ? IteratorStep(iteratorRecord).
-				var next = IteratorStep(iteratorRecord);
-				// iv. If next is false, then
-				if (next === false) {
+				// iii. Let next be ? IteratorStepValue(iteratorRecord).
+				var next = IteratorStepValue(iteratorRecord);
+				// iv. If next is DONE, then
+				if (next === IteratorStepValue.DONE) {
 					// 1. Perform ? Set(A, "length", k, true).
 					A.length = k;
 					// 2. Return A.
 					return A;
 				}
-				// v. Let nextValue be ? IteratorValue(next).
-				var nextValue = IteratorValue(next);
-				// vi. If mapping is true, then
+				// v. If mapping is true, then
 				if (mapping) {
 					try {
 						// The try catch accounts for step 2.
-						// 1. Let mappedValue be Call(mapfn, T, « nextValue, k »).
-						var mappedValue = Call(mapfn, T, [nextValue, k]);
+						// 1. Let mappedValue be Call(mapfn, T, « next, k »).
+						var mappedValue = Call(mapfn, T, [next, k]);
 						// 2. If mappedValue is an abrupt completion, return ? IteratorClose(iteratorRecord, mappedValue).
 						// 3. Let mappedValue be mappedValue.[[Value]].
 					} catch (e) {
 						return IteratorClose(iteratorRecord, ThrowCompletion(e));
 					}
 
-					// vii. Else, let mappedValue be nextValue.
-				} else {
-					mappedValue = nextValue;
+
+				}
+				// vi. Else,
+				else {
+					// 1. let mappedValue be next.
+					mappedValue = next;
 				}
 				try {
-					// The try catch accounts for step ix.
-					// viii. Let defineStatus be CreateDataPropertyOrThrow(A, Pk, mappedValue).
+					// The try catch accounts for step viii.
+					// vii. Let defineStatus be CreateDataPropertyOrThrow(A, Pk, mappedValue).
 					CreateDataPropertyOrThrow(A, Pk, mappedValue);
-					// ix. If defineStatus is an abrupt completion, return ? IteratorClose(iteratorRecord, defineStatus).
+					// viii. If defineStatus is an abrupt completion, return ? IteratorClose(iteratorRecord, defineStatus).
 				} catch (e) {
 					return IteratorClose(iteratorRecord, ThrowCompletion(e));
 				}
-				// x. Increase k by 1.
+				// ix. Increase k by 1.
 				k = k + 1;
 			}
 		}
