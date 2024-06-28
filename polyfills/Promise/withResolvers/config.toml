@@ -2,7 +2,7 @@ aliases = [ "es2024" ]
 dependencies = [
 	"_ESAbstract.CreateDataPropertyOrThrow",
 	"_ESAbstract.CreateMethodProperty",
-	"_ESAbstract.IsConstructor",
+	"_ESAbstract.NewPromiseCapability",
 	"Promise",
 ]
 license = "MIT"
