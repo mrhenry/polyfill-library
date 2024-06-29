@@ -39,7 +39,7 @@ const ignores = [
 	// We ignore the polyfill.js files for third-party polyfills
 	// because we do not control their implementation.
 
-	// We do not ignore the config.json, detect.js or tests.js
+	// We do not ignore the config.json, detect.js or polyfill.test.js
 	// because we do control their implementation.
 	"polyfills/AbortController/polyfill.js",
 	"polyfills/ArrayBuffer/polyfill.js",
@@ -94,7 +94,7 @@ export default [
 		ignores: [
 			"tasks/polyfill-templates/polyfill.js",
 			"tasks/polyfill-templates/detect.js",
-			"tasks/polyfill-templates/tests.js",
+			"tasks/polyfill-templates/polyfill.test.js",
 		],
 		languageOptions: {
 			ecmaVersion: 2022,
@@ -175,9 +175,8 @@ export default [
 	},
 	{
 		files: [
-			"polyfills/**/tests.js",
-			"polyfills/**/*_tests.js",
-			"tasks/polyfill-templates/tests.js",
+			"polyfills/**/*.test.js",
+			"tasks/polyfill-templates/*.test.js",
 		],
 		languageOptions: {
 			...browserScriptDefaults.languageOptions,
