@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
-    "mutationobserver-shim": "^0.3.2"
+    "mutationobserver-shim": "0.3.7"
   },
   "volta": {
     "extends": "../../package.json"

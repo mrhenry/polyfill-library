@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
-    "@juggle/resize-observer": "^3.3.1"
+    "@juggle/resize-observer": "3.4.0"
   },
   "volta": {
     "extends": "../../package.json"

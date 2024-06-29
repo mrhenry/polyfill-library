@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
-    "html5shiv": "^3.7.3"
+    "html5shiv": "3.7.3"
   },
   "volta": {
     "extends": "../../package.json"
