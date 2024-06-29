@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
-    "usertiming": "^0.1.8"
+    "usertiming": "0.1.8"
   },
   "volta": {
     "extends": "../../package.json"

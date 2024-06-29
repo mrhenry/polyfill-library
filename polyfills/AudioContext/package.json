@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
-    "audio-context-polyfill": "^1.0.0"
+    "audio-context-polyfill": "1.0.0"
   },
   "volta": {
     "extends": "../../package.json"

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
-    "picturefill": "^3.0.1"
+    "picturefill": "3.0.3"
   },
   "volta": {
     "extends": "../../package.json"

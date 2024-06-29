@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
-    "abort-controller": "^3.0.0"
+    "abort-controller": "3.0.0"
   },
   "volta": {
     "extends": "../../package.json"
