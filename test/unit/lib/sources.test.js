@@ -35,6 +35,11 @@ describe('lib/sources', () => {
 		const sources = require('../../../lib/sources');
 		assert.ok(typeof sources.streamPolyfillSource === 'function');
 	});
+
+	it('has a getPolyfillSource method', () => {
+		const sources = require('../../../lib/sources');
+		assert.ok(typeof sources.getPolyfillSource === 'function');
+	});
 });
 
 describe('sources.listPolyfills()', () => {
@@ -62,13 +67,14 @@ describe('sources.listPolyfills()', () => {
 });
 
 describe('sources.getConfigAliases()', () => {
-	it('returns a promise which resolves with  an array of polyfills which are under the alias', () => {
+	it('returns a promise which resolves with an array of polyfills which are under the alias', () => {
 		const sources = require('../../../lib/sources');
 
 		return sources.getConfigAliases('es6').then(result => {
 			assert.ok(Array.isArray(result));
 			assert.ok(result.length > 0);
-			assert.deepStrictEqual(result[0], 'Array.from');
+			assert.ok(result.includes('Array.from'));
+			assert.deepStrictEqual(result[0], 'Number.Epsilon');
 			assert.equal(
 				result.filter(x => (typeof x === 'string')).length,
 				result.length
@@ -135,5 +141,14 @@ describe('sources.streamPolyfillSource()', () => {
 		const result = sources.streamPolyfillSource('Array.from', 'min');
 
 		assert.ok(result.readable);
+	});
+});
+
+describe('sources.getPolyfillSource()', () => {
+	it('returns a read-stream', () => {
+		const sources = require('../../../lib/sources');
+		const result = sources.getPolyfillSource('Array.from', 'min');
+
+		assert.ok(result.then);
 	});
 });

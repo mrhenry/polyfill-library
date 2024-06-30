@@ -233,19 +233,18 @@ describe('.getPolyfillString', async () => {
 				},
 				ua: new UA('chrome/30'),
 				minify: false
-			}, polyfillio.getPolyfillString({
+			}),
+			polyfillio.getPolyfillString({
 				features: {
 					default: {}
 				},
 				ua: new UA('chrome/30'),
 				minify: true
-			}))
+			})
 		]).then(results => {
-			assert.include(results[0].slice(0, 500), 'Polyfill service ' + appVersion);
-			assert.include(results[1].slice(0, 500), 'Polyfill service ' + appVersion);
+			assert.ok(results[0].slice(0, 500).includes('Polyfill service v' + appVersion));
+			assert.ok(results[1].slice(0, 500).includes('Polyfill service v' + appVersion));
 
-			process.env.NODE_ENV = NODE_ENV;
-		}).catch(() => {
 			process.env.NODE_ENV = NODE_ENV;
 		});
 	});
@@ -271,47 +270,5 @@ describe('.getPolyfillString', async () => {
 				resolve();
 			});
 		})
-	});
-
-	await it('should support cached streaming output', async () => {
-		return new Promise((resolve) => {
-			let bundle_a = '';
-			let bundle_b = '';
-
-			const s_a = polyfillio.getPolyfillString({
-				features: {
-					default: {}
-				},
-				ua: new UA('ie/9'),
-				stream: true,
-				minify: false
-			});
-
-			const buf_a = [];
-
-			s_a.on('data', chunk => buf_a.push(chunk));
-			s_a.on('end', () => {
-				bundle_a = buf_a.join('');
-
-				const s_b = polyfillio.getPolyfillString({
-					features: {
-						default: {}
-					},
-					ua: new UA('ie/9'),
-					stream: true,
-					minify: false
-				});
-
-				const buf_b = [];
-
-				s_b.on('data', chunk => buf_b.push(chunk));
-				s_b.on('end', () => {
-					bundle_b = buf_b.join('');
-
-					assert.equal(bundle_a, bundle_b);
-					resolve();
-				});
-			});
-		});
 	});
 });

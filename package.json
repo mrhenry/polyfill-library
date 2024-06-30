@@ -40,12 +40,6 @@
     "/lib",
     "/polyfills/__dist"
   ],
-  "dependencies": {
-    "merge2": "^1.0.3",
-    "mnemonist": "^0.39.2",
-    "stream-from-promise": "^1.0.0",
-    "toposort": "^2.0.2"
-  },
   "devDependencies": {
     "@financial-times/polyfill-useragent-normaliser": "^2.0.1",
     "@iarna/toml": "^2.2.5",
@@ -64,6 +58,7 @@
     "lodash": "^4.17.14",
     "proclaim": "^3.6.0",
     "semver": "^7.3.7",
+    "toposort": "^2.0.2",
     "uglify-js": "^3.17.4",
     "webdriverio": "^8.0.0"
   },

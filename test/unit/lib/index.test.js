@@ -35,6 +35,26 @@ describe('exported property/properties', () => {
 		const polyfillio = require('../../../lib');
 		assert.ok(typeof polyfillio.getPolyfillString === 'function');
 	});
+
+	it('generatePolyfillString is an exported function', () => {
+		const polyfillio = require('../../../lib');
+		assert.ok(typeof polyfillio.generatePolyfillString === 'function');
+	});
+
+	it('generatePolyfillString is an async generator producing strings', async () => {
+		const polyfillio = require('../../../lib');
+		const generator = polyfillio.generatePolyfillString({
+			features: {
+				default: {}
+			},
+			ua: new UA('chrome/30')
+		});
+
+		assert.ok(generator[Symbol.asyncIterator]);
+
+		const result = await generator.next();
+		assert.ok(typeof result.value === 'string');
+	});
 });
 
 describe('.listAllPolyfills()', () => {
