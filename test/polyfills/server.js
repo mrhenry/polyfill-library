@@ -115,11 +115,8 @@ app.get(
 				ua: always === "yes" ? new UA("other/0.0.0") : new UA(request.get("user-agent"))
 			};
 
-			for await (const chunk of polyfillio.getPolyfillString(parameters)) {
-				response.write(chunk);
-			}
-
-			response.end();
+			const bundle = await polyfillio.getPolyfillString(parameters);
+			response.send(bundle);
 		} else {
 			response.send("");
 		}
