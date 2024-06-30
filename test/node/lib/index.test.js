@@ -246,6 +246,9 @@ describe('.getPolyfillString', async () => {
 			assert.ok(results[1].slice(0, 500).includes('Polyfill service v' + appVersion));
 
 			process.env.NODE_ENV = NODE_ENV;
+		}).catch(err => {
+			process.env.NODE_ENV = NODE_ENV;
+			throw err;
 		});
 	});
 
