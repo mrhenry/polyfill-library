@@ -35,11 +35,6 @@ describe('lib/sources', () => {
 		const sources = require('../../../lib/sources');
 		assert.ok(typeof sources.streamPolyfillSource === 'function');
 	});
-
-	it('has a getPolyfillSource method', () => {
-		const sources = require('../../../lib/sources');
-		assert.ok(typeof sources.getPolyfillSource === 'function');
-	});
 });
 
 describe('sources.listPolyfills()', () => {
@@ -141,14 +136,5 @@ describe('sources.streamPolyfillSource()', () => {
 		const result = sources.streamPolyfillSource('Array.from', 'min');
 
 		assert.ok(result.readable);
-	});
-});
-
-describe('sources.getPolyfillSource()', () => {
-	it('returns a read-stream', () => {
-		const sources = require('../../../lib/sources');
-		const result = sources.getPolyfillSource('Array.from', 'min');
-
-		assert.ok(result.then);
 	});
 });
