@@ -9,6 +9,8 @@ const source = path.join(__dirname, '../../polyfills');
 const build = require('./build');
 const Polyfill = require('./polyfill');
 
+process.title = 'polyfill-library-watcher';
+
 console.log('Doing a full build before starting watcher');
 
 // Keep a list of started test servers.
