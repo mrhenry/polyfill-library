@@ -150,11 +150,11 @@ it("has a stable sort with arrays that contain duplicate values and comparefn oc
 });
 
 it("has a stable sort with arrays that contain duplicate values and is sparse", function () {
-	// eslint-disable-next-line no-sparse-arrays
 	var array = [
 		{ unique: 'a', sortValue: 1 },
 		{ unique: 'b', sortValue: 2 },
 		{ unique: 'c', sortValue: 0 },
+		// eslint-disable-next-line no-sparse-arrays
 		,
 		{ unique: 'd', sortValue: 4 },
 		{ unique: 'e', sortValue: 2 },
@@ -165,7 +165,6 @@ it("has a stable sort with arrays that contain duplicate values and is sparse", 
 		return a.sortValue - b.sortValue;
 	});
 
-	// eslint-disable-next-line no-sparse-arrays
 	proclaim.deepStrictEqual(array, [
 		{ unique: 'c', sortValue: 0 },
 		{ unique: 'a', sortValue: 1 },
@@ -173,6 +172,7 @@ it("has a stable sort with arrays that contain duplicate values and is sparse", 
 		{ unique: 'e', sortValue: 2 },
 		{ unique: 'f', sortValue: 2 },
 		{ unique: 'd', sortValue: 4 },
+		// eslint-disable-next-line no-sparse-arrays
 		,
 	]);
 
