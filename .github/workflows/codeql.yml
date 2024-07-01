@@ -6,6 +6,9 @@ on:
   merge_group:
   pull_request:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
     security-events: write
@@ -43,7 +46,7 @@ jobs:
     - name: setup node
       uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: 22
         cache: 'npm'
 
     - run: npm ci
