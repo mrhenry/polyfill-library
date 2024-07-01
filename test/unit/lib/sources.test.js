@@ -52,7 +52,8 @@ describe('sources.listPolyfills()', () => {
 		return sources.listPolyfills().then(result => {
 			assert.ok(Array.isArray(result));
 			assert.ok(result.length > 0);
-			assert.deepStrictEqual(result[0], 'AbortController');
+			assert.deepStrictEqual(result[0], '_ESAbstract.IsPropertyKey');
+			assert.ok(result.includes('AbortController'));
 			assert.equal(
 				result.filter(x => (typeof x === 'string')).length,
 				result.length
@@ -62,13 +63,14 @@ describe('sources.listPolyfills()', () => {
 });
 
 describe('sources.getConfigAliases()', () => {
-	it('returns a promise which resolves with  an array of polyfills which are under the alias', () => {
+	it('returns a promise which resolves with an array of polyfills which are under the alias', () => {
 		const sources = require('../../../lib/sources');
 
 		return sources.getConfigAliases('es6').then(result => {
 			assert.ok(Array.isArray(result));
 			assert.ok(result.length > 0);
-			assert.deepStrictEqual(result[0], 'Array.from');
+			assert.ok(result.includes('Array.from'));
+			assert.deepStrictEqual(result[0], 'Number.Epsilon');
 			assert.equal(
 				result.filter(x => (typeof x === 'string')).length,
 				result.length
@@ -109,21 +111,6 @@ describe('sources.getPolyfillMeta()', () => {
 					isPublic: true,
 					size: 30
 				}
-			);
-		});
-	});
-});
-
-describe('sources.listPolyfills()', () => {
-	it('returns a promise which resolves with  an array containing names for each polyfilled feature', () => {
-		const sources = require('../../../lib/sources');
-		return sources.listPolyfills().then((result) => {
-			assert.ok(Array.isArray(result));
-			assert.ok(result.length > 0);
-			assert.deepStrictEqual(result[0], 'AbortController');
-			assert.equal(
-				result.filter(x => (typeof x === 'string')).length,
-				result.length
 			);
 		});
 	});

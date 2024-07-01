@@ -11,6 +11,8 @@ const handlebars = require("handlebars");
 const UA = require("@financial-times/polyfill-useragent-normaliser");
 const normalizeUserAgent = UA.normalize;
 
+process.title = "polyfill-library-test-server";
+
 const directorTemplate = handlebars.compile(
 	fs.readFileSync(path.join(__dirname, "./test-director.handlebars"), {
 		encoding: "UTF-8"

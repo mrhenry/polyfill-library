@@ -10,13 +10,22 @@ const path = require('node:path');
  * @param {string} directory Directory to flatten.
  * @returns {Array<string>} Flattened directory.
  */
-module.exports = function flattenPolyfillDirectories(directory) {
+module.exports = async function flattenPolyfillDirectories(directory) {
 	let results = [];
-	for (const item of fs.readdirSync(directory)) {
-		const joined = path.join(directory, item);
-		if (fs.lstatSync(joined).isDirectory() && item.indexOf('__') !== 0) {
-			results = [...results, ...flattenPolyfillDirectories(joined), joined];
+
+	const items = await fs.promises.readdir(directory, { withFileTypes: true });
+
+	for (const item of items) {
+		const joined = path.join(directory, item.name);
+
+		if (item.isDirectory() && item.name.indexOf('__') !== 0) {
+			results = [
+				...results,
+				...(await flattenPolyfillDirectories(joined)),
+				joined,
+			];
 		}
 	}
+
 	return results;
 }

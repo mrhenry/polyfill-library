@@ -233,20 +233,22 @@ describe('.getPolyfillString', async () => {
 				},
 				ua: new UA('chrome/30'),
 				minify: false
-			}, polyfillio.getPolyfillString({
+			}),
+			polyfillio.getPolyfillString({
 				features: {
 					default: {}
 				},
 				ua: new UA('chrome/30'),
 				minify: true
-			}))
+			})
 		]).then(results => {
-			assert.include(results[0].slice(0, 500), 'Polyfill service ' + appVersion);
-			assert.include(results[1].slice(0, 500), 'Polyfill service ' + appVersion);
+			assert.ok(results[0].slice(0, 500).includes('Polyfill service v' + appVersion));
+			assert.ok(results[1].slice(0, 500).includes('Polyfill service v' + appVersion));
 
 			process.env.NODE_ENV = NODE_ENV;
-		}).catch(() => {
+		}).catch(err => {
 			process.env.NODE_ENV = NODE_ENV;
+			throw err;
 		});
 	});
 
@@ -273,7 +275,53 @@ describe('.getPolyfillString', async () => {
 		})
 	});
 
-	await it('should support cached streaming output', async () => {
+	await it('should support custom file system implementations', async () => {
+		const polyfillio = require('../../../lib');
+		const sources = require('../../../lib/sources.js');
+
+		const stream = require('node:stream');
+		const fs = require('node:fs');
+
+		const cache = new Map();
+
+		let fileReads = 0;
+		let fileCacheReads = 0;
+		let streamReads = 0;
+		let streamCacheReads = 0;
+
+		sources.setFs(
+			async function readFile() {
+				fileReads++;
+
+				const requested = arguments[0];
+				if (cache.has(requested)) {
+					fileCacheReads++;
+					return cache.get(requested);
+				}
+
+				const data = await fs.promises.readFile.apply(fs.promises, arguments);
+
+				cache.set(requested, data);
+
+				return data;
+			},
+			function createReadStream() {
+				streamReads++;
+
+				const requested = arguments[0];
+				if (cache.has(requested)) {
+					streamCacheReads++;
+					return stream.Readable.from(cache.get(requested));
+				}
+
+				const data = fs.readFileSync.apply(fs, arguments);
+
+				cache.set(requested, data);
+
+				return stream.Readable.from(data);
+			}
+		);
+
 		return new Promise((resolve) => {
 			let bundle_a = '';
 			let bundle_b = '';
@@ -309,6 +357,10 @@ describe('.getPolyfillString', async () => {
 					bundle_b = buf_b.join('');
 
 					assert.equal(bundle_a, bundle_b);
+
+					assert.equal(fileCacheReads, fileReads / 2);
+					assert.equal(streamCacheReads, streamReads / 2);
+
 					resolve();
 				});
 			});
