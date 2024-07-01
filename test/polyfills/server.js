@@ -126,7 +126,7 @@ app.get(
 );
 
 app.get(
-	"/tests.js",
+	"/polyfill.test.js",
 	cacheFor1Day,
 	async (request, response) => {
 		const feature = request.query.feature;
@@ -185,7 +185,7 @@ async function testablePolyfills(ua) {
 		}
 		if (config && config.isTestable && config.isPublic && config.hasTests) {
 			const baseDirectory = path.resolve(__dirname, "../../polyfills");
-			const testFile = path.join(baseDirectory, config.baseDir, "/tests.js");
+			const testFile = path.join(baseDirectory, config.baseDir, "/polyfill.test.js");
 			const testSuite = `describe('${polyfill}', function() {
 				it('passes the feature detect', function() {
 					proclaim.ok((function() {

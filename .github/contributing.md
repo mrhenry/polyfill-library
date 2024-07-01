@@ -30,7 +30,7 @@ This folder contains 4 files:
 - [config.toml](#configtoml)
 - [detect.js](#detectjs)
 - [polyfill.js](#polyfilljs)
-- [tests.js](#testsjs)
+- [polyfill.test.js](#polyfilltestjs)
 
 ### config.toml
 
@@ -127,7 +127,7 @@ If your polyfill requires other features to work [list them in the config file](
 
 Make sure your polyfill [does not squat on proposed names in speculative polyfills](https://www.w3.org/2001/tag/doc/polyfills/#don-t-squat-on-proposed-names-in-speculative-polyfills).
 
-### tests.js
+### polyfill.test.js
 
 You should refer to the feature's specification to see how the feature should work.
 
