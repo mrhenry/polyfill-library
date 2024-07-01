@@ -226,15 +226,17 @@ describe('.getPolyfillString', async () => {
 
 		process.env.NODE_ENV = "production";
 
+		const polyfillio2 = require('../../../lib');
+
 		return Promise.all([
-			polyfillio.getPolyfillString({
+			polyfillio2.getPolyfillString({
 				features: {
 					default: {}
 				},
 				ua: new UA('chrome/30'),
 				minify: false
 			}),
-			polyfillio.getPolyfillString({
+			polyfillio2.getPolyfillString({
 				features: {
 					default: {}
 				},
