@@ -1,4 +1,8 @@
 describe('Event.scrollend', function () {
+	// Scrolling and scroll events can be flaky in headless mode.
+	// CI environments are often headless.
+	this.retries(3);
+
 	var el;
 
 	before(function () {

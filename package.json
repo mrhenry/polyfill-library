@@ -20,10 +20,11 @@
     "build": "npm run clean && node tasks/updatesources && node tasks/buildsources/buildsources",
     "watch": "npm run clean && node tasks/updatesources && node tasks/buildsources/watchsource",
     "fmt": "eslint . --fix",
-    "test-end-to-end": "node --test test/end-to-end",
-    "test-node": "node --test test/node",
-    "test-unit": "node --test test/unit",
-    "test": "node --test test/unit && node --test test/node && node --test test/end-to-end",
+    "test-end-to-end": "node --test 'test/end-to-end/**/*.test.js'",
+    "test-node": "node --test 'test/node/**/*.test.js'",
+    "test-unit": "node --test 'test/unit/**/*.test.js'",
+    "test": "node --test 'test/unit/**/*.test.js' && node --test 'test/node/**/*.test.js' && node --test 'test/end-to-end/**/*.test.js'",
+    "test-older-node": "node --test 'test/unit' && node --test 'test/node' && node --test 'test/end-to-end'",
     "prepublishOnly": "npm run build",
     "create-new-polyfill": "node ./tasks/create-new-polyfill.js",
     "update-browserstack-list": "node ./tasks/updatebrowserstacklist.js"
@@ -63,6 +64,6 @@
     "webdriverio": "^8.0.0"
   },
   "volta": {
-    "node": "20.11.1"
+    "node": "22.3.0"
   }
 }
