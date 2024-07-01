@@ -63,7 +63,8 @@ describe('.listAllPolyfills()', () => {
 		return polyfillio.listAllPolyfills('test').then(result => {
 			assert.ok(Array.isArray(result));
 			assert.ok(result.length > 0);
-			assert.deepStrictEqual(result[0], 'AbortController');
+			assert.deepStrictEqual(result[0], '_ESAbstract.IsPropertyKey');
+			assert.ok(result.includes('AbortController'));
 			assert.equal(
 				result.filter(x => (typeof x === 'string')).length,
 				result.length
