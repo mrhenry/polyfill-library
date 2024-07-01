@@ -4,7 +4,7 @@
  * Still keeping them here in case date/time issues arise.
  * Currently only has a set of dates for type="week", but more sets can be created.
  *
- * To run change the filename to `tests.js`.
+ * To run change the filename to `polyfill.test.js`.
  */
 
 /* globals JSON */
