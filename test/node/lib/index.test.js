@@ -226,17 +226,15 @@ describe('.getPolyfillString', async () => {
 
 		process.env.NODE_ENV = "production";
 
-		const polyfillio2 = require('../../../lib');
-
 		return Promise.all([
-			polyfillio2.getPolyfillString({
+			polyfillio.getPolyfillString({
 				features: {
 					default: {}
 				},
 				ua: new UA('chrome/30'),
 				minify: false
 			}),
-			polyfillio2.getPolyfillString({
+			polyfillio.getPolyfillString({
 				features: {
 					default: {}
 				},
@@ -275,5 +273,97 @@ describe('.getPolyfillString', async () => {
 				resolve();
 			});
 		})
+	});
+
+	await it('should support custom file system implementations', async () => {
+		const polyfillio = require('../../../lib');
+		const sources = require('../../../lib/sources.js');
+
+		const stream = require('node:stream');
+		const fs = require('node:fs');
+
+		const cache = new Map();
+
+		let fileReads = 0;
+		let fileCacheReads = 0;
+		let streamReads = 0;
+		let streamCacheReads = 0;
+
+		sources.setFs(
+			async function readFile() {
+				fileReads++;
+
+				const requested = arguments[0];
+				if (cache.has(requested)) {
+					fileCacheReads++;
+					return cache.get(requested);
+				}
+
+				const data = await fs.promises.readFile.apply(fs.promises, arguments);
+
+				cache.set(requested, data);
+
+				return data;
+			},
+			function createReadStream() {
+				streamReads++;
+
+				const requested = arguments[0];
+				if (cache.has(requested)) {
+					streamCacheReads++;
+					return stream.Readable.from(cache.get(requested));
+				}
+
+				const data = fs.readFileSync.apply(fs, arguments);
+
+				cache.set(requested, data);
+
+				return stream.Readable.from(data);
+			}
+		);
+
+		return new Promise((resolve) => {
+			let bundle_a = '';
+			let bundle_b = '';
+
+			const s_a = polyfillio.getPolyfillString({
+				features: {
+					default: {}
+				},
+				ua: new UA('ie/9'),
+				stream: true,
+				minify: false
+			});
+
+			const buf_a = [];
+
+			s_a.on('data', chunk => buf_a.push(chunk));
+			s_a.on('end', () => {
+				bundle_a = buf_a.join('');
+
+				const s_b = polyfillio.getPolyfillString({
+					features: {
+						default: {}
+					},
+					ua: new UA('ie/9'),
+					stream: true,
+					minify: false
+				});
+
+				const buf_b = [];
+
+				s_b.on('data', chunk => buf_b.push(chunk));
+				s_b.on('end', () => {
+					bundle_b = buf_b.join('');
+
+					assert.equal(bundle_a, bundle_b);
+
+					assert.equal(fileCacheReads, fileReads / 2);
+					assert.equal(streamCacheReads, streamReads / 2);
+
+					resolve();
+				});
+			});
+		});
 	});
 });
