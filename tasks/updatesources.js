@@ -17,7 +17,7 @@ const installPolyfill = config => {
 	const polyfillOutputPath = path.join(polyfillOutputFolder, 'polyfill.js');
 
 	const polyfillSourcePaths = (config.install.paths || ['']).map((p) => {
-		return require.resolve(path.join(config.install.module, p), [polyfillOutputFolder])
+		return require.resolve(path.join(config.install.module, p), { paths: [polyfillOutputFolder] })
 	});
 
 	const newPolyfill = loadSource(polyfillSourcePaths);
