@@ -19,8 +19,9 @@ it('is not enumerable', function () {
 
 it('returns true if defining the property was a success', function () {
 	var o = {};
-	proclaim.isTrue(Reflect.defineProperty(o, 'a', {}));
+	proclaim.isTrue(Reflect.defineProperty(o, 'a', { value: 'hi' }));
 	proclaim.isTrue(Object.prototype.hasOwnProperty.call(o, 'a'));
+	proclaim.equal(o.a, 'hi');
 });
 
 if ('freeze' in Object && (function () {
