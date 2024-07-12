@@ -1,1 +1,1 @@
-"TextEncoder" in self && "TextDecoder" in self
+'TextEncoder' in self && 'TextDecoder' in self && 'Uint8Array' in self && new TextEncoder().encode('') instanceof self.Uint8Array && new TextDecoder('utf-8', { ignoreBOM: true }).decode(new TextEncoder().encode('\uFEFFtest=\uFEFF')) === '\uFEFFtest=\uFEFF'

@@ -9,7 +9,7 @@ docs = "https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Ob
 
 [browsers]
 android = "*"
-chrome = "<38"
+chrome = "<49"
 edge = "<13"
 edge_mob = "<13"
 firefox = "<38"

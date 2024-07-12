@@ -33,3 +33,7 @@ it('finally returns a done object', function () {
 	iterator.next();
 	proclaim.equal(iterator.next().done, true);
 });
+
+it("returns an iterable", function () {
+	proclaim.isDefined(getNodeList()[Symbol.iterator]()[Symbol.iterator]);
+});
