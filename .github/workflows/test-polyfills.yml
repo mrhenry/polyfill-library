@@ -57,7 +57,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: polyfills/__dist
-        key: cache--dist--${{ env.GITHUB_SHA }}
+        key: cache--dist--${{ env.commit-sha }}
 
     - run: npm run build
       if: steps.cache-dist.outputs.cache-hit != 'true'
