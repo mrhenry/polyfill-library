@@ -10,9 +10,9 @@ docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global
 
 [browsers]
 android = "*"
-chrome = "<38"
-firefox = "<36"
-firefox_mob = "<36"
+chrome = "<45"
+firefox = "<44"
+firefox_mob = "<44"
 ie = "*"
 ie_mob = "*"
 opera = "<25"

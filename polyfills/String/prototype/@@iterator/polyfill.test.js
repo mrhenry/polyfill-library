@@ -42,3 +42,7 @@ it('finally returns a done object', function () {
 it('StringIteratorPrototype[Symbol.toStringTag]', function () {
 	proclaim.strictEqual(Object.getPrototypeOf(''[Symbol.iterator]())[Symbol.toStringTag], 'String Iterator');
 });
+
+it("returns an iterable", function () {
+	proclaim.isDefined(""[Symbol.iterator]()[Symbol.iterator]);
+});

@@ -35,3 +35,7 @@ it('finally returns a done object', function () {
 		value: undefined
 	});
 });
+
+it("returns an iterable", function () {
+	proclaim.isDefined(getDOMTokenList()[Symbol.iterator]()[Symbol.iterator]);
+});
