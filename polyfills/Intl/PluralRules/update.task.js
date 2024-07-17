@@ -15,7 +15,7 @@
 
 var fs = require('fs');
 var path = require('path');
-var LocalesPath = path.dirname(require.resolve('@formatjs/intl-pluralrules/locale-data/en.js'));
+var LocalesPath = path.dirname(require.resolve('@formatjs/intl-pluralrules/locale-data/en.js', { paths: [__dirname] }));
 var IntlPolyfillOutput = path.resolve('polyfills/Intl/PluralRules');
 var LocalesPolyfillOutput = path.resolve('polyfills/Intl/PluralRules/~locale');
 var TOML = require('@iarna/toml');

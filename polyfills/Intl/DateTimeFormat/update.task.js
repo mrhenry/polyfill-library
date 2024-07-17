@@ -16,10 +16,10 @@
 var fs = require("fs");
 var path = require("path");
 var LocalesPath = path.dirname(
-	require.resolve("@formatjs/intl-datetimeformat/locale-data/en.js")
+	require.resolve("@formatjs/intl-datetimeformat/locale-data/en.js", { paths: [__dirname] })
 );
 
-var NumberFormatLocalesPath = path.dirname(require.resolve('@formatjs/intl-numberformat/locale-data/en.js'));
+var NumberFormatLocalesPath = path.dirname(require.resolve('@formatjs/intl-numberformat/locale-data/en.js', { paths: [__dirname] }));
 
 var IntlPolyfillOutput = path.resolve("polyfills/Intl/DateTimeFormat");
 var LocalesPolyfillOutput = path.resolve(
