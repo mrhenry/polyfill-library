@@ -44,4 +44,8 @@ describe('keys', function () {
 			done: true
 		});
 	});
+
+	it("returns an iterable", function () {
+		proclaim.isDefined(new Int8Array().keys()[self.Symbol.iterator]);
+	});
 });

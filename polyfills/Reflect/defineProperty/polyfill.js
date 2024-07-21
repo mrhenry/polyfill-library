@@ -11,7 +11,22 @@ CreateMethodProperty(Reflect, 'defineProperty', function defineProperty(target, 
 	var desc = ToPropertyDescriptor(attributes);
 	// 4. Return ? target.[[DefineOwnProperty]](key, desc).
 	try {
-		Object.defineProperty(target, key, desc);
+		var newDesc = {};
+		var props = [
+			["[[Value]]", "value"],
+			["[[Get]]", "get"],
+			["[[Set]]", "set"],
+			["[[Writable]]", "writable"],
+			["[[Enumerable]]", "enumerable"],
+			["[[Configurable]]", "configurable"]
+		];
+		for (var i = 0; i < props.length; i++) {
+			var prop = props[i];
+			if (prop[0] in desc) {
+				newDesc[prop[1]] = desc[prop[0]];
+			}
+		}
+		Object.defineProperty(target, key, newDesc);
 		return true;
 	} catch (e) {
 		return false;

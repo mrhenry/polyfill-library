@@ -45,3 +45,7 @@ it('finally returns a done object', function () {
 		done: true
 	});
 });
+
+it("returns an iterable", function () {
+	proclaim.isDefined([].values()[self.Symbol.iterator]);
+});
