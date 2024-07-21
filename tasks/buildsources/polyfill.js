@@ -3,14 +3,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const uglify = require('uglify-js');
-const {
-	promisify
-} = require('node:util');
 const UA = require('@financial-times/polyfill-useragent-normaliser');
 const TOML = require('@iarna/toml');
-
-const writeFile = promisify(fs.writeFile);
-const readFile = promisify(fs.readFile);
 
 const validateSource = require('./validate-source');
 const semver = require('semver');
@@ -142,7 +136,7 @@ module.exports = class Polyfill {
 	 * @throws When the Polyfill has missing or invalid config.
 	 */
 	loadConfig() {
-		return readFile(this.configPath)
+		return fs.promises.readFile(this.configPath)
 			.catch(error => {
 				throw {
 					name: "Invalid config",
@@ -222,7 +216,7 @@ module.exports = class Polyfill {
 	 * @returns {Promise<void>} When done.
 	 */
 	loadSources() {
-		return readFile(this.sourcePath, 'utf8')
+		return fs.promises.readFile(this.sourcePath, 'utf8')
 			.catch(error => {
 				throw {
 					name: "Invalid source",
@@ -343,18 +337,19 @@ module.exports = class Polyfill {
 	 * @param {string} root The output directory.
 	 * @returns {Promise<void>} When done.
 	 */
-	writeOutput(root) {
+	async writeOutput(root) {
 		const destination = path.join(root, this.name);
+
 		const files = [
 			['meta.json', JSON.stringify(this.config)],
 			['raw.js', this.sources.raw],
 			['min.js', this.sources.min]
 		];
 
-		fs.mkdirSync(destination, { recursive: true });
+		await fs.promises.mkdir(destination, { recursive: true });
 
-		return Promise.all(files
+		await Promise.all(files
 			.map(([name, contents]) => [path.join(destination, name), contents])
-			.map(([path, contents]) => writeFile(path, contents)));
+			.map(([path, contents]) => fs.promises.writeFile(path, contents)));
 	}
 }

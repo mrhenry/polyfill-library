@@ -2,11 +2,6 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const {
-	promisify
-} = require('node:util');
-
-const writeFile = promisify(fs.writeFile);
 
 /**
  * Write "aliases.json" to the output directory.
@@ -16,7 +11,7 @@ const writeFile = promisify(fs.writeFile);
  *
  * @throws When writing a valid JSON to the output directory fails.
  */
-module.exports = function writeAliasFile(polyfills, directory) {
+module.exports = async function writeAliasFile(polyfills, directory) {
 	const aliases = {};
 
 	for (const polyfill of polyfills) {
@@ -29,5 +24,5 @@ module.exports = function writeAliasFile(polyfills, directory) {
 		}
 	}
 
-	return writeFile(path.join(directory, 'aliases.json'), JSON.stringify(aliases));
+	await fs.promises.writeFile(path.join(directory, 'aliases.json'), JSON.stringify(aliases));
 }
