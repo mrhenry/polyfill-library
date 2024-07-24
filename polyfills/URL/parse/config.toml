@@ -1,0 +1,24 @@
+dependencies = [
+	"_ESAbstract.ToString",
+	"URL",
+]
+license = "MIT"
+docs = "https://developer.mozilla.org/en-US/docs/Web/API/URL/parse_static"
+spec = "https://url.spec.whatwg.org/#ref-for-dom-url-parse"
+
+[browsers]
+android = "*"
+bb = "*"
+chrome = "<126"
+edge = "*"
+edge_mob = "*"
+firefox = "<126"
+firefox_mob = "<126"
+ie = "*"
+ie_mob = "*"
+opera = "*"
+op_mob = "*"
+op_mini = "*"
+safari = "*"
+ios_saf = "*"
+samsung_mob = "*"
