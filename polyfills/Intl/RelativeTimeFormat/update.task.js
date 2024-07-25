@@ -15,9 +15,9 @@
 
 var fs = require('fs');
 var path = require('path');
-var LocalesPath = path.dirname(require.resolve('@formatjs/intl-relativetimeformat/locale-data/en.js'));
-var PluralRulesLocalesPath = path.dirname(require.resolve('@formatjs/intl-pluralrules/locale-data/en.js'));
-var NumberFormatLocalesPath = path.dirname(require.resolve('@formatjs/intl-numberformat/locale-data/en.js'));
+var LocalesPath = path.dirname(require.resolve('@formatjs/intl-relativetimeformat/locale-data/en.js', { paths: [__dirname] }));
+var PluralRulesLocalesPath = path.dirname(require.resolve('@formatjs/intl-pluralrules/locale-data/en.js', { paths: [__dirname] }));
+var NumberFormatLocalesPath = path.dirname(require.resolve('@formatjs/intl-numberformat/locale-data/en.js', { paths: [__dirname] }));
 var IntlPolyfillOutput = path.resolve('polyfills/Intl/RelativeTimeFormat');
 var LocalesPolyfillOutput = path.resolve('polyfills/Intl/RelativeTimeFormat/~locale');
 var TOML = require('@iarna/toml');

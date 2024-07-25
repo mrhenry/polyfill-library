@@ -15,7 +15,7 @@
 
 var fs = require('fs');
 var path = require('path');
-var LocalesPath = path.dirname(require.resolve('@formatjs/intl-listformat/locale-data/en.js'));
+var LocalesPath = path.dirname(require.resolve('@formatjs/intl-listformat/locale-data/en.js', { paths: [__dirname] }));
 var IntlPolyfillOutput = path.resolve('polyfills/Intl/ListFormat');
 var LocalesPolyfillOutput = path.resolve('polyfills/Intl/ListFormat/~locale');
 var TOML = require('@iarna/toml');
