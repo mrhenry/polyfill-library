@@ -72,12 +72,15 @@ describe('allSettled', function () {
 	});
 
 	it("rejects with a TypeError for input that is not iterable", function () {
-		return Promise.allSettled(0).catch(function (err) {
-			return err;
-		}).then(function (err) {
-			proclaim.ok(err instanceof TypeError);
-			proclaim.include(err.message, 'is not iterable');
-		});
+		return Promise.allSettled(0).then(
+			function () {
+				proclaim.fail("promise did not reject");
+			},
+			function (err) {
+				proclaim.ok(err instanceof TypeError);
+				proclaim.include(err.message, 'is not iterable');
+			}
+		);
 	});
 
 	it("supports `this` as a Promise subclass", function () {
