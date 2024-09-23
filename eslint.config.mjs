@@ -61,7 +61,6 @@ const ignores = [
 	"polyfills/fetch/polyfill.js",
 	"polyfills/smoothscroll/polyfill.js",
 	"polyfills/~html5-elements/polyfill.js",
-	"polyfills/URL/polyfill.js",
 
 	// Vendored mocha
 	"test/polyfills/mocha/**",

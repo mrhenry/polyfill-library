@@ -9,28 +9,11 @@ aliases = [
 ]
 dependencies = [
 	"Array.from",
-	"Array.prototype.@@iterator",
-	"Array.prototype.entries",
-	"Array.prototype.includes",
-	"Array.prototype.sort",
-	"Array.prototype.values",
-	"ArrayBuffer.prototype.@@toStringTag",
-	"Object.getOwnPropertyDescriptors",
-	"Object.prototype.toString",
-	"Reflect.defineProperty",
-	"Reflect.getOwnPropertyDescriptor",
-	"Reflect.ownKeys",
-	"String.fromCodePoint",
-	"String.prototype.@@iterator",
-	"String.prototype.codePointAt",
-	"String.prototype.normalize",
-	"String.prototype.startsWith",
-	"TextEncoder",
-	"TypedArray.prototype.@@iterator",
+	"Symbol.iterator"
 ]
 notes = [ ]
-license = "MIT"
-repo = "https://github.com/jsdom/whatwg-url"
+license = "CC0-1.0"
+repo = "https://github.com/inexorabletash/polyfill"
 docs = "https://developer.mozilla.org/en-US/docs/Web/API/URL"
 
 [browsers]
@@ -49,8 +32,3 @@ op_mini = "*"
 safari = "<12.0"
 ios_saf = "<12.0"
 samsung_mob = "<5.0"
-
-[install]
-module = "whatwg-url"
-postinstall = "update.task.js"
-clean = [ "polyfill.js" ]
