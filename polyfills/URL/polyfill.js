@@ -158,9 +158,14 @@
 			return anchor;
 		}
 
-		function URLSearchParams(init) {
+		function URLSearchParams() {
 			var $this = this;
 			this._list = [];
+
+			var init;
+			if (arguments.length > 0) {
+				init = arguments[0];
+			}
 
 			if (init === undefined || init === null) {
 				// no-op
@@ -366,7 +371,12 @@
 				writable: true, enumerable: true, configurable: true});
 		}
 
-		function URL(url, base) {
+		function URL(url) {
+			var base;
+			if (arguments.length > 1) {
+				base = arguments[1];
+			}
+
 			if (!(this instanceof global.URL))
 				throw new TypeError("Failed to construct 'URL': Please use the 'new' operator.");
 

@@ -15,6 +15,7 @@ notes = [ ]
 license = "CC0-1.0"
 repo = "https://github.com/inexorabletash/polyfill"
 docs = "https://developer.mozilla.org/en-US/docs/Web/API/URL"
+spec = "https://url.spec.whatwg.org/#url"
 
 [browsers]
 android = "*"

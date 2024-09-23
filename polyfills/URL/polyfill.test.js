@@ -1,4 +1,17 @@
-it('URL IDL', function() {
+it("has correct arity", function () {
+	proclaim.arity(URL, 1);
+	proclaim.arity(URLSearchParams, 0);
+});
+it("has correct instance", function () {
+	proclaim.isInstanceOf(new URL("http://hello"), URL);
+	proclaim.isInstanceOf(new URLSearchParams(), URLSearchParams);
+});
+it("has correct name", function () {
+	proclaim.hasName(URL, "URL");
+	proclaim.hasName(URLSearchParams, "URLSearchParams");
+});
+
+it('URL IDL', function () {
 	var url = new URL('http://example.com:8080/foo/bar?a=1&b=2#p1');
 	proclaim.equal(typeof url.protocol, 'string', 'protocol');
 	proclaim.equal(typeof url.host, 'string', 'host');
@@ -193,6 +206,36 @@ it('Base URL', function () {
 	proclaim.equal(new URL('?ab#cd', 'https://example.org/foo').href, 'https://example.org/foo?ab#cd');
 	proclaim.equal(new URL('?ab', 'https://example.org/foo').href, 'https://example.org/foo?ab');
 	proclaim.equal(new URL('#cd', 'https://example.org/foo').href, 'https://example.org/foo#cd');
+});
+
+it("Invalid URL inputs", function () {
+	proclaim.throws(function () {
+		new URL();
+	}, TypeError);
+
+	proclaim.throws(function () {
+		new URL();
+	}, 'Failed to construct \'URL\': Invalid URL');
+
+	proclaim.throws(function () {
+		new URL("");
+	}, 'Failed to construct \'URL\': Invalid URL');
+
+	proclaim.throws(function () {
+		new URL("/there");
+	}, 'Failed to construct \'URL\': Invalid URL');
+
+	proclaim.throws(function () {
+		new URL("invalid");
+	}, 'Failed to construct \'URL\': Invalid URL');
+
+	proclaim.throws(function () {
+		new URL({
+			toString: function () {
+				throw new Error();
+			}
+		});
+	});
 });
 
 it('URLSearchParams', function () {
