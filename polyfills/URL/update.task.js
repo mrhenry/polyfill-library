@@ -47,6 +47,26 @@ const codeProcessors = [
 			)
 	},
 	{
+		filename: "node_modules/whatwg-url/lib/percent-encoding.js",
+		description: "replace `typedArray.slice` with `typedArray.subarray`",
+		processor: (code) =>
+			code.replace(
+				/return output\.slice\(0, outputIndex\);/,
+				"return output.subarray(0, outputIndex);"
+			)
+	},
+	{
+		filename: "node_modules/whatwg-url/lib/urlencoded.js",
+		description:
+			"replace `typedArray.slice` with `typedArray.subarray` and `typedArray.indexOf` with `Array.prototype.indexOf`",
+		processor: (code) =>
+			code
+				.replace(/bytes\.slice\(/g, "bytes.subarray(")
+				.replace(/buf\.slice\(/g, "buf.subarray(")
+				.replace(/bytes\.indexOf\(/g, "Array.prototype.indexOf.call(bytes, ")
+				.replace(/buf\.indexOf\(/g, "Array.prototype.indexOf.call(buf, ")
+	},
+	{
 		filename: "node_modules/whatwg-url/lib/URL.js",
 		description:
 			"delete `URL.prototype.toJSON`, `URL.canParse`, and `URL.parse`, since they should come from other polyfills",
