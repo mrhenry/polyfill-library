@@ -2498,7 +2498,7 @@ function percentDecodeBytes(input) {
       i += 2;
     }
   }
-  return output.slice(0, outputIndex);
+  return output.subarray(0, outputIndex);
 }
 
 // https://url.spec.whatwg.org/#string-percent-decode
@@ -3739,10 +3739,10 @@ function parseUrlencoded(input) {
       }
       var name = void 0,
         value = void 0;
-      var indexOfEqual = bytes.indexOf(p("="));
+      var indexOfEqual = Array.prototype.indexOf.call(bytes, p("="));
       if (indexOfEqual >= 0) {
-        name = bytes.slice(0, indexOfEqual);
-        value = bytes.slice(indexOfEqual + 1);
+        name = bytes.subarray(0, indexOfEqual);
+        value = bytes.subarray(indexOfEqual + 1);
       } else {
         name = bytes;
         value = new Uint8Array(0);
@@ -3810,22 +3810,22 @@ function serializeUrlencoded(tuples) {
 function strictlySplitByteSequence(buf, cp) {
   var list = [];
   var last = 0;
-  var i = buf.indexOf(cp);
+  var i = Array.prototype.indexOf.call(buf, cp);
   while (i >= 0) {
-    list.push(buf.slice(last, i));
+    list.push(buf.subarray(last, i));
     last = i + 1;
-    i = buf.indexOf(cp, last);
+    i = Array.prototype.indexOf.call(buf, cp, last);
   }
   if (last !== buf.length) {
-    list.push(buf.slice(last));
+    list.push(buf.subarray(last));
   }
   return list;
 }
 function replaceByteInByteSequence(buf, from, to) {
-  var i = buf.indexOf(from);
+  var i = Array.prototype.indexOf.call(buf, from);
   while (i >= 0) {
     buf[i] = to;
-    i = buf.indexOf(from, i + 1);
+    i = Array.prototype.indexOf.call(buf, from, i + 1);
   }
   return buf;
 }
