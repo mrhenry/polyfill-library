@@ -3,7 +3,7 @@
   "version": "5.1.0",
   "description": "A polyfill combinator",
   "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "types": "types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/mrhenry/polyfill-library.git"
@@ -18,7 +18,8 @@
     "lint": "eslint polyfills lib tasks test",
     "lint-config": "node tasks/lint-config/index.js",
     "clean": "node tasks/clean",
-    "build": "npm run clean && node tasks/updatesources && node tasks/buildsources/buildsources",
+    "build": "npm run clean && node tasks/updatesources && node tasks/buildsources/buildsources && npm run build-types",
+    "build-types": "tsc lib/*.js --declaration --allowJs --emitDeclarationOnly --outDir types",
     "watch": "npm run clean && node tasks/updatesources && node tasks/buildsources/watchsource",
     "fmt": "eslint . --fix",
     "test-end-to-end": "node --test 'test/end-to-end/**/*.test.js'",
@@ -40,7 +41,8 @@
     "/README.md",
     "/SECURITY.md",
     "/lib",
-    "/polyfills/__dist"
+    "/polyfills/__dist",
+    "/types"
   ],
   "dependencies": {
     "merge2": "^1.0.3",
@@ -66,6 +68,7 @@
     "lodash": "^4.17.14",
     "proclaim": "^3.6.0",
     "semver": "^7.3.7",
+    "typescript": "^5.6.2",
     "uglify-js": "^3.17.4",
     "webdriverio": "^8.0.0"
   },
