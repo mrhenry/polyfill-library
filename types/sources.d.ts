@@ -15,7 +15,7 @@ export type PolyfillMeta = {
 export type readFile = (path: string, options: "utf-8") => Promise<string>;
 export type createReadStream = (path: string, options: {
     encoding: "utf-8";
-}) => import("fs").ReadStream;
+}) => import("stream").Readable;
 export type FilesystemImplementation = {
     readFile: readFile;
     createReadStream: createReadStream;
