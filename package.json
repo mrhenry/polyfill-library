@@ -15,7 +15,7 @@
     "polyfills/**/*"
   ],
   "scripts": {
-    "lint": "eslint polyfills lib tasks test",
+    "lint": "eslint polyfills lib tasks test && tsc --noEmit",
     "lint-config": "node tasks/lint-config/index.js",
     "clean": "node tasks/clean",
     "build": "npm run clean && node tasks/updatesources && node tasks/buildsources/buildsources && npm run build-types",
@@ -53,6 +53,8 @@
   "devDependencies": {
     "@financial-times/polyfill-useragent-normaliser": "^2.0.1",
     "@iarna/toml": "^2.2.5",
+    "@types/merge2": "^1.4.4",
+    "@types/toposort": "^2.0.7",
     "apicache": "^1.6.3",
     "browserstack": "1.6.1",
     "browserstack-local": "^1.5.5",

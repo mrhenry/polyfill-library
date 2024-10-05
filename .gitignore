@@ -6,4 +6,3 @@ coverage
 local.log
 test/polyfills/compat.json
 test/polyfills/results-*.json
-types/
