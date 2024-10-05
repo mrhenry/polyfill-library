@@ -11,6 +11,9 @@ const globOptions = { cwd: cwd };
 console.log('Cleaning dist...');
 fs.rmSync('./polyfills/__dist', { recursive: true, force: true });
 
+console.log('Cleaning types...');
+fs.rmSync('./types', { recursive: true, force: true });
+
 console.log('Cleaning polyfills...');
 glob('polyfills/**/config.toml', globOptions).then((files) => {
 	for (const config of files.map((source) => {

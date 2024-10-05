@@ -295,6 +295,8 @@ describe('.getOptions(opts)', () => {
 				unknown: 'polyfill',
 				features: {
 					'Array.of': {
+						aliasOf: new Set(),
+						dependencyOf: new Set(),
 						flags: new Set
 					}
 				},
@@ -327,6 +329,8 @@ describe('.getOptions(opts)', () => {
 		const actual = polyfillio.getOptions({
 			features: {
 				'Array.from': {
+					aliasOf: new Set(),
+					dependencyOf: new Set(),
 					flags: ['a', 'b', 'c']
 				}
 			}
@@ -342,6 +346,8 @@ describe('.getOptions(opts)', () => {
 			unknown: 'polyfill',
 			features: {
 				'Array.from': {
+					aliasOf: new Set(),
+					dependencyOf: new Set(),
 					flags: new Set(['a', 'b', 'c'])
 				}
 			},
