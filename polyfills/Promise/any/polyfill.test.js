@@ -39,21 +39,27 @@ describe('any', function () {
 
 	it("rejects with an AggregateError when passed an array of rejected promises", function () {
 		var promises = [Promise.reject(1)];
-		return Promise.any(promises).catch(function (err) {
-			return err;
-		}).then(function (err) {
-			proclaim.equal(err.name, 'AggregateError');
-			proclaim.deepStrictEqual(err.errors, [1]);
-		});
+		return Promise.any(promises).then(
+			function () {
+				proclaim.fail("promise did not reject");
+			},
+			function (err) {
+				proclaim.equal(err.name, 'AggregateError');
+				proclaim.deepStrictEqual(err.errors, [1]);
+			}
+		);
 	});
 
 	it("rejects with an AggregateError when passed an empty array", function () {
-		return Promise.any([]).catch(function (err) {
-			return err;
-		}).then(function (err) {
-			proclaim.equal(err.name, 'AggregateError');
-			proclaim.deepStrictEqual(err.errors, []);
-		});
+		return Promise.any([]).then(
+			function () {
+				proclaim.fail("promise did not reject");
+			},
+			function (err) {
+				proclaim.equal(err.name, 'AggregateError');
+				proclaim.deepStrictEqual(err.errors, []);
+			}
+		);
 	});
 
 	it("resolves to the first fulfilled promise when passed an iterator", function () {
@@ -67,32 +73,41 @@ describe('any', function () {
 	it("rejects with an AggregateError when passed an iterator containing rejected promises", function () {
 		var promises = [Promise.reject(1)];
 		var iterator = makeArrayIterator(promises);
-		return Promise.any(iterator).catch(function (err) {
-			return err;
-		}).then(function (err) {
-			proclaim.equal(err.name, 'AggregateError');
-			proclaim.deepStrictEqual(err.errors, [1]);
-		});
+		return Promise.any(iterator).then(
+			function () {
+				proclaim.fail("promise did not reject");
+			},
+			function (err) {
+				proclaim.equal(err.name, 'AggregateError');
+				proclaim.deepStrictEqual(err.errors, [1]);
+			}
+		);
 	});
 
 	it("rejects with an AggregateError when passed an empty iterable", function () {
 		var promises = [];
 		var iterator = makeArrayIterator(promises);
-		return Promise.any(iterator).catch(function (err) {
-			return err;
-		}).then(function (err) {
-			proclaim.equal(err.name, 'AggregateError');
-			proclaim.deepStrictEqual(err.errors, []);
-		});
+		return Promise.any(iterator).then(
+			function () {
+				proclaim.fail("promise did not reject");
+			},
+			function (err) {
+				proclaim.equal(err.name, 'AggregateError');
+				proclaim.deepStrictEqual(err.errors, []);
+			}
+		);
 	});
 
 	it("rejects with a TypeError for input that is not iterable", function () {
-		return Promise.any(0).catch(function (err) {
-			return err;
-		}).then(function (err) {
-			proclaim.ok(err instanceof TypeError);
-			proclaim.include(err.message, 'is not iterable');
-		});
+		return Promise.any(0).then(
+			function () {
+				proclaim.fail("promise did not reject");
+			},
+			function (err) {
+				proclaim.ok(err instanceof TypeError);
+				proclaim.include(err.message, 'is not iterable');
+			}
+		);
 	});
 
 	it("supports `this` as a Promise subclass", function () {

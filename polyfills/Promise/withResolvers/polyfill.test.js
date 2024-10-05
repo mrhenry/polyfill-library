@@ -42,9 +42,14 @@ describe("withResolvers", function () {
 
 		reject("not ok");
 
-		return promise.catch(function (error) {
-			proclaim.equal(error, "not ok");
-		});
+		return promise.then(
+			function () {
+				proclaim.fail("promise did not reject");
+			},
+			function (error) {
+				proclaim.equal(error, "not ok");
+			}
+		);
 	});
 
 	it("throws a TypeError for non-constructor `this`", function () {

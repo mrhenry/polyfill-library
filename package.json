@@ -3,6 +3,7 @@
   "version": "5.1.0",
   "description": "A polyfill combinator",
   "main": "lib/index.js",
+  "types": "types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/mrhenry/polyfill-library.git"
@@ -14,10 +15,11 @@
     "polyfills/**/*"
   ],
   "scripts": {
-    "lint": "eslint polyfills lib tasks test",
+    "lint": "eslint polyfills lib tasks test && tsc --noEmit",
     "lint-config": "node tasks/lint-config/index.js",
     "clean": "node tasks/clean",
-    "build": "npm run clean && node tasks/updatesources && node tasks/buildsources/buildsources",
+    "build": "npm run clean && node tasks/updatesources && node tasks/buildsources/buildsources && npm run build-types",
+    "build-types": "tsc lib/*.js --declaration --allowJs --emitDeclarationOnly --outDir types",
     "watch": "npm run clean && node tasks/updatesources && node tasks/buildsources/watchsource",
     "fmt": "eslint . --fix",
     "test-end-to-end": "node --test 'test/end-to-end/**/*.test.js'",
@@ -39,7 +41,8 @@
     "/README.md",
     "/SECURITY.md",
     "/lib",
-    "/polyfills/__dist"
+    "/polyfills/__dist",
+    "/types"
   ],
   "devDependencies": {
     "@financial-times/polyfill-useragent-normaliser": "^2.0.1",
@@ -60,6 +63,7 @@
     "proclaim": "^3.6.0",
     "semver": "^7.3.7",
     "toposort": "^2.0.2",
+    "typescript": "^5.6.2",
     "uglify-js": "^3.17.4",
     "webdriverio": "^8.0.0"
   },
