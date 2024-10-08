@@ -128,7 +128,7 @@ export function getPolyfills(options_: {
  * @param {Array<string>} [options_.excludes=[]] - Which features should be excluded from the returned object.
  * @param {UaParser} [options_.ua={}] - The user-agent object to check each feature against.
  * @param {boolean} [options_.stream=false] - Whether to return a stream or a string of the polyfill bundle.
- * @return {Promise<string | stream.Readable>} - Polyfill bundle as either a utf-8 stream or a promise of a utf-8 string.
+ * @return {Promise<string>|stream.Readable} - Polyfill bundle as either a utf-8 stream or a promise of a utf-8 string.
  */
 export function getPolyfillString(options_: {
     minify?: boolean;
@@ -139,6 +139,25 @@ export function getPolyfillString(options_: {
     excludes?: Array<string>;
     ua?: UaParser;
     stream?: boolean;
-}): Promise<string | stream.Readable>;
+}): Promise<string> | stream.Readable;
+/**
+ * Create a polyfill bundle.
+ * @param {Object} options_ - Valid keys are ua, minify, unknown, excludes and features.
+ * @param {Boolean} [options_.minify=true] - Whether to return the minified or raw implementation of the polyfills.
+ * @param {'ignore' | 'polyfill'} [options_.unknown='polyfill'] - Whether to return all polyfills or no polyfills if the user-agent is unknown or unsupported.
+ * @param {Record<string, FeatureInput>} [options_.features={}] - Which features should be returned if the user-agent does not support them natively.
+ * @param {false | string} [options_.callback=false] - Name of the JavaScript function to call after the polyfill bundle is loaded.
+ * @param {Array<string>} [options_.excludes=[]] - Which features should be excluded from the returned object.
+ * @param {UaParser} [options_.ua={}] - The user-agent object to check each feature against.
+ * @returns {AsyncGenerator<string>}
+ */
+export function generatePolyfillString(options_: {
+    minify?: boolean;
+    unknown?: "ignore" | "polyfill";
+    features?: Record<string, FeatureInput>;
+    callback?: false | string;
+    excludes?: Array<string>;
+    ua?: UaParser;
+}): AsyncGenerator<string>;
 import sources = require("./sources");
 import stream = require("stream");

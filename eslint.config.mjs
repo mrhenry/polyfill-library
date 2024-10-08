@@ -137,6 +137,9 @@ export default [
 			"no-empty": ["error", {
 				"allowEmptyCatch": true,
 			}],
+			"no-unused-vars": ["error", {
+				"caughtErrors": "none",
+			}],
 		}
 	},
 	{

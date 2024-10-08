@@ -9,9 +9,10 @@ const destination = path.join(source, '__dist');
 
 const Polyfill = require('./polyfill');
 const checkDependenciesExist = require('./check-dependencies-exist');
-const checkForCircularDependencies = require('./check-for-circular-dependencies');
 const flattenPolyfillDirectories = require('./flatten-polyfill-directories');
 const writeAliasFile = require('./write-alias-file');
+const writeMetaFile = require('./write-meta-file');
+const toposortPolyfills = require('./toposort-polyfills');
 
 /**
  * Build all or a single polyfill.
@@ -19,65 +20,65 @@ const writeAliasFile = require('./write-alias-file');
  * @param {string|undefined} feature An optional feature to build. When omitted all polyfills will be build.
  * @returns {Promise<void>} When done.
  */
-module.exports = function build(feature) {
-	return Promise.resolve()
-		.then(async () => {
-			fs.mkdirSync(destination, { recursive: true });
+module.exports = async function build(feature) {
+	await fs.promises.mkdir(destination, { recursive: true });
 
-			const queues = [];
+	const queues = [];
 
-			const maxProc = Math.max(
-				require("node:os").cpus().length,
-				6
-			);
+	const maxProc = Math.max(
+		require("node:os").cpus().length,
+		6
+	);
 
-			const slicedPolyfillPaths = [];
-			const polyfillPaths = flattenPolyfillDirectories(source);
+	const slicedPolyfillPaths = [];
+	const polyfillPaths = await flattenPolyfillDirectories(source);
 
-			for (let queue = 0; queue < maxProc; queue++) {
-				const start = Math.floor((polyfillPaths.length / maxProc) * queue);
-				const end = Math.floor((polyfillPaths.length / maxProc) * (queue + 1));
-				slicedPolyfillPaths.push(polyfillPaths.slice(start, end));
-			}
+	for (let queue = 0; queue < maxProc; queue++) {
+		const start = Math.floor((polyfillPaths.length / maxProc) * queue);
+		const end = Math.floor((polyfillPaths.length / maxProc) * (queue + 1));
+		slicedPolyfillPaths.push(polyfillPaths.slice(start, end));
+	}
 
-			const children = [];
+	const children = [];
 
-			for (const slice of slicedPolyfillPaths) {
-				queues.push(new Promise((resolve, reject) => {
-					const child = child_process.fork(path.join(__dirname, 'buildsources-child-proc'));
-					children.push(child);
+	for (const slice of slicedPolyfillPaths) {
+		queues.push(new Promise((resolve, reject) => {
+			const child = child_process.fork(path.join(__dirname, 'buildsources-child-proc'));
+			children.push(child);
 
-					child.on('message', function (message) {
-						if (message.result) {
-							resolve(message.result.map((polyfillData) => {
-								return Polyfill.fromJSON(polyfillData);
-							}));
-						} else {
-							reject(message.error);
+			child.on('message', function (message) {
+				if (message.result) {
+					resolve(message.result.map((polyfillData) => {
+						return Polyfill.fromJSON(polyfillData);
+					}));
+				} else {
+					reject(message.error);
 
-							for (const c of children) {
-								c.kill();
-							}
-						}
-					});
-
-					child.send({
-						source: source,
-						destination: destination,
-						list: slice,
-						onlyBuildFeature: feature
-					});
-				}));
-			}
-
-			return Promise.all(queues).then((resolvedQueues) => {
-				return resolvedQueues.flat();
+					for (const c of children) {
+						c.kill();
+					}
+				}
 			});
-		})
-		.then(async (polyfills) => {
-			await checkForCircularDependencies(polyfills)
-				.then(() => checkDependenciesExist(polyfills))
-				.then(() => console.log('Waiting for files to be written to disk...'))
-				.then(() => writeAliasFile(polyfills, destination))
-		})
+
+			child.send({
+				source: source,
+				destination: destination,
+				list: slice,
+				onlyBuildFeature: feature
+			});
+		}));
+	}
+
+	const polyfills = await Promise.all(queues).then((resolvedQueues) => {
+		return resolvedQueues.flat();
+	});
+
+	const toposortedPolyfills = toposortPolyfills(polyfills);
+	polyfills.sort((a, b) => toposortedPolyfills.indexOf(a.name) - toposortedPolyfills.indexOf(b.name));
+
+	checkDependenciesExist(polyfills);
+
+	console.log('Waiting for files to be written to disk...')
+	await writeAliasFile(polyfills, destination);
+	await writeMetaFile(polyfills, destination);
 }

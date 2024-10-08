@@ -35,6 +35,26 @@ describe('exported property/properties', () => {
 		const polyfillio = require('../../../lib');
 		assert.ok(typeof polyfillio.getPolyfillString === 'function');
 	});
+
+	it('generatePolyfillString is an exported function', () => {
+		const polyfillio = require('../../../lib');
+		assert.ok(typeof polyfillio.generatePolyfillString === 'function');
+	});
+
+	it('generatePolyfillString is an async generator producing strings', async () => {
+		const polyfillio = require('../../../lib');
+		const generator = polyfillio.generatePolyfillString({
+			features: {
+				default: {}
+			},
+			ua: new UA('chrome/30')
+		});
+
+		assert.ok(generator[Symbol.asyncIterator]);
+
+		const result = await generator.next();
+		assert.ok(typeof result.value === 'string');
+	});
 });
 
 describe('.listAllPolyfills()', () => {
@@ -43,7 +63,8 @@ describe('.listAllPolyfills()', () => {
 		return polyfillio.listAllPolyfills('test').then(result => {
 			assert.ok(Array.isArray(result));
 			assert.ok(result.length > 0);
-			assert.deepStrictEqual(result[0], 'AbortController');
+			assert.deepStrictEqual(result[0], '_ESAbstract.IsPropertyKey');
+			assert.ok(result.includes('AbortController'));
 			assert.equal(
 				result.filter(x => (typeof x === 'string')).length,
 				result.length

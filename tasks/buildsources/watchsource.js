@@ -9,6 +9,8 @@ const source = path.join(__dirname, '../../polyfills');
 const build = require('./build');
 const Polyfill = require('./polyfill');
 
+process.title = 'polyfill-library-watcher';
+
 console.log('Doing a full build before starting watcher');
 
 // Keep a list of started test servers.
@@ -69,38 +71,36 @@ processFeatureAndStartServer().then(() => {
 async function processFeatureAndStartServer(feature) {
 	const startTime = new Date();
 
-	return build(feature)
-		.then(() => {
-			const endTime = new Date();
-			const timeDiff = (endTime - startTime) / 1000;
+	return build(feature).then(() => {
+		const endTime = new Date();
+		const timeDiff = (endTime - startTime) / 1000;
 
-			if (feature) {
-				console.log(`Built : ${feature} in ${Math.round(timeDiff)}s`);
-			} else {
-				console.log(`Built : everything in ${Math.round(timeDiff)}s`);
-			}
+		if (feature) {
+			console.log(`Built : ${feature} in ${Math.round(timeDiff)}s`);
+		} else {
+			console.log(`Built : everything in ${Math.round(timeDiff)}s`);
+		}
 
-			for (const serverProc of servers) {
-				serverProc.stdin.pause();
-				serverProc.kill();
-			}
+		for (const serverProc of servers) {
+			serverProc.stdin.pause();
+			serverProc.kill();
+		}
 
-			servers = [];
+		servers = [];
 
-			const serverProc = child_process.spawn("node", ["./test/polyfills/server.js"], {
-				stdio: [undefined, process.stdout, process.stderr],
-			});
-
-			serverProc.on("exit", function (code) {
-				if (code) {
-					console.log("server exited with exit code " + code);
-				}
-			});
-
-			servers.push(serverProc);
-		})
-		.catch((error) => {
-			console.log(error);
-			console.log(JSON.stringify(error));
+		const serverProc = child_process.spawn("node", ["./test/polyfills/server.js"], {
+			stdio: [undefined, process.stdout, process.stderr],
 		});
+
+		serverProc.on("exit", function (code) {
+			if (code) {
+				console.log("server exited with exit code " + code);
+			}
+		});
+
+		servers.push(serverProc);
+	}).catch((error) => {
+		console.log(error);
+		console.log(JSON.stringify(error));
+	});
 }
