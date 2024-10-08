@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"module": "CommonJS",
+		"target": "ES2015",
+		"lib": ["ES2015"],
+		"checkJs": true,
+		"noEmit": true,
+		"strict": true,
+		"allowUnusedLabels": false,
+		"allowUnreachableCode": false,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": false,
+		"noUnusedParameters": true,
+		"noUncheckedIndexedAccess": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"skipLibCheck": false
+	},
+	"include": ["lib/**/*.js"]
+}

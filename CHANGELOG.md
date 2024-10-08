@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### v5.2.0
+
+- Add `set-methods` polyfills [`#40`](https://github.com/mrhenry/polyfill-library/pull/40) by @mhassan1
+- Add `URL.parse` and `URL.canParse` [`#54`](https://github.com/mrhenry/polyfill-library/pull/54) by @mhassan1
+- Add type definitions [`#68`](https://github.com/mrhenry/polyfill-library/pull/68) by @adenvt
+- Switches `URL` polyfill to `whatwg-url` [`#59`](https://github.com/mrhenry/polyfill-library/pull/59) by @mhassan1
+- Fix `ArrayBuffer` and `TypedArray.prototype.@@iterator` detection in IE11 [`#58`](https://github.com/mrhenry/polyfill-library/pull/58) by @mhassan1
+- Fix `Reflect.defineProperty` property name mismatch [`#57`](https://github.com/mrhenry/polyfill-library/pull/57) by @mhassan1
+- Improve stable sort detection in `Array.prototype.sort` [`#60`](https://github.com/mrhenry/polyfill-library/pull/60) by @mhassan1
+- Improves configuration and detection in iterator, `TextEncoder`, and `ArrayBuffer` polyfills [`#62`](https://github.com/mrhenry/polyfill-library/pull/62) by @mhassan1
+
 #### v5.1.0
 
 - Add `Promise.withResolvers` [`#23`](https://github.com/mrhenry/polyfill-library/pull/23) by @mhassan1

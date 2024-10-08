@@ -9,12 +9,13 @@
 module.exports = function checkDependenciesExist(polyfills) {
 	for (const polyfill of polyfills) {
 		for (const dependency of polyfill.dependencies) {
-			if (!polyfills.some(function (polyfill) {
-					return dependency === polyfill.name;
-				})) {
-				return Promise.reject(`Polyfill ${polyfill.name} depends on ${dependency}, which does not exist within the polyfill-library. Recommended to either add the missing polyfill or remove the dependency.`);
+			const dependencyExists = polyfills.some(function (polyfill) {
+				return dependency === polyfill.name;
+			});
+
+			if (!dependencyExists) {
+				throw new Error(`Polyfill ${polyfill.name} depends on ${dependency}, which does not exist within the polyfill-library. Recommended to either add the missing polyfill or remove the dependency.`);
 			}
 		}
 	}
-	return Promise.resolve();
 }
