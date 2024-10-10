@@ -122,8 +122,10 @@ async function main() {
 					deviceName: browserObject.device,
 					platformName: browserObject.os,
 					platformVersion: browserObject.os_version,
-					real_mobile: true,
-					'browserstack.appium_version': '1.8.0'
+					realMobile: true,
+					'bstack:options': {
+						appiumVersion: '1.8.0'
+					}
 				};
 			} else if (
 				browser === browserObject.browser &&
@@ -134,7 +136,9 @@ async function main() {
 					browserVersion: browserObject.browser_version,
 				};
 				if (o.browserName === 'edge') {
-					o["browserstack.selenium_version"] = "3.5.2";
+					o["bstack:options"] = {
+						seleniumVersion: "3.5.2"
+					};
 				}
 				return o;
 			}
