@@ -65,7 +65,7 @@
     "toposort": "^2.0.2",
     "typescript": "^5.6.2",
     "uglify-js": "^3.17.4",
-    "webdriverio": "^8.0.0"
+    "webdriverio": "^9.1.4"
   },
   "volta": {
     "node": "22.3.0"

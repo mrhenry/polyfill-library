@@ -1,6 +1,7 @@
 "use strict";
 
 const { remote } = require("webdriverio");
+const _ = require("lodash");
 const wait = duration => new Promise(resolve => setTimeout(resolve, duration));
 
 if (
@@ -30,16 +31,17 @@ module.exports = class TestJob {
 		this.lastUpdateTime = 0;
 		this.duration = 0;
 		// BrowserStack options https://www.browserstack.com/automate/capabilities
-		this.capabilities = Object.assign(
+		this.capabilities = _.merge(
 			{
-				name: sessionName,
-				project: "polyfill-library",
-				"browserstack.local": "true",
-				"browserstack.video": "true",
-				"browserstack.debug": "true",
-				"browserstack.console": "errors",
-				"browserstack.networkLogs": "true",
-				timeout: 180000
+				"bstack:options": {
+					sessionName,
+					projectName: "polyfill-library",
+					local: true,
+					video: true,
+					debug: true,
+					consoleLogs: "errors",
+					networkLogs: true
+				}
 			},
 			capability
 		);
@@ -103,8 +105,7 @@ module.exports = class TestJob {
 				capabilities: this.capabilities,
 				services: ["browserstack"],
 				user: process.env.BROWSERSTACK_USERNAME,
-				key: process.env.BROWSERSTACK_ACCESS_KEY,
-				browserstackLocal: true
+				key: process.env.BROWSERSTACK_ACCESS_KEY
 			});
 		} catch (error) {
 			/*

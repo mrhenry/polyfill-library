@@ -119,11 +119,13 @@ async function main() {
 		for (const browserObject of browserstackList) {
 			if (browser === browserObject.os && version === browserObject.os_version) {
 				return {
-					deviceName: browserObject.device,
 					platformName: browserObject.os,
-					platformVersion: browserObject.os_version,
-					real_mobile: true,
-					'browserstack.appium_version': '1.8.0'
+					'bstack:options': {
+						deviceName: browserObject.device,
+						osVersion: browserObject.os_version,
+						realMobile: true,
+						appiumVersion: '1.8.0'
+					}
 				};
 			} else if (
 				browser === browserObject.browser &&
@@ -134,7 +136,14 @@ async function main() {
 					browserVersion: browserObject.browser_version,
 				};
 				if (o.browserName === 'edge') {
-					o["browserstack.selenium_version"] = "3.5.2";
+					o["bstack:options"] = {
+						seleniumVersion: "3.5.2"
+					};
+				}
+				if (o.browserName === 'chrome' && ['87.0', '88.0', '89.0', '90.0'].includes(o.browserVersion)) {
+					// Chrome versions 87-90 act like they support BiDi, but they don't
+					// TODO: remove this check if BrowserStack or WebDriverIO fixes this
+					o["wdio:enforceWebDriverClassic"] = true;
 				}
 				return o;
 			}
