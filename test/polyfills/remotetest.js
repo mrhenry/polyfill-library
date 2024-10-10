@@ -119,11 +119,11 @@ async function main() {
 		for (const browserObject of browserstackList) {
 			if (browser === browserObject.os && version === browserObject.os_version) {
 				return {
-					deviceName: browserObject.device,
 					platformName: browserObject.os,
-					platformVersion: browserObject.os_version,
-					realMobile: true,
 					'bstack:options': {
+						deviceName: browserObject.device,
+						osVersion: browserObject.os_version,
+						realMobile: true,
 						appiumVersion: '1.8.0'
 					}
 				};
