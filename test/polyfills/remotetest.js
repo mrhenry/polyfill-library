@@ -140,6 +140,11 @@ async function main() {
 						seleniumVersion: "3.5.2"
 					};
 				}
+				if (o.browserName === 'chrome' && ['87.0', '88.0', '89.0', '90.0'].includes(o.browserVersion)) {
+					// Chrome versions 87-90 act like they support BiDi, but they don't
+					// TODO: remove this check if BrowserStack or WebDriverIO fixes this
+					o["wdio:enforceWebDriverClassic"] = true;
+				}
 				return o;
 			}
 		}

@@ -30,12 +30,6 @@ module.exports = class TestJob {
 		this.results = undefined;
 		this.lastUpdateTime = 0;
 		this.duration = 0;
-
-		// Chrome versions 87-90 act like they support BiDi, but they don't
-		// TODO: remove this check if BrowserStack or WebDriverIO fixes this
-		const skipBiDi = capability.browserName === 'chrome' &&
-			['87.0', '88.0', '89.0', '90.0'].includes(capability.browserVersion);
-
 		// BrowserStack options https://www.browserstack.com/automate/capabilities
 		this.capabilities = _.merge(
 			{
@@ -47,8 +41,7 @@ module.exports = class TestJob {
 					debug: true,
 					consoleLogs: "errors",
 					networkLogs: true
-				},
-				...(skipBiDi && { "wdio:enforceWebDriverClassic": true })
+				}
 			},
 			capability
 		);
