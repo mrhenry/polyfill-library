@@ -1,0 +1,24 @@
+aliases = [ "es2025", "iterator-helpers" ]
+dependencies = [
+	"_ESAbstract.CreateMethodProperty",
+	"_IteratorHelpers",
+]
+spec = "https://tc39.es/proposal-iterator-helpers/#sec-iteratorprototype.map"
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/map"
+
+[browsers]
+android = "*"
+bb = "*"
+chrome = "<122"
+edge = "*"
+edge_mob = "*"
+firefox = "<131"
+firefox_mob = "<131"
+ie = "*"
+ie_mob = "*"
+opera = "<108"
+op_mob = "<81"
+op_mini = "*"
+safari = "*"
+ios_saf = "*"
+samsung_mob = "<26.0"
