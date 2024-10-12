@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### v5.2.1
+
+- Fix location of `.d.ts` files so that `sources.d.ts` is correctly detected.
+
 #### v5.2.0
 
 - Add `set-methods` polyfills [`#40`](https://github.com/mrhenry/polyfill-library/pull/40) by @mhassan1
