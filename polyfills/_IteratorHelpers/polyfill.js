@@ -6465,6 +6465,19 @@ module.exports = function whichTypedArray(value) {
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"available-typed-arrays":1,"call-bind":4,"call-bind/callBound":3,"for-each":129,"gopd":142,"has-tostringtag/shams":148}],189:[function(require,module,exports){
 
+// Some browsers (e.g. firefox 50) do not allow overriding `Iterator.prototype` in strict mode,
+// which is required for this polyfill to succeed.
+// If we detect that, delete `self.Iterator` so it gets re-created by the polyfill.
+(function() {
+	"use strict";
+  try {
+	  var iterProto = Iterator.prototype;
+		Iterator.prototype = iterProto;
+	} catch (err) {
+		delete self.Iterator;
+	}
+})();
+
 require("es-iterator-helpers/auto");
 
 },{"es-iterator-helpers/auto":123}]},{},[189]);

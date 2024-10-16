@@ -8,6 +8,18 @@ const IteratorHelpersPolyfillOutput = path.resolve(
 );
 
 const entry = `
+// Some browsers (e.g. firefox 50) do not allow overriding \`Iterator.prototype\` in strict mode,
+// which is required for this polyfill to succeed.
+// If we detect that, delete \`self.Iterator\` so it gets re-created by the polyfill.
+(function() {
+	"use strict";
+  try {
+		Iterator.prototype = Iterator.prototype;
+	} catch (err) {
+		delete self.Iterator;
+	}
+})();
+
 require("es-iterator-helpers/auto");
 `;
 
