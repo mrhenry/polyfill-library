@@ -9,10 +9,11 @@ const cwd = path.join(__dirname, '../');
 const globOptions = { cwd: cwd };
 
 console.log('Cleaning dist...');
-fs.rmSync('./polyfills/__dist', { recursive: true, force: true });
+fs.rmSync(path.join('polyfills', '__dist'), { recursive: true, force: true });
 
 console.log('Cleaning types...');
-fs.rmSync('./types', { recursive: true, force: true });
+fs.rmSync(path.join('lib', 'index.d.ts'), { recursive: true, force: true });
+fs.rmSync(path.join('lib', 'sources.d.ts'), { recursive: true, force: true });
 
 console.log('Cleaning polyfills...');
 glob('polyfills/**/config.toml', globOptions).then((files) => {
