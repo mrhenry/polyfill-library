@@ -1,9 +1,9 @@
 {
   "name": "@mrhenry/polyfill-library",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "description": "A polyfill combinator",
   "main": "lib/index.js",
-  "types": "types/index.d.ts",
+  "types": "lib/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/mrhenry/polyfill-library.git"
@@ -19,7 +19,7 @@
     "lint-config": "node tasks/lint-config/index.js",
     "clean": "node tasks/clean",
     "build": "npm run clean && node tasks/updatesources && node tasks/buildsources/buildsources && npm run build-types",
-    "build-types": "tsc lib/*.js --declaration --allowJs --emitDeclarationOnly --outDir types",
+    "build-types": "tsc lib/*.js --declaration --allowJs --emitDeclarationOnly --outDir lib",
     "watch": "npm run clean && node tasks/updatesources && node tasks/buildsources/watchsource",
     "fmt": "eslint . --fix",
     "test-end-to-end": "node --test 'test/end-to-end/**/*.test.js'",
