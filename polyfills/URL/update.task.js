@@ -122,8 +122,8 @@ browserify()
 					targets: [
 						"IE >= 9",
 						"Chrome >= 29",
-						"Edge >= 14",
-						"Firefox >= 38",
+						"Edge >= 12",
+						"Firefox >= 30",
 						"iOS >= 8",
 						"Safari >= 8"
 					]
