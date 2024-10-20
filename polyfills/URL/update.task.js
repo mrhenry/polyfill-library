@@ -115,7 +115,21 @@ browserify()
 	)
 	.transform("babelify", {
 		global: true,
-		presets: ["@babel/preset-env"]
+		presets: [
+			[
+				"@babel/preset-env",
+				{
+					targets: [
+						"IE >= 9",
+						"Chrome >= 29",
+						"Edge >= 12",
+						"Firefox >= 30",
+						"iOS >= 8",
+						"Safari >= 8"
+					]
+				}
+			]
+		],
 	})
 	.bundle()
 	.pipe(fs.createWriteStream(path.join(URLPolyfillOutput, "polyfill.js")));
