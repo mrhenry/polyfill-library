@@ -1,4 +1,4 @@
-/* global Set, Symbol */
+/* global Iterator, Set, Symbol */
 
 it('is a function', function () {
 	proclaim.isFunction(Set);
@@ -139,6 +139,8 @@ describe('Set', function() {
 			proclaim.equal(lastResult.done, true);
 			proclaim.ok(Object.prototype.hasOwnProperty.call(lastResult, 'value'));
 			proclaim.equal(lastResult.value, void 0);
+
+			proclaim.isInstanceOf(new Set().values(), Iterator);
 		});
 
 		it('Set.prototype.keys is an alias to Set.prototype.values', function() {

@@ -1,0 +1,23 @@
+aliases = [ "es6", "es2015" ]
+dependencies = [
+	"_ESAbstract.CreateMethodProperty",
+]
+license = "MIT"
+spec = "https://tc39.es/ecma262/#sec-iterator-constructor"
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator"
+
+[browsers]
+android = "*"
+bb = "*"
+chrome = "<122"
+edge = "*"
+edge_mob = "*"
+firefox = "<131"
+firefox_mob = "<17"
+ie = "*"
+ie_mob = "*"
+opera = "<108"
+op_mob = "<81"
+safari = "*"
+ios_saf = "*"
+samsung_mob = "<26.0"

@@ -1,5 +1,5 @@
 
-/* globals Map, Symbol */
+/* globals Iterator, Map, Symbol */
 
 it('is a function', function () {
 	proclaim.isFunction(Map);
@@ -566,6 +566,8 @@ describe('Map', function () {
 		proclaim.equal(lastResult.done, true);
 		proclaim.ok(Object.prototype.hasOwnProperty.call(lastResult, 'value'));
 		proclaim.equal(lastResult.value, void 0);
+
+		proclaim.isInstanceOf(new Map().keys(), Iterator);
 	});
 
 	if ('Symbol' in window && 'iterator' in Symbol) {

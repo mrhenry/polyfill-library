@@ -1,4 +1,4 @@
-/* global Symbol */
+/* global Iterator, Symbol */
 // A modification of https://github.com/medikoo/es6-iterator
 // Copyright (C) 2013-2015 Mariusz Nowak (www.medikoo.com)
 
@@ -36,6 +36,8 @@ var _Iterator = (function () { // eslint-disable-line no-unused-vars
 		context.on('_delete', this._onDelete.bind(this));
 		context.on('_clear', this._onClear.bind(this));
 	};
+
+	_Iterator.prototype = Object.create(Iterator.prototype);
 
 	Object.defineProperties(_Iterator.prototype, Object.assign({
 		constructor: {
