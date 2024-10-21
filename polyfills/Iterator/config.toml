@@ -1,4 +1,4 @@
-aliases = [ "es6", "es2015" ]
+aliases = [ "es2025" ]
 dependencies = [
 	"_ESAbstract.CreateMethodProperty",
 ]
