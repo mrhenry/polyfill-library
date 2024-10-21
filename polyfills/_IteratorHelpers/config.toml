@@ -1,9 +1,5 @@
 dependencies = [
-	"Array.prototype.@@iterator",
 	"Iterator",
-	"Map",
-	"Set",
-	"String.prototype.@@iterator",
 	"Symbol.iterator",
 ]
 notes = [ ]
