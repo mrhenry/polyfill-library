@@ -6471,8 +6471,7 @@ module.exports = function whichTypedArray(value) {
 (function() {
 	"use strict";
   try {
-	  var iterProto = Iterator.prototype;
-		Iterator.prototype = iterProto;
+		Iterator.prototype = Iterator.prototype;
 	} catch (err) {
 		delete self.Iterator;
 	}
