@@ -1,4 +1,10 @@
-dependencies = [ ]
+dependencies = [
+	"Array.prototype.@@iterator",
+	"Map",
+	"Set",
+	"String.prototype.@@iterator",
+	"Symbol.iterator",
+]
 notes = [ ]
 license = "MIT"
 repo = "https://github.com/es-shims/iterator-helpers"
