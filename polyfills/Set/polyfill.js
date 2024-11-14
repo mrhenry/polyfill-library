@@ -1,4 +1,4 @@
-/* global CreateIterResultObject, CreateMethodProperty, GetIterator, IsCallable, IteratorClose, IteratorStepValue, OrdinaryCreateFromConstructor, SameValueZero, Symbol, ThrowCompletion */
+/* global CreateIterResultObject, CreateMethodProperty, GetIterator, IsCallable, Iterator, IteratorClose, IteratorStepValue, OrdinaryCreateFromConstructor, SameValueZero, Symbol, ThrowCompletion */
 (function (global) {
 	// Deleted set items mess with iterator pointers, so rather than removing them mark them as deleted. Can't use undefined or null since those both valid keys so use a private symbol.
 	var undefMarker = Symbol('undef');
@@ -365,7 +365,7 @@
 	}
 
 	// 23.2.5.2. The %SetIteratorPrototype% Object
-	var SetIteratorPrototype = {};
+	var SetIteratorPrototype = Object.create(Iterator.prototype);
 	//We add this property to help us identify what is a set iterator.
 	Object.defineProperty(SetIteratorPrototype, 'isSetIterator', {
 		configurable: false,

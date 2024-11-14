@@ -3,8 +3,15 @@
 CreateMethodProperty(
 	Iterator.prototype,
 	"reduce",
-	// eslint-disable-next-line no-unused-vars
 	function reduce(reducer /* , initialValue */) {
-		return IteratorHelpersUtils.iteratorPrototype.reduce.apply(this, arguments);
+		if (arguments.length > 1) {
+			return IteratorHelpersUtils.iteratorPrototype.reduce(
+				this,
+				reducer,
+				arguments[1]
+			);
+		} else {
+			return IteratorHelpersUtils.iteratorPrototype.reduce(this, reducer);
+		}
 	}
 );

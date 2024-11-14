@@ -1,4 +1,4 @@
-/* global CreateIterResultObject, CreateMethodProperty, GetIterator, IsCallable, IteratorClose, IteratorStepValue, OrdinaryCreateFromConstructor, SameValueZero, ThrowCompletion, Type, Symbol */
+/* global CreateIterResultObject, CreateMethodProperty, GetIterator, IsCallable, Iterator, IteratorClose, IteratorStepValue, OrdinaryCreateFromConstructor, SameValueZero, ThrowCompletion, Type, Symbol */
 (function (global) {
 	// Need an internal counter to assign unique IDs to a key map
 	var _uniqueHashId = 0;
@@ -532,7 +532,7 @@
 	}
 
 	// 23.1.5.2. The %MapIteratorPrototype% Object
-	var MapIteratorPrototype = {};
+	var MapIteratorPrototype = Object.create(Iterator.prototype);
 	// We use this as a quick way to check if an object is a Map Iterator instance.
 	Object.defineProperty(MapIteratorPrototype, 'isMapIterator', {
 		configurable: false,

@@ -1,4 +1,4 @@
-/* globals Symbol */
+/* globals Iterator, Symbol */
 
 it('is a function', function () {
 	proclaim.isFunction(String.prototype[Symbol.iterator]);
@@ -26,6 +26,11 @@ it('returns a next-able object', function () {
 		value: 'a',
 		done: false
 	});
+});
+
+it('returns an `Iterator`', function () {
+	var iterator = ''[Symbol.iterator]();
+	proclaim.isInstanceOf(iterator, Iterator);
 });
 
 it('finally returns a done object', function () {
