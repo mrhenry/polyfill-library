@@ -1,4 +1,4 @@
-/* global Int8Array */
+/* global Int8Array, Iterator */
 
 // use "Int8Array" as a proxy for all "TypedArray" subclasses
 
@@ -32,6 +32,11 @@ describe('values', function () {
 			value: 10,
 			done: false
 		});
+	});
+
+	it('returns an `Iterator`', function () {
+		var iterator = new Int8Array([10, 11]).values();
+		proclaim.isInstanceOf(iterator, Iterator);
 	});
 
 	it('finally returns a done object', function () {

@@ -1,4 +1,5 @@
 dependencies = [
+	"Iterator",
 	"Object.assign",
 	"Symbol",
 	"Symbol.iterator",

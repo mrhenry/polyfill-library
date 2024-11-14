@@ -1,4 +1,7 @@
-dependencies = [ ]
+dependencies = [
+	"Iterator",
+	"Symbol.iterator",
+]
 notes = [ ]
 license = "MIT"
 repo = "https://github.com/es-shims/iterator-helpers"

@@ -1,4 +1,4 @@
-/* global Symbol */
+/* global Iterator, Symbol */
 
 function getHTMLCollection() {
 	var element = document.createElement('div');
@@ -24,6 +24,11 @@ it('returns a next-able object', function () {
 		value: htmlCollection[0],
 		done: false
 	});
+});
+
+it('returns an `Iterator`', function () {
+	var iterator = getHTMLCollection()[Symbol.iterator]();
+	proclaim.isInstanceOf(iterator, Iterator);
 });
 
 it('finally returns a done object', function () {

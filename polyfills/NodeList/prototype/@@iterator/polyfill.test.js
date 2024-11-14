@@ -1,4 +1,4 @@
-/* global Symbol */
+/* global Iterator, Symbol */
 
 function getNodeList() {
 	var fragment = document.createDocumentFragment();
@@ -24,6 +24,11 @@ it('returns a next-able object', function () {
 		value: nodeList[0],
 		done: false
 	});
+});
+
+it('returns an `Iterator`', function () {
+	var iterator = getNodeList()[Symbol.iterator]();
+	proclaim.isInstanceOf(iterator, Iterator);
 });
 
 it('finally returns a done object', function () {
