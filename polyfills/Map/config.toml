@@ -12,6 +12,7 @@ dependencies = [
 	"_ESAbstract.SameValueZero",
 	"_ESAbstract.ThrowCompletion",
 	"_ESAbstract.Type",
+	"Iterator",
 	"Symbol",
 	"Symbol.iterator",
 	"Symbol.species",

@@ -1,4 +1,4 @@
-/* global Symbol */
+/* global Iterator, Symbol */
 
 function getDOMTokenList () {
 	var div = document.createElement('div');
@@ -23,6 +23,11 @@ it('returns a next-able object', function () {
 		value: 'class1',
 		done: false
 	});
+});
+
+it('returns an `Iterator`', function () {
+	var iterator = getDOMTokenList()[Symbol.iterator]();
+	proclaim.isInstanceOf(iterator, Iterator);
 });
 
 it('finally returns a done object', function () {

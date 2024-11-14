@@ -1,14 +1,14 @@
 // A modification of https://github.com/medikoo/es6-iterator
 // Copyright (C) 2013-2015 Mariusz Nowak (www.medikoo.com)
 
-/* global Iterator, Symbol */
+/* global _Iterator, Symbol */
 
 var StringIterator = (function() { // eslint-disable-line no-unused-vars
 
 	var StringIterator = function (str) {
 		if (!(this instanceof StringIterator)) return new StringIterator(str);
 		str = String(str);
-		Iterator.call(this, str);
+		_Iterator.call(this, str);
 		Object.defineProperty(this, '__length__', {
 			value: str.length,
 			configurable: false,
@@ -16,9 +16,9 @@ var StringIterator = (function() { // eslint-disable-line no-unused-vars
 			writable: false
 		});
 	};
-	if (Object.setPrototypeOf) Object.setPrototypeOf(StringIterator, Iterator);
+	if (Object.setPrototypeOf) Object.setPrototypeOf(StringIterator, _Iterator);
 
-	StringIterator.prototype = Object.create(Iterator.prototype, {
+	StringIterator.prototype = Object.create(_Iterator.prototype, {
 		constructor: {
 			value: StringIterator,
 			configurable: true,

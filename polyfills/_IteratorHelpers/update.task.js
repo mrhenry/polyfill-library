@@ -8,46 +8,29 @@ const IteratorHelpersPolyfillOutput = path.resolve(
 );
 
 const entry = `
-// Some browsers (e.g. firefox 50) do not allow overriding \`Iterator.prototype\` in strict mode,
-// which is required for this polyfill to succeed.
-// If we detect that, delete \`self.Iterator\` so it gets re-created by the polyfill.
-(function() {
-	"use strict";
-  try {
-		Iterator.prototype = Iterator.prototype;
-	} catch (err) {
-		delete self.Iterator;
+self._IteratorHelpersUtils = {
+  iteratorPrototype: {
+	  drop: require("es-iterator-helpers/Iterator.prototype.drop"),
+	  every: require("es-iterator-helpers/Iterator.prototype.every"),
+	  filter: require("es-iterator-helpers/Iterator.prototype.filter"),
+	  find: require("es-iterator-helpers/Iterator.prototype.find"),
+	  flatMap: require("es-iterator-helpers/Iterator.prototype.flatMap"),
+	  forEach: require("es-iterator-helpers/Iterator.prototype.forEach"),
+	  map: require("es-iterator-helpers/Iterator.prototype.map"),
+	  reduce: require("es-iterator-helpers/Iterator.prototype.reduce"),
+	  some: require("es-iterator-helpers/Iterator.prototype.some"),
+	  take: require("es-iterator-helpers/Iterator.prototype.take"),
+	  toArray: require("es-iterator-helpers/Iterator.prototype.toArray")
+	},
+	iterator: {
+	  from: require("es-iterator-helpers/Iterator.from")
 	}
-})();
-
-require("es-iterator-helpers/auto");
+}
 `;
 
 const footer = `
-var IteratorHelpersUtils = (function () {
-	var iteratorPrototypeMethods = {};
-	var iteratorPrototypeMethodNames = Object.getOwnPropertyNames(Iterator.prototype);
-	for (var i = 0; i < iteratorPrototypeMethodNames.length; i++) {
-		var methodName = iteratorPrototypeMethodNames[i];
-		if (/^_/.test(methodName) || ['constructor', 'next', 'toString'].indexOf(methodName) > -1) continue;
-		iteratorPrototypeMethods[methodName] = Iterator.prototype[methodName];
-		delete Iterator.prototype[methodName];
-	}
-
-	var iteratorMethods = {};
-	var iteratorMethodNames = Object.getOwnPropertyNames(Iterator);
-	for (var i = 0; i < iteratorMethodNames.length; i++) {
-		var methodName = iteratorMethodNames[i];
-		if (['length', 'name', 'prototype', 'caller', 'arguments'].indexOf(methodName) > -1) continue;
-		iteratorMethods[methodName] = Iterator[methodName];
-		delete Iterator[methodName];
-	}
-
-	return {
-		iteratorPrototype: iteratorPrototypeMethods,
-		iterator: iteratorMethods
-	};
-})();
+var IteratorHelpersUtils = self._IteratorHelpersUtils;
+delete self._IteratorHelpersUtils;
 `;
 
 browserify()

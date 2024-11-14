@@ -1,3 +1,5 @@
+/* global Iterator */
+
 it('is a function', function () {
 	proclaim.isFunction(Array.prototype.values);
 });
@@ -33,6 +35,11 @@ it('returns a next-able object', function () {
 		value: 'val1',
 		done: false
 	});
+});
+
+it('returns an `Iterator`', function () {
+	var iterator = [].values();
+	proclaim.isInstanceOf(iterator, Iterator);
 });
 
 it('finally returns a done object', function () {
