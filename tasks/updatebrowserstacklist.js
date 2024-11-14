@@ -34,9 +34,11 @@ automateClient.getBrowsers(function (error, browsers) {
 		}
 
 		if (
+			(a.os.toLowerCase() === 'windows' || a.os.toLowerCase() === 'os x') &&
 			(a.os_version && b.os_version) &&
 			a.os_version !== b.os_version
 		) {
+			// For desktop:
 			// Sort OS versions in reverse order.
 			// We want to test only one OS for each browser version.
 			// Newest OS first.
@@ -48,6 +50,22 @@ automateClient.getBrowsers(function (error, browsers) {
 			}
 
 			return b.os_version.localeCompare(a.os_version);
+		} else if (
+			(a.os_version && b.os_version) &&
+			a.os_version !== b.os_version
+		) {
+			// For others
+			// Sort OS versions regularly
+			// We want to test only one OS for each browser version.
+			// Newest OS first.
+			const a_os_version = semver.coerce(a.os_version);
+			const b_os_version = semver.coerce(b.os_version)
+
+			if (a_os_version && b_os_version) {
+				return semver.compare(a_os_version.toString(), b_os_version.toString());
+			}
+
+			return a.os_version.localeCompare(b.os_version);
 		}
 
 		if (a.device !== b.device) {
@@ -55,6 +73,15 @@ automateClient.getBrowsers(function (error, browsers) {
 		}
 
 		return 0;
+	});
+
+	// Ignore non-Safari browsers on iOS
+	browsers = browsers.filter((browser) => {
+		if (browser.os === 'ios' && (browser.browser !== 'iphone' && browser.browser !== 'ipad')) {
+			return false;
+		}
+
+		return true;
 	});
 
 	console.log("Updated the browser list for automated testing via BrowserStack.");
