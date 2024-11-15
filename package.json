@@ -20,7 +20,7 @@
     "clean": "node tasks/clean",
     "build": "npm run clean && node tasks/updatesources && node tasks/buildsources/buildsources && npm run build-types",
     "build-types": "tsc lib/*.js --declaration --allowJs --emitDeclarationOnly --outDir lib",
-    "watch": "npm run clean && node tasks/updatesources && node tasks/buildsources/watchsource",
+    "watch": "npm run clean && node tasks/updatesources && npm run build-types && node tasks/buildsources/watchsource",
     "fmt": "eslint . --fix",
     "test-end-to-end": "node --test 'test/end-to-end/**/*.test.js'",
     "test-node": "node --test 'test/node/**/*.test.js'",
