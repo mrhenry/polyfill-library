@@ -1,0 +1,31 @@
+aliases = [ "es2025" ]
+dependencies = [
+	"_ESAbstract.Call",
+	"_ESAbstract.CreateMethodProperty",
+	"_ESAbstract.NewPromiseCapability",
+	"_ESAbstract.NormalCompletion",
+	"_ESAbstract.ThrowCompletion",
+	"_ESAbstract.Type",
+	"Function.prototype.name",
+	"Promise",
+]
+license = "MIT"
+spec = "https://tc39.es/ecma262/#sec-promise.try"
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/try"
+
+[browsers]
+android = "*"
+bb = "*"
+chrome = "<128"
+edge = "*"
+edge_mob = "*"
+firefox = "<132"
+firefox_mob = "*"
+ie = "*"
+ie_mob = "*"
+opera = "<114"
+op_mob = "*"
+op_mini = "*"
+safari = "<18.2"
+ios_saf = "<18.2"
+samsung_mob = "*"
