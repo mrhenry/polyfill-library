@@ -115,7 +115,11 @@ module.exports = class TestJob {
 				We need to wait some time to try again because it depends on time.
 				We will also try more for these exceptions.
 			*/
-			if (error.message.includes("There was an error. Please try again.") && this.runCount < 3) {
+			if (
+				(error.message.includes("There was an error. Please try again.") ||
+					error.message.includes("Failed to create session.")) &&
+				this.runCount < 3
+			) {
 				this.runCount += 1;
 				this.setState("waiting 30 seconds to retry");
 				await wait(30 * 1000);
