@@ -171,7 +171,10 @@ module.exports = class TestJob {
 	static isRetryableError(error) {
 		return (
 			error.message.includes("There was an error. Please try again.") ||
-			error.message.includes("Failed to create session.")
+			error.message.includes("Failed to create session.") ||
+			error.message.includes(
+				"An unknown server-side error occurred while processing the command."
+			)
 		);
 	}
 
