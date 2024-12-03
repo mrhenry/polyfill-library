@@ -355,14 +355,7 @@ async function main() {
 								return job;
 							})
 							.catch(error => {
-								if (error.message.includes("There was an error. Please try again.")) {
-									/*
-										This is an exception that Browserstack is throwing when it
-										fails to open a session using a real device. I think that
-										there aren't real devices available.
-										We need to wait some time to try again because it depends on time.
-										We will also try more for these exceptions.
-									*/
+								if (TestJob.isRetryableError(error)) {
 									return wait(30 * 1000).then(() =>
 										job
 											.run()
