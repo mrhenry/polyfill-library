@@ -3,7 +3,7 @@ const uap = require('ua-parser-js');
 
 /**
  * @param {string} ua
- * @returns {import('../lib/index').UaParser}
+ * @returns {import('../../lib/index').UaParser}
  */
 function ua_parser(ua) {
 	const p = uap(ua);
@@ -33,7 +33,7 @@ function ua_parser(ua) {
 				case "Chromium":
 					return "chrome"
 				case "Edge":
-					if (semver.satisfies(p.browser.version, '>= 79')) return 'chrome';
+					if (semver.satisfies(semver.coerce(p.browser.version), '>= 79')) return 'chrome';
 
 					return "edge";
 				case "Firefox":

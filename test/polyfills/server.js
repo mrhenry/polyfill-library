@@ -8,7 +8,7 @@ const promisify = require("node:util").promisify;
 const readFile = promisify(fs.readFile);
 const path = require("node:path");
 const handlebars = require("handlebars");
-const ua_parser = require('../../ua-parser/ua-parser');
+const ua_parser = require('./ua-parser');
 
 process.title = "polyfill-library-test-server";
 
