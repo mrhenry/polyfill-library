@@ -35,6 +35,7 @@ const ignores = [
 	"polyfills/__dist/**",
 	"tasks/**/node_modules",
 	"test/coverage/**",
+	"ua-parser/**/*",
 
 	// We ignore the polyfill.js files for third-party polyfills
 	// because we do not control their implementation.
@@ -89,9 +90,10 @@ export default [
 	},
 	{
 		files: [
+			"polyfills/**/update.task.js",
 			"tasks/**/*",
 			"test/**/*",
-			"polyfills/**/update.task.js",
+			"ua-parser/**/*",
 		],
 		ignores: [
 			"tasks/polyfill-templates/polyfill.js",

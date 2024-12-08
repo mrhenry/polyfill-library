@@ -8,8 +8,7 @@ const promisify = require("node:util").promisify;
 const readFile = promisify(fs.readFile);
 const path = require("node:path");
 const handlebars = require("handlebars");
-const UA = require("@financial-times/polyfill-useragent-normaliser");
-const normalizeUserAgent = UA.normalize;
+const ua_parser = require('../../ua-parser/ua-parser');
 
 process.title = "polyfill-library-test-server";
 
@@ -57,7 +56,7 @@ const cacheFor1Day = cache("1 day", () => true, {
 			request.query.always;
 		if (request.query.always === "no") {
 			const ua = request.get("User-Agent");
-			key += normalizeUserAgent(ua);
+			key += ua_parser(ua).normalize();
 		}
 		return key;
 	}
@@ -114,7 +113,7 @@ app.get(
 				),
 				minify: false,
 				stream: false,
-				ua: always === "yes" ? new UA("other/0.0.0") : new UA(request.get("user-agent"))
+				ua: ua_parser(always === "yes" ? "other/0.0.0" : request.get("user-agent"))
 			};
 
 			const bundle = await polyfillio.getPolyfillString(parameters);
@@ -246,7 +245,7 @@ function createEndpoint(template) {
 		}
 		let polyfills;
 		if (includePolyfills === 'yes' && always === 'no') {
-			polyfills = await testablePolyfills(normalizeUserAgent(ua));
+			polyfills = await testablePolyfills(ua_parser(ua).normalize());
 		} else {
 			polyfills = await testablePolyfills();
 		}
