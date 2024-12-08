@@ -13,7 +13,7 @@ function ua_parser(ua) {
 			return this.getFamily() + "/" + this.getVersion();
 		},
 		isUnknown: function isUnknown() {
-			return !p.browser?.name || !p.browser?.version || this.getFamily() === 'other';
+			return !p.browser.name || !p.browser.version || this.getFamily() === 'other';
 		},
 		getVersion: function getVersion() {
 			if (this.isUnknown()) return '0.0.0';
@@ -23,7 +23,7 @@ function ua_parser(ua) {
 			return semver.coerce(p.browser.version).toString();
 		},
 		getFamily: function getFamily() {
-			switch (p.browser?.name) {
+			switch (p.browser.name) {
 				case "Android Browser":
 					return "android"
 				case "Chrome":
@@ -33,6 +33,8 @@ function ua_parser(ua) {
 				case "Chromium":
 					return "chrome"
 				case "Edge":
+					if (semver.satisfies(p.browser.version, '>= 79')) return 'chrome';
+
 					return "edge";
 				case "Firefox":
 					return "firefox";
