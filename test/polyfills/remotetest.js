@@ -174,11 +174,6 @@ async function main() {
 	const includePolyfills = "includePolyfills=" + (mode === "control" ? "no" : "yes");
 	// https://www.browserstack.com/question/759
 	const url = `http://bs-local.com:9876/${director ? '' : 'test'}?${includePolyfills}&${always}${feature}`;
-	const tunnelId =
-		"build:" +
-		(process.env.CIRCLE_BUILD_NUM || process.env.NODE_ENV || "null") +
-		"_" +
-		new Date().toISOString();
 
 	const jobConfigs = browsers.flatMap(browser => {
 		let configs = [];
@@ -189,7 +184,7 @@ async function main() {
 		};
 
 		if (
-			(browser === 'ie/8.0' || browser === 'ie/9.0') &&
+			(browser === 'ie/8.0' || browser === 'ie/9.0' || browser === 'ie/10.0') &&
 			modified.testEverything // no need to shard tests if only a subset is tested
 		) {
 			configs = [
@@ -238,7 +233,7 @@ async function main() {
 			url,
 			mode,
 			jobConfig.capability,
-			tunnelId,
+			`Polyfill Library: ${jobConfig.browser} - ${jobConfig.polyfillCombinations ? 'interop' : 'individual'} - ${jobConfig.shard} - ${new Date().toISOString()}`,
 			testBrowserTimeout,
 			pollTick,
 			jobConfig.polyfillCombinations,
