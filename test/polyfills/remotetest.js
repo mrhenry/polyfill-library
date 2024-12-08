@@ -184,7 +184,7 @@ async function main() {
 		};
 
 		if (
-			(browser === 'ie/8.0' || browser === 'ie/9.0' || browser === 'ie/10.0') &&
+			(browser === 'ie/8.0' || browser === 'ie/9.0' || browser === 'ie/10.0' || browser.startsWith('ios/11')) &&
 			modified.testEverything // no need to shard tests if only a subset is tested
 		) {
 			configs = [
@@ -233,7 +233,7 @@ async function main() {
 			url,
 			mode,
 			jobConfig.capability,
-			`Polyfill Library: ${jobConfig.browser} - ${jobConfig.polyfillCombinations ? 'interop' : 'individual'} - ${jobConfig.shard} - ${new Date().toISOString()}`,
+			`Polyfill Library: ${jobConfig.browser} - ${jobConfig.polyfillCombinations ? 'interop' : 'individual'} - ${jobConfig.shard || '1'} - ${new Date().toISOString()}`,
 			testBrowserTimeout,
 			pollTick,
 			jobConfig.polyfillCombinations,
