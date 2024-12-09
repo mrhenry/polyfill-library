@@ -42,7 +42,7 @@ browserify()
 		basedir: IntlPolyfillOutput
 	})
 	.transform(
-		(file) => {
+		() => {
 			const bufs = [];
 			return new stream.Transform({
 				transform: function (chunk, enc, next) {
