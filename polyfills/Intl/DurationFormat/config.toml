@@ -1,8 +1,12 @@
 dependencies = [
+	"Array.from",
+	"Array.prototype.find",
 	"Intl.getCanonicalLocales",
 	"Intl.ListFormat",
 	"Intl.Locale",
 	"Intl.NumberFormat",
+	"Intl.PluralRules",
+	"Number.isInteger",
 	"Object.assign",
 	"Object.keys",
 	"Object.setPrototypeOf",

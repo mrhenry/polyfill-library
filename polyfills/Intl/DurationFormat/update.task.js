@@ -21,6 +21,9 @@ var ListFormatLocalesPath = path.dirname(
 var NumberFormatLocalesPath = path.dirname(
 	require.resolve("@formatjs/intl-numberformat/locale-data/en.js")
 );
+var PluralRulesLocalesPath = path.dirname(
+	require.resolve("@formatjs/intl-pluralrules/locale-data/en.js")
+);
 var IntlPolyfillOutput = path.resolve("polyfills/Intl/DurationFormat");
 var LocalesPolyfillOutput = path.resolve(
 	"polyfills/Intl/DurationFormat/~locale"
@@ -38,6 +41,50 @@ browserify()
 	.add(stream.Readable.from(entry), {
 		basedir: IntlPolyfillOutput
 	})
+	.transform(
+		(file) => {
+			const bufs = [];
+			return new stream.Transform({
+				transform: function (chunk, enc, next) {
+					bufs.push(chunk);
+					next();
+				},
+				flush: function (next) {
+					let code = Buffer.concat(bufs).toString();
+					code = code
+						.replace(
+							"DurationFormat.__defaultLocale = 'en'",
+							"DurationFormat.__defaultLocale = ''"
+						)
+						.replace("DurationFormat.availableLocales.add(locale);", "")
+						.replace(
+							"DurationFormat.polyfilled = true;",
+							`DurationFormat.polyfilled = true;
+	DurationFormat.__addLocaleData = function __addLocaleData() {
+		var data = [];
+		for (var _i = 0; _i < arguments.length; _i++) {
+			data[_i] = arguments[_i];
+		}
+		for (var _a = 0, data_1 = data; _a < data_1.length; _a++) {
+			var _b = data_1[_a], d = _b.data, locale = _b.locale;
+			var minimizedLocale = new Intl.Locale(locale).minimize().toString();
+			DurationFormat.availableLocales.add(minimizedLocale);
+			DurationFormat.availableLocales.add(locale);
+			if (!DurationFormat.__defaultLocale) {
+				DurationFormat.__defaultLocale = minimizedLocale;
+			}
+		}
+	};`
+						);
+					this.push(code);
+					next();
+				}
+			});
+		},
+		{
+			global: true
+		}
+	)
 	.bundle()
 	.pipe(fs.createWriteStream(path.join(IntlPolyfillOutput, "polyfill.js")));
 
@@ -63,6 +110,17 @@ var numberFormatLocales = new Set(
 		})
 );
 
+var pluralRulesLocales = new Set(
+	fs
+		.readdirSync(PluralRulesLocalesPath)
+		.filter(function (f) {
+			return f.endsWith(".js");
+		})
+		.map((f) => {
+			return f.slice(0, f.indexOf("."));
+		})
+);
+
 function localeDependencies(locale) {
 	const out = [];
 
@@ -80,6 +138,14 @@ function localeDependencies(locale) {
 	);
 	if (numberFormatMatch) {
 		out.push(`Intl.NumberFormat.~locale.${numberFormatMatch}`);
+	}
+
+	const pluralRulesMatch = localeMatcher.match(
+		[locale],
+		Array.from(pluralRulesLocales)
+	);
+	if (pluralRulesMatch) {
+		out.push(`Intl.PluralRules.~locale.${pluralRulesMatch}`);
 	}
 
 	return out;
@@ -131,7 +197,18 @@ locales
 		var polyfillOutputPath = path.join(localeOutputPath, "polyfill.js");
 		var detectOutputPath = path.join(localeOutputPath, "detect.js");
 		var configOutputPath = path.join(localeOutputPath, "config.toml");
-		fs.writeFileSync(polyfillOutputPath, "");
+		fs.writeFileSync(
+			polyfillOutputPath,
+			`/* @generated */
+// prettier-ignore
+if (Intl.DurationFormat && typeof Intl.DurationFormat.__addLocaleData === 'function') {
+  Intl.DurationFormat.__addLocaleData(${JSON.stringify({
+		data: {},
+		locale
+	})})
+}
+`
+		);
 		fs.writeFileSync(detectOutputPath, intlLocaleDetectFor(locale));
 		fs.writeFileSync(
 			configOutputPath,

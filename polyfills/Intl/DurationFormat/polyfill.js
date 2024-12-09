@@ -8355,10 +8355,10 @@ var DurationFormat = /** @class */ (function () {
     DurationFormat.supportedLocalesOf = function (locales, options) {
         return (0, ecma402_abstract_1.SupportedLocales)(DurationFormat.availableLocales, (0, ecma402_abstract_1.CanonicalizeLocaleList)(locales), options);
     };
-    DurationFormat.__defaultLocale = 'en';
+    DurationFormat.__defaultLocale = '';
     DurationFormat.availableLocales = new Set();
     DurationFormat.localeData = Object.keys(time_separators_generated_1.TIME_SEPARATORS.localeData).reduce(function (all, locale) {
-        DurationFormat.availableLocales.add(locale);
+        
         var nu = time_separators_generated_1.TIME_SEPARATORS.localeData[locale].nu;
         all[locale] = {
             nu: nu,
@@ -8374,6 +8374,21 @@ var DurationFormat = /** @class */ (function () {
         return DurationFormat.__defaultLocale;
     };
     DurationFormat.polyfilled = true;
+	DurationFormat.__addLocaleData = function __addLocaleData() {
+		var data = [];
+		for (var _i = 0; _i < arguments.length; _i++) {
+			data[_i] = arguments[_i];
+		}
+		for (var _a = 0, data_1 = data; _a < data_1.length; _a++) {
+			var _b = data_1[_a], d = _b.data, locale = _b.locale;
+			var minimizedLocale = new Intl.Locale(locale).minimize().toString();
+			DurationFormat.availableLocales.add(minimizedLocale);
+			DurationFormat.availableLocales.add(locale);
+			if (!DurationFormat.__defaultLocale) {
+				DurationFormat.__defaultLocale = minimizedLocale;
+			}
+		}
+	};
     return DurationFormat;
 }());
 exports.DurationFormat = DurationFormat;
