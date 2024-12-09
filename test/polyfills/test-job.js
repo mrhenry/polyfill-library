@@ -108,14 +108,7 @@ module.exports = class TestJob {
 				key: process.env.BROWSERSTACK_ACCESS_KEY
 			});
 		} catch (error) {
-			/*
-				This is an exception that Browserstack is throwing when it
-				fails to open a session using a real device. I think that
-				there aren't real devices available.
-				We need to wait some time to try again because it depends on time.
-				We will also try more for these exceptions.
-			*/
-			if (error.message.includes("There was an error. Please try again.") && this.runCount < 3) {
+			if (TestJob.isRetryableError(error) && this.runCount < 3) {
 				this.runCount += 1;
 				this.setState("waiting 30 seconds to retry");
 				await wait(30 * 1000);
@@ -173,6 +166,19 @@ module.exports = class TestJob {
 			this.setState("error");
 			throw error;
 		}
+	}
+
+	static isRetryableError(error) {
+		return (
+			error.message.includes("There was an error. Please try again.") ||
+			error.message.includes("Failed to create session.") ||
+			error.message.includes(
+				"An unknown server-side error occurred while processing the command."
+			) ||
+			error.message.includes(
+				'The operation was aborted due to timeout when running "execute/sync" with method "POST"'
+			)
+		);
 	}
 
 	setState(newState) {
