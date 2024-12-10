@@ -245,27 +245,27 @@ describe("Intl.DurationFormat", function () {
 	it("format should work for style narrow", function () {
 		proclaim.equal(
 			new Intl.DurationFormat("en", { style: "narrow" }).format({
-				months: 3,
-				days: 4
+				days: 4,
+				hours: 3
 			}),
-			"3m 4d"
+			"4d 3h"
 		);
 	});
 
 	it("formatToParts should work for style long", function () {
 		proclaim.deepEqual(
 			new Intl.DurationFormat("en", { style: "long" }).formatToParts({
-				months: 3,
-				days: 4
+				days: 4,
+				hours: 3
 			}),
 			[
-				{ type: "integer", value: "3", unit: "month" },
-				{ type: "literal", value: " ", unit: "month" },
-				{ type: "unit", value: "months", unit: "month" },
-				{ type: "literal", value: ", " },
 				{ type: "integer", value: "4", unit: "day" },
 				{ type: "literal", value: " ", unit: "day" },
-				{ type: "unit", value: "days", unit: "day" }
+				{ type: "unit", value: "days", unit: "day" },
+				{ type: "literal", value: ", " },
+				{ type: "integer", value: "3", unit: "hour" },
+				{ type: "literal", value: " ", unit: "hour" },
+				{ type: "unit", value: "hours", unit: "hour" }
 			]
 		);
 	});
