@@ -1,5 +1,5 @@
 /* @generated */
 // prettier-ignore
 if (Intl.DurationFormat && typeof Intl.DurationFormat.__addLocaleData === 'function') {
-  Intl.DurationFormat.__addLocaleData({"data":{},"locale":"my"})
+  Intl.DurationFormat.__addLocaleData({"data":{"nu":["mymr"],"digitalFormat":{"mymr":":"}},"locale":"my"})
 }

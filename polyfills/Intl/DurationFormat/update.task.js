@@ -28,6 +28,8 @@ var IntlPolyfillOutput = path.resolve("polyfills/Intl/DurationFormat");
 var LocalesPolyfillOutput = path.resolve(
 	"polyfills/Intl/DurationFormat/~locale"
 );
+var timeSeparators =
+	require("@formatjs/intl-durationformat/src/time-separators.generated").TIME_SEPARATORS;
 var TOML = require("@iarna/toml");
 var localeMatcher = require("@formatjs/intl-localematcher");
 var browserify = require("browserify");
@@ -53,6 +55,10 @@ browserify()
 					let code = Buffer.concat(bufs).toString();
 					code = code
 						.replace(
+							/exports\.TIME_SEPARATORS = \{[\S\s]+?\};/,
+							"exports.TIME_SEPARATORS = {localeData:{}};"
+						)
+						.replace(
 							"DurationFormat.__defaultLocale = 'en'",
 							"DurationFormat.__defaultLocale = ''"
 						)
@@ -68,6 +74,7 @@ browserify()
 		for (var _a = 0, data_1 = data; _a < data_1.length; _a++) {
 			var _b = data_1[_a], d = _b.data, locale = _b.locale;
 			var minimizedLocale = new Intl.Locale(locale).minimize().toString();
+			DurationFormat.localeData[locale] = DurationFormat.localeData[minimizedLocale] = d;
 			DurationFormat.availableLocales.add(minimizedLocale);
 			DurationFormat.availableLocales.add(locale);
 			if (!DurationFormat.__defaultLocale) {
@@ -197,13 +204,29 @@ locales
 		var polyfillOutputPath = path.join(localeOutputPath, "polyfill.js");
 		var detectOutputPath = path.join(localeOutputPath, "detect.js");
 		var configOutputPath = path.join(localeOutputPath, "config.toml");
+
+		var lookupLocale = locale;
+		if (locale === "ca-ES-VALENCIA") lookupLocale = "ca-ES-valencia";
+		if (locale === "en-US-POSIX") lookupLocale = "en";
+		var nu = timeSeparators.localeData[lookupLocale].nu;
+		var digitalFormat =
+			timeSeparators.localeData[lookupLocale].separator ||
+			nu.reduce(function (separators, n) {
+				separators[n] = timeSeparators.default;
+				return separators;
+			}, {});
+		var localeData = {
+			nu,
+			digitalFormat
+		};
+
 		fs.writeFileSync(
 			polyfillOutputPath,
 			`/* @generated */
 // prettier-ignore
 if (Intl.DurationFormat && typeof Intl.DurationFormat.__addLocaleData === 'function') {
   Intl.DurationFormat.__addLocaleData(${JSON.stringify({
-		data: {},
+		data: localeData,
 		locale
 	})})
 }

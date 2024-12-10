@@ -203,7 +203,7 @@ describe("Intl.DurationFormat", function () {
 			typeof Intl.DurationFormat.__addLocaleData === "function"
 		) {
 			Intl.DurationFormat.__addLocaleData({
-				data: {},
+				data: { nu: ["latn"], digitalFormat: { latn: ":" } },
 				locale: "en"
 			});
 		}
