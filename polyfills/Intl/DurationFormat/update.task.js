@@ -83,6 +83,74 @@ const codeProcessors = [
 		}
 	};`
 			)
+	},
+	{
+		filename:
+			"node_modules/@formatjs/intl-durationformat/node_modules/@formatjs/intl-localematcher/abstract/regions.generated.js",
+		description: "truncate unused regions file",
+		processor: () => `"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.regions = void 0;
+`
+	},
+	{
+		filename:
+			"node_modules/@formatjs/intl-durationformat/node_modules/@formatjs/intl-localematcher/abstract/languageMatching.js",
+		description: "truncate unused language matching file",
+		processor: () => `"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.data = void 0;
+`
+	},
+	{
+		filename:
+			"node_modules/@formatjs/intl-durationformat/node_modules/@formatjs/intl-localematcher/abstract/BestFitMatcher.js",
+		description:
+			"simplify `BestFitMatcher` polyfill so it doesn't depend on large generated files",
+		processor: () => `"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BestFitMatcher = BestFitMatcher;
+var BestAvailableLocale_1 = require("./BestAvailableLocale");
+var utils_1 = require("./utils");
+
+// bazel-out/darwin-fastbuild/bin/packages/ecma402-abstract/lib/BestFitMatcher.js
+function BestFitMatcher(availableLocales, requestedLocales, getDefaultLocale) {
+	var minimizedAvailableLocaleMap = {};
+	var minimizedAvailableLocales = new Set();
+	availableLocales.forEach(function(locale2) {
+		var minimizedLocale = new Intl.Locale(locale2).minimize().toString();
+		minimizedAvailableLocaleMap[minimizedLocale] = locale2;
+		minimizedAvailableLocales.add(minimizedLocale);
+	});
+	var foundLocale;
+	for (var _i = 0, requestedLocales_1 = requestedLocales; _i < requestedLocales_1.length; _i++) {
+		var l = requestedLocales_1[_i];
+		if (foundLocale) {
+			break;
+		}
+		var noExtensionLocale = l.replace(utils_1.UNICODE_EXTENSION_SEQUENCE_REGEX, "");
+		if (availableLocales.indexOf(noExtensionLocale) > -1) {
+			foundLocale = noExtensionLocale;
+			break;
+		}
+		if (minimizedAvailableLocales.has(noExtensionLocale)) {
+			foundLocale = minimizedAvailableLocaleMap[noExtensionLocale];
+			break;
+		}
+		var locale = new Intl.Locale(noExtensionLocale);
+		var maximizedRequestedLocale = locale.maximize().toString();
+		var minimizedRequestedLocale = locale.minimize().toString();
+		if (minimizedAvailableLocales.has(minimizedRequestedLocale)) {
+			foundLocale = minimizedAvailableLocaleMap[minimizedRequestedLocale];
+			break;
+		}
+		foundLocale = (0, BestAvailableLocale_1.BestAvailableLocale)(Array.from(minimizedAvailableLocales), maximizedRequestedLocale);
+	}
+	return {
+		locale: foundLocale || getDefaultLocale()
+	};
+}
+`
 	}
 ];
 
