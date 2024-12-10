@@ -39,33 +39,33 @@ var entry = `
 require('@formatjs/intl-durationformat/polyfill-force')
 `;
 
-browserify()
-	.add(stream.Readable.from(entry), {
-		basedir: IntlPolyfillOutput
-	})
-	.transform(
-		() => {
-			const bufs = [];
-			return new stream.Transform({
-				transform: function (chunk, enc, next) {
-					bufs.push(chunk);
-					next();
-				},
-				flush: function (next) {
-					let code = Buffer.concat(bufs).toString();
-					code = code
-						.replace(
-							/exports\.TIME_SEPARATORS = \{[\S\s]+?\};/,
-							"exports.TIME_SEPARATORS = {localeData:{}};"
-						)
-						.replace(
-							"DurationFormat.__defaultLocale = 'en'",
-							"DurationFormat.__defaultLocale = ''"
-						)
-						.replace("DurationFormat.availableLocales.add(locale);", "")
-						.replace(
-							"DurationFormat.polyfilled = true;",
-							`DurationFormat.polyfilled = true;
+const codeProcessors = [
+	{
+		filename:
+			"node_modules/@formatjs/intl-durationformat/src/time-separators.generated.js",
+		description: "remove redundant TIME_SEPARATORS",
+		processor: (code) =>
+			code.replace(
+				/exports\.TIME_SEPARATORS = \{[\S\s]+?\};/,
+				"exports.TIME_SEPARATORS = {localeData:{}};"
+			)
+	},
+	{
+		filename: "node_modules/@formatjs/intl-durationformat/src/core.js",
+		description: "remove presumed default locale",
+		processor: (code) =>
+			code.replace(
+				"DurationFormat.__defaultLocale = 'en';",
+				"DurationFormat.__defaultLocale = '';"
+			)
+	},
+	{
+		filename: "node_modules/@formatjs/intl-durationformat/src/core.js",
+		description: "add `__addLocaleData` function",
+		processor: (code) =>
+			code.replace(
+				"DurationFormat.polyfilled = true;",
+				`DurationFormat.polyfilled = true;
 	DurationFormat.__addLocaleData = function __addLocaleData() {
 		var data = [];
 		for (var _i = 0; _i < arguments.length; _i++) {
@@ -82,8 +82,34 @@ browserify()
 			}
 		}
 	};`
-						);
-					this.push(code);
+			)
+	}
+];
+
+const processCode = (file, code) => {
+	for (const { filename, processor } of codeProcessors) {
+		if (file.endsWith(filename)) {
+			code = processor(code);
+		}
+	}
+	return code;
+};
+
+browserify()
+	.add(stream.Readable.from(entry), {
+		basedir: IntlPolyfillOutput
+	})
+	.transform(
+		(file) => {
+			const bufs = [];
+			return new stream.Transform({
+				transform: function (chunk, enc, next) {
+					bufs.push(chunk);
+					next();
+				},
+				flush: function (next) {
+					const code = Buffer.concat(bufs).toString();
+					this.push(processCode(file, code));
 					next();
 				}
 			});

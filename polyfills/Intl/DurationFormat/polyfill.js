@@ -8358,7 +8358,7 @@ var DurationFormat = /** @class */ (function () {
     DurationFormat.__defaultLocale = '';
     DurationFormat.availableLocales = new Set();
     DurationFormat.localeData = Object.keys(time_separators_generated_1.TIME_SEPARATORS.localeData).reduce(function (all, locale) {
-        
+        DurationFormat.availableLocales.add(locale);
         var nu = time_separators_generated_1.TIME_SEPARATORS.localeData[locale].nu;
         all[locale] = {
             nu: nu,
