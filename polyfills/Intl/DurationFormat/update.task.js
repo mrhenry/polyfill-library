@@ -86,6 +86,16 @@ const codeProcessors = [
 	},
 	{
 		filename:
+			"node_modules/@formatjs/intl-durationformat/node_modules/@formatjs/ecma402-abstract/NumberFormat/digit-mapping.generated.js",
+		description: "remove whitespace from digit mapping file",
+		processor: (code) =>
+			code.replace(
+				/exports\.digitMapping = \{[\S\s]+?\};/,
+				(m) => `${m.slice(0, 23)}${m.slice(23).replace(/\s/g, "")}`
+			)
+	},
+	{
+		filename:
 			"node_modules/@formatjs/intl-durationformat/node_modules/@formatjs/intl-localematcher/abstract/regions.generated.js",
 		description: "truncate unused regions file",
 		processor: () => `"use strict";
