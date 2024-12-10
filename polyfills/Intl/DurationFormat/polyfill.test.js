@@ -159,6 +159,39 @@ describe("Intl.DurationFormat", function () {
 								nan: "NaN",
 								timeSeparator: ":"
 							}
+						},
+						decimal: {
+							latn: {
+								standard: "#,##0.###",
+								"long": {
+									1000: { other: "0 thousand" },
+									10000: { other: "00 thousand" },
+									100000: { other: "000 thousand" },
+									1000000: { other: "0 million" },
+									10000000: { other: "00 million" },
+									100000000: { other: "000 million" },
+									1000000000: { other: "0 billion" },
+									10000000000: { other: "00 billion" },
+									100000000000: { other: "000 billion" },
+									1000000000000: { other: "0 trillion" },
+									10000000000000: { other: "00 trillion" },
+									100000000000000: { other: "000 trillion" }
+								},
+								"short": {
+									1000: { other: "0K" },
+									10000: { other: "00K" },
+									100000: { other: "000K" },
+									1000000: { other: "0M" },
+									10000000: { other: "00M" },
+									100000000: { other: "000M" },
+									1000000000: { other: "0B" },
+									10000000000: { other: "00B" },
+									100000000000: { other: "000B" },
+									1000000000000: { other: "0T" },
+									10000000000000: { other: "00T" },
+									100000000000000: { other: "000T" }
+								}
+							}
 						}
 					},
 					nu: ["latn"]
