@@ -47,7 +47,7 @@ describe('exported property/properties', () => {
 			features: {
 				default: {}
 			},
-			ua: ua_parser('chrome/100')
+			ua: ua_parser('chrome/30')
 		});
 
 		assert.ok(generator[Symbol.asyncIterator]);
