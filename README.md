@@ -99,6 +99,10 @@ npm run watch
 
 @mrhenry/polyfill-library is [MIT licensed][license].
 
+## History
+
+See [./HISTORY.md](./HISTORY.md)
+
 [contributing-guide]: https://github.com/mrhenry/polyfill-library/blob/main/.github/contributing.md
 [license]: https://github.com/mrhenry/polyfill-library/blob/main/LICENSE.md
 [license-badge]: https://img.shields.io/badge/license-MIT-blue.svg
