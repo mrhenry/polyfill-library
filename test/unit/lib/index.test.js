@@ -4,7 +4,7 @@ const test = require('node:test');
 const { describe, it } = test;
 
 const assert = require('node:assert');
-const UA = require('@financial-times/polyfill-useragent-normaliser');
+const ua_parser = require('../../polyfills/ua-parser');
 
 describe('exported property/properties', () => {
 	it('is an object', () => {
@@ -47,7 +47,7 @@ describe('exported property/properties', () => {
 			features: {
 				default: {}
 			},
-			ua: new UA('chrome/30')
+			ua: ua_parser('chrome/100')
 		});
 
 		assert.ok(generator[Symbol.asyncIterator]);
@@ -217,7 +217,7 @@ describe('.getOptions(opts)', () => {
 
 		{
 			const actual = polyfillio.getOptions({
-				ua: new UA('example')
+				ua: ua_parser('example')
 			});
 
 			assert.deepStrictEqual({
@@ -241,7 +241,7 @@ describe('.getOptions(opts)', () => {
 
 		{
 			const actual = polyfillio.getOptions({
-				ua: new UA('chrome/38')
+				ua: ua_parser('chrome/38')
 			});
 
 			assert.deepStrictEqual({
@@ -395,7 +395,7 @@ describe('.getPolyfills()', () => {
 				'__proto__': {},
 				'toLocaleString': {},
 			},
-			ua: new UA('ie/9')
+			ua: ua_parser('ie/9')
 		};
 		try {
 			await polyfillio.getPolyfills(options);
@@ -411,7 +411,7 @@ describe('.getPolyfills()', () => {
 			features: {
 				'console': {}
 			},
-			ua: new UA('chrome/120')
+			ua: ua_parser('chrome/120')
 		};
 
 		return polyfillio.getPolyfills(options).then(result => {
@@ -428,7 +428,7 @@ describe('.getPolyfills()', () => {
 					flags: new Set(['always'])
 				}
 			},
-			ua: new UA('chrome/120')
+			ua: ua_parser('chrome/120')
 		};
 
 		return polyfillio.getPolyfills(options).then(result => {
@@ -454,7 +454,7 @@ describe('.getPolyfills()', () => {
 					flags: new Set(['always'])
 				}
 			},
-			ua: new UA('chrome/120')
+			ua: ua_parser('chrome/120')
 		};
 
 		return polyfillio.getPolyfills(options).then(result => {

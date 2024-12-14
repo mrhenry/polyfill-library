@@ -12,11 +12,10 @@ const promisify = require("node:util").promisify;
 const path = require("node:path");
 const fs = require("node:fs");
 const _ = require("lodash");
-const normalizeUserAgent = require('@financial-times/polyfill-useragent-normaliser').normalize;
 const TestJob = require("./test-job");
 const Tunnel = require("browserstack-local").Local;
 const modifiedPolyfillsWithTests = require('../utils/modified-polyfills-with-tests').modifiedPolyfillsWithTests;
-const UA = require("@financial-times/polyfill-useragent-normaliser");
+const ua_parser = require('./ua-parser');
 const { URL } = require('node:url');
 
 // Grab all the browsers from BrowserStack which are officially supported by the polyfill service.
@@ -50,7 +49,8 @@ async function main() {
 		.replace("browser=", "")
 		.split("/");
 
-	console.log({ browser, browserVersionRanges });
+	console.log('browser:', browser || '-');
+	console.log('browser version ranges:', browserVersionRanges || '-');
 
 	const browsers = browserlist
 		.filter(b => {
@@ -66,20 +66,18 @@ async function main() {
 				return true;
 			}
 
-			return semver.satisfies(
-				semver.coerce(b.split("/")[1]),
-				browserVersionRanges,
-				{
-
-				}
-			);
+			return semver.satisfies(semver.coerce(b.split("/")[1]), browserVersionRanges, {});
 		})
 		.filter(uaString => {
 			if (uaString.startsWith("ios/")) {
 				uaString = uaString.replace("ios", "ios_saf");
 			}
 
-			if (normalizeUserAgent(uaString) === "other/0.0.0") {
+			const ua = ua_parser(uaString);
+
+			if (ua.normalize() === "other/0.0.0") {
+				console.log(uaString, ua.normalize());
+
 				return false;
 			}
 
@@ -89,8 +87,6 @@ async function main() {
 				// - if the polyfill is required for this browser family
 				// - and this browser version satisfies the version range for the polyfill
 				// -> include this browser in the test run
-
-				const ua = new UA(uaString);
 
 				let isNeeded = false;
 				for (const polyfillName in modified.affectedPolyfills) {
@@ -112,7 +108,7 @@ async function main() {
 		process.exit(0);
 	}
 
-	console.log({ browsers });
+	browsers.forEach((x) => { console.log(x) });
 
 	const useragentToBrowserObject = browserWithVersion => {
 		const [browser, version] = browserWithVersion.split("/");
@@ -334,7 +330,7 @@ async function main() {
 							.run()
 							.then(job => {
 								if (job.state === "complete") {
-									const [family, version] = normalizeUserAgent(job.useragent).split("/");
+									const [family, version] = ua_parser(job.useragent).normalize().split("/");
 									_.set(
 										testResults,
 										[family, version, job.mode],

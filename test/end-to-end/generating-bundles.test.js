@@ -4,7 +4,7 @@ const test = require('node:test');
 const { describe, it } = test;
 
 const assert = require('node:assert');
-const UA = require("@financial-times/polyfill-useragent-normaliser");
+const ua_parser = require('../polyfills/ua-parser');
 const polyfillLibrary = require('../..');
 
 describe("polyfill-library", function () {
@@ -13,7 +13,7 @@ describe("polyfill-library", function () {
 			features: {
 				all: {}
 			},
-			ua: new UA('other/0.0.0'),
+			ua: ua_parser('other/0.0.0'),
 			unknown: 'polyfill'
 		});
 
@@ -21,7 +21,7 @@ describe("polyfill-library", function () {
 			features: {
 				all: {}
 			},
-			ua: new UA('other/0.0.0'),
+			ua: ua_parser('other/0.0.0'),
 			unknown: 'polyfill'
 		});
 
@@ -44,7 +44,7 @@ describe("polyfill-library", function () {
 				'__proto__': {},
 				'toLocaleString': {},
 			},
-			ua: new UA('other/0.0.0'),
+			ua: ua_parser('other/0.0.0'),
 			unknown: 'polyfill'
 		});
 	});
