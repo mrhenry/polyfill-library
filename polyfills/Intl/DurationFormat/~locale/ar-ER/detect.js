@@ -1,0 +1,1 @@
+'Intl' in self && Intl.DurationFormat && Intl.DurationFormat.supportedLocalesOf && Intl.DurationFormat.supportedLocalesOf('ar-ER').length === 1
