@@ -45,7 +45,6 @@
     "/types"
   ],
   "devDependencies": {
-    "@financial-times/polyfill-useragent-normaliser": "^2.0.1",
     "@iarna/toml": "^2.2.5",
     "apicache": "^1.6.3",
     "browserstack": "1.6.1",

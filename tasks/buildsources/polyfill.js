@@ -3,16 +3,14 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const uglify = require('uglify-js');
-const UA = require('@financial-times/polyfill-useragent-normaliser');
 const TOML = require('@iarna/toml');
 
 const validateSource = require('./validate-source');
 const semver = require('semver');
 const osiApproved = require('./osi-approved');
 
-const uaBaselines = UA.getBaselines();
-delete uaBaselines.ios_chr; // https://github.com/Financial-Times/polyfill-library/issues/1202#issuecomment-1193403165
-const supportedBrowsers = Object.keys(uaBaselines).sort((a, b) => a.localeCompare(b));
+const configTemplate = fs.readFileSync(path.join(__dirname, '..', 'polyfill-templates', 'config.toml'), { encoding: 'utf-8' });
+const supportedBrowsers = Object.keys(TOML.parse(configTemplate).browsers).sort((a, b) => a.localeCompare(b));
 
 /**
  * Polyfill represents a single polyfill directory.
@@ -147,7 +145,7 @@ module.exports = class Polyfill {
 			.then(data => {
 				this.config = TOML.parse(data);
 
-				// Each internal polyfill needs to target all supported browsers at all versions.
+				// Each internal polyfill needs to target all default browsers at all versions.
 				if (this.path.relative.startsWith('_') && !supportedBrowsers.every(browser => this.config.browsers[browser] === "*")) {
 					const browserSupport = {};
 					for (const browser of supportedBrowsers)  browserSupport[browser] = "*";

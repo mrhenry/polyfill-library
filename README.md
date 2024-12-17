@@ -13,10 +13,9 @@ npm install @mrhenry/polyfill-library --save
 
 ```javascript
 const polyfillLibrary = require('@mrhenry/polyfill-library');
-const UA = require('@financial-times/polyfill-useragent-normaliser');
 
 const polyfillBundle = polyfillLibrary.getPolyfillString({
-	ua: new UA('Mozilla/5.0 (Windows; U; MSIE 7.0; Windows NT 6.0; en-US)'),
+	ua: yourUserAgentParser('Mozilla/5.0 (Windows; U; MSIE 7.0; Windows NT 6.0; en-US)')
 	minify: true,
 	features: {
 		'es6': { flags: ['gated'] }
@@ -81,6 +80,55 @@ Create a polyfill bundle.
 - `@param {Boolean} [opts.stream=false]` - Whether to return a stream or a string of the polyfill bundle.
 
 Returns a polyfill bundle as either a utf-8 ReadStream or as a Promise of a utf-8 String.
+
+## User Agent normalizing
+
+Support data only exists for the most common browsers (e.g. Chrome, Firefox, Safari, ...). To map any user agent to a list of needed polyfills you need to normalize the user agent to one of the known browser families and their corresponding version.
+
+Since the `@financial-times/polyfill-useragent-normaliser` package was deprecated you might need to provide your own solution.
+
+A minimal UA normalizer needs to be able to parse a user agent string and return an object with these functions:
+
+```js
+const semver = require('semver');
+
+function parse(uaString) {
+	const parsed = yourParser(uaString);
+
+	// Depending on your implementation this will differ:
+	const version = parsed.version;
+	const browser = parsed.browser;
+
+	return {
+		isUnknown: () => {
+			// When the browser and/or version are unrecognized
+			return this.getFamily() === 'other';
+		},
+		getFamily: () => {
+			// Must be one of:
+			// - android
+			// - bb
+			// - chrome
+			// - edge
+			// - edge_mob
+			// - firefox
+			// - firefox_mob
+			// - ie
+			// - ie_mob
+			// - opera
+			// - op_mob
+			// - op_mini
+			// - safari
+			// - ios_saf
+			// - samsung_mob
+			return browser;
+		},
+		satisfies: (range) => {
+			return semver.satisfies(this.getVersion(), range);
+		}
+	}
+}
+```
 
 ## Contributing
 

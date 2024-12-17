@@ -4,7 +4,7 @@ const test = require('node:test');
 const { describe, it } = test;
 
 const assert = require('node:assert');
-const UA = require("@financial-times/polyfill-useragent-normaliser");
+const ua_parser = require('../../polyfills/ua-parser');
 
 const appVersion = require("../../../package.json").version;
 
@@ -16,7 +16,7 @@ describe(".getPolyfills(features)", async () => {
 			features: {
 				'Promise': {}
 			},
-			ua: new UA('chrome/45')
+			ua: ua_parser('chrome/45')
 		};
 		return polyfillio.getPolyfills(input).then(result => assert.deepEqual(result, {}));
 	});
@@ -29,7 +29,7 @@ describe(".getPolyfills(features)", async () => {
 				'es7': {},
 			},
 			excludes: ['Array.prototype.values'],
-			ua: new UA('chrome/61')
+			ua: ua_parser('chrome/61')
 		};
 		return polyfillio.getPolyfills(input).then(result => assert.deepEqual(result, {
 			"Array.prototype.sort": {
@@ -65,7 +65,7 @@ describe(".getPolyfills(features)", async () => {
 			features: {
 				'Math.sign': {}
 			},
-			ua: new UA('')
+			ua: ua_parser('')
 		}).then(result => assert.deepEqual(result, {
 			'Math.sign': {
 				"flags": new Set(["gated"]),
@@ -87,7 +87,7 @@ describe(".getPolyfills(features)", async () => {
 			features: {
 				'Math.sign': {}
 			},
-			ua: new UA(''),
+			ua: ua_parser(''),
 			unknown: 'ignore',
 		}).then(result => assert.deepEqual(result, {}));
 	});
@@ -98,7 +98,7 @@ describe(".getPolyfills(features)", async () => {
 				'Math.sign': {}
 			},
 			unknown: 'polyfill',
-			ua: new UA('')
+			ua: ua_parser('')
 		}).then(result => assert.deepEqual(result, {
 			'Math.sign': {
 				"flags": new Set(["gated"]),
@@ -145,7 +145,7 @@ describe(".getPolyfills(features)", async () => {
 					flags: []
 				}
 			},
-			ua: new UA('ie/8')
+			ua: ua_parser('ie/8')
 		}).then(result => assert(Object.keys(result).length > 0));
 	});
 
@@ -154,7 +154,7 @@ describe(".getPolyfills(features)", async () => {
 			features: {
 				"Math.fround": {}
 			},
-			ua: new UA("ie/9")
+			ua: ua_parser("ie/9")
 		});
 
 		assert.deepEqual(noExcludes, {
@@ -180,7 +180,7 @@ describe(".getPolyfills(features)", async () => {
 				"Math.fround": {}
 			},
 			excludes: ["ArrayBuffer", "non-existent-feature"],
-			ua: new UA("ie/9")
+			ua: ua_parser("ie/9")
 		});
 
 		assert.deepEqual(excludes, {
@@ -206,7 +206,7 @@ describe('.getPolyfillString', async () => {
 				features: {
 					default: {}
 				},
-				ua: new UA('chrome/30')
+				ua: ua_parser('chrome/30')
 			}),
 			polyfillio.getPolyfillString({
 				features: {
@@ -214,7 +214,7 @@ describe('.getPolyfillString', async () => {
 						flags: new Set(['gated'])
 					}
 				},
-				ua: new UA('chrome/30')
+				ua: ua_parser('chrome/30')
 			})
 		]).then(results => {
 			assert.notEqual(results[0], results[1]);
@@ -231,14 +231,14 @@ describe('.getPolyfillString', async () => {
 				features: {
 					default: {}
 				},
-				ua: new UA('chrome/30'),
+				ua: ua_parser('chrome/30'),
 				minify: false
 			}),
 			polyfillio.getPolyfillString({
 				features: {
 					default: {}
 				},
-				ua: new UA('chrome/30'),
+				ua: ua_parser('chrome/30'),
 				minify: true
 			})
 		]).then(results => {
@@ -260,7 +260,7 @@ describe('.getPolyfillString', async () => {
 				features: {
 					default: {}
 				},
-				ua: new UA('chrome/30'),
+				ua: ua_parser('chrome/30'),
 				stream: true,
 				minify: false
 			});
@@ -330,7 +330,7 @@ describe('.getPolyfillString', async () => {
 				features: {
 					default: {}
 				},
-				ua: new UA('ie/9'),
+				ua: ua_parser('ie/9'),
 				stream: true,
 				minify: false
 			});
@@ -345,7 +345,7 @@ describe('.getPolyfillString', async () => {
 					features: {
 						default: {}
 					},
-					ua: new UA('ie/9'),
+					ua: ua_parser('ie/9'),
 					stream: true,
 					minify: false
 				});
