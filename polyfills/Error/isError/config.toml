@@ -1,0 +1,25 @@
+aliases = [ "es2025" ]
+dependencies = [
+	"_ESAbstract.CreateMethodProperty",
+	"_ESAbstract.Type",
+	"Object.prototype.toString",
+]
+spec = "https://tc39.es/proposal-is-error/#sec-error.iserror"
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/isError"
+
+[browsers]
+android = "*"
+bb = "*"
+chrome = "<134"
+edge = "*"
+edge_mob = "*"
+firefox = "*"
+firefox_mob = "*"
+ie = "*"
+ie_mob = "*"
+opera = "*"
+op_mob = "*"
+op_mini = "*"
+safari = "*"
+ios_saf = "*"
+samsung_mob = "*"
