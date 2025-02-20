@@ -1,7 +1,7 @@
 dependencies = [
-  "_ESAbstract.StringPad",
-  "_ESAbstract.StringToCodePoints",
-  "_ESAbstract.UTF16EncodeCodePoint",
+	"_ESAbstract.StringPad",
+	"_ESAbstract.StringToCodePoints",
+	"_ESAbstract.UTF16EncodeCodePoint",
 	"_ESAbstract.UnicodeEscape",
 ]
 spec = "https://tc39.es/proposal-regex-escaping/#sec-encodeforregexpescape"
