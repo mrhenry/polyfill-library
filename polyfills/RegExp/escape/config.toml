@@ -1,0 +1,23 @@
+aliases = [ "es2025" ]
+dependencies = [
+	"_ESAbstract.CreateMethodProperty",
+	"_ESAbstract.EncodeForRegExpEscape",
+	"_ESAbstract.StringToCodePoints",
+]
+spec = "https://tc39.es/proposal-regex-escaping/#sec-regexp.escape"
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/escape"
+
+[browsers]
+android = "*"
+chrome = "*"
+edge = "*"
+edge_mob = "*"
+firefox = "<134"
+firefox_mob = "<134"
+ie = "*"
+ie_mob = "*"
+opera = "*"
+op_mob = "*"
+safari = "<18.2"
+ios_saf = "<18.2"
+samsung_mob = "*"
