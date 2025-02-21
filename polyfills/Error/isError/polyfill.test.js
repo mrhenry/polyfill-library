@@ -14,7 +14,7 @@ it("is not enumerable", function () {
 	proclaim.isNotEnumerable(Error, "isError");
 });
 
-describe("Error.isError", function () {
+describe("isError", function () {
 	var trueCases = [
 		{ arg: new Error(), name: "Error" },
 		{ arg: new TypeError(), name: "TypeError" },
