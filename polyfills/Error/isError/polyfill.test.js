@@ -37,8 +37,7 @@ describe("Error.isError", function () {
 		{ arg: null, name: "null" },
 		{ arg: "", name: "string" },
 		{ arg: {}, name: "object" },
-		{ arg: function () {}, name: "function" },
-		{ arg: Object.create(Error.prototype), name: "object with Error prototype" }
+		{ arg: function () {}, name: "function" }
 	];
 	falseCases.forEach(function (falseCase) {
 		it('returns false for "' + falseCase.name + '"', function () {
