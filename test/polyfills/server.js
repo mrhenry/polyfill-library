@@ -75,7 +75,7 @@ app.get("/mocha.css", cacheFor1Day, (request, response) => {
 	response.sendFile(path.resolve(__dirname, "./mocha/mocha.css"));
 });
 app.get("/proclaim.js", cacheFor1Day, (request, response) => {
-	response.sendFile(require.resolve("proclaim/lib/proclaim.js"), "utf-8");
+	response.sendFile(require.resolve("proclaim/lib/proclaim.js"));
 });
 
 app.get(
