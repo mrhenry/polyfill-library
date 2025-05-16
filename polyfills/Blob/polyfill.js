@@ -41,7 +41,7 @@
 		var FBB_proto = FakeBlobBuilder.prototype;
 		var FB_proto = FakeBlob.prototype;
 		var FileReaderSync = view.FileReaderSync;
-		var FileException = function (type) {
+		var FileException = function FileException(type) {
 			this.code = this[this.name = type];
 		};
 		var file_ex_codes = (
@@ -62,7 +62,7 @@
 		}
 		// Polyfill URL
 		if (!view.URL) {
-			URL = view.URL = function (uri) {
+			URL = view.URL = function URL(uri) {
 				var
 					uri_info = document.createElementNS("http://www.w3.org/1999/xhtml", "a"),
 					uri_origin;
@@ -79,7 +79,7 @@
 			};
 		}
 
-		URL.createObjectURL = function (blob) {
+		URL.createObjectURL = function createObjectURL(blob) {
 			var
 				type = blob.type,
 				data_URI_header;
@@ -102,12 +102,12 @@
 				return real_create_object_URL.call(real_URL, blob);
 			}
 		};
-		URL.revokeObjectURL = function (object_URL) {
+		URL.revokeObjectURL = function revokeObjectURL(object_URL) {
 			if (object_URL.substring(0, 5) !== "data:" && real_revoke_object_URL) {
 				real_revoke_object_URL.call(real_URL, object_URL);
 			}
 		};
-		FBB_proto.append = function (data /*, endings*/ ) {
+		FBB_proto.append = function append(data /*, endings*/ ) {
 			var bb = this.data;
 			// decode data to a binary string
 			if (Uint8Array && (data instanceof ArrayBuffer || data instanceof Uint8Array)) {
@@ -144,16 +144,16 @@
 				bb.push(unescape(encodeURIComponent(data)));
 			}
 		};
-		FBB_proto.getBlob = function (type) {
+		FBB_proto.getBlob = function getBlob(type) {
 			if (!arguments.length) {
 				type = null;
 			}
 			return new FakeBlob(this.data.join(""), type, "raw");
 		};
-		FBB_proto.toString = function () {
+		FBB_proto.toString = function toString() {
 			return "[object BlobBuilder]";
 		};
-		FB_proto.slice = function () {
+		FB_proto.slice = function slice() {
 			var start = arguments[0];
 			var end = arguments[1];
 			var type = arguments[2];
@@ -166,10 +166,10 @@
 				this.data.slice(start, args > 1 ? end : this.data.length), type, this.encoding
 			);
 		};
-		FB_proto.toString = function () {
+		FB_proto.toString = function toString() {
 			return "[object Blob]";
 		};
-		FB_proto.close = function () {
+		FB_proto.close = function close() {
 			this.size = 0;
 			delete this.data;
 		};
@@ -197,7 +197,7 @@
 		}
 	}());
 
-	view.Blob = function () {
+	view.Blob = function Blob() {
 		var blobParts = arguments[0];
 		var options = arguments[1];
 
@@ -235,7 +235,7 @@
 		return blob;
 	};
 
-	var getPrototypeOf = Object.getPrototypeOf || function (object) {
+	var getPrototypeOf = Object.getPrototypeOf || function getPrototypeOf(object) {
 		return object.__proto__;
 	};
 	view.Blob.prototype = getPrototypeOf(new view.Blob());
