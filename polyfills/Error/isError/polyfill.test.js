@@ -15,17 +15,34 @@ it("is not enumerable", function () {
 });
 
 describe("isError", function () {
+	var supportDOMExceptionConstructor = (function () {
+		try {
+			new DOMException();
+			return true;
+		} catch (_) {
+			return false;
+		}
+	}());
+
 	var trueCases = [
 		{ arg: new Error(), name: "Error" },
-		{ arg: new TypeError(), name: "TypeError" },
-		{ arg: new DOMException(), name: "DOMException" }
+		{ arg: new TypeError(), name: "TypeError" }
 	];
+
+	if (supportDOMExceptionConstructor) {
+		trueCases.push({
+			arg: new DOMException(),
+			name: "DOMException"
+		});
+	}
+
 	if ("AggregateError" in self) {
 		trueCases.push({
 			arg: new self.AggregateError([]),
 			name: "AggregateError"
 		});
 	}
+
 	trueCases.forEach(function (trueCase) {
 		it('returns true for "' + trueCase.name + '"', function () {
 			proclaim.isTrue(Error.isError(trueCase.arg));
