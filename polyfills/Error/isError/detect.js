@@ -1,1 +1,7 @@
-"isError" in Error && "DOMException" in self && Error.isError(new DOMException('error'));
+"isError" in Error && "DOMException" in self && (function () {
+	try {
+		return Error.isError(new DOMException());
+	} catch (_) {
+		return "isError" in Error;
+	}
+}())
