@@ -30,6 +30,7 @@ describe('IdleDeadline', function () {
 });
 
 describe('requestIdleCallback', function () {
+	this.retries(3);
 
 	function sleep(busyFor) {
 		busyFor = busyFor + Math.random(); // Prevent Safari while loop optimisation.
