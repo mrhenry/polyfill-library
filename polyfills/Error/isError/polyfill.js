@@ -8,9 +8,10 @@ CreateMethodProperty(Error, "isError", function isError(arg) {
 	}
 	// 2. If argument has an [[ErrorData]] internal slot, return true.
 	// 3. Return false.
-	if (!(Symbol.toStringTag in arg)) {
+	if (Symbol.toStringTag in arg) {
 		var str = Object.prototype.toString.call(arg);
 		return str === "[object Error]" || str === "[object DOMException]";
 	}
+
 	return arg instanceof Error;
 });

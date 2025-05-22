@@ -3,6 +3,7 @@ dependencies = [
 	"_ESAbstract.CreateMethodProperty",
 	"_ESAbstract.Type",
 	"Object.prototype.toString",
+	"Symbol",
 	"Symbol.toStringTag",
 ]
 spec = "https://tc39.es/proposal-is-error/#sec-error.iserror"

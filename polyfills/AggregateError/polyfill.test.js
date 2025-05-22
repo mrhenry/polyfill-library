@@ -50,6 +50,12 @@ it('has the right prototype', function () {
 	}
 });
 
+if ('Symbol' in self && 'toStringTag' in self.Symbol && self.Symbol.toStringTag in AggregateError.prototype) {
+	it('has the expected toStringTag', function () {
+		proclaim.equal(Object.prototype.toString.call(new AggregateError([])), '[object Error]');
+	});
+}
+
 describe('AggregateError', function () {
 	it("returns an AggregateError", function () {
 		var aggregateError = AggregateError([]);
