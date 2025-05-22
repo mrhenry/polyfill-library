@@ -1,4 +1,4 @@
-/* global _ErrorConstructor, CreateDataPropertyOrThrow, CreateMethodProperty, IterableToList, Symbol */
+/* global _ErrorConstructor, CreateDataPropertyOrThrow, CreateMethodProperty, IterableToList */
 (function () {
 	var hasErrorCause = (function () {
 		try {
@@ -34,7 +34,7 @@
 	AggregateError.prototype = Object.create(Error.prototype);
 
 	if ('Symbol' in self && 'toStringTag' in self.Symbol) {
-		Object.defineProperty(AggregateError.prototype, Symbol.toStringTag, {
+		Object.defineProperty(AggregateError.prototype, self.Symbol.toStringTag, {
 			configurable: true,
 			enumerable: false,
 			writable: false,
