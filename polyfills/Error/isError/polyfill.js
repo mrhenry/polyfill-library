@@ -6,14 +6,23 @@ CreateMethodProperty(Error, "isError", function isError(arg) {
 	if (Type(arg) !== "object") {
 		return false;
 	}
-	// 2. If argument has an [[ErrorData]] internal slot, return true.
-	// 3. Return false.
-	if (('Symbol' in self && 'toStringTag' in Symbol) && !(Symbol.toStringTag in arg)) {
-		var str = Object.prototype.toString.call(arg);
-		if (str === "[object Error]" || str === "[object DOMException]") {
-			return true;
-		}
+
+	// If the argument is an instance of Error, return true.
+	if (arg instanceof Error) {
+		return true;
 	}
 
-	return arg instanceof Error;
+	// If the browser supports `Symbol.toStringTag` it is possible to spoof the result of calling `Object.prototype.toString`, return false.
+	if ('Symbol' in self && 'toStringTag' in Symbol && Symbol.toStringTag in arg) {
+		return false;
+	}
+
+	// If `Object.prototype.toString` indicates it is an error, return true
+	var str = Object.prototype.toString.call(arg);
+	if (str === "[object Error]" || str === "[object DOMException]") {
+		return true;
+	}
+
+	// Return true.
+	return false;
 });

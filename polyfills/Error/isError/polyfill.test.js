@@ -56,6 +56,17 @@ describe("isError", function () {
 		{ arg: {}, name: "object" },
 		{ arg: function () {}, name: "function" }
 	];
+
+	if ("Symbol" in self && 'toStringTag' in self.Symbol) {
+		var arg = {};
+		arg[self.Symbol.toStringTag] = 'Error';
+
+		falseCases.push({
+			arg: arg,
+			name: "Spoofed toStringTag"
+		});
+	}
+
 	falseCases.forEach(function (falseCase) {
 		it('returns false for "' + falseCase.name + '"', function () {
 			proclaim.isFalse(Error.isError(falseCase.arg));
