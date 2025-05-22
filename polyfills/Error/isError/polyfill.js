@@ -23,6 +23,6 @@ CreateMethodProperty(Error, "isError", function isError(arg) {
 		return true;
 	}
 
-	// Return true.
+	// Return false.
 	return false;
 });
