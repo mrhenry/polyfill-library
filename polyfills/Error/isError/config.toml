@@ -3,7 +3,6 @@ dependencies = [
 	"_ESAbstract.CreateMethodProperty",
 	"_ESAbstract.Type",
 	"Object.prototype.toString",
-	"Symbol.toStringTag",
 ]
 spec = "https://tc39.es/proposal-is-error/#sec-error.iserror"
 docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/isError"
