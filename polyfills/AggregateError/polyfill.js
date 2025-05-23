@@ -32,16 +32,6 @@
 	}
 
 	AggregateError.prototype = Object.create(Error.prototype);
-
-	if ('Symbol' in self && 'toStringTag' in self.Symbol) {
-		Object.defineProperty(AggregateError.prototype, self.Symbol.toStringTag, {
-			configurable: true,
-			enumerable: false,
-			writable: false,
-			value: 'Error'
-		});
-	}
-
 	AggregateError.prototype.constructor = AggregateError;
 
 	CreateMethodProperty(self, 'AggregateError', AggregateError);
