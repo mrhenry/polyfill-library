@@ -3371,6 +3371,7 @@ var isCallable = require('is-callable');
 var toStr = Object.prototype.toString;
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
+/** @type {<This, A extends readonly unknown[]>(arr: A, iterator: (this: This | void, value: A[number], index: number, arr: A) => void, receiver: This | undefined) => void} */
 var forEachArray = function forEachArray(array, iterator, receiver) {
     for (var i = 0, len = array.length; i < len; i++) {
         if (hasOwnProperty.call(array, i)) {
@@ -3383,6 +3384,7 @@ var forEachArray = function forEachArray(array, iterator, receiver) {
     }
 };
 
+/** @type {<This, S extends string>(string: S, iterator: (this: This | void, value: S[number], index: number, string: S) => void, receiver: This | undefined) => void} */
 var forEachString = function forEachString(string, iterator, receiver) {
     for (var i = 0, len = string.length; i < len; i++) {
         // no such thing as a sparse string.
@@ -3394,6 +3396,7 @@ var forEachString = function forEachString(string, iterator, receiver) {
     }
 };
 
+/** @type {<This, O>(obj: O, iterator: (this: This | void, value: O[keyof O], index: keyof O, obj: O) => void, receiver: This | undefined) => void} */
 var forEachObject = function forEachObject(object, iterator, receiver) {
     for (var k in object) {
         if (hasOwnProperty.call(object, k)) {
@@ -3406,7 +3409,13 @@ var forEachObject = function forEachObject(object, iterator, receiver) {
     }
 };
 
-var forEach = function forEach(list, iterator, thisArg) {
+/** @type {(x: unknown) => x is readonly unknown[]} */
+function isArray(x) {
+    return toStr.call(x) === '[object Array]';
+}
+
+/** @type {import('.')._internal} */
+module.exports = function forEach(list, iterator, thisArg) {
     if (!isCallable(iterator)) {
         throw new TypeError('iterator must be a function');
     }
@@ -3416,7 +3425,7 @@ var forEach = function forEach(list, iterator, thisArg) {
         receiver = thisArg;
     }
 
-    if (toStr.call(list) === '[object Array]') {
+    if (isArray(list)) {
         forEachArray(list, iterator, receiver);
     } else if (typeof list === 'string') {
         forEachString(list, iterator, receiver);
@@ -3424,8 +3433,6 @@ var forEach = function forEach(list, iterator, thisArg) {
         forEachObject(list, iterator, receiver);
     }
 };
-
-module.exports = forEach;
 
 },{"is-callable":169}],141:[function(require,module,exports){
 'use strict';
@@ -6591,10 +6598,10 @@ module.exports = function whichCollection(/** @type {unknown} */ value) {
 var forEach = require('for-each');
 var availableTypedArrays = require('available-typed-arrays');
 var callBind = require('call-bind');
-var callBound = require('call-bind/callBound');
+var callBound = require('call-bound');
 var gOPD = require('gopd');
+var getProto = require('get-proto');
 
-/** @type {(O: object) => string} */
 var $toString = callBound('Object.prototype.toString');
 var hasToStringTag = require('has-tostringtag/shams')();
 
@@ -6602,7 +6609,6 @@ var g = typeof globalThis === 'undefined' ? global : globalThis;
 var typedArrays = availableTypedArrays();
 
 var $slice = callBound('String.prototype.slice');
-var getPrototypeOf = Object.getPrototypeOf; // require('getprototypeof');
 
 /** @type {<T = unknown>(array: readonly T[], value: unknown) => number} */
 var $indexOf = callBound('Array.prototype.indexOf', true) || function indexOf(array, value) {
@@ -6614,18 +6620,18 @@ var $indexOf = callBound('Array.prototype.indexOf', true) || function indexOf(ar
 	return -1;
 };
 
-/** @typedef {(receiver: import('.').TypedArray) => string | typeof Uint8Array.prototype.slice.call | typeof Uint8Array.prototype.set.call} Getter */
-/** @type {{ [k in `\$${import('.').TypedArrayName}`]?: Getter } & { __proto__: null }} */
+/** @typedef {import('./types').Getter} Getter */
+/** @type {import('./types').Cache} */
 var cache = { __proto__: null };
-if (hasToStringTag && gOPD && getPrototypeOf) {
+if (hasToStringTag && gOPD && getProto) {
 	forEach(typedArrays, function (typedArray) {
 		var arr = new g[typedArray]();
-		if (Symbol.toStringTag in arr) {
-			var proto = getPrototypeOf(arr);
+		if (Symbol.toStringTag in arr && getProto) {
+			var proto = getProto(arr);
 			// @ts-expect-error TS won't narrow inside a closure
 			var descriptor = gOPD(proto, Symbol.toStringTag);
-			if (!descriptor) {
-				var superProto = getPrototypeOf(proto);
+			if (!descriptor && proto) {
+				var superProto = getProto(proto);
 				// @ts-expect-error TS won't narrow inside a closure
 				descriptor = gOPD(superProto, Symbol.toStringTag);
 			}
@@ -6638,8 +6644,12 @@ if (hasToStringTag && gOPD && getPrototypeOf) {
 		var arr = new g[typedArray]();
 		var fn = arr.slice || arr.set;
 		if (fn) {
-			// @ts-expect-error TODO: fix
-			cache['$' + typedArray] = callBind(fn);
+			cache[
+				/** @type {`$${import('.').TypedArrayName}`} */ ('$' + typedArray)
+			] = /** @type {import('./types').BoundSlice | import('./types').BoundSet} */ (
+				// @ts-expect-error TODO FIXME
+				callBind(fn)
+			);
 		}
 	});
 }
@@ -6648,15 +6658,14 @@ if (hasToStringTag && gOPD && getPrototypeOf) {
 var tryTypedArrays = function tryAllTypedArrays(value) {
 	/** @type {ReturnType<typeof tryAllTypedArrays>} */ var found = false;
 	forEach(
-		// eslint-disable-next-line no-extra-parens
-		/** @type {Record<`\$${TypedArrayName}`, Getter>} */ /** @type {any} */ (cache),
+		/** @type {Record<`\$${import('.').TypedArrayName}`, Getter>} */ (cache),
 		/** @type {(getter: Getter, name: `\$${import('.').TypedArrayName}`) => void} */
 		function (getter, typedArray) {
 			if (!found) {
 				try {
-				// @ts-expect-error TODO: fix
+					// @ts-expect-error a throw is fine here
 					if ('$' + getter(value) === typedArray) {
-						found = $slice(typedArray, 1);
+						found = /** @type {import('.').TypedArrayName} */ ($slice(typedArray, 1));
 					}
 				} catch (e) { /**/ }
 			}
@@ -6669,14 +6678,13 @@ var tryTypedArrays = function tryAllTypedArrays(value) {
 var trySlices = function tryAllSlices(value) {
 	/** @type {ReturnType<typeof tryAllSlices>} */ var found = false;
 	forEach(
-		// eslint-disable-next-line no-extra-parens
-		/** @type {Record<`\$${TypedArrayName}`, Getter>} */ /** @type {any} */ (cache),
-		/** @type {(getter: typeof cache, name: `\$${import('.').TypedArrayName}`) => void} */ function (getter, name) {
+		/** @type {Record<`\$${import('.').TypedArrayName}`, Getter>} */(cache),
+		/** @type {(getter: Getter, name: `\$${import('.').TypedArrayName}`) => void} */ function (getter, name) {
 			if (!found) {
 				try {
-					// @ts-expect-error TODO: fix
+					// @ts-expect-error a throw is fine here
 					getter(value);
-					found = $slice(name, 1);
+					found = /** @type {import('.').TypedArrayName} */ ($slice(name, 1));
 				} catch (e) { /**/ }
 			}
 		}
@@ -6704,7 +6712,7 @@ module.exports = function whichTypedArray(value) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"available-typed-arrays":1,"call-bind":10,"call-bind/callBound":9,"for-each":140,"gopd":157,"has-tostringtag/shams":163}],215:[function(require,module,exports){
+},{"available-typed-arrays":1,"call-bind":10,"call-bound":11,"for-each":140,"get-proto":151,"gopd":157,"has-tostringtag/shams":163}],215:[function(require,module,exports){
 
 self._IteratorHelpersUtils = {
   iteratorPrototype: {
