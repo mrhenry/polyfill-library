@@ -26333,19 +26333,19 @@ real_mobile = true
 # device = "iPad 10th"
 # real_mobile = true
 
-[[browsers]]
-os = "ios"
-os_version = "18"
-browser = "ipad"
-device = "iPad 8th"
-real_mobile = true
+# [[browsers]]
+# os = "ios"
+# os_version = "18"
+# browser = "ipad"
+# device = "iPad 8th"
+# real_mobile = true
 
-[[browsers]]
-os = "ios"
-os_version = "18"
-browser = "ipad"
-device = "iPad 9th"
-real_mobile = true
+# [[browsers]]
+# os = "ios"
+# os_version = "18"
+# browser = "ipad"
+# device = "iPad 9th"
+# real_mobile = true
 
 [[browsers]]
 os = "ios"
