@@ -50,7 +50,6 @@ var unsupportedTypes = [
 	"button",
 	"checkbox",
 	"color",
-	"datetime-local",
 	"email",
 	// "file", /* value can't be set on file type inputs. */
 	"hidden",
@@ -124,37 +123,38 @@ describe("HTMLInputElement.prototype.valueAsDate", function () {
 		}
 	});
 
-	it("throws on unsupported types - setter", function () {
-		for (var i = 0; i < unsupportedTypes.length; i++) {
-			var type = unsupportedTypes[i];
-			var inputA = unsupportedInputsViaAttribute[type];
-			var inputB = unsupportedInputsViaProperty[type];
+	for (var i = 0; i < unsupportedTypes.length; i++) {
+		(function (type) {
+			it("throws on unsupported type [" + type + "] - setter", function () {
+				var inputA = unsupportedInputsViaAttribute[type];
+				var inputB = unsupportedInputsViaProperty[type];
 
-			proclaim.throws(function () {
-				testValueAsDateSetter(inputA, [
-					[null, ""]
-				]);
-			});
+				proclaim.throws(function () {
+					testValueAsDateSetter(inputA, [
+						[null, ""]
+					]);
+				});
 
-			proclaim.throws(function () {
-				testValueAsDateSetter(inputA, [
-					[new Date("2019-12-10T00:00:00.000Z"), ""]
-				]);
-			});
+				proclaim.throws(function () {
+					testValueAsDateSetter(inputA, [
+						[new Date("2019-12-10T00:00:00.000Z"), ""]
+					]);
+				});
 
-			proclaim.throws(function () {
-				testValueAsDateSetter(inputB, [
-					[null, ""]
-				]);
-			});
+				proclaim.throws(function () {
+					testValueAsDateSetter(inputB, [
+						[null, ""]
+					]);
+				});
 
-			proclaim.throws(function () {
-				testValueAsDateSetter(inputB, [
-					[new Date("2019-12-10T00:00:00.000Z"), ""]
-				]);
+				proclaim.throws(function () {
+					testValueAsDateSetter(inputB, [
+						[new Date("2019-12-10T00:00:00.000Z"), ""]
+					]);
+				});
 			});
-		}
-	});
+		}(unsupportedTypes[i]))
+	}
 
 	it("works with type=\"date\" - getter", function () {
 		testValueAsDateGetter(dateInput, [
