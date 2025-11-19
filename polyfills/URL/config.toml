@@ -8,6 +8,7 @@ aliases = [
 	"URLSearchParams"
 ]
 dependencies = [
+	"_ESAbstract.CreateMethodProperty",
 	"Array.from",
 	"Array.prototype.@@iterator",
 	"Array.prototype.entries",
@@ -27,6 +28,19 @@ dependencies = [
 	"String.prototype.startsWith",
 	"TextEncoder",
 	"TypedArray.prototype.@@iterator",
+	"_data._tr46_bidiDomain",
+	"_data._tr46_bidiS1LTR",
+	"_data._tr46_bidiS1RTL",
+	"_data._tr46_bidiS2",
+	"_data._tr46_bidiS3",
+	"_data._tr46_bidiS4AN",
+	"_data._tr46_bidiS4EN",
+	"_data._tr46_bidiS5",
+	"_data._tr46_bidiS6",
+	"_data._tr46_combiningClassVirama",
+	"_data._tr46_combiningMarks",
+	"_data._tr46_mappingTable",
+	"_data._tr46_validZWNJ",
 ]
 notes = [ ]
 license = "MIT"
@@ -49,8 +63,3 @@ op_mini = "*"
 safari = "<12.0"
 ios_saf = "<12.0"
 samsung_mob = "<5.0"
-
-[install]
-module = "whatwg-url"
-postinstall = "update.task.js"
-clean = [ "polyfill.js" ]
