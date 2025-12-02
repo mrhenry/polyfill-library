@@ -28,6 +28,7 @@ describe("sumPrecise", function () {
 
 	it("should compute a precise sum", function () {
 		proclaim.equal(Math.sumPrecise(new TestIterator([1e20, 0.1, -1e20])), 0.1);
+		proclaim.equal(Math.sumPrecise(new TestIterator([0.1, 0.2])), 0.30000000000000004);
 		proclaim.isNaN(Math.sumPrecise(new TestIterator([NaN, 1])));
 		proclaim.equal(Math.sumPrecise(new TestIterator([Infinity, 1])), Infinity);
 		proclaim.equal(Math.sumPrecise(new TestIterator([-Infinity, 1])), -Infinity);
