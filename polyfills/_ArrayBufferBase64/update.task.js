@@ -41,7 +41,7 @@ const codeProcessors = [
 		description: "handle case where `ArrayBuffer.prototype.slice` is `undefined`",
 		processor: (code) => code.replace(
 			"var abSlice = !!$ArrayBuffer && !$byteLength && new $ArrayBuffer(0).slice;",
-			"var abSlice = !!$ArrayBuffer && !$byteLength && new Uint8Array(0).slice;"
+			"var abSlice = !!$ArrayBuffer && !$byteLength && (new $ArrayBuffer(0).slice || new Uint8Array(0).slice);"
 		)
 	},
 	{

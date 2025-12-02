@@ -4896,7 +4896,7 @@ var $byteLength = callBound('ArrayBuffer.prototype.byteLength', true);
 var $toString = callBound('Object.prototype.toString');
 
 // in node 0.10, ArrayBuffers have no prototype methods, but have an own slot-checking `slice` method
-var abSlice = !!$ArrayBuffer && !$byteLength && new Uint8Array(0).slice;
+var abSlice = !!$ArrayBuffer && !$byteLength && (new $ArrayBuffer(0).slice || new Uint8Array(0).slice);
 var $abSlice = !!abSlice && callBind(abSlice);
 
 /** @type {import('.')} */
