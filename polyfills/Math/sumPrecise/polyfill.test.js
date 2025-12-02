@@ -1,4 +1,4 @@
-/* global Iterator */
+/* global Symbol */
 
 it("is a function", function () {
 	proclaim.isFunction(Math.sumPrecise);
@@ -23,8 +23,10 @@ describe("sumPrecise", function () {
 			i++;
 			return { value: arr[i], done: i >= arr.length };
 		};
+		this[Symbol.iterator] = function () {
+			return this;
+		};
 	}
-	TestIterator.prototype = Iterator.prototype;
 
 	it("should compute a precise sum", function () {
 		proclaim.equal(Math.sumPrecise(new TestIterator([1e20, 0.1, -1e20])), 0.1);
