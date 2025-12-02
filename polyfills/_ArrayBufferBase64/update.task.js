@@ -37,6 +37,14 @@ const codeProcessors = [
 		)
 	},
 	{
+		filename: "node_modules/available-typed-arrays/index.js",
+		description: "handle case where `Uint8Array` is an object",
+		processor: (code) => code.replace(
+			"typeof g[possibleNames[i]] === 'function'",
+			"typeof g[possibleNames[i]] === 'function' || typeof g[possibleNames[i]] === 'object'"
+		)
+	},
+	{
 		filename: "node_modules/is-array-buffer/index.js",
 		description: "handle case where `ArrayBuffer.prototype.slice` is `undefined`",
 		processor: (code) => code.replace(

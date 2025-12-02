@@ -46,7 +46,7 @@ var g = typeof globalThis === 'undefined' ? global : globalThis;
 module.exports = function availableTypedArrays() {
 	var /** @type {ReturnType<typeof availableTypedArrays>} */ out = [];
 	for (var i = 0; i < possibleNames.length; i++) {
-		if (typeof g[possibleNames[i]] === 'function') {
+		if (typeof g[possibleNames[i]] === 'function' || typeof g[possibleNames[i]] === 'object') {
 			// @ts-expect-error
 			out[out.length] = possibleNames[i];
 		}
