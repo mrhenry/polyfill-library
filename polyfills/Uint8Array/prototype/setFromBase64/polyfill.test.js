@@ -24,7 +24,7 @@ describe("setFromBase64", function () {
 		proclaim.deepStrictEqual(uint8Array, new Uint8Array([60, 98, 62, 77, 68, 78, 60, 47, 98, 62, 0, 0, 0, 0, 0, 0]));
 
 		proclaim.throws(function () {
-			Uint8Array.fromBase64("PGI-");
+			uint8Array.setFromBase64("PGI-");
 		}, SyntaxError);
 	});
 
