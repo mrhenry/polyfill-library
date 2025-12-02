@@ -1,0 +1,35 @@
+aliases = [ "es2026" ]
+dependencies = [
+	"_ESAbstract.Call",
+	"_ESAbstract.CreateIterResultObject",
+	"_ESAbstract.CreateMethodProperty",
+	"_ESAbstract.Get",
+	"_ESAbstract.GetMethod",
+	"_ESAbstract.IteratorClose",
+	"_ESAbstract.IteratorStepValue",
+	"_ESAbstract.NormalCompletion",
+	"_ESAbstract.ThrowCompletion",
+	"_ESAbstract.Type",
+	"Iterator",
+	"Iterator.prototype.filter",
+	"Symbol.iterator",
+]
+spec = "https://tc39.es/proposal-iterator-helpers/#sec-iterator.concat"
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/concat"
+
+[browsers]
+android = "*"
+bb = "*"
+chrome = "*"
+edge = "*"
+edge_mob = "*"
+firefox = "*"
+firefox_mob = "*"
+ie = "*"
+ie_mob = "*"
+opera = "*"
+op_mob = "*"
+op_mini = "*"
+safari = "*"
+ios_saf = "*"
+samsung_mob = "*"
