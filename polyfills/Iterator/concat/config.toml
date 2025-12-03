@@ -11,7 +11,7 @@ dependencies = [
 	"_ESAbstract.ThrowCompletion",
 	"_ESAbstract.Type",
 	"Iterator",
-	"Iterator.prototype.filter",
+	"Iterator.prototype.take",
 	"Symbol.iterator",
 ]
 spec = "https://tc39.es/proposal-iterator-helpers/#sec-iterator.concat"

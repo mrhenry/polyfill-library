@@ -9,8 +9,8 @@ var IteratorHelperPrototype = (function () {
 			}
 		};
 	};
-	// use `Iterator.prototype.filter` as a way to get `IteratorHelperPrototype`
-	var iteratorHelper = iterator.filter(function () { });
+	// use `Iterator.prototype.take` as a way to get `IteratorHelperPrototype`
+	var iteratorHelper = iterator.take(0);
 	return Object.getPrototypeOf(iteratorHelper);
 })();
 
