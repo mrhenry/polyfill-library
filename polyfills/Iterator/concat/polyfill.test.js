@@ -65,6 +65,11 @@ describe("concat", function () {
 
 	it("should return an object with the right prototype", function () {
 		var iter = Iterator.concat();
-		proclaim.equal(iter.toString(), "[object Iterator Helper]");
+		// use `Iterator.prototype.filter` as a way to get `IteratorHelperPrototype`
+		proclaim.isFunction(iter.filter);
+		proclaim.equal(Object.getPrototypeOf(iter), Object.getPrototypeOf(iter.filter(function () { })));
+		if (Symbol.toStringTag) {
+			proclaim.equal(iter.toString(), "[object Iterator Helper]");
+		}
 	});
 });
