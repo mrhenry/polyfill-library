@@ -8,7 +8,7 @@ CreateMethodProperty(Math, "sumPrecise", function sumPrecise(items) {
 	// 3. Let state be minus-zero.
 	var state = "MINUS-ZERO";
 	// 4. Let sum be 0.
-	var sum = 0;
+	var sumParts = [];
 	// 5. Let count be 0.
 	var count = 0;
 	// 6. Let next be not-started.
@@ -71,7 +71,7 @@ CreateMethodProperty(Math, "sumPrecise", function sumPrecise(items) {
 					// a. Set state to finite.
 					state = "FINITE";
 					// b. Set sum to sum + ℝ(n).
-					sum = computeSum([sum, n]);
+					sumParts.push(n);
 				}
 			}
 			// v. Set count to count + 1.
@@ -95,7 +95,7 @@ CreateMethodProperty(Math, "sumPrecise", function sumPrecise(items) {
 		return -0;
 	}
 	// 12. Return 𝔽(sum).
-	return sum;
+	return computeSum(sumParts);
 });
 
 var computeSum = (function () {
