@@ -1,0 +1,16 @@
+version: 2
+updates:
+- package-ecosystem: "github-actions"
+  directory: "/"
+  cooldown:
+    default-days: 7
+  schedule:
+    interval: weekly
+    time: "01:00"
+    timezone: Europe/Brussels
+  groups:
+    all-dependencies:
+      patterns:
+        - "*"
+  open-pull-requests-limit: 5
+  rebase-strategy: auto

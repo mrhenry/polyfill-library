@@ -29,10 +29,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@0499de31b99561a6d14a36a5f662c2a54f91beee # v3
       with:
         languages: ${{ matrix.language }}
         queries: security-extended
@@ -44,13 +44,13 @@ jobs:
           - test/polyfills
 
     - name: setup node
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
       with:
-        node-version: 22
+        node-version: 24
         cache: 'npm'
 
     - run: npm ci
     - run: npm run build
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@0499de31b99561a6d14a36a5f662c2a54f91beee # v3
