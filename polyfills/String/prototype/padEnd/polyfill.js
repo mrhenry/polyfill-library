@@ -1,4 +1,4 @@
-/* global CreateMethodProperty, RequireObjectCoercible, ToLength, ToString */
+/* global CreateMethodProperty, RequireObjectCoercible, StringPad, ToLength, ToString */
 // 21.1.3.13. String.prototype.padEnd( maxLength [ , fillString ] )
 CreateMethodProperty(String.prototype, 'padEnd', function padEnd(maxLength /* [ , fillString ] */) {
 	'use strict';
@@ -22,18 +22,6 @@ CreateMethodProperty(String.prototype, 'padEnd', function padEnd(maxLength /* [ 
 	} else {
 		filler = ToString(fillString);
 	}
-	// 8. If filler is the empty String, return S.
-	if (filler === '') {
-		return S;
-	}
-	// 9. Let fillLen be intMaxLength - stringLength.
-	var fillLen = intMaxLength - stringLength;
-	// 10. Let truncatedStringFiller be the String value consisting of repeated concatenations of filler truncated to length fillLen.
-	var truncatedStringFiller = '';
-	for (var i = 0; i < fillLen; i++) {
-		truncatedStringFiller += filler;
-	}
-	truncatedStringFiller = truncatedStringFiller.substr(0, fillLen);
-	// 11. Return the string-concatenation of S and truncatedStringFiller.
-	return S + truncatedStringFiller;
+	// 8. Return StringPad(S, intMaxLength, filler, end).
+	return StringPad(S, intMaxLength, filler, "END");
 });
