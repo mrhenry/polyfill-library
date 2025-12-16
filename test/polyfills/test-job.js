@@ -176,7 +176,7 @@ module.exports = class TestJob {
 				"An unknown server-side error occurred while processing the command."
 			) ||
 			error.message.includes(
-				'The operation was aborted due to timeout when running "execute/sync" with method "POST"'
+				'The operation was aborted due to timeout when running'
 			)
 		);
 	}
