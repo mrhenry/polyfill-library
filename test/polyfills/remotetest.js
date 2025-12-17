@@ -2,6 +2,26 @@
 
 const wait = duration => new Promise(resolve => setTimeout(resolve, duration));
 
+const avoidConcurrencyOnSameBrowser = (_job, _jobs, _results) => {
+	const startedJobs = _jobs.slice(0, _results.length);
+	const runningJobsWithSameBrowser = startedJobs.filter((startedJob) => {
+		if (startedJob.state === "complete" || startedJob.state === "error") {
+			return false;
+		}
+
+		return startedJob.name === _job.name;
+	});
+
+	const index = runningJobsWithSameBrowser.indexOf(_job);
+	if (index === 0) {
+		return Promise.resolve();
+	}
+
+	return wait(1_000).then(() => {
+		return avoidConcurrencyOnSameBrowser(_job, _jobs, _results);
+	});
+}
+
 // By default, promises fail silently if you don't attach a .catch() handler to them.
 //This tool keeps track of unhandled rejections globally. If any remain unhandled at the end of your process, it logs them to STDERR and exits with code 1.
 const hardRejection = require("hard-rejection");
@@ -225,6 +245,21 @@ async function main() {
 		})
 	});
 
+	jobConfigs.sort((a, b) => {
+		if (a.polyfillCombinations !== b.polyfillCombinations) {
+			return Number(b.polyfillCombinations) - Number(a.polyfillCombinations);
+		}
+
+		const aShard = a.shard ? Number(a.shard) : 1;
+		const bShard = b.shard ? Number(b.shard) : 1;
+
+		if (aShard !== bShard) {
+			return aShard - bShard;
+		}
+
+		return a.browser.localeCompare(b.browser);
+	});
+
 	let jobs = [];
 
 	for (const jobConfig of jobConfigs) {
@@ -296,10 +331,7 @@ async function main() {
 				}
 				if (message) {
 					out.push(
-						` • Browser: ${job.name.padEnd(
-							" ",
-							20
-						)} Test config: ${job.configForLog} ${message}`
+						` • Browser: ${job.name.padEnd(15, " ")} Test config: ${job.configForLog.padEnd(32, " ")} ${message}`
 					);
 				}
 			}
@@ -329,62 +361,63 @@ async function main() {
 				let resolvedCount = 0;
 				function pushJob() {
 					const job = jobs[results.length];
-					results.push(
-						job
-							.run()
-							.then(job => {
-								if (job.state === "complete") {
-									const [family, version] = normalizeUserAgent(job.useragent).split("/");
-									_.set(
-										testResults,
-										[family, version, job.mode],
-										job.getResultSummary()
-									);
-								}
-								resolvedCount++;
-								if (results.length < jobs.length) {
-									pushJob();
-								} else if (resolvedCount === jobs.length) {
-									resolve();
-								}
-								return job;
-							})
-							.catch(error => {
-								if (TestJob.isRetryableError(error)) {
-									return wait(30 * 1000).then(() =>
-										job
-											.run()
-											.then(job => {
-												if (job.state === "complete") {
-													const [family, version] = job.name.split("/");
-													_.set(
-														testResults,
-														[family, version, job.mode],
-														job.getResultSummary()
-													);
-												}
-												resolvedCount++;
-												if (results.length < jobs.length) {
-													pushJob();
-												} else if (resolvedCount === jobs.length) {
-													resolve();
-												}
-												return job;
-											})
-											.catch(error => {
-												console.log(error.stack || error);
-												process.exitCode = 1;
 
-												process.exit(1);
-											}));
-								} else {
-									console.log(error.stack || error);
-									process.exitCode = 1;
+					const jobRun = avoidConcurrencyOnSameBrowser(job, jobs, results).then(() => {
+						return job.run();
+					}).then(job => {
+							if (job.state === "complete") {
+								const [family, version] = normalizeUserAgent(job.useragent).split("/");
+								_.set(
+									testResults,
+									[family, version, job.mode],
+									job.getResultSummary()
+								);
+							}
+							resolvedCount++;
+							if (results.length < jobs.length) {
+								pushJob();
+							} else if (resolvedCount === jobs.length) {
+								resolve();
+							}
+							return job;
+						})
+						.catch(error => {
+							if (TestJob.isRetryableError(error)) {
+								return wait(30_000).then(() =>
+									job
+										.run()
+										.then(job => {
+											if (job.state === "complete") {
+												const [family, version] = job.name.split("/");
+												_.set(
+													testResults,
+													[family, version, job.mode],
+													job.getResultSummary()
+												);
+											}
+											resolvedCount++;
+											if (results.length < jobs.length) {
+												pushJob();
+											} else if (resolvedCount === jobs.length) {
+												resolve();
+											}
+											return job;
+										})
+										.catch(error => {
+											console.log(error.stack || error);
+											process.exitCode = 1;
 
-									process.exit(1);
-								}
-							})
-					);
+											process.exit(1);
+										}));
+							} else {
+								console.log(error.stack || error);
+								process.exitCode = 1;
+
+								process.exit(1);
+							}
+						});
+
+					results.push(jobRun);
 				}
 				const concurrency = 5;
 				for (let index = 0; index < concurrency && index < jobs.length; index++) {
