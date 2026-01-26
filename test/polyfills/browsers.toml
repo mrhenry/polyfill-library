@@ -137,7 +137,9 @@ browsers = [
   "chrome/140.0",
   "chrome/141.0",
   "chrome/142.0",
-  # "chrome/143.0 beta",
+  "chrome/143.0",
+  # "chrome/144.0 beta",
+  # "chrome/144.0",
   "edge/15.0",
   "edge/16.0",
   "edge/17.0",
@@ -202,8 +204,10 @@ browsers = [
   # "edge/138.0",
   # "edge/139.0",
   # "edge/140.0",
-  "edge/141.0", # most recent edge at the time of writing
-  # "edge/142.0 beta",
+  # "edge/141.0",
+  # "edge/142.0",
+  "edge/143.0", # most recent edge at the time of writing
+  # "edge/144.0 beta",
   "firefox/3.6",
   "firefox/4.0",
   "firefox/5.0",
@@ -346,7 +350,10 @@ browsers = [
   "firefox/142.0",
   "firefox/143.0",
   "firefox/144.0",
-  # "firefox/145.0 beta",
+  "firefox/145.0",
+  "firefox/146.0",
+  "firefox/147.0",
+  # "firefox/148.0 beta",
   "ie/6.0",
   "ie/7.0",
   "ie/8.0",
@@ -379,5 +386,5 @@ browsers = [
   "safari/16.5",
   "safari/17.3",
   "safari/18.4",
-  "safari/26.0"
+  "safari/26.2"
 ]
