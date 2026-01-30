@@ -1,0 +1,23 @@
+aliases = [ "es2026" ]
+dependencies = [
+	"_ArrayBufferBase64",
+	"_ESAbstract.CreateMethodProperty",
+]
+
+spec = "https://tc39.es/ecma262/#sec-uint8array.prototype.setfrombase64"
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/setFromBase64"
+
+[browsers]
+android = "*"
+chrome = "<140"
+edge = "*"
+edge_mob = "*"
+firefox = "<133"
+firefox_mob = "<133"
+ie = "*"
+ie_mob = "*"
+opera = "<124"
+op_mob = "<92"
+safari = "<18.2"
+ios_saf = "<18.2"
+samsung_mob = "*"

@@ -63,6 +63,7 @@ const ignores = [
 	"polyfills/~html5-elements/polyfill.js",
 	"polyfills/URL/polyfill.js",
 	"polyfills/_IteratorHelpers/polyfill.js",
+	"polyfills/_ArrayBufferBase64/polyfill.js",
 
 	// Vendored mocha
 	"test/polyfills/mocha/**",

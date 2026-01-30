@@ -1,6 +1,22 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 'use strict';
 
+var callBound = require('call-bound');
+var $byteLength = callBound('ArrayBuffer.prototype.byteLength', true);
+
+var isArrayBuffer = require('is-array-buffer');
+
+/** @type {import('.')} */
+module.exports = function byteLength(ab) {
+	if (!isArrayBuffer(ab)) {
+		return NaN;
+	}
+	return $byteLength ? $byteLength(ab) : ab.byteLength;
+}; // in node < 0.11, byteLength is an own nonconfigurable property
+
+},{"call-bound":12,"is-array-buffer":157}],2:[function(require,module,exports){
+'use strict';
+
 /** @type {import('.').AsyncFunctionConstructor | false} */
 var cached;
 
@@ -18,7 +34,7 @@ module.exports = function getAsyncFunction() {
 };
 
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -30,7 +46,7 @@ var g = typeof globalThis === 'undefined' ? global : globalThis;
 module.exports = function availableTypedArrays() {
 	var /** @type {ReturnType<typeof availableTypedArrays>} */ out = [];
 	for (var i = 0; i < possibleNames.length; i++) {
-		if (typeof g[possibleNames[i]] === 'function') {
+		if (typeof g[possibleNames[i]] === 'function' || typeof g[possibleNames[i]] === 'object') {
 			// @ts-expect-error
 			out[out.length] = possibleNames[i];
 		}
@@ -39,9 +55,9 @@ module.exports = function availableTypedArrays() {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"possible-typed-array-names":191}],3:[function(require,module,exports){
+},{"possible-typed-array-names":190}],4:[function(require,module,exports){
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -53,7 +69,7 @@ var $reflectApply = require('./reflectApply');
 /** @type {import('./actualApply')} */
 module.exports = $reflectApply || bind.call($call, $apply);
 
-},{"./functionApply":6,"./functionCall":7,"./reflectApply":9,"function-bind":138}],5:[function(require,module,exports){
+},{"./functionApply":7,"./functionCall":8,"./reflectApply":10,"function-bind":137}],6:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -65,19 +81,19 @@ module.exports = function applyBind() {
 	return actualApply(bind, $apply, arguments);
 };
 
-},{"./actualApply":4,"./functionApply":6,"function-bind":138}],6:[function(require,module,exports){
+},{"./actualApply":5,"./functionApply":7,"function-bind":137}],7:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./functionApply')} */
 module.exports = Function.prototype.apply;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./functionCall')} */
 module.exports = Function.prototype.call;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -94,30 +110,13 @@ module.exports = function callBindBasic(args) {
 	return $actualApply(bind, $call, args);
 };
 
-},{"./actualApply":4,"./functionCall":7,"es-errors/type":66,"function-bind":138}],9:[function(require,module,exports){
+},{"./actualApply":5,"./functionCall":8,"es-errors/type":128,"function-bind":137}],10:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./reflectApply')} */
 module.exports = typeof Reflect !== 'undefined' && Reflect && Reflect.apply;
 
-},{}],10:[function(require,module,exports){
-'use strict';
-
-var GetIntrinsic = require('get-intrinsic');
-
-var callBind = require('./');
-
-var $indexOf = callBind(GetIntrinsic('String.prototype.indexOf'));
-
-module.exports = function callBoundIntrinsic(name, allowMissing) {
-	var intrinsic = GetIntrinsic(name, !!allowMissing);
-	if (typeof intrinsic === 'function' && $indexOf(name, '.prototype.') > -1) {
-		return callBind(intrinsic);
-	}
-	return intrinsic;
-};
-
-},{"./":11,"get-intrinsic":144}],11:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 var setFunctionLength = require('set-function-length');
@@ -143,7 +142,7 @@ if ($defineProperty) {
 	module.exports.apply = applyBind;
 }
 
-},{"call-bind-apply-helpers":8,"call-bind-apply-helpers/applyBind":5,"es-define-property":60,"set-function-length":199}],12:[function(require,module,exports){
+},{"call-bind-apply-helpers":9,"call-bind-apply-helpers/applyBind":6,"es-define-property":122,"set-function-length":196}],12:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -164,7 +163,7 @@ module.exports = function callBoundIntrinsic(name, allowMissing) {
 	return intrinsic;
 };
 
-},{"call-bind-apply-helpers":8,"get-intrinsic":144}],13:[function(require,module,exports){
+},{"call-bind-apply-helpers":9,"get-intrinsic":143}],13:[function(require,module,exports){
 'use strict';
 
 var $defineProperty = require('es-define-property');
@@ -222,7 +221,7 @@ module.exports = function defineDataProperty(
 	}
 };
 
-},{"es-define-property":60,"es-errors/syntax":65,"es-errors/type":66,"gopd":153}],14:[function(require,module,exports){
+},{"es-define-property":122,"es-errors/syntax":127,"es-errors/type":128,"gopd":148}],14:[function(require,module,exports){
 'use strict';
 
 var keys = require('object-keys');
@@ -271,7 +270,7 @@ defineProperties.supportsDescriptors = !!supportsDescriptors;
 
 module.exports = defineProperties;
 
-},{"define-data-property":13,"has-property-descriptors":155,"object-keys":16}],15:[function(require,module,exports){
+},{"define-data-property":13,"has-property-descriptors":150,"object-keys":16}],15:[function(require,module,exports){
 'use strict';
 
 var keysShim;
@@ -480,185 +479,80 @@ module.exports = desc && typeof desc.get === 'function'
 		}
 		: false;
 
-},{"call-bind-apply-helpers":8,"gopd":153}],19:[function(require,module,exports){
+},{"call-bind-apply-helpers":9,"gopd":148}],19:[function(require,module,exports){
 'use strict';
 
-var CodePointAt = require('./CodePointAt');
-
 var $TypeError = require('es-errors/type');
-var isInteger = require('math-intrinsics/isInteger');
-var MAX_SAFE_INTEGER = require('math-intrinsics/constants/maxSafeInteger');
 
-// https://262.ecma-international.org/12.0/#sec-advancestringindex
+// https://262.ecma-international.org/15.0/#sec-arraybufferbytelength
 
-module.exports = function AdvanceStringIndex(S, index, unicode) {
-	if (typeof S !== 'string') {
-		throw new $TypeError('Assertion failed: `S` must be a String');
+var IsDetachedBuffer = require('./IsDetachedBuffer');
+
+var isArrayBuffer = require('is-array-buffer');
+var isSharedArrayBuffer = require('is-shared-array-buffer');
+var arrayBufferByteLength = require('array-buffer-byte-length');
+
+var callBound = require('call-bound');
+var $sabByteLength = callBound('SharedArrayBuffer.prototype.byteLength', true);
+
+var isGrowable = false; // TODO: support this
+
+module.exports = function ArrayBufferByteLength(arrayBuffer, order) {
+	var isSAB = isSharedArrayBuffer(arrayBuffer);
+	if (!isArrayBuffer(arrayBuffer) && !isSAB) {
+		throw new $TypeError('Assertion failed: `arrayBuffer` must be an ArrayBuffer or a SharedArrayBuffer');
 	}
-	if (!isInteger(index) || index < 0 || index > MAX_SAFE_INTEGER) {
-		throw new $TypeError('Assertion failed: `length` must be an integer >= 0 and <= 2**53');
+	if (order !== 'SEQ-CST' && order !== 'UNORDERED') {
+		throw new $TypeError('Assertion failed: `order` must be ~SEQ-CST~ or ~UNORDERED~');
 	}
-	if (typeof unicode !== 'boolean') {
-		throw new $TypeError('Assertion failed: `unicode` must be a Boolean');
+
+	// 1. If IsSharedArrayBuffer(arrayBuffer) is true and arrayBuffer has an [[ArrayBufferByteLengthData]] internal slot, then
+	// TODO: see if IsFixedLengthArrayBuffer can be used here in the spec instead
+	if (isSAB && isGrowable) { // step 1
+		// a. Let bufferByteLengthBlock be arrayBuffer.[[ArrayBufferByteLengthData]].
+		// b. Let rawLength be GetRawBytesFromSharedBlock(bufferByteLengthBlock, 0, BIGUINT64, true, order).
+		// c. Let isLittleEndian be the value of the [[LittleEndian]] field of the surrounding agent's Agent Record.
+		// d. Return ℝ(RawBytesToNumeric(BIGUINT64, rawLength, isLittleEndian)).
 	}
-	if (!unicode) {
-		return index + 1;
+
+	if (IsDetachedBuffer(arrayBuffer)) {
+		throw new $TypeError('Assertion failed: `arrayBuffer` must not be detached'); // step 2
 	}
-	var length = S.length;
-	if ((index + 1) >= length) {
-		return index + 1;
-	}
-	var cp = CodePointAt(S, index);
-	return index + cp['[[CodeUnitCount]]'];
+
+	return isSAB ? $sabByteLength(arrayBuffer) : arrayBufferByteLength(arrayBuffer);
 };
 
-},{"./CodePointAt":21,"es-errors/type":66,"math-intrinsics/constants/maxSafeInteger":180,"math-intrinsics/isInteger":183}],20:[function(require,module,exports){
+},{"./IsDetachedBuffer":27,"array-buffer-byte-length":1,"call-bound":12,"es-errors/type":128,"is-array-buffer":157,"is-shared-array-buffer":169}],20:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
-var callBound = require('call-bound');
 
+var $BigInt = GetIntrinsic('%BigInt%', true);
+var $RangeError = require('es-errors/range');
 var $TypeError = require('es-errors/type');
 
-var IsArray = require('./IsArray');
+var zero = $BigInt && $BigInt(0);
 
-var $apply = GetIntrinsic('%Reflect.apply%', true) || callBound('Function.prototype.apply');
+// https://262.ecma-international.org/11.0/#sec-numeric-types-bigint-remainder
 
-// https://262.ecma-international.org/6.0/#sec-call
-
-module.exports = function Call(F, V) {
-	var argumentsList = arguments.length > 2 ? arguments[2] : [];
-	if (!IsArray(argumentsList)) {
-		throw new $TypeError('Assertion failed: optional `argumentsList`, if provided, must be a List');
+module.exports = function BigIntRemainder(n, d) {
+	if (typeof n !== 'bigint' || typeof d !== 'bigint') {
+		throw new $TypeError('Assertion failed: `n` and `d` arguments must be BigInts');
 	}
-	return $apply(F, V, argumentsList);
+
+	if (d === zero) {
+		throw new $RangeError('Division by zero');
+	}
+
+	if (n === zero) {
+		return zero;
+	}
+
+	// shortcut for the actual spec mechanics
+	return n % d;
 };
 
-},{"./IsArray":27,"call-bound":12,"es-errors/type":66,"get-intrinsic":144}],21:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-var callBound = require('call-bound');
-var isLeadingSurrogate = require('../helpers/isLeadingSurrogate');
-var isTrailingSurrogate = require('../helpers/isTrailingSurrogate');
-
-var UTF16SurrogatePairToCodePoint = require('./UTF16SurrogatePairToCodePoint');
-
-var $charAt = callBound('String.prototype.charAt');
-var $charCodeAt = callBound('String.prototype.charCodeAt');
-
-// https://262.ecma-international.org/12.0/#sec-codepointat
-
-module.exports = function CodePointAt(string, position) {
-	if (typeof string !== 'string') {
-		throw new $TypeError('Assertion failed: `string` must be a String');
-	}
-	var size = string.length;
-	if (position < 0 || position >= size) {
-		throw new $TypeError('Assertion failed: `position` must be >= 0, and < the length of `string`');
-	}
-	var first = $charCodeAt(string, position);
-	var cp = $charAt(string, position);
-	var firstIsLeading = isLeadingSurrogate(first);
-	var firstIsTrailing = isTrailingSurrogate(first);
-	if (!firstIsLeading && !firstIsTrailing) {
-		return {
-			'[[CodePoint]]': cp,
-			'[[CodeUnitCount]]': 1,
-			'[[IsUnpairedSurrogate]]': false
-		};
-	}
-	if (firstIsTrailing || (position + 1 === size)) {
-		return {
-			'[[CodePoint]]': cp,
-			'[[CodeUnitCount]]': 1,
-			'[[IsUnpairedSurrogate]]': true
-		};
-	}
-	var second = $charCodeAt(string, position + 1);
-	if (!isTrailingSurrogate(second)) {
-		return {
-			'[[CodePoint]]': cp,
-			'[[CodeUnitCount]]': 1,
-			'[[IsUnpairedSurrogate]]': true
-		};
-	}
-
-	return {
-		'[[CodePoint]]': UTF16SurrogatePairToCodePoint(first, second),
-		'[[CodeUnitCount]]': 2,
-		'[[IsUnpairedSurrogate]]': false
-	};
-};
-
-},{"../helpers/isLeadingSurrogate":53,"../helpers/isTrailingSurrogate":58,"./UTF16SurrogatePairToCodePoint":45,"call-bound":12,"es-errors/type":66}],22:[function(require,module,exports){
-'use strict';
-
-var $SyntaxError = require('es-errors/syntax');
-
-var SLOT = require('internal-slot');
-
-// https://262.ecma-international.org/7.0/#sec-completion-record-specification-type
-
-var CompletionRecord = function CompletionRecord(type, value) {
-	if (!(this instanceof CompletionRecord)) {
-		return new CompletionRecord(type, value);
-	}
-	if (type !== 'normal' && type !== 'break' && type !== 'continue' && type !== 'return' && type !== 'throw') {
-		throw new $SyntaxError('Assertion failed: `type` must be one of "normal", "break", "continue", "return", or "throw"');
-	}
-	SLOT.set(this, '[[Type]]', type);
-	SLOT.set(this, '[[Value]]', value);
-	// [[Target]] slot?
-};
-
-CompletionRecord.prototype.type = function Type() {
-	return SLOT.get(this, '[[Type]]');
-};
-
-CompletionRecord.prototype.value = function Value() {
-	return SLOT.get(this, '[[Value]]');
-};
-
-CompletionRecord.prototype['?'] = function ReturnIfAbrupt() {
-	var type = SLOT.get(this, '[[Type]]');
-	var value = SLOT.get(this, '[[Value]]');
-
-	if (type === 'throw') {
-		throw value;
-	}
-	return value;
-};
-
-CompletionRecord.prototype['!'] = function assert() {
-	var type = SLOT.get(this, '[[Type]]');
-
-	if (type !== 'normal') {
-		throw new $SyntaxError('Assertion failed: Completion Record is not of type "normal"');
-	}
-	return SLOT.get(this, '[[Value]]');
-};
-
-module.exports = CompletionRecord;
-
-},{"es-errors/syntax":65,"internal-slot":161}],23:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-
-// https://262.ecma-international.org/6.0/#sec-createiterresultobject
-
-module.exports = function CreateIterResultObject(value, done) {
-	if (typeof done !== 'boolean') {
-		throw new $TypeError('Assertion failed: Type(done) is not Boolean');
-	}
-	return {
-		value: value,
-		done: done
-	};
-};
-
-},{"es-errors/type":66}],24:[function(require,module,exports){
+},{"es-errors/range":125,"es-errors/type":128,"get-intrinsic":143}],21:[function(require,module,exports){
 'use strict';
 
 var $TypeError = require('es-errors/type');
@@ -684,303 +578,397 @@ module.exports = function Get(O, P) {
 	return O[P];
 };
 
-},{"../helpers/isPropertyKey":57,"es-errors/type":66,"es-object-atoms/isObject":132,"object-inspect":190}],25:[function(require,module,exports){
+},{"../helpers/isPropertyKey":78,"es-errors/type":128,"es-object-atoms/isObject":132,"object-inspect":189}],22:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('get-intrinsic');
+
+var $SyntaxError = require('es-errors/syntax');
+var $TypeError = require('es-errors/type');
+var callBound = require('call-bound');
+var isInteger = require('math-intrinsics/isInteger');
+var $Uint8Array = GetIntrinsic('%Uint8Array%', true);
+
+var $slice = callBound('Array.prototype.slice');
+
+var IsDetachedBuffer = require('./IsDetachedBuffer');
+var RawBytesToNumeric = require('./RawBytesToNumeric');
+
+var isArrayBuffer = require('is-array-buffer');
+var isSharedArrayBuffer = require('is-shared-array-buffer');
+var safeConcat = require('safe-array-concat');
+
+var tableTAO = require('./tables/typed-array-objects');
+
+var defaultEndianness = require('../helpers/defaultEndianness');
+
+// https://262.ecma-international.org/15.0/#sec-getvaluefrombuffer
+
+module.exports = function GetValueFromBuffer(arrayBuffer, byteIndex, type, isTypedArray, order) {
+	var isSAB = isSharedArrayBuffer(arrayBuffer);
+	if (!isArrayBuffer(arrayBuffer) && !isSAB) {
+		throw new $TypeError('Assertion failed: `arrayBuffer` must be an ArrayBuffer or a SharedArrayBuffer');
+	}
+
+	if (!isInteger(byteIndex)) {
+		throw new $TypeError('Assertion failed: `byteIndex` must be an integer');
+	}
+
+	if (typeof type !== 'string' || typeof tableTAO.size['$' + type] !== 'number') {
+		throw new $TypeError('Assertion failed: `type` must be one of ' + tableTAO.choices);
+	}
+
+	if (typeof isTypedArray !== 'boolean') {
+		throw new $TypeError('Assertion failed: `isTypedArray` must be a boolean');
+	}
+
+	if (order !== 'SEQ-CST' && order !== 'UNORDERED') {
+		throw new $TypeError('Assertion failed: `order` must be either `SEQ-CST` or `UNORDERED`');
+	}
+
+	if (arguments.length > 5 && typeof arguments[5] !== 'boolean') {
+		throw new $TypeError('Assertion failed: `isLittleEndian` must be a boolean, if present');
+	}
+
+	if (IsDetachedBuffer(arrayBuffer)) {
+		throw new $TypeError('Assertion failed: `arrayBuffer` is detached'); // step 1
+	}
+
+	// 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type.
+
+	if (byteIndex < 0) {
+		throw new $TypeError('Assertion failed: `byteIndex` must be non-negative'); // step 3
+	}
+
+	// 4. Let block be arrayBuffer.[[ArrayBufferData]].
+
+	var elementSize = tableTAO.size['$' + type]; // step 5
+	if (!elementSize) {
+		throw new $TypeError('Assertion failed: `type` must be one of ' + tableTAO.choices);
+	}
+
+	var rawValue;
+	if (isSAB) { // step 6
+		/*
+		a. Let execution be the [[CandidateExecution]] field of the surrounding agent's Agent Record.
+		b. Let eventList be the [[EventList]] field of the element in execution.[[EventLists]] whose [[AgentSignifier]] is AgentSignifier().
+		c. If isTypedArray is true and type is "Int8", "Uint8", "Int16", "Uint16", "Int32", or "Uint32", let noTear be true; otherwise let noTear be false.
+		d. Let rawValue be a List of length elementSize of nondeterministically chosen byte values.
+		e. NOTE: In implementations, rawValue is the result of a non-atomic or atomic read instruction on the underlying hardware. The nondeterminism is a semantic prescription of the memory model to describe observable behaviour of hardware with weak consistency.
+		f. Let readEvent be ReadSharedMemory{ [[Order]]: order, [[NoTear]]: noTear, [[Block]]: block, [[ByteIndex]]: byteIndex, [[ElementSize]]: elementSize }.
+		g. Append readEvent to eventList.
+		h. Append Chosen Value Record { [[Event]]: readEvent, [[ChosenValue]]: rawValue } to execution.[[ChosenValues]].
+		*/
+		throw new $SyntaxError('SharedArrayBuffer is not supported by this implementation');
+	} else {
+		// 7. Let rawValue be a List of elementSize containing, in order, the elementSize sequence of bytes starting with block[byteIndex].
+		rawValue = $slice(new $Uint8Array(arrayBuffer, byteIndex), 0, elementSize); // step 6
+	}
+
+	// 8. If isLittleEndian is not present, set isLittleEndian to either true or false. The choice is implementation dependent and should be the alternative that is most efficient for the implementation. An implementation must use the same value each time this step is executed and the same value must be used for the corresponding step in the SetValueInBuffer abstract operation.
+	var isLittleEndian = arguments.length > 5 ? arguments[5] : defaultEndianness === 'little'; // step 8
+
+	var bytes = isLittleEndian
+		? $slice(safeConcat([0, 0, 0, 0, 0, 0, 0, 0], rawValue), -elementSize)
+		: $slice(safeConcat(rawValue, [0, 0, 0, 0, 0, 0, 0, 0]), 0, elementSize);
+
+	return RawBytesToNumeric(type, bytes, isLittleEndian);
+};
+
+},{"../helpers/defaultEndianness":68,"./IsDetachedBuffer":27,"./RawBytesToNumeric":35,"./tables/typed-array-objects":61,"call-bound":12,"es-errors/syntax":127,"es-errors/type":128,"get-intrinsic":143,"is-array-buffer":157,"is-shared-array-buffer":169,"math-intrinsics/isInteger":180,"safe-array-concat":193}],23:[function(require,module,exports){
 'use strict';
 
 var $TypeError = require('es-errors/type');
 
-var GetV = require('./GetV');
-var IsCallable = require('./IsCallable');
-var isPropertyKey = require('../helpers/isPropertyKey');
-
-var inspect = require('object-inspect');
-
-// https://262.ecma-international.org/6.0/#sec-getmethod
-
-module.exports = function GetMethod(O, P) {
-	// 7.3.9.1
-	if (!isPropertyKey(P)) {
-		throw new $TypeError('Assertion failed: P is not a Property Key');
-	}
-
-	// 7.3.9.2
-	var func = GetV(O, P);
-
-	// 7.3.9.4
-	if (func == null) {
-		return void 0;
-	}
-
-	// 7.3.9.5
-	if (!IsCallable(func)) {
-		throw new $TypeError(inspect(P) + ' is not a function: ' + inspect(func));
-	}
-
-	// 7.3.9.6
-	return func;
-};
-
-},{"../helpers/isPropertyKey":57,"./GetV":26,"./IsCallable":28,"es-errors/type":66,"object-inspect":190}],26:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-
-var inspect = require('object-inspect');
+var hasOwn = require('hasown');
+var isObject = require('es-object-atoms/isObject');
 
 var isPropertyKey = require('../helpers/isPropertyKey');
-// var ToObject = require('./ToObject');
 
-// https://262.ecma-international.org/6.0/#sec-getv
+// https://262.ecma-international.org/6.0/#sec-hasownproperty
 
-module.exports = function GetV(V, P) {
-	// 7.3.2.1
-	if (!isPropertyKey(P)) {
-		throw new $TypeError('Assertion failed: P is not a Property Key, got ' + inspect(P));
+module.exports = function HasOwnProperty(O, P) {
+	if (!isObject(O)) {
+		throw new $TypeError('Assertion failed: `O` must be an Object');
 	}
-
-	// 7.3.2.2-3
-	// var O = ToObject(V);
-
-	// 7.3.2.4
-	return V[P];
+	if (!isPropertyKey(P)) {
+		throw new $TypeError('Assertion failed: `P` must be a Property Key');
+	}
+	return hasOwn(O, P);
 };
 
-},{"../helpers/isPropertyKey":57,"es-errors/type":66,"object-inspect":190}],27:[function(require,module,exports){
+},{"../helpers/isPropertyKey":78,"es-errors/type":128,"es-object-atoms/isObject":132,"hasown":155}],24:[function(require,module,exports){
 'use strict';
 
 // https://262.ecma-international.org/6.0/#sec-isarray
 module.exports = require('../helpers/IsArray');
 
-},{"../helpers/IsArray":49}],28:[function(require,module,exports){
+},{"../helpers/IsArray":64}],25:[function(require,module,exports){
+'use strict';
+
+// https://262.ecma-international.org/15.0/#sec-isbigintelementtype
+
+module.exports = function IsBigIntElementType(type) {
+	return type === 'BIGUINT64' || type === 'BIGINT64';
+};
+
+},{}],26:[function(require,module,exports){
 'use strict';
 
 // http://262.ecma-international.org/5.1/#sec-9.11
 
 module.exports = require('is-callable');
 
-},{"is-callable":165}],29:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-var isObject = require('es-object-atoms/isObject');
-
-var Call = require('./Call');
-var CompletionRecord = require('./CompletionRecord');
-var GetMethod = require('./GetMethod');
-var IsCallable = require('./IsCallable');
-
-var isIteratorRecord = require('../helpers/records/iterator-record');
-
-// https://262.ecma-international.org/15.0/#sec-iteratorclose
-
-module.exports = function IteratorClose(iteratorRecord, completion) {
-	if (!isIteratorRecord(iteratorRecord)) {
-		throw new $TypeError('Assertion failed: `iteratorRecord` must be an Iterator Record'); // step 1
-	}
-	if (!isObject(iteratorRecord['[[Iterator]]'])) {
-		throw new $TypeError('Assertion failed: iteratorRecord.[[Iterator]] must be an Object'); // step 1
-	}
-
-	if (!IsCallable(completion) && !(completion instanceof CompletionRecord)) { // step 2
-		throw new $TypeError('Assertion failed: completion is not a thunk representing a Completion Record, nor a Completion Record instance');
-	}
-	var completionThunk = completion instanceof CompletionRecord ? function () { return completion['?'](); } : completion;
-
-	var iterator = iteratorRecord['[[Iterator]]']; // step 3
-
-	var iteratorReturn;
-	try {
-		iteratorReturn = GetMethod(iterator, 'return'); // step 4
-	} catch (e) {
-		completionThunk(); // throws if `completion` is a throw completion // step 6
-		completionThunk = null; // ensure it's not called twice.
-		throw e; // step 7
-	}
-	if (typeof iteratorReturn === 'undefined') {
-		return completionThunk(); // step 5.a - 5.b
-	}
-
-	var innerResult;
-	try {
-		innerResult = Call(iteratorReturn, iterator, []);
-	} catch (e) {
-		// if we hit here, then "e" is the innerResult completion that needs re-throwing
-
-		completionThunk(); // throws if `completion` is a throw completion // step 6
-		completionThunk = null; // ensure it's not called twice.
-
-		// if not, then return the innerResult completion
-		throw e; // step 7
-	}
-	var completionRecord = completionThunk(); // if innerResult worked, then throw if the completion does
-	completionThunk = null; // ensure it's not called twice.
-
-	if (!isObject(innerResult)) {
-		throw new $TypeError('iterator .return must return an object');
-	}
-
-	return completionRecord;
-};
-
-},{"../helpers/records/iterator-record":59,"./Call":20,"./CompletionRecord":22,"./GetMethod":25,"./IsCallable":28,"es-errors/type":66,"es-object-atoms/isObject":132}],30:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-var isObject = require('es-object-atoms/isObject');
-
-var Get = require('./Get');
-var ToBoolean = require('./ToBoolean');
-
-// https://262.ecma-international.org/6.0/#sec-iteratorcomplete
-
-module.exports = function IteratorComplete(iterResult) {
-	if (!isObject(iterResult)) {
-		throw new $TypeError('Assertion failed: Type(iterResult) is not Object');
-	}
-	return ToBoolean(Get(iterResult, 'done'));
-};
-
-},{"./Get":24,"./ToBoolean":39,"es-errors/type":66,"es-object-atoms/isObject":132}],31:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-var isObject = require('es-object-atoms/isObject');
-
-var Call = require('./Call');
-
-var isIteratorRecord = require('../helpers/records/iterator-record');
-
-// https://262.ecma-international.org/15.0/#sec-iteratornext
-
-module.exports = function IteratorNext(iteratorRecord) {
-	if (!isIteratorRecord(iteratorRecord)) {
-		throw new $TypeError('Assertion failed: `iteratorRecord` must be an Iterator Record'); // step 1
-	}
-
-	var result;
-	if (arguments.length < 2) { // step 1
-		result = Call(iteratorRecord['[[NextMethod]]'], iteratorRecord['[[Iterator]]']); // step 1.a
-	} else { // step 2
-		result = Call(iteratorRecord['[[NextMethod]]'], iteratorRecord['[[Iterator]]'], [arguments[1]]); // step 2.a
-	}
-
-	if (!isObject(result)) {
-		throw new $TypeError('iterator next must return an object'); // step 3
-	}
-	return result; // step 4
-};
-
-},{"../helpers/records/iterator-record":59,"./Call":20,"es-errors/type":66,"es-object-atoms/isObject":132}],32:[function(require,module,exports){
+},{"is-callable":161}],27:[function(require,module,exports){
+(function (global){(function (){
 'use strict';
 
 var $TypeError = require('es-errors/type');
 
-var IteratorComplete = require('./IteratorComplete');
-var IteratorNext = require('./IteratorNext');
+var $byteLength = require('array-buffer-byte-length');
+var availableTypedArrays = require('available-typed-arrays')();
+var callBound = require('call-bound');
+var isArrayBuffer = require('is-array-buffer');
+var isSharedArrayBuffer = require('is-shared-array-buffer');
 
-var isIteratorRecord = require('../helpers/records/iterator-record');
+var $sabByteLength = callBound('SharedArrayBuffer.prototype.byteLength', true);
 
-// https://262.ecma-international.org/15.0/#sec-iteratorstep
+// https://262.ecma-international.org/8.0/#sec-isdetachedbuffer
 
-module.exports = function IteratorStep(iteratorRecord) {
-	if (!isIteratorRecord(iteratorRecord)) {
-		throw new $TypeError('Assertion failed: `iteratorRecord` must be an Iterator Record'); // step 1
+module.exports = function IsDetachedBuffer(arrayBuffer) {
+	var isSAB = isSharedArrayBuffer(arrayBuffer);
+	if (!isArrayBuffer(arrayBuffer) && !isSAB) {
+		throw new $TypeError('Assertion failed: `arrayBuffer` must be an Object with an [[ArrayBufferData]] internal slot');
 	}
-
-	var result = IteratorNext(iteratorRecord); // step 1
-	var done = IteratorComplete(result); // step 2
-	return done === true ? false : result; // steps 3-4
+	if ((isSAB ? $sabByteLength : $byteLength)(arrayBuffer) === 0) {
+		try {
+			new global[availableTypedArrays[0]](arrayBuffer); // eslint-disable-line no-new
+		} catch (error) {
+			return !!error && error.name === 'TypeError';
+		}
+	}
+	return false;
 };
 
-
-},{"../helpers/records/iterator-record":59,"./IteratorComplete":30,"./IteratorNext":31,"es-errors/type":66}],33:[function(require,module,exports){
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"array-buffer-byte-length":1,"available-typed-arrays":3,"call-bound":12,"es-errors/type":128,"is-array-buffer":157,"is-shared-array-buffer":169}],28:[function(require,module,exports){
 'use strict';
 
 var $TypeError = require('es-errors/type');
 
-var Get = require('./Get');
-var IteratorComplete = require('./IteratorComplete');
-var IteratorNext = require('./IteratorNext');
+var callBound = require('call-bound');
 
-var isIteratorRecord = require('../helpers/records/iterator-record');
+var $arrayBufferResizable = callBound('%ArrayBuffer.prototype.resizable%', true);
+var $sharedArrayGrowable = callBound('%SharedArrayBuffer.prototype.growable%', true);
 
-// https://262.ecma-international.org/15.0/#sec-iteratorstepvalue
+var isArrayBuffer = require('is-array-buffer');
+var isSharedArrayBuffer = require('is-shared-array-buffer');
 
-module.exports = function IteratorStepValue(iteratorRecord) {
-	if (!isIteratorRecord(iteratorRecord)) {
-		throw new $TypeError('Assertion failed: `iteratorRecord` must be an Iterator Record');
-	}
-	/* eslint no-param-reassign: 0 */
+// https://262.ecma-international.org/15.0/#sec-isfixedlengtharraybuffer
 
-	var result;
-	try {
-		result = IteratorNext(iteratorRecord); // step 1
-	} catch (e) { // step 2
-		iteratorRecord['[[Done]]'] = true; // step 2.a
-		throw e; // step 2.b
+module.exports = function IsFixedLengthArrayBuffer(arrayBuffer) {
+	var isAB = isArrayBuffer(arrayBuffer);
+	var isSAB = isSharedArrayBuffer(arrayBuffer);
+	if (!isAB && !isSAB) {
+		throw new $TypeError('Assertion failed: `arrayBuffer` must be an ArrayBuffer or SharedArrayBuffer');
 	}
 
-	var done;
-	try {
-		done = IteratorComplete(result); // step 4
-	} catch (e) { // step 5
-		iteratorRecord['[[Done]]'] = true; // step 5.a
-		throw e; // step 5.b
+	if (isAB && $arrayBufferResizable) {
+		return !$arrayBufferResizable(arrayBuffer); // step 1
 	}
-
-	if (done) { // step 7
-		iteratorRecord['[[Done]]'] = true; // step 7.a
-		return 'DONE'; // step 7.b
+	if (isSAB && $sharedArrayGrowable) {
+		return !$sharedArrayGrowable(arrayBuffer); // step 1
 	}
-
-	var value;
-	try {
-		value = Get(result, 'value'); // step 8
-	} catch (e) { // step 9
-		iteratorRecord['[[Done]]'] = true; // step 9.a
-		throw e; // step 10
-	}
-
-	return value; // step 10
+	return true; // step 2
 };
 
-},{"../helpers/records/iterator-record":59,"./Get":24,"./IteratorComplete":30,"./IteratorNext":31,"es-errors/type":66}],34:[function(require,module,exports){
-'use strict';
-
-var CompletionRecord = require('./CompletionRecord');
-
-// https://262.ecma-international.org/6.0/#sec-normalcompletion
-
-module.exports = function NormalCompletion(value) {
-	return new CompletionRecord('normal', value);
-};
-
-},{"./CompletionRecord":22}],35:[function(require,module,exports){
+},{"call-bound":12,"es-errors/type":128,"is-array-buffer":157,"is-shared-array-buffer":169}],29:[function(require,module,exports){
 'use strict';
 
 var $TypeError = require('es-errors/type');
-var isObject = require('es-object-atoms/isObject');
 
-var Get = require('./Get');
-var IsCallable = require('./IsCallable');
+var IsDetachedBuffer = require('./IsDetachedBuffer');
+var IsFixedLengthArrayBuffer = require('./IsFixedLengthArrayBuffer');
+var TypedArrayElementSize = require('./TypedArrayElementSize');
 
-// https://262.ecma-international.org/6.0/#sec-ordinaryhasinstance
+var isTypedArrayWithBufferWitnessRecord = require('../helpers/records/typed-array-with-buffer-witness-record');
 
-module.exports = function OrdinaryHasInstance(C, O) {
-	if (!IsCallable(C)) {
-		return false;
+var typedArrayBuffer = require('typed-array-buffer');
+var typedArrayByteOffset = require('typed-array-byte-offset');
+var typedArrayLength = require('typed-array-length');
+
+// https://262.ecma-international.org/15.0/#sec-istypedarrayoutofbounds
+
+module.exports = function IsTypedArrayOutOfBounds(taRecord) {
+	if (!isTypedArrayWithBufferWitnessRecord(taRecord)) {
+		throw new $TypeError('Assertion failed: `taRecord` must be a TypedArray With Buffer Witness Record');
 	}
-	if (!isObject(O)) {
-		return false;
+
+	var O = taRecord['[[Object]]']; // step 1
+
+	var bufferByteLength = taRecord['[[CachedBufferByteLength]]']; // step 2
+
+	if (IsDetachedBuffer(typedArrayBuffer(O)) && bufferByteLength !== 'DETACHED') {
+		throw new $TypeError('Assertion failed: typed array is detached only if the byte length is ~DETACHED~'); // step 3
 	}
-	var P = Get(C, 'prototype');
-	if (!isObject(P)) {
-		throw new $TypeError('OrdinaryHasInstance called on an object with an invalid prototype property.');
+
+	if (bufferByteLength === 'DETACHED') {
+		return true; // step 4
 	}
-	return O instanceof C;
+
+	var byteOffsetStart = typedArrayByteOffset(O); // step 5
+
+	var isFixed = IsFixedLengthArrayBuffer(typedArrayBuffer(O));
+
+	var byteOffsetEnd;
+	var length = isFixed ? typedArrayLength(O) : 'AUTO';
+	// TODO: probably use package for array length
+	// seems to apply when TA is backed by a resizable/growable AB
+	if (length === 'AUTO') { // step 6
+		byteOffsetEnd = bufferByteLength; // step 6.a
+	} else {
+		var elementSize = TypedArrayElementSize(O); // step 7.a
+
+		byteOffsetEnd = byteOffsetStart + (length * elementSize); // step 7.b
+	}
+
+	if (byteOffsetStart > bufferByteLength || byteOffsetEnd > bufferByteLength) {
+		return true; // step 8
+	}
+
+	// 9. NOTE: 0-length TypedArrays are not considered out-of-bounds.
+
+	return false; // step 10
 };
 
-},{"./Get":24,"./IsCallable":28,"es-errors/type":66,"es-object-atoms/isObject":132}],36:[function(require,module,exports){
+},{"../helpers/records/typed-array-with-buffer-witness-record":81,"./IsDetachedBuffer":27,"./IsFixedLengthArrayBuffer":28,"./TypedArrayElementSize":55,"es-errors/type":128,"typed-array-buffer":205,"typed-array-byte-offset":206,"typed-array-length":207}],30:[function(require,module,exports){
+'use strict';
+
+// https://262.ecma-international.org/15.0/#sec-isunsignedelementtype
+
+module.exports = function IsUnsignedElementType(type) {
+	return type === 'UINT8'
+		|| type === 'UINT8C'
+		|| type === 'UINT16'
+		|| type === 'UINT32'
+		|| type === 'BIGUINT64';
+};
+
+},{}],31:[function(require,module,exports){
+'use strict';
+
+var $TypeError = require('es-errors/type');
+
+var ArrayBufferByteLength = require('./ArrayBufferByteLength');
+var IsDetachedBuffer = require('./IsDetachedBuffer');
+
+var isTypedArray = require('is-typed-array');
+var typedArrayBuffer = require('typed-array-buffer');
+
+// https://262.ecma-international.org/15.0/#sec-maketypedarraywithbufferwitnessrecord
+
+module.exports = function MakeTypedArrayWithBufferWitnessRecord(obj, order) {
+	if (!isTypedArray(obj)) {
+		throw new $TypeError('Assertion failed: `obj` must be a Typed Array');
+	}
+	if (order !== 'SEQ-CST' && order !== 'UNORDERED') {
+		throw new $TypeError('Assertion failed: `order` must be ~SEQ-CST~ or ~UNORDERED~');
+	}
+
+	var buffer = typedArrayBuffer(obj); // step 1
+
+	var byteLength = IsDetachedBuffer(buffer) ? 'DETACHED' : ArrayBufferByteLength(buffer, order); // steps 2 - 3
+
+	return { '[[Object]]': obj, '[[CachedBufferByteLength]]': byteLength }; // step 4
+};
+
+},{"./ArrayBufferByteLength":19,"./IsDetachedBuffer":27,"es-errors/type":128,"is-typed-array":172,"typed-array-buffer":205}],32:[function(require,module,exports){
+'use strict';
+
+var $TypeError = require('es-errors/type');
+var callBound = require('call-bound');
+var isInteger = require('math-intrinsics/isInteger');
+
+var $numberToString = callBound('Number.prototype.toString');
+
+// https://262.ecma-international.org/14.0/#sec-numeric-types-number-tostring
+
+module.exports = function NumberToString(x, radix) {
+	if (typeof x !== 'number') {
+		throw new $TypeError('Assertion failed: `x` must be a Number');
+	}
+	if (!isInteger(radix) || radix < 2 || radix > 36) {
+		throw new $TypeError('Assertion failed: `radix` must be an integer >= 2 and <= 36');
+	}
+
+	return $numberToString(x, radix); // steps 1 - 12
+};
+
+},{"call-bound":12,"es-errors/type":128,"math-intrinsics/isInteger":180}],33:[function(require,module,exports){
+'use strict';
+
+var $TypeError = require('es-errors/type');
+
+var hasOwnProperty = require('./HasOwnProperty');
+var ToBigInt64 = require('./ToBigInt64');
+var ToBigUint64 = require('./ToBigUint64');
+var ToInt16 = require('./ToInt16');
+var ToInt32 = require('./ToInt32');
+var ToInt8 = require('./ToInt8');
+var ToUint16 = require('./ToUint16');
+var ToUint32 = require('./ToUint32');
+var ToUint8 = require('./ToUint8');
+var ToUint8Clamp = require('./ToUint8Clamp');
+
+var valueToFloat32Bytes = require('../helpers/valueToFloat32Bytes');
+var valueToFloat64Bytes = require('../helpers/valueToFloat64Bytes');
+var integerToNBytes = require('../helpers/integerToNBytes');
+
+var tableTAO = require('./tables/typed-array-objects');
+
+// https://262.ecma-international.org/15.0/#table-the-typedarray-constructors
+var TypeToAO = {
+	__proto__: null,
+	$INT8: ToInt8,
+	$UINT8: ToUint8,
+	$UINT8C: ToUint8Clamp,
+	$INT16: ToInt16,
+	$UINT16: ToUint16,
+	$INT32: ToInt32,
+	$UINT32: ToUint32,
+	$BIGINT64: ToBigInt64,
+	$BIGUINT64: ToBigUint64
+};
+
+// https://262.ecma-international.org/15.0/#sec-numerictorawbytes
+
+module.exports = function NumericToRawBytes(type, value, isLittleEndian) {
+	if (typeof type !== 'string' || !hasOwnProperty(tableTAO.size, '$' + type)) {
+		throw new $TypeError('Assertion failed: `type` must be a TypedArray element type');
+	}
+	if (typeof value !== 'number' && typeof value !== 'bigint') {
+		throw new $TypeError('Assertion failed: `value` must be a Number or a BigInt');
+	}
+	if (typeof isLittleEndian !== 'boolean') {
+		throw new $TypeError('Assertion failed: `isLittleEndian` must be a Boolean');
+	}
+
+	if (type === 'FLOAT32') { // step 1
+		return valueToFloat32Bytes(value, isLittleEndian);
+	} else if (type === 'FLOAT64') { // step 2
+		return valueToFloat64Bytes(value, isLittleEndian);
+	} // step 3
+
+	var n = tableTAO.size['$' + type]; // step 3.a
+
+	var convOp = TypeToAO['$' + type]; // step 3.b
+
+	var intValue = convOp(value); // step 3.c
+
+	return integerToNBytes(intValue, n, isLittleEndian); // step 3.d, 3.e, 4
+};
+
+},{"../helpers/integerToNBytes":73,"../helpers/valueToFloat32Bytes":82,"../helpers/valueToFloat64Bytes":83,"./HasOwnProperty":23,"./ToBigInt64":41,"./ToBigUint64":42,"./ToInt16":44,"./ToInt32":45,"./ToInt8":46,"./ToUint16":50,"./ToUint32":51,"./ToUint8":52,"./ToUint8Clamp":53,"./tables/typed-array-objects":61,"es-errors/type":128}],34:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -1038,7 +1026,240 @@ module.exports = function OrdinaryObjectCreate(proto) {
 	return O;
 };
 
-},{"../helpers/forEach":51,"./IsArray":27,"es-errors/syntax":65,"es-errors/type":66,"es-object-atoms/isObject":132,"get-intrinsic":144,"has-proto":156,"internal-slot":161}],37:[function(require,module,exports){
+},{"../helpers/forEach":70,"./IsArray":24,"es-errors/syntax":127,"es-errors/type":128,"es-object-atoms/isObject":132,"get-intrinsic":143,"has-proto":151,"internal-slot":156}],35:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('get-intrinsic');
+var callBound = require('call-bound');
+
+var $RangeError = require('es-errors/range');
+var $SyntaxError = require('es-errors/syntax');
+var $TypeError = require('es-errors/type');
+var $BigInt = GetIntrinsic('%BigInt%', true);
+
+var hasOwnProperty = require('./HasOwnProperty');
+var IsArray = require('./IsArray');
+var IsBigIntElementType = require('./IsBigIntElementType');
+var IsUnsignedElementType = require('./IsUnsignedElementType');
+
+var bytesAsFloat32 = require('../helpers/bytesAsFloat32');
+var bytesAsFloat64 = require('../helpers/bytesAsFloat64');
+var bytesAsInteger = require('../helpers/bytesAsInteger');
+var every = require('../helpers/every');
+var isByteValue = require('../helpers/isByteValue');
+
+var $reverse = callBound('Array.prototype.reverse');
+var $slice = callBound('Array.prototype.slice');
+
+var tableTAO = require('./tables/typed-array-objects');
+
+// https://262.ecma-international.org/15.0/#sec-rawbytestonumeric
+
+module.exports = function RawBytesToNumeric(type, rawBytes, isLittleEndian) {
+	if (!hasOwnProperty(tableTAO.size, '$' + type)) {
+		throw new $TypeError('Assertion failed: `type` must be a TypedArray element type');
+	}
+	if (!IsArray(rawBytes) || !every(rawBytes, isByteValue)) {
+		throw new $TypeError('Assertion failed: `rawBytes` must be an Array of bytes');
+	}
+	if (typeof isLittleEndian !== 'boolean') {
+		throw new $TypeError('Assertion failed: `isLittleEndian` must be a Boolean');
+	}
+
+	var elementSize = tableTAO.size['$' + type]; // step 1
+
+	if (rawBytes.length !== elementSize) {
+		// this assertion is not in the spec, but it'd be an editorial error if it were ever violated
+		throw new $RangeError('Assertion failed: `rawBytes` must have a length of ' + elementSize + ' for type ' + type);
+	}
+
+	var isBigInt = IsBigIntElementType(type);
+	if (isBigInt && !$BigInt) {
+		throw new $SyntaxError('this environment does not support BigInts');
+	}
+
+	// eslint-disable-next-line no-param-reassign
+	rawBytes = $slice(rawBytes, 0, elementSize);
+	if (!isLittleEndian) {
+		$reverse(rawBytes); // step 2
+	}
+
+	if (type === 'FLOAT32') { // step 3
+		return bytesAsFloat32(rawBytes);
+	}
+
+	if (type === 'FLOAT64') { // step 4
+		return bytesAsFloat64(rawBytes);
+	}
+
+	return bytesAsInteger(rawBytes, elementSize, IsUnsignedElementType(type), isBigInt);
+};
+
+},{"../helpers/bytesAsFloat32":65,"../helpers/bytesAsFloat64":66,"../helpers/bytesAsInteger":67,"../helpers/every":69,"../helpers/isByteValue":74,"./HasOwnProperty":23,"./IsArray":24,"./IsBigIntElementType":25,"./IsUnsignedElementType":30,"./tables/typed-array-objects":61,"call-bound":12,"es-errors/range":125,"es-errors/syntax":127,"es-errors/type":128,"get-intrinsic":143}],36:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('get-intrinsic');
+
+var $SyntaxError = require('es-errors/syntax');
+var $TypeError = require('es-errors/type');
+var isInteger = require('math-intrinsics/isInteger');
+var $Uint8Array = GetIntrinsic('%Uint8Array%', true);
+
+var IsBigIntElementType = require('./IsBigIntElementType');
+var IsDetachedBuffer = require('./IsDetachedBuffer');
+var NumericToRawBytes = require('./NumericToRawBytes');
+
+var isArrayBuffer = require('is-array-buffer');
+var isSharedArrayBuffer = require('is-shared-array-buffer');
+var hasOwn = require('hasown');
+
+var tableTAO = require('./tables/typed-array-objects');
+
+var defaultEndianness = require('../helpers/defaultEndianness');
+var forEach = require('../helpers/forEach');
+
+// https://262.ecma-international.org/15.0/#sec-setvalueinbuffer
+
+/* eslint max-params: 0 */
+
+module.exports = function SetValueInBuffer(arrayBuffer, byteIndex, type, value, isTypedArray, order) {
+	var isSAB = isSharedArrayBuffer(arrayBuffer);
+	if (!isArrayBuffer(arrayBuffer) && !isSAB) {
+		throw new $TypeError('Assertion failed: `arrayBuffer` must be an ArrayBuffer or a SharedArrayBuffer');
+	}
+
+	if (!isInteger(byteIndex) || byteIndex < 0) {
+		throw new $TypeError('Assertion failed: `byteIndex` must be a non-negative integer');
+	}
+
+	if (typeof type !== 'string' || !hasOwn(tableTAO.size, '$' + type)) {
+		throw new $TypeError('Assertion failed: `type` must be one of ' + tableTAO.choices);
+	}
+
+	if (typeof value !== 'number' && typeof value !== 'bigint') {
+		throw new $TypeError('Assertion failed: `value` must be a Number or a BigInt');
+	}
+
+	if (typeof isTypedArray !== 'boolean') {
+		throw new $TypeError('Assertion failed: `isTypedArray` must be a boolean');
+	}
+	if (order !== 'SEQ-CST' && order !== 'UNORDERED' && order !== 'INIT') {
+		throw new $TypeError('Assertion failed: `order` must be `"SEQ-CST"`, `"UNORDERED"`, or `"INIT"`');
+	}
+
+	if (arguments.length > 6 && typeof arguments[6] !== 'boolean') {
+		throw new $TypeError('Assertion failed: `isLittleEndian` must be a boolean, if present');
+	}
+
+	if (IsDetachedBuffer(arrayBuffer)) {
+		throw new $TypeError('Assertion failed: ArrayBuffer is detached'); // step 1
+	}
+
+	// 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type.
+
+	if (IsBigIntElementType(type) ? typeof value !== 'bigint' : typeof value !== 'number') { // step 3
+		throw new $TypeError('Assertion failed: `value` must be a BigInt if type is ~BIGINT64~ or ~BIGUINT64~, otherwise a Number');
+	}
+
+	// 4. Let block be arrayBuffer’s [[ArrayBufferData]] internal slot.
+
+	var elementSize = tableTAO.size['$' + type]; // step 5
+
+	// 6. If isLittleEndian is not present, set isLittleEndian to either true or false. The choice is implementation dependent and should be the alternative that is most efficient for the implementation. An implementation must use the same value each time this step is executed and the same value must be used for the corresponding step in the GetValueFromBuffer abstract operation.
+	var isLittleEndian = arguments.length > 6 ? arguments[6] : defaultEndianness === 'little'; // step 6
+
+	var rawBytes = NumericToRawBytes(type, value, isLittleEndian); // step 7
+
+	if (isSAB) { // step 8
+		/*
+			Let execution be the [[CandidateExecution]] field of the surrounding agent's Agent Record.
+			Let eventList be the [[EventList]] field of the element in execution.[[EventsRecords]] whose [[AgentSignifier]] is AgentSignifier().
+			If isTypedArray is true and IsNoTearConfiguration(type, order) is true, let noTear be true; otherwise let noTear be false.
+			Append WriteSharedMemory { [[Order]]: order, [[NoTear]]: noTear, [[Block]]: block, [[ByteIndex]]: byteIndex, [[ElementSize]]: elementSize, [[Payload]]: rawBytes } to eventList.
+		*/
+		throw new $SyntaxError('SharedArrayBuffer is not supported by this implementation');
+	} else {
+		// 9. Store the individual bytes of rawBytes into block, in order, starting at block[byteIndex].
+		var arr = new $Uint8Array(arrayBuffer, byteIndex, elementSize);
+		forEach(rawBytes, function (rawByte, i) {
+			arr[i] = rawByte;
+		});
+	}
+
+	// 10. Return NormalCompletion(undefined).
+};
+
+},{"../helpers/defaultEndianness":68,"../helpers/forEach":70,"./IsBigIntElementType":25,"./IsDetachedBuffer":27,"./NumericToRawBytes":33,"./tables/typed-array-objects":61,"es-errors/syntax":127,"es-errors/type":128,"get-intrinsic":143,"hasown":155,"is-array-buffer":157,"is-shared-array-buffer":169,"math-intrinsics/isInteger":180}],37:[function(require,module,exports){
+'use strict';
+
+var $TypeError = require('es-errors/type');
+var callBound = require('call-bound');
+var isInteger = require('math-intrinsics/isInteger');
+
+var $strSlice = callBound('String.prototype.slice');
+
+// https://262.ecma-international.org/15.0/#sec-stringpad
+
+module.exports = function StringPad(S, maxLength, fillString, placement) {
+	if (typeof S !== 'string') {
+		throw new $TypeError('Assertion failed: `S` must be a String');
+	}
+	if (!isInteger(maxLength) || maxLength < 0) {
+		throw new $TypeError('Assertion failed: `maxLength` must be a non-negative integer');
+	}
+	if (typeof fillString !== 'string') {
+		throw new $TypeError('Assertion failed: `fillString` must be a String');
+	}
+	if (placement !== 'start' && placement !== 'end' && placement !== 'START' && placement !== 'END') {
+		throw new $TypeError('Assertion failed: `placement` must be ~START~ or ~END~');
+	}
+
+	var stringLength = S.length; // step 1
+
+	if (maxLength <= stringLength) { return S; } // step 2
+
+	if (fillString === '') { return S; } // step 3
+
+	var fillLen = maxLength - stringLength; // step 4
+
+	// 5. Let _truncatedStringFiller_ be the String value consisting of repeated concatenations of _fillString_ truncated to length _fillLen_.
+	var truncatedStringFiller = '';
+	while (truncatedStringFiller.length < fillLen) {
+		truncatedStringFiller += fillString;
+	}
+	truncatedStringFiller = $strSlice(truncatedStringFiller, 0, fillLen);
+
+	if (placement === 'start' || placement === 'START') { return truncatedStringFiller + S; } // step 6
+
+	return S + truncatedStringFiller; // step 7
+};
+
+},{"call-bound":12,"es-errors/type":128,"math-intrinsics/isInteger":180}],38:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('get-intrinsic');
+
+var $BigInt = GetIntrinsic('%BigInt%', true);
+var $TypeError = require('es-errors/type');
+var $SyntaxError = require('es-errors/syntax');
+
+// https://262.ecma-international.org/14.0/#sec-stringtobigint
+
+module.exports = function StringToBigInt(argument) {
+	if (typeof argument !== 'string') {
+		throw new $TypeError('`argument` must be a string');
+	}
+	if (!$BigInt) {
+		throw new $SyntaxError('BigInts are not supported in this environment');
+	}
+	try {
+		return $BigInt(argument);
+	} catch (e) {
+		return void undefined;
+	}
+};
+
+},{"es-errors/syntax":127,"es-errors/type":128,"get-intrinsic":143}],39:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -1082,43 +1303,188 @@ module.exports = function StringToNumber(argument) {
 	return +argument;
 };
 
-},{"call-bound":12,"es-errors/type":66,"get-intrinsic":144,"safe-regex-test":198,"string.prototype.trim":206}],38:[function(require,module,exports){
+},{"call-bound":12,"es-errors/type":128,"get-intrinsic":143,"safe-regex-test":195,"string.prototype.trim":202}],40:[function(require,module,exports){
 'use strict';
 
-var CompletionRecord = require('./CompletionRecord');
+var GetIntrinsic = require('get-intrinsic');
 
-// https://262.ecma-international.org/9.0/#sec-throwcompletion
+var $BigInt = GetIntrinsic('%BigInt%', true);
+var $Number = GetIntrinsic('%Number%');
+var $TypeError = require('es-errors/type');
+var $SyntaxError = require('es-errors/syntax');
 
-module.exports = function ThrowCompletion(argument) {
-	return new CompletionRecord('throw', argument);
+var StringToBigInt = require('./StringToBigInt');
+var ToPrimitive = require('./ToPrimitive');
+
+// https://262.ecma-international.org/13.0/#sec-tobigint
+
+module.exports = function ToBigInt(argument) {
+	if (!$BigInt) {
+		throw new $SyntaxError('BigInts are not supported in this environment');
+	}
+
+	var prim = ToPrimitive(argument, $Number);
+
+	if (prim == null) {
+		throw new $TypeError('Cannot convert null or undefined to a BigInt');
+	}
+
+	if (typeof prim === 'boolean') {
+		return prim ? $BigInt(1) : $BigInt(0);
+	}
+
+	if (typeof prim === 'number') {
+		throw new $TypeError('Cannot convert a Number value to a BigInt');
+	}
+
+	if (typeof prim === 'string') {
+		var n = StringToBigInt(prim);
+		if (typeof n === 'undefined') {
+			throw new $TypeError('Failed to parse String to BigInt');
+		}
+		return n;
+	}
+
+	if (typeof prim === 'symbol') {
+		throw new $TypeError('Cannot convert a Symbol value to a BigInt');
+	}
+
+	if (typeof prim !== 'bigint') {
+		throw new $SyntaxError('Assertion failed: unknown primitive type');
+	}
+
+	return prim;
 };
 
-},{"./CompletionRecord":22}],39:[function(require,module,exports){
+},{"./StringToBigInt":38,"./ToPrimitive":48,"es-errors/syntax":127,"es-errors/type":128,"get-intrinsic":143}],41:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('get-intrinsic');
+
+var $BigInt = GetIntrinsic('%BigInt%', true);
+var $pow = require('math-intrinsics/pow');
+
+var ToBigInt = require('./ToBigInt');
+var BigIntRemainder = require('./BigInt/remainder');
+
+var modBigInt = require('../helpers/modBigInt');
+
+// BigInt(2**63), but node v10.4-v10.8 have a bug where you can't `BigInt(x)` anything larger than MAX_SAFE_INTEGER
+var twoSixtyThree = $BigInt && (BigInt($pow(2, 32)) * BigInt($pow(2, 31)));
+
+// BigInt(2**64), but node v10.4-v10.8 have a bug where you can't `BigInt(x)` anything larger than MAX_SAFE_INTEGER
+var twoSixtyFour = $BigInt && (BigInt($pow(2, 32)) * BigInt($pow(2, 32)));
+
+// https://262.ecma-international.org/11.0/#sec-tobigint64
+
+module.exports = function ToBigInt64(argument) {
+	var n = ToBigInt(argument);
+	var int64bit = modBigInt(BigIntRemainder, n, twoSixtyFour);
+	return int64bit >= twoSixtyThree ? int64bit - twoSixtyFour : int64bit;
+};
+
+},{"../helpers/modBigInt":80,"./BigInt/remainder":20,"./ToBigInt":40,"get-intrinsic":143,"math-intrinsics/pow":186}],42:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('get-intrinsic');
+
+var $BigInt = GetIntrinsic('%BigInt%', true);
+
+var $pow = require('math-intrinsics/pow');
+
+var ToBigInt = require('./ToBigInt');
+var BigIntRemainder = require('./BigInt/remainder');
+
+var modBigInt = require('../helpers/modBigInt');
+
+// BigInt(2**64), but node v10.4-v10.8 have a bug where you can't `BigInt(x)` anything larger than MAX_SAFE_INTEGER
+var twoSixtyFour = $BigInt && (BigInt($pow(2, 32)) * BigInt($pow(2, 32)));
+
+// https://262.ecma-international.org/11.0/#sec-tobiguint64
+
+module.exports = function ToBigUint64(argument) {
+	var n = ToBigInt(argument);
+	var int64bit = modBigInt(BigIntRemainder, n, twoSixtyFour);
+	return int64bit;
+};
+
+},{"../helpers/modBigInt":80,"./BigInt/remainder":20,"./ToBigInt":40,"get-intrinsic":143,"math-intrinsics/pow":186}],43:[function(require,module,exports){
 'use strict';
 
 // http://262.ecma-international.org/5.1/#sec-9.2
 
 module.exports = function ToBoolean(value) { return !!value; };
 
-},{}],40:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 'use strict';
 
+var modulo = require('./modulo');
 var ToNumber = require('./ToNumber');
 var truncate = require('./truncate');
 
-var $isNaN = require('math-intrinsics/isNaN');
-var $isFinite = require('math-intrinsics/isFinite');
+var isFinite = require('math-intrinsics/isFinite');
 
-// https://262.ecma-international.org/14.0/#sec-tointegerorinfinity
+// https://262.ecma-international.org/14.0/#sec-toint16
 
-module.exports = function ToIntegerOrInfinity(value) {
-	var number = ToNumber(value);
-	if ($isNaN(number) || number === 0) { return 0; }
-	if (!$isFinite(number)) { return number; }
-	return truncate(number);
+var two16 = 0x10000; // Math.pow(2, 16);
+
+module.exports = function ToInt16(argument) {
+	var number = ToNumber(argument);
+	if (!isFinite(number) || number === 0) {
+		return 0;
+	}
+	var int = truncate(number);
+	var int16bit = modulo(int, two16);
+	return int16bit >= 0x8000 ? int16bit - two16 : int16bit;
 };
 
-},{"./ToNumber":41,"./truncate":47,"math-intrinsics/isFinite":182,"math-intrinsics/isNaN":184}],41:[function(require,module,exports){
+},{"./ToNumber":47,"./modulo":59,"./truncate":62,"math-intrinsics/isFinite":179}],45:[function(require,module,exports){
+'use strict';
+
+var modulo = require('./modulo');
+var ToNumber = require('./ToNumber');
+var truncate = require('./truncate');
+
+var isFinite = require('math-intrinsics/isFinite');
+
+// https://262.ecma-international.org/14.0/#sec-toint32
+
+var two31 = 0x80000000; // Math.pow(2, 31);
+var two32 = 0x100000000; // Math.pow(2, 32);
+
+module.exports = function ToInt32(argument) {
+	var number = ToNumber(argument);
+	if (!isFinite(number) || number === 0) {
+		return 0;
+	}
+	var int = truncate(number);
+	var int32bit = modulo(int, two32);
+	var result = int32bit >= two31 ? int32bit - two32 : int32bit;
+	return result === 0 ? 0 : result; // in the spec, these are math values, so we filter out -0 here
+};
+
+},{"./ToNumber":47,"./modulo":59,"./truncate":62,"math-intrinsics/isFinite":179}],46:[function(require,module,exports){
+'use strict';
+
+var modulo = require('./modulo');
+var ToNumber = require('./ToNumber');
+var truncate = require('./truncate');
+
+var isFinite = require('math-intrinsics/isFinite');
+
+// https://262.ecma-international.org/14.0/#sec-toint8
+
+module.exports = function ToInt8(argument) {
+	var number = ToNumber(argument);
+	if (!isFinite(number) || number === 0) {
+		return 0;
+	}
+	var int = truncate(number);
+	var int8bit = modulo(int, 0x100);
+	return int8bit >= 0x80 ? int8bit - 0x100 : int8bit;
+};
+
+},{"./ToNumber":47,"./modulo":59,"./truncate":62,"math-intrinsics/isFinite":179}],47:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -1146,7 +1512,7 @@ module.exports = function ToNumber(argument) {
 	return +value;
 };
 
-},{"../helpers/isPrimitive":56,"./StringToNumber":37,"./ToPrimitive":42,"es-errors/type":66,"get-intrinsic":144}],42:[function(require,module,exports){
+},{"../helpers/isPrimitive":77,"./StringToNumber":39,"./ToPrimitive":48,"es-errors/type":128,"get-intrinsic":143}],48:[function(require,module,exports){
 'use strict';
 
 var toPrimitive = require('es-to-primitive/es2015');
@@ -1160,7 +1526,7 @@ module.exports = function ToPrimitive(input) {
 	return toPrimitive(input);
 };
 
-},{"es-to-primitive/es2015":134}],43:[function(require,module,exports){
+},{"es-to-primitive/es2015":133}],49:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -1177,7 +1543,102 @@ module.exports = function ToString(argument) {
 	return $String(argument);
 };
 
-},{"es-errors/type":66,"get-intrinsic":144}],44:[function(require,module,exports){
+},{"es-errors/type":128,"get-intrinsic":143}],50:[function(require,module,exports){
+'use strict';
+
+var modulo = require('./modulo');
+var ToNumber = require('./ToNumber');
+var truncate = require('./truncate');
+
+var isFinite = require('math-intrinsics/isFinite');
+
+// https://262.ecma-international.org/14.0/#sec-touint16
+
+var two16 = 0x10000; // Math.pow(2, 16)
+
+module.exports = function ToUint16(argument) {
+	var number = ToNumber(argument);
+	if (!isFinite(number) || number === 0) {
+		return 0;
+	}
+	var int = truncate(number);
+	var int16bit = modulo(int, two16);
+	return int16bit === 0 ? 0 : int16bit; // in the spec, these are math values, so we filter out -0 here
+};
+
+},{"./ToNumber":47,"./modulo":59,"./truncate":62,"math-intrinsics/isFinite":179}],51:[function(require,module,exports){
+'use strict';
+
+var modulo = require('./modulo');
+var ToNumber = require('./ToNumber');
+var truncate = require('./truncate');
+
+var isFinite = require('math-intrinsics/isFinite');
+
+// https://262.ecma-international.org/14.0/#sec-touint32
+
+var two32 = 0x100000000; // Math.pow(2, 32);
+
+module.exports = function ToUint32(argument) {
+	var number = ToNumber(argument);
+	if (!isFinite(number) || number === 0) {
+		return 0;
+	}
+	var int = truncate(number);
+	var int32bit = modulo(int, two32);
+	return int32bit === 0 ? 0 : int32bit; // in the spec, these are math values, so we filter out -0 here
+};
+
+},{"./ToNumber":47,"./modulo":59,"./truncate":62,"math-intrinsics/isFinite":179}],52:[function(require,module,exports){
+'use strict';
+
+var isFinite = require('math-intrinsics/isFinite');
+
+var modulo = require('./modulo');
+var ToNumber = require('./ToNumber');
+var truncate = require('./truncate');
+
+// https://262.ecma-international.org/14.0/#sec-touint8
+
+module.exports = function ToUint8(argument) {
+	var number = ToNumber(argument);
+	if (!isFinite(number) || number === 0) {
+		return 0;
+	}
+	var int = truncate(number);
+	var int8bit = modulo(int, 0x100);
+	return int8bit;
+};
+
+},{"./ToNumber":47,"./modulo":59,"./truncate":62,"math-intrinsics/isFinite":179}],53:[function(require,module,exports){
+'use strict';
+
+var clamp = require('./clamp');
+
+var ToNumber = require('./ToNumber');
+var floor = require('./floor');
+
+var $isNaN = require('math-intrinsics/isNaN');
+
+// https://262.ecma-international.org/15.0/#sec-touint8clamp
+
+module.exports = function ToUint8Clamp(argument) {
+	var number = ToNumber(argument); // step 1
+
+	if ($isNaN(number)) { return 0; } // step 2
+
+	var clamped = clamp(number, 0, 255); // step 4
+
+	var f = floor(clamped); // step 5
+
+	if (clamped < (f + 0.5)) { return f; } // step 6
+
+	if (clamped > (f + 0.5)) { return f + 1; } // step 7
+
+	return f % 2 === 0 ? f : f + 1; // step 8
+};
+
+},{"./ToNumber":47,"./clamp":57,"./floor":58,"math-intrinsics/isNaN":181}],54:[function(require,module,exports){
 'use strict';
 
 var ES5Type = require('../5/Type');
@@ -1194,28 +1655,101 @@ module.exports = function Type(x) {
 	return ES5Type(x);
 };
 
-},{"../5/Type":48}],45:[function(require,module,exports){
+},{"../5/Type":63}],55:[function(require,module,exports){
 'use strict';
 
-var GetIntrinsic = require('get-intrinsic');
-
+var $SyntaxError = require('es-errors/syntax');
 var $TypeError = require('es-errors/type');
-var $fromCharCode = GetIntrinsic('%String.fromCharCode%');
+var isInteger = require('math-intrinsics/isInteger');
+var whichTypedArray = require('which-typed-array');
 
-var isLeadingSurrogate = require('../helpers/isLeadingSurrogate');
-var isTrailingSurrogate = require('../helpers/isTrailingSurrogate');
+// https://262.ecma-international.org/13.0/#sec-typedarrayelementsize
 
-// https://262.ecma-international.org/12.0/#sec-utf16decodesurrogatepair
+var tableTAO = require('./tables/typed-array-objects');
 
-module.exports = function UTF16SurrogatePairToCodePoint(lead, trail) {
-	if (!isLeadingSurrogate(lead) || !isTrailingSurrogate(trail)) {
-		throw new $TypeError('Assertion failed: `lead` must be a leading surrogate char code, and `trail` must be a trailing surrogate char code');
+module.exports = function TypedArrayElementSize(O) {
+	var type = whichTypedArray(O);
+	if (!type) {
+		throw new $TypeError('Assertion failed: `O` must be a TypedArray');
 	}
-	// var cp = (lead - 0xD800) * 0x400 + (trail - 0xDC00) + 0x10000;
-	return $fromCharCode(lead) + $fromCharCode(trail);
+	var size = tableTAO.size['$' + tableTAO.name['$' + type]];
+	if (!isInteger(size) || size < 0) {
+		throw new $SyntaxError('Assertion failed: Unknown TypedArray type `' + type + '`');
+	}
+
+	return size;
 };
 
-},{"../helpers/isLeadingSurrogate":53,"../helpers/isTrailingSurrogate":58,"es-errors/type":66,"get-intrinsic":144}],46:[function(require,module,exports){
+},{"./tables/typed-array-objects":61,"es-errors/syntax":127,"es-errors/type":128,"math-intrinsics/isInteger":180,"which-typed-array":212}],56:[function(require,module,exports){
+'use strict';
+
+var $TypeError = require('es-errors/type');
+
+var floor = require('./floor');
+var IsFixedLengthArrayBuffer = require('./IsFixedLengthArrayBuffer');
+var IsTypedArrayOutOfBounds = require('./IsTypedArrayOutOfBounds');
+var TypedArrayElementSize = require('./TypedArrayElementSize');
+
+var isTypedArrayWithBufferWitnessRecord = require('../helpers/records/typed-array-with-buffer-witness-record');
+
+var typedArrayBuffer = require('typed-array-buffer');
+var typedArrayByteOffset = require('typed-array-byte-offset');
+var typedArrayLength = require('typed-array-length');
+
+// https://www.ecma-international.org/ecma-262/15.0/#sec-typedarraylength
+
+module.exports = function TypedArrayLength(taRecord) {
+	if (!isTypedArrayWithBufferWitnessRecord(taRecord)) {
+		throw new $TypeError('Assertion failed: `taRecord` must be a TypedArray With Buffer Witness Record');
+	}
+
+	if (IsTypedArrayOutOfBounds(taRecord)) {
+		throw new $TypeError('Assertion failed: `taRecord` is out of bounds'); // step 1
+	}
+
+	var O = taRecord['[[Object]]']; // step 2
+
+	var isFixed = IsFixedLengthArrayBuffer(typedArrayBuffer(O));
+
+	var length = isFixed ? typedArrayLength(O) : 'AUTO';
+	if (length !== 'AUTO') {
+		return length; // step 3
+	}
+
+	if (isFixed) {
+		throw new $TypeError('Assertion failed: array buffer is not fixed length'); // step 4
+	}
+
+	var byteOffset = typedArrayByteOffset(O); // step 5
+
+	var elementSize = TypedArrayElementSize(O); // step 6
+
+	var byteLength = taRecord['[[CachedBufferByteLength]]']; // step 7
+
+	if (byteLength === 'DETACHED') {
+		throw new $TypeError('Assertion failed: typed array is detached'); // step 8
+	}
+
+	return floor((byteLength - byteOffset) / elementSize); // step 9
+};
+
+},{"../helpers/records/typed-array-with-buffer-witness-record":81,"./IsFixedLengthArrayBuffer":28,"./IsTypedArrayOutOfBounds":29,"./TypedArrayElementSize":55,"./floor":58,"es-errors/type":128,"typed-array-buffer":205,"typed-array-byte-offset":206,"typed-array-length":207}],57:[function(require,module,exports){
+'use strict';
+
+var $TypeError = require('es-errors/type');
+var max = require('math-intrinsics/max');
+var min = require('math-intrinsics/min');
+
+// https://262.ecma-international.org/12.0/#clamping
+
+module.exports = function clamp(x, lower, upper) {
+	if (typeof x !== 'number' || typeof lower !== 'number' || typeof upper !== 'number' || !(lower <= upper)) {
+		throw new $TypeError('Assertion failed: all three arguments must be MVs, and `lower` must be `<= upper`');
+	}
+	return min(max(lower, x), upper);
+};
+
+},{"es-errors/type":128,"math-intrinsics/max":183,"math-intrinsics/min":184}],58:[function(require,module,exports){
 'use strict';
 
 // var modulo = require('./modulo');
@@ -1231,7 +1765,73 @@ module.exports = function floor(x) {
 	return $floor(x);
 };
 
-},{"math-intrinsics/floor":181}],47:[function(require,module,exports){
+},{"math-intrinsics/floor":178}],59:[function(require,module,exports){
+'use strict';
+
+var mod = require('../helpers/mod');
+
+// https://262.ecma-international.org/5.1/#sec-5.2
+
+module.exports = function modulo(x, y) {
+	return mod(x, y);
+};
+
+},{"../helpers/mod":79}],60:[function(require,module,exports){
+'use strict';
+
+var $TypeError = require('es-errors/type');
+var isInteger = require('math-intrinsics/isInteger');
+var callBound = require('call-bound');
+
+var $slice = callBound('String.prototype.slice');
+
+// https://262.ecma-international.org/12.0/#substring
+module.exports = function substring(S, inclusiveStart, exclusiveEnd) {
+	if (typeof S !== 'string' || !isInteger(inclusiveStart) || (arguments.length > 2 && !isInteger(exclusiveEnd))) {
+		throw new $TypeError('`S` must be a String, and `inclusiveStart` and `exclusiveEnd` must be integers');
+	}
+	return $slice(S, inclusiveStart, arguments.length > 2 ? exclusiveEnd : S.length);
+};
+
+},{"call-bound":12,"es-errors/type":128,"math-intrinsics/isInteger":180}],61:[function(require,module,exports){
+'use strict';
+
+// https://262.ecma-international.org/15.0/#table-the-typedarray-constructors
+
+module.exports = {
+	__proto__: null,
+	name: {
+		__proto__: null,
+		$Int8Array: 'INT8',
+		$Uint8Array: 'UINT8',
+		$Uint8ClampedArray: 'UINT8C',
+		$Int16Array: 'INT16',
+		$Uint16Array: 'UINT16',
+		$Int32Array: 'INT32',
+		$Uint32Array: 'UINT32',
+		$BigInt64Array: 'BIGINT64',
+		$BigUint64Array: 'BIGUINT64',
+		$Float32Array: 'FLOAT32',
+		$Float64Array: 'FLOAT64'
+	},
+	size: {
+		__proto__: null,
+		$INT8: 1,
+		$UINT8: 1,
+		$UINT8C: 1,
+		$INT16: 2,
+		$UINT16: 2,
+		$INT32: 4,
+		$UINT32: 4,
+		$BIGINT64: 8,
+		$BIGUINT64: 8,
+		$FLOAT32: 4,
+		$FLOAT64: 8
+	},
+	choices: '"INT8", "UINT8", "UINT8C", "INT16", "UINT16", "INT32", "UINT32", "BIGINT64", "BIGUINT64", "FLOAT32", or "FLOAT64"'
+};
+
+},{}],62:[function(require,module,exports){
 'use strict';
 
 var floor = require('./floor');
@@ -1248,7 +1848,7 @@ module.exports = function truncate(x) {
 	return result === 0 ? 0 : result; // in the spec, these are math values, so we filter out -0 here
 };
 
-},{"./floor":46,"es-errors/type":66}],48:[function(require,module,exports){
+},{"./floor":58,"es-errors/type":128}],63:[function(require,module,exports){
 'use strict';
 
 var isObject = require('es-object-atoms/isObject');
@@ -1276,7 +1876,7 @@ module.exports = function Type(x) {
 	}
 };
 
-},{"es-object-atoms/isObject":132}],49:[function(require,module,exports){
+},{"es-object-atoms/isObject":132}],64:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -1290,7 +1890,146 @@ module.exports = $Array.isArray || function IsArray(argument) {
 	return toStr(argument) === '[object Array]';
 };
 
-},{"call-bound":12,"get-intrinsic":144}],50:[function(require,module,exports){
+},{"call-bound":12,"get-intrinsic":143}],65:[function(require,module,exports){
+'use strict';
+
+var $pow = require('math-intrinsics/pow');
+
+module.exports = function bytesAsFloat32(rawBytes) {
+	// return new $Float32Array(new $Uint8Array(rawBytes).buffer)[0];
+
+	/*
+        Let value be the byte elements of rawBytes concatenated and interpreted as a little-endian bit string encoding of an IEEE 754-2008 binary32 value.
+If value is an IEEE 754-2008 binary32 NaN value, return the NaN Number value.
+Return the Number value that corresponds to value.
+        */
+	var sign = rawBytes[3] & 0x80 ? -1 : 1; // Check the sign bit
+	var exponent = ((rawBytes[3] & 0x7F) << 1)
+		| (rawBytes[2] >> 7); // Combine bits for exponent
+	var mantissa = ((rawBytes[2] & 0x7F) << 16)
+		| (rawBytes[1] << 8)
+		| rawBytes[0]; // Combine bits for mantissa
+
+	if (exponent === 0 && mantissa === 0) {
+		return sign === 1 ? 0 : -0;
+	}
+	if (exponent === 0xFF && mantissa === 0) {
+		return sign === 1 ? Infinity : -Infinity;
+	}
+	if (exponent === 0xFF && mantissa !== 0) {
+		return NaN;
+	}
+
+	exponent -= 127; // subtract the bias
+
+	if (exponent === -127) {
+		return sign * mantissa * $pow(2, -126 - 23);
+	}
+	return sign * (1 + (mantissa * $pow(2, -23))) * $pow(2, exponent);
+};
+
+},{"math-intrinsics/pow":186}],66:[function(require,module,exports){
+'use strict';
+
+var $pow = require('math-intrinsics/pow');
+
+module.exports = function bytesAsFloat64(rawBytes) {
+	// return new $Float64Array(new $Uint8Array(rawBytes).buffer)[0];
+
+	/*
+    Let value be the byte elements of rawBytes concatenated and interpreted as a little-endian bit string encoding of an IEEE 754-2008 binary64 value.
+If value is an IEEE 754-2008 binary64 NaN value, return the NaN Number value.
+Return the Number value that corresponds to value.
+    */
+	var sign = rawBytes[7] & 0x80 ? -1 : 1; // first bit
+	var exponent = ((rawBytes[7] & 0x7F) << 4) // 7 bits from index 7
+        | ((rawBytes[6] & 0xF0) >> 4); // 4 bits from index 6
+	var mantissa = ((rawBytes[6] & 0x0F) * 0x1000000000000) // 4 bits from index 6
+        + (rawBytes[5] * 0x10000000000) // 8 bits from index 5
+        + (rawBytes[4] * 0x100000000) // 8 bits from index 4
+        + (rawBytes[3] * 0x1000000) // 8 bits from index 3
+        + (rawBytes[2] * 0x10000) // 8 bits from index 2
+        + (rawBytes[1] * 0x100) // 8 bits from index 1
+        + rawBytes[0]; // 8 bits from index 0
+
+	if (exponent === 0 && mantissa === 0) {
+		return sign * 0;
+	}
+	if (exponent === 0x7FF && mantissa !== 0) {
+		return NaN;
+	}
+	if (exponent === 0x7FF && mantissa === 0) {
+		return sign * Infinity;
+	}
+
+	exponent -= 1023; // subtract the bias
+
+	// Handle subnormal numbers
+	if (exponent === -1023) {
+		return sign * mantissa * 5e-324; // $pow(2, -1022 - 52)
+	}
+
+	return sign * (1 + (mantissa / 0x10000000000000)) * $pow(2, exponent);
+};
+
+},{"math-intrinsics/pow":186}],67:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('get-intrinsic');
+
+var $pow = require('math-intrinsics/pow');
+
+var $Number = GetIntrinsic('%Number%');
+var $BigInt = GetIntrinsic('%BigInt%', true);
+
+module.exports = function bytesAsInteger(rawBytes, elementSize, isUnsigned, isBigInt) {
+	var Z = isBigInt ? $BigInt : $Number;
+
+	// this is common to both branches
+	var intValue = Z(0);
+	for (var i = 0; i < rawBytes.length; i++) {
+		intValue += Z(rawBytes[i] * $pow(2, 8 * i));
+	}
+	/*
+	Let intValue be the byte elements of rawBytes concatenated and interpreted as a bit string encoding of an unsigned little-endian binary number.
+	*/
+
+	if (!isUnsigned) { // steps 5-6
+		// Let intValue be the byte elements of rawBytes concatenated and interpreted as a bit string encoding of a binary little-endian 2's complement number of bit length elementSize × 8.
+		var bitLength = elementSize * 8;
+
+		if (rawBytes[elementSize - 1] & 0x80) {
+			intValue -= Z($pow(2, bitLength));
+		}
+	}
+
+	return intValue; // step 7
+};
+
+},{"get-intrinsic":143,"math-intrinsics/pow":186}],68:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('get-intrinsic');
+
+var $Uint8Array = GetIntrinsic('%Uint8Array%', true);
+var $Uint32Array = GetIntrinsic('%Uint32Array%', true);
+
+var typedArrayBuffer = require('typed-array-buffer');
+
+var uInt32 = $Uint32Array && new $Uint32Array([0x12345678]);
+var uInt8 = uInt32 && new $Uint8Array(typedArrayBuffer(uInt32));
+
+module.exports = uInt8
+	? uInt8[0] === 0x78
+		? 'little'
+		: uInt8[0] === 0x12
+			? 'big'
+			: uInt8[0] === 0x34
+				? 'mixed' // https://developer.mozilla.org/en-US/docs/Glossary/Endianness
+				: 'unknown' // ???
+	: 'indeterminate'; // no way to know
+
+},{"get-intrinsic":143,"typed-array-buffer":205}],69:[function(require,module,exports){
 'use strict';
 
 module.exports = function every(array, predicate) {
@@ -1302,7 +2041,7 @@ module.exports = function every(array, predicate) {
 	return true;
 };
 
-},{}],51:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 'use strict';
 
 module.exports = function forEach(array, callback) {
@@ -1311,207 +2050,378 @@ module.exports = function forEach(array, callback) {
 	}
 };
 
-},{}],52:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 'use strict';
 
-var hasSymbols = require('has-symbols')();
-var GetIntrinsic = require('get-intrinsic');
-var callBound = require('call-bound');
-var isString = require('is-string');
+var MAX_ITER = 1075; // 1023+52 (subnormals) => BIAS+NUM_SIGNFICAND_BITS-1
+var maxBits = 54; // only 53 bits for fraction
 
-var $iterator = GetIntrinsic('%Symbol.iterator%', true);
-var $stringSlice = callBound('String.prototype.slice');
-var $String = GetIntrinsic('%String%');
-
-var IsArray = require('./IsArray');
-
-module.exports = function getIteratorMethod(ES, iterable) {
-	var usingIterator;
-	if (hasSymbols) {
-		usingIterator = ES.GetMethod(iterable, $iterator);
-	} else if (IsArray(iterable)) {
-		usingIterator = function () {
-			var i = -1;
-			var arr = this; // eslint-disable-line no-invalid-this
-			return {
-				next: function () {
-					i += 1;
-					return {
-						done: i >= arr.length,
-						value: arr[i]
-					};
-				}
-			};
-		};
-	} else if (isString(iterable)) {
-		usingIterator = function () {
-			var i = 0;
-			return {
-				next: function () {
-					var nextIndex = ES.AdvanceStringIndex($String(iterable), i, true);
-					var value = $stringSlice(iterable, i, nextIndex);
-					i = nextIndex;
-					var done = nextIndex > iterable.length;
-					return {
-						done: done,
-						value: done ? void undefined : value
-					};
-				}
-			};
-		};
+module.exports = function fractionToBitString(x) {
+	var str = '';
+	if (x === 0) {
+		return str;
 	}
-	return usingIterator;
+	var j = MAX_ITER;
+
+	var y;
+	// Each time we multiply by 2 and find a ones digit, add a '1'; otherwise, add a '0'..
+	for (var i = 0; i < MAX_ITER; i += 1) {
+		y = x * 2;
+		if (y >= 1) {
+			x = y - 1; // eslint-disable-line no-param-reassign
+			str += '1';
+			if (j === MAX_ITER) {
+				j = i; // first 1
+			}
+		} else {
+			x = y; // eslint-disable-line no-param-reassign
+			str += '0';
+		}
+		// Stop when we have no more decimals to process or in the event we found a fraction which cannot be represented in a finite number of bits...
+		if (y === 1 || i - j > maxBits) {
+			return str;
+		}
+	}
+	return str;
 };
 
-},{"./IsArray":49,"call-bound":12,"get-intrinsic":144,"has-symbols":157,"is-string":173}],53:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 'use strict';
 
-module.exports = function isLeadingSurrogate(charCode) {
-	return typeof charCode === 'number' && charCode >= 0xD800 && charCode <= 0xDBFF;
+var $floor = require('math-intrinsics/floor');
+
+// https://runestone.academy/ns/books/published/pythonds/BasicDS/ConvertingDecimalNumberstoBinaryNumbers.html#:~:text=The%20Divide%20by%202%20algorithm,have%20a%20remainder%20of%200
+
+module.exports = function intToBinaryString(x) {
+	var str = '';
+	var y;
+
+	while (x > 0) {
+		y = x / 2;
+		x = $floor(y); // eslint-disable-line no-param-reassign
+		if (y === x) {
+			str = '0' + str;
+		} else {
+			str = '1' + str;
+		}
+	}
+	return str;
 };
 
-},{}],54:[function(require,module,exports){
+},{"math-intrinsics/floor":178}],73:[function(require,module,exports){
 'use strict';
 
-module.exports = Number.isNaN || function isNaN(a) {
-	return a !== a;
+var GetIntrinsic = require('get-intrinsic');
+
+var $Number = GetIntrinsic('%Number%');
+var $BigInt = GetIntrinsic('%BigInt%', true);
+
+module.exports = function integerToNBytes(intValue, n, isLittleEndian) {
+	var Z = typeof intValue === 'bigint' ? $BigInt : $Number;
+	/*
+	if (intValue >= 0) { // step 3.d
+		// Let rawBytes be a List containing the n-byte binary encoding of intValue. If isLittleEndian is false, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order.
+	} else { // step 3.e
+		// Let rawBytes be a List containing the n-byte binary 2's complement encoding of intValue. If isLittleEndian is false, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order.
+	}
+    */
+	if (intValue < 0) {
+		intValue >>>= 0; // eslint-disable-line no-param-reassign
+	}
+
+	var rawBytes = [];
+	for (var i = 0; i < n; i++) {
+		rawBytes[isLittleEndian ? i : n - 1 - i] = $Number(intValue & Z(0xFF));
+		intValue >>= Z(8); // eslint-disable-line no-param-reassign
+	}
+
+	return rawBytes; // step 4
 };
 
-},{}],55:[function(require,module,exports){
+},{"get-intrinsic":143}],74:[function(require,module,exports){
+'use strict';
+
+module.exports = function isByteValue(value) {
+	return typeof value === 'number' && value >= 0 && value <= 255 && (value | 0) === value;
+};
+
+},{}],75:[function(require,module,exports){
+'use strict';
+
+// TODO, semver-major: delete
+module.exports = require('math-intrinsics/isInteger');
+
+},{"math-intrinsics/isInteger":180}],76:[function(require,module,exports){
 'use strict';
 
 // TODO: remove, semver-major
 
 module.exports = require('es-object-atoms/isObject');
 
-},{"es-object-atoms/isObject":132}],56:[function(require,module,exports){
+},{"es-object-atoms/isObject":132}],77:[function(require,module,exports){
 'use strict';
 
 module.exports = function isPrimitive(value) {
 	return value === null || (typeof value !== 'function' && typeof value !== 'object');
 };
 
-},{}],57:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 'use strict';
 
 module.exports = function isPropertyKey(argument) {
 	return typeof argument === 'string' || typeof argument === 'symbol';
 };
 
-},{}],58:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 'use strict';
 
-module.exports = function isTrailingSurrogate(charCode) {
-	return typeof charCode === 'number' && charCode >= 0xDC00 && charCode <= 0xDFFF;
+// TODO, semver-major: delete
+module.exports = require('math-intrinsics/mod');
+
+},{"math-intrinsics/mod":185}],80:[function(require,module,exports){
+'use strict';
+
+module.exports = function bigIntMod(BigIntRemainder, bigint, modulo) {
+	var remain = BigIntRemainder(bigint, modulo);
+	return remain >= 0 ? remain : remain + modulo;
 };
 
-},{}],59:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 'use strict';
 
 var hasOwn = require('hasown');
+var isTypedArray = require('is-typed-array');
 
-module.exports = function isIteratorRecord(value) {
+var isInteger = require('../isInteger');
+
+module.exports = function isTypedArrayWithBufferWitnessRecord(value) {
 	return !!value
 		&& typeof value === 'object'
-		&& hasOwn(value, '[[Iterator]]')
-		&& hasOwn(value, '[[NextMethod]]')
-		&& hasOwn(value, '[[Done]]')
-		&& typeof value['[[Done]]'] === 'boolean';
+		&& hasOwn(value, '[[Object]]')
+		&& hasOwn(value, '[[CachedBufferByteLength]]')
+		&& (
+			(isInteger(value['[[CachedBufferByteLength]]']) && value['[[CachedBufferByteLength]]'] >= 0)
+			|| value['[[CachedBufferByteLength]]'] === 'DETACHED'
+		)
+		&& isTypedArray(value['[[Object]]']);
 };
 
-},{"hasown":160}],60:[function(require,module,exports){
+},{"../isInteger":75,"hasown":155,"is-typed-array":172}],82:[function(require,module,exports){
 'use strict';
 
-/** @type {import('.')} */
-var $defineProperty = Object.defineProperty || false;
-if ($defineProperty) {
-	try {
-		$defineProperty({}, 'a', { value: 1 });
-	} catch (e) {
-		// IE 8 has a broken defineProperty
-		$defineProperty = false;
+var $abs = require('math-intrinsics/abs');
+var $floor = require('math-intrinsics/floor');
+var $pow = require('math-intrinsics/pow');
+
+var isFinite = require('math-intrinsics/isFinite');
+var isNaN = require('math-intrinsics/isNaN');
+var isNegativeZero = require('math-intrinsics/isNegativeZero');
+
+var maxFiniteFloat32 = 3.4028234663852886e+38; // roughly 2 ** 128 - 1
+
+module.exports = function valueToFloat32Bytes(value, isLittleEndian) {
+	if (isNaN(value)) {
+		return isLittleEndian ? [0, 0, 192, 127] : [127, 192, 0, 0]; // hardcoded
 	}
-}
 
-module.exports = $defineProperty;
+	var leastSig;
 
-},{}],61:[function(require,module,exports){
+	if (value === 0) {
+		leastSig = isNegativeZero(value) ? 0x80 : 0;
+		return isLittleEndian ? [0, 0, 0, leastSig] : [leastSig, 0, 0, 0];
+	}
+
+	if ($abs(value) > maxFiniteFloat32 || !isFinite(value)) {
+		leastSig = value < 0 ? 255 : 127;
+		return isLittleEndian ? [0, 0, 128, leastSig] : [leastSig, 128, 0, 0];
+	}
+
+	var sign = value < 0 ? 1 : 0;
+	value = $abs(value); // eslint-disable-line no-param-reassign
+
+	var exponent = 0;
+	while (value >= 2) {
+		exponent += 1;
+		value /= 2; // eslint-disable-line no-param-reassign
+	}
+
+	while (value < 1) {
+		exponent -= 1;
+		value *= 2; // eslint-disable-line no-param-reassign
+	}
+
+	var mantissa = value - 1;
+	mantissa *= $pow(2, 23) + 0.5;
+	mantissa = $floor(mantissa);
+
+	exponent += 127;
+	exponent <<= 23;
+
+	var result = (sign << 31)
+        | exponent
+        | mantissa;
+
+	var byte0 = result & 255;
+	result >>= 8;
+	var byte1 = result & 255;
+	result >>= 8;
+	var byte2 = result & 255;
+	result >>= 8;
+	var byte3 = result & 255;
+
+	if (isLittleEndian) {
+		return [byte0, byte1, byte2, byte3];
+	}
+	return [byte3, byte2, byte1, byte0];
+};
+
+},{"math-intrinsics/abs":176,"math-intrinsics/floor":178,"math-intrinsics/isFinite":179,"math-intrinsics/isNaN":181,"math-intrinsics/isNegativeZero":182,"math-intrinsics/pow":186}],83:[function(require,module,exports){
 'use strict';
 
-/** @type {import('./eval')} */
-module.exports = EvalError;
+var GetIntrinsic = require('get-intrinsic');
 
-},{}],62:[function(require,module,exports){
+var $parseInt = GetIntrinsic('%parseInt%');
+var $abs = require('math-intrinsics/abs');
+var $floor = require('math-intrinsics/floor');
+var isNegativeZero = require('math-intrinsics/isNegativeZero');
+
+var callBound = require('call-bound');
+
+var $strIndexOf = callBound('String.prototype.indexOf');
+var $strSlice = callBound('String.prototype.slice');
+
+var fractionToBitString = require('../helpers/fractionToBinaryString');
+var intToBinString = require('../helpers/intToBinaryString');
+
+var float64bias = 1023;
+
+var elevenOnes = '11111111111';
+var elevenZeroes = '00000000000';
+var fiftyOneZeroes = elevenZeroes + elevenZeroes + elevenZeroes + elevenZeroes + '0000000';
+
+// IEEE 754-1985
+module.exports = function valueToFloat64Bytes(value, isLittleEndian) {
+	var signBit = value < 0 || isNegativeZero(value) ? '1' : '0';
+	var exponentBits;
+	var significandBits;
+
+	if (isNaN(value)) {
+		exponentBits = elevenOnes;
+		significandBits = '1' + fiftyOneZeroes;
+	} else if (!isFinite(value)) {
+		exponentBits = elevenOnes;
+		significandBits = '0' + fiftyOneZeroes;
+	} else if (value === 0) {
+		exponentBits = elevenZeroes;
+		significandBits = '0' + fiftyOneZeroes;
+	} else {
+		value = $abs(value); // eslint-disable-line no-param-reassign
+
+		// Isolate the integer part (digits before the decimal):
+		var integerPart = $floor(value);
+
+		var intBinString = intToBinString(integerPart); // bit string for integer part
+		var fracBinString = fractionToBitString(value - integerPart); // bit string for fractional part
+
+		var numberOfBits;
+		// find exponent needed to normalize integer+fractional parts
+		if (intBinString) {
+			exponentBits = intBinString.length - 1; // move the decimal to the left
+		} else {
+			var first1 = $strIndexOf(fracBinString, '1');
+			if (first1 > -1) {
+				numberOfBits = first1 + 1;
+			}
+			exponentBits = -numberOfBits; // move the decimal to the right
+		}
+
+		significandBits = intBinString + fracBinString;
+		if (exponentBits < 0) {
+			// subnormals
+			if (exponentBits <= -float64bias) {
+				numberOfBits = float64bias - 1; // limit number of removed bits
+			}
+			significandBits = $strSlice(significandBits, numberOfBits); // remove all leading 0s and the first 1 for normal values; for subnormals, remove up to `float64bias - 1` leading bits
+		} else {
+			significandBits = $strSlice(significandBits, 1); // remove the leading '1' (implicit/hidden bit)
+		}
+		exponentBits = $strSlice(elevenZeroes + intToBinString(exponentBits + float64bias), -11); // Convert the exponent to a bit string
+
+		significandBits = $strSlice(significandBits + fiftyOneZeroes + '0', 0, 52); // fill in any trailing zeros and ensure we have only 52 fraction bits
+	}
+
+	var bits = signBit + exponentBits + significandBits;
+	var rawBytes = [];
+	for (var i = 0; i < 8; i++) {
+		var targetIndex = isLittleEndian ? 8 - i - 1 : i;
+		rawBytes[targetIndex] = $parseInt($strSlice(bits, i * 8, (i + 1) * 8), 2);
+	}
+
+	return rawBytes;
+};
+
+},{"../helpers/fractionToBinaryString":71,"../helpers/intToBinaryString":72,"call-bound":12,"get-intrinsic":143,"math-intrinsics/abs":176,"math-intrinsics/floor":178,"math-intrinsics/isNegativeZero":182}],84:[function(require,module,exports){
 'use strict';
 
-/** @type {import('.')} */
-module.exports = Error;
+var GetIntrinsic = require('get-intrinsic');
 
-},{}],63:[function(require,module,exports){
-'use strict';
-
-/** @type {import('./range')} */
-module.exports = RangeError;
-
-},{}],64:[function(require,module,exports){
-'use strict';
-
-/** @type {import('./ref')} */
-module.exports = ReferenceError;
-
-},{}],65:[function(require,module,exports){
-'use strict';
-
-/** @type {import('./syntax')} */
-module.exports = SyntaxError;
-
-},{}],66:[function(require,module,exports){
-'use strict';
-
-/** @type {import('./type')} */
-module.exports = TypeError;
-
-},{}],67:[function(require,module,exports){
-'use strict';
-
-/** @type {import('./uri')} */
-module.exports = URIError;
-
-},{}],68:[function(require,module,exports){
-'use strict';
-
+var $SyntaxError = require('es-errors/syntax');
 var $TypeError = require('es-errors/type');
+var $Uint8Array = GetIntrinsic('%Uint8Array%', true);
 
-var GetIteratorFlattenable = require('../aos/GetIteratorFlattenable');
-var OrdinaryHasInstance = require('es-abstract/2024/OrdinaryHasInstance');
-var OrdinaryObjectCreate = require('es-abstract/2024/OrdinaryObjectCreate');
+var FromBase64 = require('../aos/FromBase64');
+var Get = require('es-abstract/2024/Get');
+var GetOptionsObject = require('../aos/GetOptionsObject');
 
-var $Iterator = require('../Iterator/polyfill')();
-var $WrapForValidIteratorPrototype = require('../WrapForValidIteratorPrototype');
-
-var SLOT = require('internal-slot');
-
-module.exports = function from(O) {
-	if (this instanceof from) {
-		throw new $TypeError('`Iterator.from` is not a constructor');
+module.exports = function fromBase64(string) {
+	if (!$Uint8Array) {
+		throw new $SyntaxError('This environment does not support Uint8Array');
 	}
 
-	var iteratorRecord = GetIteratorFlattenable(O, 'iterate-strings'); // step 1
-
-	var hasInstance = OrdinaryHasInstance($Iterator, iteratorRecord['[[Iterator]]']); // step 2
-
-	if (hasInstance) { // step 3
-		return iteratorRecord['[[Iterator]]']; // step 3.a
+	if (typeof string !== 'string') {
+		throw new $TypeError('`string` is not a string: ' + typeof string); // step 1
 	}
 
-	var wrapper = OrdinaryObjectCreate($WrapForValidIteratorPrototype); // , ['[[Iterated]]']); // step 4
+	var opts = GetOptionsObject(arguments.length > 1 ? arguments[1] : void undefined); // step 2
 
-	SLOT.set(wrapper, '[[Iterated]]', iteratorRecord); // step 5
+	var alphabet = Get(opts, 'alphabet'); // step 3
 
-	return wrapper; // step 6
+	if (typeof alphabet === 'undefined') {
+		alphabet = 'base64'; // step 4
+	}
+
+	if (alphabet !== 'base64' && alphabet !== 'base64url') {
+		throw new $TypeError('Assertion failed: `alphabet` is not `\'base64\'` or `\'base64url\'`: ' + (typeof alphabet === 'string' ? alphabet : typeof alphabet)); // step 5
+	}
+
+	var lastChunkHandling = Get(opts, 'lastChunkHandling'); // step 6
+
+	if (typeof lastChunkHandling === 'undefined') {
+		lastChunkHandling = 'loose'; // step 7
+	}
+
+	if (lastChunkHandling !== 'loose' && lastChunkHandling !== 'strict' && lastChunkHandling !== 'stop-before-partial') {
+		throw new $TypeError('`lastChunkHandling` must be `\'loose\'`, `\'strict\'`, or `\'stop-before-partial\'`'); // step 8
+	}
+
+	var result = FromBase64(string, alphabet, lastChunkHandling); // step 9
+
+	if (result['[[Error]]']) { // step 10
+		throw result['[[Error]]']; // step 10.a
+	}
+
+	// var resultLength = result['[[Bytes]]']; // step 11
+
+	// 12. Let ta be ? AllocateTypedArray("Uint8Array", %Uint8Array%, "%Uint8Array.prototype%", resultLength).
+
+	// 13. Set the value at each index of ta.[[ViewedArrayBuffer]].[[ArrayBufferData]] to the value at the corresponding index of result.[[Bytes]].
+
+	// 14. Return ta.
+
+	return new $Uint8Array(result['[[Bytes]]']); // step 11 - 14
 };
 
-},{"../Iterator/polyfill":119,"../WrapForValidIteratorPrototype":122,"../aos/GetIteratorFlattenable":129,"es-abstract/2024/OrdinaryHasInstance":35,"es-abstract/2024/OrdinaryObjectCreate":36,"es-errors/type":66,"internal-slot":161}],69:[function(require,module,exports){
+},{"../aos/FromBase64":110,"../aos/GetOptionsObject":112,"es-abstract/2024/Get":21,"es-errors/syntax":127,"es-errors/type":128,"get-intrinsic":143}],85:[function(require,module,exports){
 'use strict';
 
 var callBind = require('call-bind');
@@ -1531,133 +2441,437 @@ define(bound, {
 
 module.exports = bound;
 
-},{"./implementation":68,"./polyfill":70,"./shim":71,"call-bind":11,"define-properties":14}],70:[function(require,module,exports){
+},{"./implementation":84,"./polyfill":86,"./shim":87,"call-bind":11,"define-properties":14}],86:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
 
-var $Iterator = require('../Iterator');
-
 module.exports = function getPolyfill() {
-	return typeof $Iterator.from === 'function' ? $Iterator.from : implementation;
+	return typeof Uint8Array === 'function' && typeof Uint8Array.fromBase64 === 'function' ? Uint8Array.fromBase64 : implementation;
 };
 
-},{"../Iterator":118,"./implementation":68}],71:[function(require,module,exports){
+},{"./implementation":84}],87:[function(require,module,exports){
 'use strict';
 
 var getPolyfill = require('./polyfill');
 var define = require('define-properties');
 
-var getIteratorPolyfill = require('../Iterator/polyfill');
-
-module.exports = function shimIteratorFrom() {
-	var $Iterator = getIteratorPolyfill();
+module.exports = function shimUint8ArrayFromBase64() {
 	var polyfill = getPolyfill();
-	define(
-		$Iterator,
-		{ from: polyfill },
-		{ from: function () { return $Iterator.from !== polyfill; } }
-	);
+
+	if (typeof Uint8Array === 'function') {
+		define(
+			Uint8Array,
+			{ fromBase64: polyfill },
+			{ fromBase64: function () { return Uint8Array.fromBase64 !== polyfill; } }
+		);
+	}
 
 	return polyfill;
 };
 
-},{"../Iterator/polyfill":119,"./polyfill":70,"define-properties":14}],72:[function(require,module,exports){
+},{"./polyfill":86,"define-properties":14}],88:[function(require,module,exports){
 'use strict';
 
-var $RangeError = require('es-errors/range');
+var GetIntrinsic = require('get-intrinsic');
+
+var $SyntaxError = require('es-errors/syntax');
 var $TypeError = require('es-errors/type');
+var $Uint8Array = GetIntrinsic('%Uint8Array%', true);
 
-var CompletionRecord = require('es-abstract/2024/CompletionRecord');
-var CreateIteratorFromClosure = require('../aos/CreateIteratorFromClosure');
-var GetIteratorDirect = require('../aos/GetIteratorDirect');
-var IteratorClose = require('es-abstract/2024/IteratorClose');
-var IteratorStep = require('es-abstract/2024/IteratorStep');
-var IteratorStepValue = require('es-abstract/2024/IteratorStepValue');
-var ThrowCompletion = require('es-abstract/2024/ThrowCompletion');
-var ToIntegerOrInfinity = require('es-abstract/2024/ToIntegerOrInfinity');
-var ToNumber = require('es-abstract/2024/ToNumber');
-var Type = require('es-abstract/2024/Type');
+var FromHex = require('../aos/FromHex');
 
-var iterHelperProto = require('../IteratorHelperPrototype');
-
-var isNaN = require('es-abstract/helpers/isNaN');
-
-var SLOT = require('internal-slot');
-
-module.exports = function drop(limit) {
-	if (this instanceof drop) {
-		throw new $TypeError('`drop` is not a constructor');
+module.exports = function fromHex(string) {
+	if (!$Uint8Array) {
+		throw new $SyntaxError('This environment does not support Uint8Array'); // step 1
 	}
 
-	var O = this; // step 1
-	if (Type(O) !== 'Object') {
-		throw new $TypeError('`this` value must be an Object'); // step 2
+	if (typeof string !== 'string') {
+		throw new $TypeError('`string` is not a string: ' + typeof string); // step 1
 	}
 
-	var numLimit = ToNumber(limit); // step 2
-	if (isNaN(numLimit)) {
-		throw new $RangeError('`limit` must be a non-NaN number'); // step 3
+	var result = FromHex(string); // step 2
+
+	if (result['[[Error]]']) { // step 3
+		throw result['[[Error]]']; // step 3.a
 	}
 
-	var iterated = GetIteratorDirect(O); // step 4
+	// var resultLength = result['[[Bytes]]']; // step 4
 
-	var integerLimit = ToIntegerOrInfinity(numLimit); // step 4
-	if (integerLimit < 0) {
-		throw new $RangeError('`limit` must be a >= 0'); // step 5
-	}
+	// 5. Let ta be ? AllocateTypedArray("Uint8Array", %Uint8Array%, "%Uint8Array.prototype%", resultLength).
 
-	var closeIfAbrupt = function (abruptCompletion) {
-		if (!(abruptCompletion instanceof CompletionRecord)) {
-			throw new $TypeError('`abruptCompletion` must be a Completion Record');
-		}
-		IteratorClose(
-			iterated,
-			abruptCompletion
-		);
-	};
+	// 6. Set the value at each index of ta.[[ViewedArrayBuffer]].[[ArrayBufferData]] to the value at the corresponding index of result.[[Bytes]].
 
-	var sentinel = {};
-	var remaining = integerLimit; // step 6.a
-	var closure = function () { // step 6
-		var next;
-		while (remaining > 0) { // step 6.b
-			if (remaining !== Infinity) { // step 6.b.i
-				remaining -= 1; // step 6.b.i.1
-			}
+	// 7. Return ta.
 
-			next = IteratorStep(iterated); // step 6.b.ii
-			if (!next) {
-				// return void undefined; // step 6.b.iii
-				return sentinel;
-			}
-		}
-		// while (true) { // step 6.c
-		try {
-			var value = IteratorStepValue(iterated); // step 6.b.i
-			if (iterated['[[Done]]']) {
-				return sentinel; // step 6.b.ii
-			}
-			return value;
-		} catch (e) {
-			// close iterator // step 6.c.icv
-			closeIfAbrupt(ThrowCompletion(e));
-			throw e;
-		}
-		// }
-		// return void undefined;
-	};
-	SLOT.set(closure, '[[Sentinel]]', sentinel); // for the userland implementation
-	SLOT.set(closure, '[[CloseIfAbrupt]]', closeIfAbrupt); // for the userland implementation
-
-	var result = CreateIteratorFromClosure(closure, 'Iterator Helper', iterHelperProto, ['[[UnderlyingIterator]]']); // step 4
-
-	SLOT.set(result, '[[UnderlyingIterator]]', iterated); // step 5
-
-	return result; // step 6
+	return new $Uint8Array(result['[[Bytes]]']); // steps 4 - 7
 };
 
-},{"../IteratorHelperPrototype":121,"../aos/CreateIteratorFromClosure":123,"../aos/GetIteratorDirect":128,"es-abstract/2024/CompletionRecord":22,"es-abstract/2024/IteratorClose":29,"es-abstract/2024/IteratorStep":32,"es-abstract/2024/IteratorStepValue":33,"es-abstract/2024/ThrowCompletion":38,"es-abstract/2024/ToIntegerOrInfinity":40,"es-abstract/2024/ToNumber":41,"es-abstract/2024/Type":44,"es-abstract/helpers/isNaN":54,"es-errors/range":63,"es-errors/type":66,"internal-slot":161}],73:[function(require,module,exports){
+},{"../aos/FromHex":111,"es-errors/syntax":127,"es-errors/type":128,"get-intrinsic":143}],89:[function(require,module,exports){
+arguments[4][85][0].apply(exports,arguments)
+},{"./implementation":88,"./polyfill":90,"./shim":91,"call-bind":11,"define-properties":14,"dup":85}],90:[function(require,module,exports){
+'use strict';
+
+var implementation = require('./implementation');
+
+module.exports = function getPolyfill() {
+	return typeof Uint8Array === 'function' && typeof Uint8Array.fromHex === 'function' ? Uint8Array.fromHex : implementation;
+};
+
+},{"./implementation":88}],91:[function(require,module,exports){
+'use strict';
+
+var getPolyfill = require('./polyfill');
+var define = require('define-properties');
+
+module.exports = function shimUint8ArrayFromHex() {
+	var polyfill = getPolyfill();
+
+	if (typeof Uint8Array === 'function') {
+		define(
+			Uint8Array,
+			{ fromHex: polyfill },
+			{ fromHex: function () { return Uint8Array.fromHex !== polyfill; } }
+		);
+	}
+
+	return polyfill;
+};
+
+},{"./polyfill":90,"define-properties":14}],92:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('get-intrinsic');
+
+var $SyntaxError = require('es-errors/syntax');
+var $TypeError = require('es-errors/type');
+var $Uint8Array = GetIntrinsic('%Uint8Array%', true);
+
+var FromBase64 = require('../aos/FromBase64');
+var Get = require('es-abstract/2024/Get');
+var GetOptionsObject = require('../aos/GetOptionsObject');
+var IsTypedArrayOutOfBounds = require('es-abstract/2024/IsTypedArrayOutOfBounds');
+var MakeTypedArrayWithBufferWitnessRecord = require('es-abstract/2024/MakeTypedArrayWithBufferWitnessRecord');
+var SetUint8ArrayBytes = require('../aos/SetUint8ArrayBytes');
+var SetValueInBuffer = require('es-abstract/2024/SetValueInBuffer');
+var TypedArrayLength = require('es-abstract/2024/TypedArrayLength');
+var ValidateUint8Array = require('../aos/ValidateUint8Array');
+
+var typedArrayByteOffset = require('typed-array-byte-offset');
+var typedArrayBuffer = require('typed-array-buffer');
+
+module.exports = function setFromBase64(string) {
+	if (!$Uint8Array) {
+		throw new $SyntaxError('This environment does not support Uint8Array');
+	}
+
+	var into = this; // step 1
+
+	ValidateUint8Array(into); // step 2
+
+	if (typeof string !== 'string') {
+		throw new $TypeError('`string` is not a string: ' + typeof string); // step 3
+	}
+
+	var opts = GetOptionsObject(arguments.length > 1 ? arguments[1] : void undefined); // step 4
+
+	var alphabet = Get(opts, 'alphabet'); // step 5
+
+	if (typeof alphabet === 'undefined') {
+		alphabet = 'base64'; // step 6
+	}
+
+	if (alphabet !== 'base64' && alphabet !== 'base64url') {
+		throw new $TypeError('Assertion failed: `alphabet` is not `\'base64\'` or `\'base64url\'`: ' + (typeof alphabet === 'string' ? alphabet : typeof alphabet)); // step 7
+	}
+
+	var lastChunkHandling = Get(opts, 'lastChunkHandling'); // step 8
+
+	if (typeof lastChunkHandling === 'undefined') {
+		lastChunkHandling = 'loose'; // step 9
+	}
+
+	if (lastChunkHandling !== 'loose' && lastChunkHandling !== 'strict' && lastChunkHandling !== 'stop-before-partial') {
+		throw new $TypeError('`lastChunkHandling` must be `\'loose\'`, `\'strict\'`, or `\'stop-before-partial\'`'); // step 10
+	}
+
+	var taRecord = MakeTypedArrayWithBufferWitnessRecord(into, 'SEQ-CST'); // step 11
+
+	if (IsTypedArrayOutOfBounds(taRecord)) {
+		throw new $TypeError('typed array is out of bounds'); // step 12
+	}
+
+	var byteLength = TypedArrayLength(taRecord); // step 13
+
+	var result = FromBase64(string, alphabet, lastChunkHandling, byteLength); // step 14
+
+	var bytes = result['[[Bytes]]']; // step 15
+
+	var written = bytes.length; // step 16
+
+	// 17. NOTE: FromBase64 does not invoke any user code, so the ArrayBuffer backing into cannot have been detached or shrunk.
+
+	if (written > byteLength) {
+		throw new $TypeError('Assertion failed: written is not <= byteLength'); // step 19
+	}
+
+	SetUint8ArrayBytes(into, bytes); // step 19
+
+	if (result['[[Error]]']) { // step 20
+		throw result['[[Error]]']; // step 20.a
+	}
+
+	var offset = typedArrayByteOffset(into); // step 21
+
+	var index = 0; // step 22
+
+	var intoBuffer = typedArrayBuffer(into);
+
+	while (index < written) { // step 23
+		var byte = bytes[index]; // step 23.a
+
+		var byteIndexInBuffer = index + offset; // step 23.b
+
+		SetValueInBuffer(intoBuffer, byteIndexInBuffer, 'UINT8', byte, true, 'UNORDERED'); // step 23.c
+
+		index += 1; // step 23.d
+	}
+
+	// 24. Let resultObject be OrdinaryObjectCreate(%Object.prototype%).
+	// 25. Perform ! CreateDataPropertyOrThrow(resultObject, "read", 𝔽(result.[[Read]])).
+	// 26. Perform ! CreateDataPropertyOrThrow(resultObject, "written", 𝔽(written)).
+	// 27. Return resultObject.
+
+	return { // steps 24 - 27
+		read: result['[[Read]]'],
+		written: written
+	};
+};
+
+},{"../aos/FromBase64":110,"../aos/GetOptionsObject":112,"../aos/SetUint8ArrayBytes":117,"../aos/ValidateUint8Array":120,"es-abstract/2024/Get":21,"es-abstract/2024/IsTypedArrayOutOfBounds":29,"es-abstract/2024/MakeTypedArrayWithBufferWitnessRecord":31,"es-abstract/2024/SetValueInBuffer":36,"es-abstract/2024/TypedArrayLength":56,"es-errors/syntax":127,"es-errors/type":128,"get-intrinsic":143,"typed-array-buffer":205,"typed-array-byte-offset":206}],93:[function(require,module,exports){
+'use strict';
+
+var callBind = require('call-bind');
+var define = require('define-properties');
+
+var implementation = require('./implementation');
+var getPolyfill = require('./polyfill');
+var shim = require('./shim');
+
+var bound = callBind(getPolyfill());
+
+define(bound, {
+	getPolyfill: getPolyfill,
+	implementation: implementation,
+	shim: shim
+});
+
+module.exports = bound;
+
+},{"./implementation":92,"./polyfill":94,"./shim":95,"call-bind":11,"define-properties":14}],94:[function(require,module,exports){
+'use strict';
+
+var implementation = require('./implementation');
+
+module.exports = function getPolyfill() {
+	return typeof Uint8Array === 'function' && typeof Uint8Array.prototype.setFromBase64 === 'function' ? Uint8Array.prototype.setFromBase64 : implementation;
+};
+
+},{"./implementation":92}],95:[function(require,module,exports){
+'use strict';
+
+var getPolyfill = require('./polyfill');
+var define = require('define-properties');
+
+module.exports = function shimUint8ArraySetFromBase64() {
+	var polyfill = getPolyfill();
+
+	if (typeof Uint8Array === 'function') {
+		define(
+			Uint8Array.prototype,
+			{ setFromBase64: polyfill },
+			{ setFromBase64: function () { return Uint8Array.prototype.setFromBase64 !== polyfill; } }
+		);
+	}
+
+	return polyfill;
+};
+
+},{"./polyfill":94,"define-properties":14}],96:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('get-intrinsic');
+
+var $SyntaxError = require('es-errors/syntax');
+var $TypeError = require('es-errors/type');
+var $Uint8Array = GetIntrinsic('%Uint8Array%', true);
+
+var FromHex = require('../aos/FromHex');
+var IsTypedArrayOutOfBounds = require('es-abstract/2024/IsTypedArrayOutOfBounds');
+var MakeTypedArrayWithBufferWitnessRecord = require('es-abstract/2024/MakeTypedArrayWithBufferWitnessRecord');
+var TypedArrayLength = require('es-abstract/2024/TypedArrayLength');
+var ValidateUint8Array = require('../aos/ValidateUint8Array');
+var SetUint8ArrayBytes = require('../aos/SetUint8ArrayBytes');
+
+module.exports = function setFromHex(string) {
+	if (!$Uint8Array) {
+		throw new $SyntaxError('This environment does not support Uint8Array'); // step 1
+	}
+
+	var into = this; // step 1
+
+	ValidateUint8Array(into); // step 2
+
+	if (typeof string !== 'string') {
+		throw new $TypeError('`string` is not a string: ' + typeof string); // step 3
+	}
+
+	var taRecord = MakeTypedArrayWithBufferWitnessRecord(into, 'SEQ-CST'); // step 4
+
+	if (IsTypedArrayOutOfBounds(taRecord)) {
+		throw new $TypeError('fromHexInto called on Typed Array backed by detached buffer'); // step 5
+	}
+
+	var byteLength = TypedArrayLength(taRecord); // step 6
+
+	var result = FromHex(string, byteLength); // step 7
+
+	var bytes = result['[[Bytes]]']; // step 8
+
+	var written = bytes.length; // step 9
+
+	// 10. NOTE: FromHex does not invoke any user code, so the ArrayBuffer backing into cannot have been detached or shrunk.
+
+	if (written > byteLength) {
+		throw new $TypeError('Assertion failed: written is not <= byteLength'); // step 11
+	}
+
+	SetUint8ArrayBytes(into, bytes); // step 12
+
+	if (result['[[Error]]']) { // step 13
+		throw result['[[Error]]']; // step 13.a
+	}
+
+	// var resultObject = {}; // step 14 // OrdinaryObjectCreate(%Object.prototype%)
+	// CreateDataPropertyOrThrow(resultObject, 'read', result['[[Read]]']); // step 15
+	// CreateDataPropertyOrThrow(resultObject, 'written', written); // step 16
+	// return resultObject; // step 17
+
+	return { // steps 14 - 17
+		read: result['[[Read]]'],
+		written: written
+	};
+};
+
+},{"../aos/FromHex":111,"../aos/SetUint8ArrayBytes":117,"../aos/ValidateUint8Array":120,"es-abstract/2024/IsTypedArrayOutOfBounds":29,"es-abstract/2024/MakeTypedArrayWithBufferWitnessRecord":31,"es-abstract/2024/TypedArrayLength":56,"es-errors/syntax":127,"es-errors/type":128,"get-intrinsic":143}],97:[function(require,module,exports){
+arguments[4][93][0].apply(exports,arguments)
+},{"./implementation":96,"./polyfill":98,"./shim":99,"call-bind":11,"define-properties":14,"dup":93}],98:[function(require,module,exports){
+'use strict';
+
+var implementation = require('./implementation');
+
+module.exports = function getPolyfill() {
+	return typeof Uint8Array === 'function' && typeof Uint8Array.prototype.setFromHex === 'function' ? Uint8Array.prototype.setFromHex : implementation;
+};
+
+},{"./implementation":96}],99:[function(require,module,exports){
+'use strict';
+
+var getPolyfill = require('./polyfill');
+var define = require('define-properties');
+
+module.exports = function shimUint8ArraySetFromHex() {
+	var polyfill = getPolyfill();
+
+	if (typeof Uint8Array === 'function') {
+		define(
+			Uint8Array.prototype,
+			{ setFromHex: polyfill },
+			{ setFromHex: function () { return Uint8Array.prototype.setFromHex !== polyfill; } }
+		);
+	}
+
+	return polyfill;
+};
+
+},{"./polyfill":98,"define-properties":14}],100:[function(require,module,exports){
+'use strict';
+
+var $TypeError = require('es-errors/type');
+
+var Get = require('es-abstract/2024/Get');
+var GetOptionsObject = require('../aos/GetOptionsObject');
+var GetUint8ArrayBytes = require('../aos/GetUint8ArrayBytes');
+var ValidateUint8Array = require('../aos/ValidateUint8Array');
+var ToBoolean = require('es-abstract/2024/ToBoolean');
+
+var alphabetFromIdentifier = require('../aos/helpers/alphabetFromIdentifier');
+
+var callBound = require('call-bound');
+
+var $charAt = callBound('String.prototype.charAt');
+
+module.exports = function toBase64() {
+	var O = this; // step 1
+
+	ValidateUint8Array(O); // step 2
+
+	var options = arguments.length > 0 ? arguments[0] : void undefined;
+	var opts = GetOptionsObject(options); // step 3
+
+	var alphabet = Get(opts, 'alphabet'); // step 4
+
+	if (typeof alphabet === 'undefined') {
+		alphabet = 'base64'; // step 5
+	}
+
+	if (alphabet !== 'base64' && alphabet !== 'base64url') {
+		throw new $TypeError('Assertion failed: `alphabet` is not `\'base64\'` or `\'base64url\'`: ' + (typeof alphabet === 'string' ? alphabet : typeof alphabet)); // step 6
+	}
+
+	var omitPadding = ToBoolean(Get(opts, 'omitPadding')); // step 7
+
+	// eslint-disable-next-line no-unused-vars
+	var toEncode = GetUint8ArrayBytes(O); // step 8
+
+	// if (alphabet === 'base64') { // step 9
+	// 		a. Let outAscii be the sequence of code points which results from encoding toEncode according to the base64 encoding specified in section 4 of RFC 4648.
+	// } else { // step 10
+	// 		a. Assert: alphabet is "base64url".
+	// 		b. Let outAscii be the sequence of code points which results from encoding toEncode according to the base64url encoding specified in section 5 of RFC 4648.
+	// }
+
+	// return CodePointsToString(outAscii); // step 11
+
+	// code adapted from https://github.com/tc39/proposal-arraybuffer-base64/blob/22228812214d5a1c2966cd626f43be3576e79290/playground/polyfill-core.mjs
+	var lookup = alphabetFromIdentifier(alphabet);
+	var result = '';
+
+	var i = 0;
+	var triplet;
+	for (; i + 2 < O.length; i += 3) {
+		triplet = (O[i] << 16) + (O[i + 1] << 8) + O[i + 2];
+		result += $charAt(lookup, (triplet >> 18) & 63)
+			+ $charAt(lookup, (triplet >> 12) & 63)
+			+ $charAt(lookup, (triplet >> 6) & 63)
+			+ $charAt(lookup, triplet & 63);
+	}
+	if (i + 2 === O.length) {
+		triplet = (O[i] << 16) + (O[i + 1] << 8);
+		result += $charAt(lookup, (triplet >> 18) & 63)
+			+ $charAt(lookup, (triplet >> 12) & 63)
+			+ $charAt(lookup, (triplet >> 6) & 63)
+			+ (omitPadding ? '' : '=');
+	} else if (i + 1 === O.length) {
+		triplet = O[i] << 16;
+		result += $charAt(lookup, (triplet >> 18) & 63)
+			+ $charAt(lookup, (triplet >> 12) & 63)
+			+ (omitPadding ? '' : '==');
+	}
+	return result;
+};
+
+},{"../aos/GetOptionsObject":112,"../aos/GetUint8ArrayBytes":113,"../aos/ValidateUint8Array":120,"../aos/helpers/alphabetFromIdentifier":121,"call-bound":12,"es-abstract/2024/Get":21,"es-abstract/2024/ToBoolean":43,"es-errors/type":128}],101:[function(require,module,exports){
 'use strict';
 
 var define = require('define-properties');
@@ -1677,1523 +2891,890 @@ define(polyfill, {
 
 module.exports = polyfill;
 
-},{"./implementation":72,"./polyfill":74,"./shim":75,"call-bind":11,"define-properties":14}],74:[function(require,module,exports){
+},{"./implementation":100,"./polyfill":102,"./shim":103,"call-bind":11,"define-properties":14}],102:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
 
 module.exports = function getPolyfill() {
-	if (typeof Iterator === 'function' && typeof Iterator.prototype.drop === 'function') {
-		try {
-			// https://issues.chromium.org/issues/336839115
-			Iterator.prototype.drop.call({ next: null }, 0).next();
-		} catch (e) {
-			return Iterator.prototype.drop;
-		}
-	}
-	return implementation;
-};
-
-},{"./implementation":72}],75:[function(require,module,exports){
-'use strict';
-
-var define = require('define-properties');
-var getPolyfill = require('./polyfill');
-
-var $IteratorPrototype = require('../Iterator.prototype/implementation');
-
-module.exports = function shimIteratorPrototypeDrop() {
-	var polyfill = getPolyfill();
-
-	define(
-		$IteratorPrototype,
-		{ drop: polyfill },
-		{ drop: function () { return $IteratorPrototype.drop !== polyfill; } }
-	);
-
-	return polyfill;
-};
-
-},{"../Iterator.prototype/implementation":116,"./polyfill":74,"define-properties":14}],76:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-
-var Call = require('es-abstract/2024/Call');
-var GetIteratorDirect = require('../aos/GetIteratorDirect');
-var IsCallable = require('es-abstract/2024/IsCallable');
-var IteratorClose = require('es-abstract/2024/IteratorClose');
-var IteratorStepValue = require('es-abstract/2024/IteratorStepValue');
-var NormalCompletion = require('es-abstract/2024/NormalCompletion');
-var ThrowCompletion = require('es-abstract/2024/ThrowCompletion');
-var ToBoolean = require('es-abstract/2024/ToBoolean');
-var Type = require('es-abstract/2024/Type');
-
-module.exports = function every(predicate) {
-	if (this instanceof every) {
-		throw new $TypeError('`every` is not a constructor');
-	}
-
-	var O = this; // step 1
-	if (Type(O) !== 'Object') {
-		throw new $TypeError('`this` value must be an Object'); // step 2
-	}
-
-	if (!IsCallable(predicate)) {
-		throw new $TypeError('`predicate` must be a function'); // step 3
-	}
-
-	var iterated = GetIteratorDirect(O); // step 4
-
-	var counter = 0; // step 5
-
-	// eslint-disable-next-line no-constant-condition
-	while (true) { // step 6
-		var value = IteratorStepValue(iterated); // step 6.a
-		if (iterated['[[Done]]']) {
-			return true; // step 6.b
-		}
-		var result;
-		try {
-			result = Call(predicate, void undefined, [value, counter]); // step 6.c
-		} catch (e) {
-			// close iterator // step 6.d
-			IteratorClose(
-				iterated,
-				ThrowCompletion(e)
-			);
-		} finally {
-			counter += 1; // step 6.f
-		}
-		if (!ToBoolean(result)) {
-			return IteratorClose(
-				iterated,
-				NormalCompletion(false)
-			); // step 6.e
-		}
-	}
-};
-
-},{"../aos/GetIteratorDirect":128,"es-abstract/2024/Call":20,"es-abstract/2024/IsCallable":28,"es-abstract/2024/IteratorClose":29,"es-abstract/2024/IteratorStepValue":33,"es-abstract/2024/NormalCompletion":34,"es-abstract/2024/ThrowCompletion":38,"es-abstract/2024/ToBoolean":39,"es-abstract/2024/Type":44,"es-errors/type":66}],77:[function(require,module,exports){
-arguments[4][73][0].apply(exports,arguments)
-},{"./implementation":76,"./polyfill":78,"./shim":79,"call-bind":11,"define-properties":14,"dup":73}],78:[function(require,module,exports){
-'use strict';
-
-var implementation = require('./implementation');
-
-module.exports = function getPolyfill() {
-	return typeof Iterator === 'function' && typeof Iterator.prototype.every === 'function'
-		? Iterator.prototype.every
-		: implementation;
-};
-
-},{"./implementation":76}],79:[function(require,module,exports){
-'use strict';
-
-var define = require('define-properties');
-var getPolyfill = require('./polyfill');
-
-var $IteratorPrototype = require('../Iterator.prototype/implementation');
-
-module.exports = function shimIteratorPrototypeEvery() {
-	var polyfill = getPolyfill();
-
-	define(
-		$IteratorPrototype,
-		{ every: polyfill },
-		{ every: function () { return $IteratorPrototype.every !== polyfill; } }
-	);
-
-	return polyfill;
-};
-
-},{"../Iterator.prototype/implementation":116,"./polyfill":78,"define-properties":14}],80:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-
-var Call = require('es-abstract/2024/Call');
-var CompletionRecord = require('es-abstract/2024/CompletionRecord');
-var CreateIteratorFromClosure = require('../aos/CreateIteratorFromClosure');
-var GetIteratorDirect = require('../aos/GetIteratorDirect');
-var IsCallable = require('es-abstract/2024/IsCallable');
-var IteratorClose = require('es-abstract/2024/IteratorClose');
-var IteratorStepValue = require('es-abstract/2024/IteratorStepValue');
-var ThrowCompletion = require('es-abstract/2024/ThrowCompletion');
-var ToBoolean = require('es-abstract/2024/ToBoolean');
-var Type = require('es-abstract/2024/Type');
-
-var iterHelperProto = require('../IteratorHelperPrototype');
-
-var SLOT = require('internal-slot');
-
-module.exports = function filter(predicate) {
-	if (this instanceof filter) {
-		throw new $TypeError('`filter` is not a constructor');
-	}
-
-	var O = this; // step 1
-	if (Type(O) !== 'Object') {
-		throw new $TypeError('`this` value must be an Object'); // step 2
-	}
-
-	if (!IsCallable(predicate)) {
-		throw new $TypeError('`predicate` must be a function'); // step 3
-	}
-
-	var iterated = GetIteratorDirect(O); // step 4
-
-	var closeIfAbrupt = function (abruptCompletion) {
-		if (!(abruptCompletion instanceof CompletionRecord)) {
-			throw new $TypeError('`abruptCompletion` must be a Completion Record');
-		}
-		IteratorClose(
-			iterated,
-			abruptCompletion
-		);
-	};
-
-	var sentinel = {};
-	var counter = 0; // step 6.a
-	var closure = function () {
-		// eslint-disable-next-line no-constant-condition
-		while (true) { // step 6.b
-			var value = IteratorStepValue(iterated); // step 6.b.i
-			if (iterated['[[Done]]']) {
-				return sentinel; // step 6.b.ii
-			}
-
-			var selected;
-			try {
-				selected = Call(predicate, void undefined, [value, counter]); // step 6.b.iv
-				// yield mapped // step 6.b.vi
-				if (ToBoolean(selected)) {
-					return value;
-				}
-			} catch (e) {
-				// close iterator // step 6.b.v, 6.b.vii
-				closeIfAbrupt(ThrowCompletion(e));
-				throw e;
-			} finally {
-				counter += 1; // step 6.b.viii
-			}
-		}
-	};
-	SLOT.set(closure, '[[Sentinel]]', sentinel); // for the userland implementation
-	SLOT.set(closure, '[[CloseIfAbrupt]]', closeIfAbrupt); // for the userland implementation
-
-	var result = CreateIteratorFromClosure(closure, 'Iterator Helper', iterHelperProto, ['[[UnderlyingIterator]]']); // step 7
-
-	SLOT.set(result, '[[UnderlyingIterator]]', iterated); // step 8
-
-	return result; // step 9
-};
-
-},{"../IteratorHelperPrototype":121,"../aos/CreateIteratorFromClosure":123,"../aos/GetIteratorDirect":128,"es-abstract/2024/Call":20,"es-abstract/2024/CompletionRecord":22,"es-abstract/2024/IsCallable":28,"es-abstract/2024/IteratorClose":29,"es-abstract/2024/IteratorStepValue":33,"es-abstract/2024/ThrowCompletion":38,"es-abstract/2024/ToBoolean":39,"es-abstract/2024/Type":44,"es-errors/type":66,"internal-slot":161}],81:[function(require,module,exports){
-arguments[4][73][0].apply(exports,arguments)
-},{"./implementation":80,"./polyfill":82,"./shim":83,"call-bind":11,"define-properties":14,"dup":73}],82:[function(require,module,exports){
-'use strict';
-
-var implementation = require('./implementation');
-
-module.exports = function getPolyfill() {
-	if (typeof Iterator === 'function' && typeof Iterator.prototype.filter === 'function') {
-		try {
-			// https://issues.chromium.org/issues/336839115
-			Iterator.prototype.filter.call({ next: null }, function () {}).next();
-		} catch (e) {
-			return Iterator.prototype.filter;
-		}
-	}
-	return implementation;
-};
-
-},{"./implementation":80}],83:[function(require,module,exports){
-'use strict';
-
-var define = require('define-properties');
-var getPolyfill = require('./polyfill');
-
-var $IteratorPrototype = require('../Iterator.prototype/implementation');
-
-module.exports = function shimIteratorPrototypeFilter() {
-	var polyfill = getPolyfill();
-
-	define(
-		$IteratorPrototype,
-		{ filter: polyfill },
-		{ filter: function () { return $IteratorPrototype.filter !== polyfill; } }
-	);
-
-	return polyfill;
-};
-
-},{"../Iterator.prototype/implementation":116,"./polyfill":82,"define-properties":14}],84:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-
-var Call = require('es-abstract/2024/Call');
-var GetIteratorDirect = require('../aos/GetIteratorDirect');
-var IsCallable = require('es-abstract/2024/IsCallable');
-var IteratorClose = require('es-abstract/2024/IteratorClose');
-var IteratorStepValue = require('es-abstract/2024/IteratorStepValue');
-var NormalCompletion = require('es-abstract/2024/NormalCompletion');
-var ThrowCompletion = require('es-abstract/2024/ThrowCompletion');
-var ToBoolean = require('es-abstract/2024/ToBoolean');
-var Type = require('es-abstract/2024/Type');
-
-module.exports = function find(predicate) {
-	if (this instanceof find) {
-		throw new $TypeError('`find` is not a constructor');
-	}
-
-	var O = this; // step 1
-
-	if (Type(O) !== 'Object') {
-		throw new $TypeError('`this` value must be an Object'); // step 2
-	}
-
-	if (!IsCallable(predicate)) {
-		throw new $TypeError('`predicate` must be a function'); // step 3
-	}
-
-	var iterated = GetIteratorDirect(O); // step 4
-
-	var counter = 0; // step 5
-
-	// eslint-disable-next-line no-constant-condition
-	while (true) { // step 6
-		var value = IteratorStepValue(iterated); // step 6.a
-		if (iterated['[[Done]]']) {
-			return void undefined; // step 6.b
-		}
-		var result;
-		try {
-			result = Call(predicate, void undefined, [value, counter]); // step 6.c
-		} catch (e) {
-			// close iterator // step 6.d
-			IteratorClose(
-				iterated,
-				ThrowCompletion(e)
-			);
-		} finally {
-			counter += 1; // step 6.f
-		}
-		if (ToBoolean(result)) {
-			return IteratorClose(
-				iterated,
-				NormalCompletion(value)
-			); // step 6.e
-		}
-	}
-};
-
-},{"../aos/GetIteratorDirect":128,"es-abstract/2024/Call":20,"es-abstract/2024/IsCallable":28,"es-abstract/2024/IteratorClose":29,"es-abstract/2024/IteratorStepValue":33,"es-abstract/2024/NormalCompletion":34,"es-abstract/2024/ThrowCompletion":38,"es-abstract/2024/ToBoolean":39,"es-abstract/2024/Type":44,"es-errors/type":66}],85:[function(require,module,exports){
-arguments[4][73][0].apply(exports,arguments)
-},{"./implementation":84,"./polyfill":86,"./shim":87,"call-bind":11,"define-properties":14,"dup":73}],86:[function(require,module,exports){
-'use strict';
-
-var implementation = require('./implementation');
-
-module.exports = function getPolyfill() {
-	return typeof Iterator === 'function' && typeof Iterator.prototype.find === 'function'
-		? Iterator.prototype.find
-		: implementation;
-};
-
-},{"./implementation":84}],87:[function(require,module,exports){
-'use strict';
-
-var define = require('define-properties');
-var getPolyfill = require('./polyfill');
-
-var $IteratorPrototype = require('../Iterator.prototype/implementation');
-
-module.exports = function shimIteratorPrototypeFind() {
-	var polyfill = getPolyfill();
-
-	define(
-		$IteratorPrototype,
-		{ find: polyfill },
-		{ find: function () { return $IteratorPrototype.find !== polyfill; } }
-	);
-
-	return polyfill;
-};
-
-},{"../Iterator.prototype/implementation":116,"./polyfill":86,"define-properties":14}],88:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-
-var Call = require('es-abstract/2024/Call');
-var CompletionRecord = require('es-abstract/2024/CompletionRecord');
-var CreateIteratorFromClosure = require('../aos/CreateIteratorFromClosure');
-var GetIteratorDirect = require('../aos/GetIteratorDirect');
-var GetIteratorFlattenable = require('../aos/GetIteratorFlattenable');
-var IsCallable = require('es-abstract/2024/IsCallable');
-var IteratorClose = require('es-abstract/2024/IteratorClose');
-var IteratorStepValue = require('es-abstract/2024/IteratorStepValue');
-var ThrowCompletion = require('es-abstract/2024/ThrowCompletion');
-var Type = require('es-abstract/2024/Type');
-
-var iterHelperProto = require('../IteratorHelperPrototype');
-
-var SLOT = require('internal-slot');
-
-module.exports = function flatMap(mapper) {
-	if (this instanceof flatMap) {
-		throw new $TypeError('`flatMap` is not a constructor');
-	}
-
-	var O = this; // step 1
-	if (Type(O) !== 'Object') {
-		throw new $TypeError('`this` value must be an Object'); // step 2
-	}
-
-	if (!IsCallable(mapper)) {
-		throw new $TypeError('`mapper` must be a function'); // step 3
-	}
-
-	var iterated = GetIteratorDirect(O); // step 4
-
-	var sentinel = { sentinel: true };
-	var innerIterator = sentinel;
-
-	var closeIfAbrupt = function (abruptCompletion) {
-		if (!(abruptCompletion instanceof CompletionRecord)) {
-			throw new $TypeError('`abruptCompletion` must be a Completion Record');
-		}
-		try {
-			if (innerIterator !== sentinel) {
-				IteratorClose(
-					innerIterator,
-					abruptCompletion
-				);
-			}
-		} finally {
-			innerIterator = sentinel;
-
-			IteratorClose(
-				iterated,
-				abruptCompletion
-			);
-		}
-	};
-
-	var counter = 0; // step 5.a
-	var innerAlive = false;
-	var closure = function () {
-		// while (true) { // step 5.b
-		if (innerIterator === sentinel) {
-			var value = IteratorStepValue(iterated); // step 5.b.i
-			if (iterated['[[Done]]']) {
-				innerAlive = false;
-				innerIterator = sentinel;
-				// return void undefined; // step 5.b.ii
-				return sentinel;
-			}
-		}
-
-		if (innerIterator === sentinel) {
-			innerAlive = true; // step 5.b.viii
-			try {
-				var mapped = Call(mapper, void undefined, [value, counter]); // step 5.b.iv
-				// yield mapped // step 5.b.vi
-				innerIterator = GetIteratorFlattenable(mapped, 'reject-strings'); // step 5.b.vi
-			} catch (e) {
-				innerAlive = false;
-				innerIterator = sentinel;
-				closeIfAbrupt(ThrowCompletion(e)); // steps 5.b.v, 5.b.vii
-			} finally {
-				counter += 1; // step 5.b.x
-			}
-		}
-		// while (innerAlive) { // step 5.b.ix
-		if (innerAlive) {
-			// step 5.b.ix.4
-			var innerValue;
-			try {
-				innerValue = IteratorStepValue(innerIterator); // step 5.b.ix.4.a
-			} catch (e) {
-				innerAlive = false;
-				innerIterator = sentinel;
-				closeIfAbrupt(ThrowCompletion(e)); // step 5.b.ix.4.b
-			}
-			if (innerIterator['[[Done]]']) {
-				innerAlive = false;
-				innerIterator = sentinel;
-				return closure();
-			}
-			return innerValue; // step 5.b.ix.4.c
-		}
-		// }
-		// return void undefined;
-		return sentinel;
-	};
-	SLOT.set(closure, '[[Sentinel]]', sentinel); // for the userland implementation
-	SLOT.set(closure, '[[CloseIfAbrupt]]', closeIfAbrupt); // for the userland implementation
-
-	var result = CreateIteratorFromClosure(closure, 'Iterator Helper', iterHelperProto, ['[[UnderlyingIterator]]']); // step 7
-
-	SLOT.set(result, '[[UnderlyingIterator]]', iterated); // step 8
-
-	return result; // step 9
-};
-
-},{"../IteratorHelperPrototype":121,"../aos/CreateIteratorFromClosure":123,"../aos/GetIteratorDirect":128,"../aos/GetIteratorFlattenable":129,"es-abstract/2024/Call":20,"es-abstract/2024/CompletionRecord":22,"es-abstract/2024/IsCallable":28,"es-abstract/2024/IteratorClose":29,"es-abstract/2024/IteratorStepValue":33,"es-abstract/2024/ThrowCompletion":38,"es-abstract/2024/Type":44,"es-errors/type":66,"internal-slot":161}],89:[function(require,module,exports){
-arguments[4][73][0].apply(exports,arguments)
-},{"./implementation":88,"./polyfill":90,"./shim":91,"call-bind":11,"define-properties":14,"dup":73}],90:[function(require,module,exports){
-'use strict';
-
-var implementation = require('./implementation');
-
-module.exports = function getPolyfill() {
-	if (typeof Iterator === 'function' && typeof Iterator.prototype.flatMap === 'function') {
-		try {
-			// https://issues.chromium.org/issues/336839115
-			Iterator.prototype.flatMap.call({ next: null }, function () {}).next();
-		} catch (e) {
-			return Iterator.prototype.flatMap;
-		}
-	}
-	return implementation;
-};
-
-},{"./implementation":88}],91:[function(require,module,exports){
-'use strict';
-
-var define = require('define-properties');
-var getPolyfill = require('./polyfill');
-
-var $IteratorPrototype = require('../Iterator.prototype/implementation');
-
-module.exports = function shimIteratorPrototypeFlatMap() {
-	var polyfill = getPolyfill();
-
-	define(
-		$IteratorPrototype,
-		{ flatMap: polyfill },
-		{ flatMap: function () { return $IteratorPrototype.flatMap !== polyfill; } }
-	);
-
-	return polyfill;
-};
-
-},{"../Iterator.prototype/implementation":116,"./polyfill":90,"define-properties":14}],92:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-
-var Call = require('es-abstract/2024/Call');
-var GetIteratorDirect = require('../aos/GetIteratorDirect');
-var IsCallable = require('es-abstract/2024/IsCallable');
-var IteratorClose = require('es-abstract/2024/IteratorClose');
-var IteratorStepValue = require('es-abstract/2024/IteratorStepValue');
-var ThrowCompletion = require('es-abstract/2024/ThrowCompletion');
-var Type = require('es-abstract/2024/Type');
-
-module.exports = function forEach(fn) {
-	if (this instanceof forEach) {
-		throw new $TypeError('`forEach` is not a constructor');
-	}
-
-	var O = this; // step 1
-	if (Type(O) !== 'Object') {
-		throw new $TypeError('`this` value must be an Object'); // step 2
-	}
-
-	if (!IsCallable(fn)) {
-		throw new $TypeError('`fn` must be a function'); // step 3
-	}
-
-	var iterated = GetIteratorDirect(O); // step 4
-
-	var counter = 0; // step 5
-
-	// eslint-disable-next-line no-constant-condition
-	while (true) { // step 6
-		var value = IteratorStepValue(iterated); // step 6.a
-		if (iterated['[[Done]]']) {
-			return void undefined; // step 6.b
-		}
-		try {
-			Call(fn, void undefined, [value, counter]); // step 6.c
-		} catch (e) {
-			IteratorClose(
-				iterated,
-				ThrowCompletion(e)
-			); // steps 6.d
-			throw e;
-		} finally {
-			counter += 1; // step 6.e
-		}
-	}
-};
-
-},{"../aos/GetIteratorDirect":128,"es-abstract/2024/Call":20,"es-abstract/2024/IsCallable":28,"es-abstract/2024/IteratorClose":29,"es-abstract/2024/IteratorStepValue":33,"es-abstract/2024/ThrowCompletion":38,"es-abstract/2024/Type":44,"es-errors/type":66}],93:[function(require,module,exports){
-arguments[4][73][0].apply(exports,arguments)
-},{"./implementation":92,"./polyfill":94,"./shim":95,"call-bind":11,"define-properties":14,"dup":73}],94:[function(require,module,exports){
-'use strict';
-
-var implementation = require('./implementation');
-
-module.exports = function getPolyfill() {
-	return typeof Iterator === 'function' && typeof Iterator.prototype.forEach === 'function'
-		? Iterator.prototype.forEach
-		: implementation;
-};
-
-},{"./implementation":92}],95:[function(require,module,exports){
-'use strict';
-
-var define = require('define-properties');
-var getPolyfill = require('./polyfill');
-
-var $IteratorPrototype = require('../Iterator.prototype/implementation');
-
-module.exports = function shimIteratorPrototypeForEach() {
-	var polyfill = getPolyfill();
-
-	define(
-		$IteratorPrototype,
-		{ forEach: polyfill },
-		{ forEach: function () { return $IteratorPrototype.forEach !== polyfill; } }
-	);
-
-	return polyfill;
-};
-
-},{"../Iterator.prototype/implementation":116,"./polyfill":94,"define-properties":14}],96:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-
-var Call = require('es-abstract/2024/Call');
-var CompletionRecord = require('es-abstract/2024/CompletionRecord');
-var CreateIteratorFromClosure = require('../aos/CreateIteratorFromClosure');
-var GetIteratorDirect = require('../aos/GetIteratorDirect');
-var IsCallable = require('es-abstract/2024/IsCallable');
-var IteratorClose = require('es-abstract/2024/IteratorClose');
-var IteratorStepValue = require('es-abstract/2024/IteratorStepValue');
-var ThrowCompletion = require('es-abstract/2024/ThrowCompletion');
-var Type = require('es-abstract/2024/Type');
-
-var iterHelperProto = require('../IteratorHelperPrototype');
-
-var SLOT = require('internal-slot');
-
-module.exports = function map(mapper) {
-	if (this instanceof map) {
-		throw new $TypeError('`map` is not a constructor');
-	}
-
-	var O = this; // step 1
-	if (Type(O) !== 'Object') {
-		throw new $TypeError('`this` value must be an Object'); // step 2
-	}
-
-	if (!IsCallable(mapper)) {
-		throw new $TypeError('`mapper` must be a function'); // step 3
-	}
-
-	var iterated = GetIteratorDirect(O); // step 4
-
-	var closeIfAbrupt = function (abruptCompletion) {
-		if (!(abruptCompletion instanceof CompletionRecord)) {
-			throw new $TypeError('`abruptCompletion` must be a Completion Record');
-		}
-		IteratorClose(
-			iterated,
-			abruptCompletion
-		);
-	};
-
-	var sentinel = {};
-	var counter = 0; // step 6.a
-	var closure = function () {
-		// while (true) { // step 6.b
-		var value = IteratorStepValue(iterated); // step 6.b.i
-		if (iterated['[[Done]]']) {
-			return sentinel; // step 6.b.ii
-		}
-
-		var mapped;
-		try {
-			mapped = Call(mapper, void undefined, [value, counter]); // step 6.b.iii
-			// yield mapped // step 6.b.vi
-			return mapped;
-		} catch (e) {
-			// close iterator // step 6.b.v, 6.b.vii
-			closeIfAbrupt(ThrowCompletion(e));
-			throw e;
-		} finally {
-			counter += 1; // step 6.b.viii
-		}
-		// }
-	};
-	SLOT.set(closure, '[[Sentinel]]', sentinel); // for the userland implementation
-	SLOT.set(closure, '[[CloseIfAbrupt]]', closeIfAbrupt); // for the userland implementation
-
-	var result = CreateIteratorFromClosure(closure, 'Iterator Helper', iterHelperProto, ['[[UnderlyingIterator]]']); // step 7
-
-	SLOT.set(result, '[[UnderlyingIterator]]', iterated); // step 8
-
-	return result; // step 9
-};
-
-},{"../IteratorHelperPrototype":121,"../aos/CreateIteratorFromClosure":123,"../aos/GetIteratorDirect":128,"es-abstract/2024/Call":20,"es-abstract/2024/CompletionRecord":22,"es-abstract/2024/IsCallable":28,"es-abstract/2024/IteratorClose":29,"es-abstract/2024/IteratorStepValue":33,"es-abstract/2024/ThrowCompletion":38,"es-abstract/2024/Type":44,"es-errors/type":66,"internal-slot":161}],97:[function(require,module,exports){
-arguments[4][73][0].apply(exports,arguments)
-},{"./implementation":96,"./polyfill":98,"./shim":99,"call-bind":11,"define-properties":14,"dup":73}],98:[function(require,module,exports){
-'use strict';
-
-var implementation = require('./implementation');
-
-module.exports = function getPolyfill() {
-	if (typeof Iterator === 'function' && typeof Iterator.prototype.map === 'function') {
-		try {
-			// https://issues.chromium.org/issues/336839115
-			Iterator.prototype.map.call({ next: null }, function () {}).next();
-		} catch (e) {
-			return Iterator.prototype.map;
-		}
-	}
-	return implementation;
-};
-
-},{"./implementation":96}],99:[function(require,module,exports){
-'use strict';
-
-var define = require('define-properties');
-var getPolyfill = require('./polyfill');
-
-var $IteratorPrototype = require('../Iterator.prototype/implementation');
-
-module.exports = function shimIteratorPrototypeMap() {
-	var polyfill = getPolyfill();
-
-	define(
-		$IteratorPrototype,
-		{ map: polyfill },
-		{ map: function () { return $IteratorPrototype.map !== polyfill; } }
-	);
-
-	return polyfill;
-};
-
-},{"../Iterator.prototype/implementation":116,"./polyfill":98,"define-properties":14}],100:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-
-var Call = require('es-abstract/2024/Call');
-var GetIteratorDirect = require('../aos/GetIteratorDirect');
-var IsCallable = require('es-abstract/2024/IsCallable');
-var IteratorClose = require('es-abstract/2024/IteratorClose');
-var IteratorStepValue = require('es-abstract/2024/IteratorStepValue');
-var ThrowCompletion = require('es-abstract/2024/ThrowCompletion');
-var Type = require('es-abstract/2024/Type');
-
-module.exports = function reduce(reducer) {
-	if (this instanceof reduce) {
-		throw new $TypeError('`reduce` is not a constructor');
-	}
-
-	var O = this; // step 1
-	if (Type(O) !== 'Object') {
-		throw new $TypeError('`this` value must be an Object'); // step 2
-	}
-
-	if (!IsCallable(reducer)) {
-		throw new $TypeError('`reducer` must be a function'); // step 3
-	}
-
-	var iterated = GetIteratorDirect(O); // step 4
-
-	var accumulator;
-	var counter;
-	if (arguments.length < 2) { // step 6
-		accumulator = IteratorStepValue(iterated); // step 6.a
-		if (iterated['[[Done]]']) {
-			throw new $TypeError('Reduce of empty iterator with no initial value');
-		}
-		counter = 1;
-	} else { // step 7
-		accumulator = arguments[1]; // step 7.a
-		counter = 0;
-	}
-
-	// eslint-disable-next-line no-constant-condition
-	while (true) { // step 8
-		var value = IteratorStepValue(iterated); // step 8.a
-		if (iterated['[[Done]]']) {
-			return accumulator; // step 8.b
-		}
-		try {
-			var result = Call(reducer, void undefined, [accumulator, value, counter]); // step 8.d
-			accumulator = result; // step 8.f
-		} catch (e) {
-			// close iterator // step 8.e
-			IteratorClose(
-				iterated,
-				ThrowCompletion(e)
-			);
-		}
-		counter += 1; // step 8.g
-	}
-};
-
-},{"../aos/GetIteratorDirect":128,"es-abstract/2024/Call":20,"es-abstract/2024/IsCallable":28,"es-abstract/2024/IteratorClose":29,"es-abstract/2024/IteratorStepValue":33,"es-abstract/2024/ThrowCompletion":38,"es-abstract/2024/Type":44,"es-errors/type":66}],101:[function(require,module,exports){
-arguments[4][73][0].apply(exports,arguments)
-},{"./implementation":100,"./polyfill":102,"./shim":103,"call-bind":11,"define-properties":14,"dup":73}],102:[function(require,module,exports){
-'use strict';
-
-var implementation = require('./implementation');
-
-module.exports = function getPolyfill() {
-	return typeof Iterator === 'function' && typeof Iterator.prototype.reduce === 'function'
-		? Iterator.prototype.reduce
-		: implementation;
+	return typeof Uint8Array === 'function' && typeof Uint8Array.prototype.toBase64 === 'function' ? Uint8Array.prototype.toBase64 : implementation;
 };
 
 },{"./implementation":100}],103:[function(require,module,exports){
 'use strict';
 
-var define = require('define-properties');
 var getPolyfill = require('./polyfill');
+var define = require('define-properties');
 
-var $IteratorPrototype = require('../Iterator.prototype/implementation');
-
-module.exports = function shimIteratorPrototypeReduce() {
+module.exports = function shimUint8ArrayPrototypeToBase64() {
 	var polyfill = getPolyfill();
 
-	define(
-		$IteratorPrototype,
-		{ reduce: polyfill },
-		{ reduce: function () { return $IteratorPrototype.reduce !== polyfill; } }
-	);
+	if (typeof Uint8Array === 'function') {
+		define(
+			Uint8Array.prototype,
+			{ toBase64: polyfill },
+			{ toBase64: function () { return Uint8Array.prototype.toBase64 !== polyfill; } }
+		);
+	}
 
 	return polyfill;
 };
 
-},{"../Iterator.prototype/implementation":116,"./polyfill":102,"define-properties":14}],104:[function(require,module,exports){
+},{"./polyfill":102,"define-properties":14}],104:[function(require,module,exports){
 'use strict';
 
-var $TypeError = require('es-errors/type');
+var GetUint8ArrayBytes = require('../aos/GetUint8ArrayBytes');
+var NumberToString = require('es-abstract/2024/Number/toString');
+var StringPad = require('es-abstract/2024/StringPad');
+var ValidateUint8Array = require('../aos/ValidateUint8Array');
 
-var Call = require('es-abstract/2024/Call');
-var GetIteratorDirect = require('../aos/GetIteratorDirect');
-var IsCallable = require('es-abstract/2024/IsCallable');
-var IteratorClose = require('es-abstract/2024/IteratorClose');
-var IteratorStepValue = require('es-abstract/2024/IteratorStepValue');
-var NormalCompletion = require('es-abstract/2024/NormalCompletion');
-var ThrowCompletion = require('es-abstract/2024/ThrowCompletion');
-var ToBoolean = require('es-abstract/2024/ToBoolean');
-var Type = require('es-abstract/2024/Type');
+var forEach = require('es-abstract/helpers/forEach');
 
-module.exports = function some(predicate) {
-	if (this instanceof some) {
-		throw new $TypeError('`some` is not a constructor');
-	}
-
+module.exports = function toHex() {
 	var O = this; // step 1
-	if (Type(O) !== 'Object') {
-		throw new $TypeError('`this` value must be an Object'); // step 2
-	}
 
-	if (!IsCallable(predicate)) {
-		throw new $TypeError('`predicate` must be a function'); // step 3
-	}
+	ValidateUint8Array(O); // step 2
 
-	var iterated = GetIteratorDirect(O); // step 4
+	var toEncode = GetUint8ArrayBytes(O); // step 3
 
-	var counter = 0; // step 5
+	var out = ''; // step 4
 
-	// eslint-disable-next-line no-constant-condition
-	while (true) { // step 6
-		var value = IteratorStepValue(iterated); // step 6.a
-		if (iterated['[[Done]]']) {
-			return false; // step 6.b
-		}
-		var result;
-		try {
-			result = Call(predicate, void undefined, [value, counter]); // step 6.c
-		} catch (e) {
-			// close iterator // step 6.d
-			IteratorClose(
-				iterated,
-				ThrowCompletion(e)
-			);
-		} finally {
-			counter += 1; // step 6.f
-		}
-		if (ToBoolean(result)) {
-			return IteratorClose(
-				iterated,
-				NormalCompletion(true)
-			); // step 6.e
-		}
-	}
+	forEach(toEncode, function (byte) { // step 5
+		var hex = NumberToString(byte, 16); // step 5.a
+
+		hex = StringPad(hex, 2, '0', 'start'); // step 5.b
+
+		out += hex; // step 5.c
+	});
+
+	return out; // step 6
 };
 
-},{"../aos/GetIteratorDirect":128,"es-abstract/2024/Call":20,"es-abstract/2024/IsCallable":28,"es-abstract/2024/IteratorClose":29,"es-abstract/2024/IteratorStepValue":33,"es-abstract/2024/NormalCompletion":34,"es-abstract/2024/ThrowCompletion":38,"es-abstract/2024/ToBoolean":39,"es-abstract/2024/Type":44,"es-errors/type":66}],105:[function(require,module,exports){
-arguments[4][73][0].apply(exports,arguments)
-},{"./implementation":104,"./polyfill":106,"./shim":107,"call-bind":11,"define-properties":14,"dup":73}],106:[function(require,module,exports){
+},{"../aos/GetUint8ArrayBytes":113,"../aos/ValidateUint8Array":120,"es-abstract/2024/Number/toString":32,"es-abstract/2024/StringPad":37,"es-abstract/helpers/forEach":70}],105:[function(require,module,exports){
+arguments[4][101][0].apply(exports,arguments)
+},{"./implementation":104,"./polyfill":106,"./shim":107,"call-bind":11,"define-properties":14,"dup":101}],106:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
 
 module.exports = function getPolyfill() {
-	return typeof Iterator === 'function' && typeof Iterator.prototype.some === 'function'
-		? Iterator.prototype.some
-		: implementation;
+	return typeof Uint8Array === 'function' && typeof Uint8Array.prototype.toHex === 'function' ? Uint8Array.prototype.toHex : implementation;
 };
 
 },{"./implementation":104}],107:[function(require,module,exports){
 'use strict';
 
-var define = require('define-properties');
 var getPolyfill = require('./polyfill');
+var define = require('define-properties');
 
-var $IteratorPrototype = require('../Iterator.prototype/implementation');
-
-module.exports = function shimIteratorPrototypeSome() {
+module.exports = function shimUint8ArrayPrototypeToHex() {
 	var polyfill = getPolyfill();
 
-	define(
-		$IteratorPrototype,
-		{ some: polyfill },
-		{ some: function () { return $IteratorPrototype.some !== polyfill; } }
-	);
-
-	return polyfill;
-};
-
-},{"../Iterator.prototype/implementation":116,"./polyfill":106,"define-properties":14}],108:[function(require,module,exports){
-'use strict';
-
-var $RangeError = require('es-errors/range');
-var $TypeError = require('es-errors/type');
-
-var CompletionRecord = require('es-abstract/2024/CompletionRecord');
-var CreateIteratorFromClosure = require('../aos/CreateIteratorFromClosure');
-var GetIteratorDirect = require('../aos/GetIteratorDirect');
-var IteratorClose = require('es-abstract/2024/IteratorClose');
-var IteratorStepValue = require('es-abstract/2024/IteratorStepValue');
-var NormalCompletion = require('es-abstract/2024/NormalCompletion');
-var ToIntegerOrInfinity = require('es-abstract/2024/ToIntegerOrInfinity');
-var ToNumber = require('es-abstract/2024/ToNumber');
-var Type = require('es-abstract/2024/Type');
-
-var iterHelperProto = require('../IteratorHelperPrototype');
-
-var isNaN = require('es-abstract/helpers/isNaN');
-
-var SLOT = require('internal-slot');
-
-module.exports = function take(limit) {
-	if (this instanceof take) {
-		throw new $TypeError('`take` is not a constructor');
-	}
-
-	var O = this; // step 1
-	if (Type(O) !== 'Object') {
-		throw new $TypeError('`this` value must be an Object'); // step 2
-	}
-
-	var numLimit = ToNumber(limit); // step 2
-	if (isNaN(numLimit)) {
-		throw new $RangeError('`limit` must be a non-NaN number'); // step 3
-	}
-
-	var iterated = GetIteratorDirect(O); // step 4
-
-	var integerLimit = ToIntegerOrInfinity(numLimit); // step 7
-	if (integerLimit < 0) {
-		throw new $RangeError('`limit` must be a >= 0'); // step 8
-	}
-
-	var closeIfAbrupt = function (abruptCompletion) {
-		if (!(abruptCompletion instanceof CompletionRecord)) {
-			throw new $TypeError('`abruptCompletion` must be a Completion Record');
-		}
-		IteratorClose(
-			iterated,
-			abruptCompletion
+	if (typeof Uint8Array === 'function') {
+		define(
+			Uint8Array.prototype,
+			{ toHex: polyfill },
+			{ toHex: function () { return Uint8Array.prototype.toHex !== polyfill; } }
 		);
-	};
-
-	var sentinel = {};
-	var remaining = integerLimit; // step 9.a
-	var closure = function () { // step 9
-		// while (true) { // step 9.b
-		if (remaining === 0) { // step 9.b.i
-			return IteratorClose( // step 9.b.i.1
-				iterated,
-				NormalCompletion(sentinel)
-			);
-		}
-		if (remaining !== Infinity) { // step 9.b.ii
-			remaining -= 1; // step 9.b.ii.1
-		}
-
-		var value = IteratorStepValue(iterated); // step 6.b.i
-		if (iterated['[[Done]]']) {
-			return sentinel; // step 6.b.ii
-		}
-
-		return value; // step 9.b.iv
-		// }
-	};
-	SLOT.set(closure, '[[Sentinel]]', sentinel); // for the userland implementation
-	SLOT.set(closure, '[[CloseIfAbrupt]]', closeIfAbrupt); // for the userland implementation
-
-	var result = CreateIteratorFromClosure(closure, 'Iterator Helper', iterHelperProto, ['[[UnderlyingIterator]]']); // step 7
-
-	SLOT.set(result, '[[UnderlyingIterator]]', iterated); // step 8
-
-	return result; // step 9
-};
-
-},{"../IteratorHelperPrototype":121,"../aos/CreateIteratorFromClosure":123,"../aos/GetIteratorDirect":128,"es-abstract/2024/CompletionRecord":22,"es-abstract/2024/IteratorClose":29,"es-abstract/2024/IteratorStepValue":33,"es-abstract/2024/NormalCompletion":34,"es-abstract/2024/ToIntegerOrInfinity":40,"es-abstract/2024/ToNumber":41,"es-abstract/2024/Type":44,"es-abstract/helpers/isNaN":54,"es-errors/range":63,"es-errors/type":66,"internal-slot":161}],109:[function(require,module,exports){
-arguments[4][73][0].apply(exports,arguments)
-},{"./implementation":108,"./polyfill":110,"./shim":111,"call-bind":11,"define-properties":14,"dup":73}],110:[function(require,module,exports){
-'use strict';
-
-var implementation = require('./implementation');
-
-module.exports = function getPolyfill() {
-	return typeof Iterator === 'function' && typeof Iterator.prototype.take === 'function'
-		? Iterator.prototype.take
-		: implementation;
-};
-
-},{"./implementation":108}],111:[function(require,module,exports){
-'use strict';
-
-var define = require('define-properties');
-var getPolyfill = require('./polyfill');
-
-var $IteratorPrototype = require('../Iterator.prototype/implementation');
-
-module.exports = function shimIteratorPrototypeTake() {
-	var polyfill = getPolyfill();
-
-	define(
-		$IteratorPrototype,
-		{ take: polyfill },
-		{ take: function () { return $IteratorPrototype.take !== polyfill; } }
-	);
+	}
 
 	return polyfill;
 };
 
-},{"../Iterator.prototype/implementation":116,"./polyfill":110,"define-properties":14}],112:[function(require,module,exports){
+},{"./polyfill":106,"define-properties":14}],108:[function(require,module,exports){
 'use strict';
 
 var $TypeError = require('es-errors/type');
 
-var GetIteratorDirect = require('../aos/GetIteratorDirect');
-var IteratorStepValue = require('es-abstract/2024/IteratorStepValue');
-var Type = require('es-abstract/2024/Type');
+// https://tc39.es/ecma262/#sec-arraybufferbytelength
 
-var callBound = require('call-bind/callBound');
+var IsDetachedBuffer = require('es-abstract/2024/IsDetachedBuffer');
 
-var $push = callBound('Array.prototype.push');
+var isArrayBuffer = require('is-array-buffer');
+var isSharedArrayBuffer = require('is-shared-array-buffer');
+var arrayBufferByteLength = require('array-buffer-byte-length');
 
-module.exports = function toArray() {
-	if (this instanceof toArray) {
-		throw new $TypeError('`toArray` is not a constructor');
+var isGrowable = false; // TODO: support this
+
+module.exports = function ArrayBufferByteLength(arrayBuffer, order) {
+	var isSAB = isSharedArrayBuffer(arrayBuffer);
+	if (!isArrayBuffer(arrayBuffer) && !isSAB) {
+		throw new $TypeError('Assertion failed: `arrayBuffer` must be an ArrayBuffer or a SharedArrayBuffer');
+	}
+	if (order !== 'SEQ-CST' && order !== 'UNORDERED') {
+		throw new $TypeError('Assertion failed: `order` must be ~SEQ-CST~ or ~UNORDERED~');
 	}
 
-	var O = this; // step 1
-
-	if (Type(O) !== 'Object') {
-		throw new $TypeError('`this` value must be an Object'); // step 2
+	// 1. If IsSharedArrayBuffer(arrayBuffer) is true and arrayBuffer has an [[ArrayBufferByteLengthData]] internal slot, then
+	// TODO: see if IsFixedLengthArrayBuffer can be used here in the spec instead
+	if (isSAB && isGrowable) { // step 1
+		// a. Let bufferByteLengthBlock be arrayBuffer.[[ArrayBufferByteLengthData]].
+		// b. Let rawLength be GetRawBytesFromSharedBlock(bufferByteLengthBlock, 0, BIGUINT64, true, order).
+		// c. Let isLittleEndian be the value of the [[LittleEndian]] field of the surrounding agent's Agent Record.
+		// d. Return ℝ(RawBytesToNumeric(BIGUINT64, rawLength, isLittleEndian)).
 	}
 
-	var iterated = GetIteratorDirect(O); // step 3
+	if (IsDetachedBuffer(arrayBuffer)) {
+		throw new $TypeError('Assertion failed: `arrayBuffer` must not be detached'); // step 2
+	}
 
-	var items = []; // step 4
+	return arrayBufferByteLength(arrayBuffer);
+};
+
+},{"array-buffer-byte-length":1,"es-abstract/2024/IsDetachedBuffer":27,"es-errors/type":128,"is-array-buffer":157,"is-shared-array-buffer":169}],109:[function(require,module,exports){
+'use strict';
+
+var $SyntaxError = require('es-errors/syntax');
+var $TypeError = require('es-errors/type');
+
+var base64Map = {
+	__proto__: null,
+	0: 52,
+	1: 53,
+	2: 54,
+	3: 55,
+	4: 56,
+	5: 57,
+	6: 58,
+	7: 59,
+	8: 60,
+	9: 61,
+	'+': 62,
+	'/': 63
+};
+var getBase64Index = function (c) {
+	if (c in base64Map) {
+		return base64Map[c];
+	}
+	var code = c.charCodeAt(0);
+	return code < 97 ? code - 65 : code - 71;
+};
+
+// https://tc39.es/proposal-arraybuffer-base64/spec/#sec-decodebase64chunk
+
+module.exports = function DecodeBase64Chunk(chunk) {
+	if (typeof chunk !== 'string') {
+		throw new $TypeError('Assertion failed: `chunk` must be a string');
+	}
+
+	var throwOnExtraBits = arguments.length > 1 ? !!arguments[1] : false;
+
+	if (arguments.length > 1 && typeof throwOnExtraBits !== 'boolean') {
+		throw new $TypeError('Assertion failed: `throwOnExtraBits`, if provided, must be a boolean');
+	}
+
+	var chunkLength = chunk.length; // step 1
+
+	if (chunkLength === 2) { // step 2
+		chunk += 'AA';
+	} else if (chunkLength === 3) { // step 3
+		chunk += 'A';
+	} else { // step 4
+		if (chunkLength !== 4) { // eslint-disable-line no-lonely-if
+			throw new $TypeError('Assertion failed: `chunk` must be 2, 3, or 4 characters long (got ' + chunk + ')'); // step 4.a
+		}
+	}
+
+	// 5. Let byteSequence be the unique sequence of 3 bytes resulting from decoding chunk as base64 (such that applying the base64 encoding specified in section 4 of RFC 4648 to byteSequence would produce chunk).
+	// 6. Let bytes be a List whose elements are the elements of byteSequence, in order.
+
+	var c1 = chunk[0];
+	var c2 = chunk[1];
+	var c3 = chunk[2];
+	var c4 = chunk[3];
+
+	var triplet = (getBase64Index(c1) << 18)
+        + (getBase64Index(c2) << 12)
+        + (getBase64Index(c3) << 6)
+        + getBase64Index(c4);
+
+	var bytes = [
+		(triplet >> 16) & 255,
+		(triplet >> 8) & 255,
+		triplet & 255
+	];
+
+	if (chunkLength === 2) { // step 7
+		if (arguments.length < 2) {
+			throw new $TypeError('Assertion failed: `throwOnExtraBits` must be provided if `chunk` is 2 characters long'); // step 7.a
+		}
+		if (throwOnExtraBits && bytes[1] !== 0) { // step 7.b
+			throw new $SyntaxError('extra bits'); // step 7.b.i
+		}
+		return [bytes[0]]; // step 7.c
+	} else if (chunkLength === 3) { // step 8
+		if (arguments.length < 2) {
+			throw new $TypeError('Assertion failed: `throwOnExtraBits` must be provided if `chunk` is 3 characters long'); // step 8.a
+		}
+		if (throwOnExtraBits && bytes[2] !== 0) { // step 8.b
+			throw new $SyntaxError('extra bits'); // step 8.b.i
+		}
+
+		return [bytes[0], bytes[1]]; // step 8.c
+	} // step 9
+	return bytes; // step 9.a
+
+};
+
+},{"es-errors/syntax":127,"es-errors/type":128}],110:[function(require,module,exports){
+'use strict';
+
+var $SyntaxError = require('es-errors/syntax');
+var $TypeError = require('es-errors/type');
+
+var callBound = require('call-bound');
+
+var DecodeBase64Chunk = require('../aos/DecodeBase64Chunk');
+var SkipAsciiWhitespace = require('../aos/SkipAsciiWhitespace');
+var substring = require('es-abstract/2024/substring');
+
+var isInteger = require('math-intrinsics/isInteger');
+var maxSafeInteger = require('math-intrinsics/constants/maxSafeInteger');
+
+var alphabetFromIdentifier = require('./helpers/alphabetFromIdentifier');
+
+var safeArrayConcat = require('safe-array-concat');
+
+var $strIndexOf = callBound('String.prototype.indexOf');
+
+/* eslint no-redeclare: 0 */
+
+// https://tc39.es/proposal-arraybuffer-base64/spec/#sec-frombase64
+
+module.exports = function FromBase64(string, alphabet, lastChunkHandling) {
+	if (typeof string !== 'string') {
+		throw new $TypeError('Assertion failed: `string` is not a string: ' + string);
+	}
+	if (alphabet !== 'base64' && alphabet !== 'base64url') {
+		throw new $TypeError('Assertion failed: `alphabet` is not `\'base64\'` or `\'base64url\'`: ' + alphabet);
+	}
+	if (lastChunkHandling !== 'loose' && lastChunkHandling !== 'strict' && lastChunkHandling !== 'stop-before-partial') {
+		throw new $TypeError('Assertion failed: `lastChunkHandling` must be `\'loose\'`, `\'strict\'`, or `\'stop-before-partial\'`');
+	}
+
+	var maxLength = arguments.length > 3 ? arguments[3] : maxSafeInteger; // step 1.a
+	if (
+		arguments.length > 3
+        && (!isInteger(maxLength) || maxLength < 0)
+	) {
+		throw new $TypeError('Assertion failed: `maxLength` is not a non-negative integer: ' + maxLength);
+	}
+
+	// 2. NOTE: The order of validation and decoding in the algorithm below is not observable. Implementations are encouraged to perform them in whatever order is most efficient, possibly interleaving validation with decoding, as long as the behaviour is observably equivalent.
+
+	if (maxLength === 0) { // step 3
+		return {
+			'[[Read]]': 0,
+			'[[Bytes]]': [],
+			'[[Error]]': null
+		}; // step 3.a
+	}
+
+	var read = 0; // step 4
+
+	var bytes = []; // step 5
+
+	var chunk = ''; // step 6
+
+	var chunkLength = 0; // step 7
+
+	var index = 0; // step 8
+
+	var length = string.length; // step 9
 
 	// eslint-disable-next-line no-constant-condition
-	while (true) { // step 5
-		var value = IteratorStepValue(iterated); // step 5.a
-		if (iterated['[[Done]]']) {
-			return items; // step 5.b
+	while (true) { // step 10
+		index = SkipAsciiWhitespace(string, index); // step 10.a
+
+		if (index === length) { // step 10.b
+			if (chunkLength > 0) { // step 10.b.i
+				if (lastChunkHandling === 'stop-before-partial') { // step 10.b.i.1
+					return {
+						'[[Read]]': read,
+						'[[Bytes]]': bytes,
+						'[[Error]]': null
+					}; // step 10.b.i.1.a
+				} else if (lastChunkHandling === 'loose') { // step 10.b.i.2
+					if (chunkLength === 1) { // step 10.b.i.2.a
+						var error = new $SyntaxError('malformed padding: exactly one additional character'); // step 10.b.i.2.a.i
+						return {
+							'[[Read]]': read,
+							'[[Bytes]]': bytes,
+							'[[Error]]': error
+						}; // step 10.b.i.2.a.ii
+					}
+
+					try {
+						bytes = safeArrayConcat(bytes, DecodeBase64Chunk(chunk, false)); // step 10.b.i.2.b
+					} catch (e) {
+						return {
+							'[[Read]]': read,
+							'[[Bytes]]': bytes,
+							'[[Error]]': e
+						}; // step 10.b.i.2.c ?
+					}
+				} else { // step 10.b.i.3
+					// Assert: lastChunkHandling is "strict".
+					var error = new $SyntaxError('missing padding'); // step 10.b.i.3.b
+					return {
+						'[[Read]]': read,
+						'[[Bytes]]': bytes,
+						'[[Error]]': error
+					}; // step 10.b.i.3.c
+				}
+			}
+			return {
+				'[[Read]]': length,
+				'[[Bytes]]': bytes,
+				'[[Error]]': null
+			}; // step 10.b.ii
 		}
-		$push(items, value); // step 5.d
+		var char = substring(string, index, index + 1); // step 10.c
+
+		index += 1; // step 10.d
+
+		if (char === '=') { // step 10.e
+			if (chunkLength < 2) { // step 10.e.i
+				var error = new $SyntaxError('padding is too early'); // step 10.e.i.1
+				return {
+					'[[Read]]': read,
+					'[[Bytes]]': bytes,
+					'[[Error]]': error
+				}; // step 10.e.i.2
+			}
+
+			index = SkipAsciiWhitespace(string, index); // step 10.e.ii
+
+			if (chunkLength === 2) { // step 10.e.iii
+				if (index === length) { // step 10.e.iii.1
+					if (lastChunkHandling === 'stop-before-partial') { // step 10.e.iii.1.a
+						return {
+							'[[Read]]': read,
+							'[[Bytes]]': bytes,
+							'[[Error]]': null
+						}; // step 10.e.iii.1.a.i
+					}
+					var error = new $SyntaxError('malformed padding - only one ='); // step 10.e.iii.1.b
+					return {
+						'[[Read]]': read,
+						'[[Bytes]]': bytes,
+						'[[Error]]': error
+					}; // step 10.e.iii.1.c
+				}
+
+				char = substring(string, index, index + 1); // step 10.e.iii.2
+
+				if (char === '=') { // step 10.e.iii.3
+					index = SkipAsciiWhitespace(string, index + 1); // step 10.e.iii.3.a
+				}
+			}
+
+			if (index < length) { // step 10.e.iv
+				var error = new $SyntaxError('unexpected character after padding'); // step 10.e.iv.1
+				return {
+					'[[Read]]': read,
+					'[[Bytes]]': bytes,
+					'[[Error]]': error
+				}; // step 10.e.iv.2
+			}
+
+			var throwOnExtraBits = lastChunkHandling === 'strict'; // step 10.e.v - vi
+
+			bytes = safeArrayConcat(bytes, DecodeBase64Chunk(chunk, throwOnExtraBits)); // step 10.e.vii
+
+			return {
+				'[[Read]]': length,
+				'[[Bytes]]': bytes,
+				'[[Error]]': null
+			}; // step 10.e.viii
+		}
+
+		if (alphabet === 'base64url') { // step 10.f
+			if (char === '+' || char === '/') { // step 10.f.i
+				var error = new $SyntaxError('unexpected character ' + char); // step 10.f.i.1
+				return {
+					'[[Read]]': read,
+					'[[Bytes]]': bytes,
+					'[[Error]]': error
+				}; // step 10.f.i.2
+			} else if (char === '-') {
+				char = '+'; // step 10.f.ii
+			} else if (char === '_') {
+				char = '/'; // step 10.f.iii
+			}
+		}
+
+		// g. If char is not an element of the standard base64 alphabet, throw a SyntaxError exception.
+		if ($strIndexOf(alphabetFromIdentifier('base64'), char) < 0) { // step 10.g
+			var error = new $SyntaxError('unexpected character ' + char); // step 10.g.i
+			return {
+				'[[Read]]': read,
+				'[[Bytes]]': bytes,
+				'[[Error]]': error
+			}; // step 10.g.ii
+		}
+
+		var remaining = maxLength - bytes.length; // step 10.h
+
+		if (
+			(remaining === 1 && chunkLength === 2)
+            || (remaining === 2 && chunkLength === 3)
+		) { // step 10.i
+			return {
+				'[[Read]]': read,
+				'[[Bytes]]': bytes,
+				'[[Error]]': null
+			}; // step 10.i.1
+		}
+
+		chunk += char; // step 10.j
+
+		chunkLength = chunk.length; // step 10.k
+
+		if (chunkLength === 4) { // step 10.l
+			bytes = safeArrayConcat(bytes, DecodeBase64Chunk(chunk)); // step 10.l.i
+
+			chunk = ''; // step 10.l.ii
+
+			chunkLength = 0; // step 10.l.iii
+
+			read = index; // step 10.l.iv
+
+			if (bytes.length >= maxLength) { // step 10.l.v
+				return {
+					'[[Read]]': read,
+					'[[Bytes]]': bytes,
+					'[[Error]]': null
+				}; // step 10.l.v.1
+			}
+		}
 	}
 };
 
-},{"../aos/GetIteratorDirect":128,"call-bind/callBound":10,"es-abstract/2024/IteratorStepValue":33,"es-abstract/2024/Type":44,"es-errors/type":66}],113:[function(require,module,exports){
-arguments[4][73][0].apply(exports,arguments)
-},{"./implementation":112,"./polyfill":114,"./shim":115,"call-bind":11,"define-properties":14,"dup":73}],114:[function(require,module,exports){
-'use strict';
-
-var implementation = require('./implementation');
-
-module.exports = function getPolyfill() {
-	return typeof Iterator === 'function' && typeof Iterator.prototype.toArray === 'function'
-		? Iterator.prototype.toArray
-		: implementation;
-};
-
-},{"./implementation":112}],115:[function(require,module,exports){
-'use strict';
-
-var define = require('define-properties');
-var getPolyfill = require('./polyfill');
-
-var $IteratorPrototype = require('../Iterator.prototype/implementation');
-
-module.exports = function shimIteratorPrototypeToArray() {
-	var polyfill = getPolyfill();
-
-	define(
-		$IteratorPrototype,
-		{ toArray: polyfill },
-		{ toArray: function () { return $IteratorPrototype.toArray !== polyfill; } }
-	);
-
-	return polyfill;
-};
-
-},{"../Iterator.prototype/implementation":116,"./polyfill":114,"define-properties":14}],116:[function(require,module,exports){
-'use strict';
-
-module.exports = require('iterator.prototype');
-
-},{"iterator.prototype":178}],117:[function(require,module,exports){
+},{"../aos/DecodeBase64Chunk":109,"../aos/SkipAsciiWhitespace":118,"./helpers/alphabetFromIdentifier":121,"call-bound":12,"es-abstract/2024/substring":60,"es-errors/syntax":127,"es-errors/type":128,"math-intrinsics/constants/maxSafeInteger":177,"math-intrinsics/isInteger":180,"safe-array-concat":193}],111:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
-var hasPropertyDescriptors = require('has-property-descriptors')();
 
+var $parseInt = GetIntrinsic('%parseInt%');
+var $SyntaxError = require('es-errors/syntax');
 var $TypeError = require('es-errors/type');
-var $defineProperty = hasPropertyDescriptors && GetIntrinsic('%Object.defineProperty%', true);
 
-var iterProto = require('iterator.prototype');
-var callBound = require('call-bind/callBound');
+var modulo = require('es-abstract/2024/modulo');
+var substring = require('es-abstract/2024/substring');
 
-var $isPrototypeOf = callBound('Object.prototype.isPrototypeOf');
+var isInteger = require('math-intrinsics/isInteger');
+var MAX_SAFE_INTEGER = require('math-intrinsics/constants/maxSafeInteger');
 
-var $Iterator = typeof Iterator === 'function' ? Iterator : function Iterator() {
-	if (
-		!(this instanceof Iterator)
-		|| this.constructor === Iterator
-		|| !$isPrototypeOf(Iterator, this.constructor)
-	) {
-		throw new $TypeError('`Iterator` can not be called or constructed directly');
+var callBound = require('call-bound');
+var safeRegexTest = require('safe-regex-test');
+
+var isHexDigit = safeRegexTest(/^[0-9a-fA-F]+$/);
+var $push = callBound('Array.prototype.push');
+
+// https://tc39.es/proposal-arraybuffer-base64/spec/#sec-fromhex
+
+module.exports = function FromHex(string) {
+	if (typeof string !== 'string') {
+		throw new $TypeError('Assertion failed: `string` must be a string');
 	}
-};
-
-if ($Iterator.prototype !== iterProto) {
-	$Iterator.prototype = iterProto;
-}
-$defineProperty($Iterator, 'prototype', { writable: false });
-
-module.exports = $Iterator;
-
-},{"call-bind/callBound":10,"es-errors/type":66,"get-intrinsic":144,"has-property-descriptors":155,"iterator.prototype":178}],118:[function(require,module,exports){
-arguments[4][73][0].apply(exports,arguments)
-},{"./implementation":117,"./polyfill":119,"./shim":120,"call-bind":11,"define-properties":14,"dup":73}],119:[function(require,module,exports){
-'use strict';
-
-var globalThis = require('globalthis')();
-var implementation = require('./implementation');
-
-module.exports = function getPolyfill() {
-	return typeof globalThis.Iterator === 'function' ? globalThis.Iterator : implementation;
-};
-
-},{"./implementation":117,"globalthis":149}],120:[function(require,module,exports){
-'use strict';
-
-var define = require('define-properties');
-var globalThis = require('globalthis')();
-
-var getPolyfill = require('./polyfill');
-
-module.exports = function shimIterator() {
-	var polyfill = getPolyfill();
-
-	define(
-		globalThis,
-		{ Iterator: polyfill },
-		{ Iterator: function () { return Iterator !== polyfill; } }
-	);
-
-	return polyfill;
-};
-
-},{"./polyfill":119,"define-properties":14,"globalthis":149}],121:[function(require,module,exports){
-'use strict';
-
-var setToStringTag = require('es-set-tostringtag');
-var hasProto = require('has-proto')();
-var iterProto = require('../Iterator.prototype/implementation');
-var SLOT = require('internal-slot');
-
-var CompletionRecord = require('es-abstract/2024/CompletionRecord');
-var CreateIterResultObject = require('es-abstract/2024/CreateIterResultObject');
-var GeneratorResume = require('../aos/GeneratorResume');
-var GeneratorResumeAbrupt = require('../aos/GeneratorResumeAbrupt');
-var IteratorClose = require('es-abstract/2024/IteratorClose');
-var NormalCompletion = require('es-abstract/2024/NormalCompletion');
-
-var implementation;
-if (hasProto) {
-	implementation = {
-		__proto__: iterProto,
-		next: function next() {
-			return GeneratorResume(this, void undefined, 'Iterator Helper');
-		},
-		'return': function () {
-			var O = this; // step 1
-
-			SLOT.assert(O, '[[UnderlyingIterator]]'); // step 2
-
-			SLOT.assert(O, '[[GeneratorState]]'); // step 3
-
-			if (SLOT.get(O, '[[GeneratorState]]') === 'suspendedStart') { // step 4
-				SLOT.set(O, '[[GeneratorState]]', 'completed'); // step 4.a
-				IteratorClose(SLOT.get(O, '[[UnderlyingIterator]]'), NormalCompletion('unused')); // step 4.c
-				return CreateIterResultObject(void undefined, true); // step 4.d
-			}
-
-			var C = new CompletionRecord('return', void undefined); // step 5
-
-			return GeneratorResumeAbrupt(O, C, 'Iterator Helper'); // step 6
-		}
-	};
-	setToStringTag(implementation, 'Iterator Helper');
-} else {
-	var IteratorHelper = function IteratorHelper() {};
-	IteratorHelper.prototype = iterProto;
-	implementation = new IteratorHelper();
-	delete implementation.constructor;
-	implementation.next = function next() {
-		return GeneratorResume(this, void undefined, 'Iterator Helper');
-	};
-	implementation['return'] = function () {
-		var C = new CompletionRecord('return', void undefined); // step 1
-		return GeneratorResumeAbrupt(this, C, 'Iterator Helper');
-	};
-}
-
-module.exports = implementation;
-
-},{"../Iterator.prototype/implementation":116,"../aos/GeneratorResume":124,"../aos/GeneratorResumeAbrupt":125,"es-abstract/2024/CompletionRecord":22,"es-abstract/2024/CreateIterResultObject":23,"es-abstract/2024/IteratorClose":29,"es-abstract/2024/NormalCompletion":34,"es-set-tostringtag":133,"has-proto":156,"internal-slot":161}],122:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-
-var Call = require('es-abstract/2024/Call');
-var CreateIterResultObject = require('es-abstract/2024/CreateIterResultObject');
-var GetMethod = require('es-abstract/2024/GetMethod');
-var Type = require('es-abstract/2024/Type');
-
-var SLOT = require('internal-slot');
-var iterProto = require('../Iterator.prototype/implementation');
-
-// https://tc39.es/proposal-iterator-helpers/#sec-wrapforvaliditeratorprototype-object
-
-module.exports = /* GetIntrinsic('%WrapForValidIteratorPrototype%', true) || */ {
-	__proto__: iterProto,
-	next: function next() {
-		var O = this; // step 1
-
-		// RequireInternalSlot(O, [[Iterated]]); // step 2
-		SLOT.assert(O, '[[Iterated]]');
-
-		var iteratorRecord = SLOT.get(O, '[[Iterated]]'); // step 3
-
-		return Call(iteratorRecord['[[NextMethod]]'], iteratorRecord['[[Iterator]]']); // step 4
-	},
-	'return': function () {
-		var O = this; // step 1
-
-		// RequireInternalSlot(O, [[Iterated]]); // step 2
-		SLOT.assert(O, '[[Iterated]]');
-
-		var iterator = SLOT.get(O, '[[Iterated]]')['[[Iterator]]']; // step 3
-
-		if (Type(iterator) !== 'Object') {
-			throw new $TypeError('iterator must be an Object'); // step 4
-		}
-
-		var returnMethod = GetMethod(iterator, 'return'); // step 5
-
-		if (typeof returnMethod === 'undefined') { // step 6
-			return CreateIterResultObject(undefined, true); // step 6.a
-		}
-		return Call(returnMethod, iterator); // step 7
+	var maxLength = arguments.length > 1 ? arguments[1] : MAX_SAFE_INTEGER; // step 1
+	if (arguments.length > 1 && (!isInteger(maxLength) || maxLength < 0)) {
+		throw new $TypeError('Assertion failed: `maxLength` must be a non-negative integer: ' + maxLength);
 	}
+
+	var length = string.length; // step 2
+
+	var bytes = []; // step 3
+
+	var read = 0; // step 4
+
+	if (modulo(length, 2) !== 0) { // step 5
+		return {
+			'[[Read]]': read,
+			'[[Bytes]]': bytes,
+			'[[Error]]': new $SyntaxError('string should be an even number of characters')
+		};
+	}
+
+	while (read < length && bytes.length < maxLength) { // step 6
+		var hexits = substring(string, read, read + 2); // step 6.a
+
+		if (!isHexDigit(hexits)) { // step 6.b
+			return {
+				'[[Read]]': read,
+				'[[Bytes]]': bytes,
+				'[[Error]]': new $SyntaxError('string should only contain hex characters')
+			};
+		}
+
+		read += 2; // step 6.c
+
+		var byte = $parseInt(hexits, 16); // step 6.d
+
+		$push(bytes, byte); // step 6.e
+	}
+	return {
+		'[[Read]]': read,
+		'[[Bytes]]': bytes,
+		'[[Error]]': null
+	}; // step 7
 };
 
-},{"../Iterator.prototype/implementation":116,"es-abstract/2024/Call":20,"es-abstract/2024/CreateIterResultObject":23,"es-abstract/2024/GetMethod":25,"es-abstract/2024/Type":44,"es-errors/type":66,"internal-slot":161}],123:[function(require,module,exports){
+},{"call-bound":12,"es-abstract/2024/modulo":59,"es-abstract/2024/substring":60,"es-errors/syntax":127,"es-errors/type":128,"get-intrinsic":143,"math-intrinsics/constants/maxSafeInteger":177,"math-intrinsics/isInteger":180,"safe-regex-test":195}],112:[function(require,module,exports){
 'use strict';
 
 var $TypeError = require('es-errors/type');
 
-var GeneratorStart = require('./GeneratorStart');
-var IsArray = require('es-abstract/2024/IsArray');
-var IsCallable = require('es-abstract/2024/IsCallable');
 var OrdinaryObjectCreate = require('es-abstract/2024/OrdinaryObjectCreate');
-
-var every = require('es-abstract/helpers/every');
-
-var SLOT = require('internal-slot');
-
-var safeConcat = require('safe-array-concat');
-
-var isString = function isString(slot) {
-	return typeof slot === 'string';
-};
-
-module.exports = function CreateIteratorFromClosure(closure, generatorBrand, proto) {
-	if (!IsCallable(closure)) {
-		throw new $TypeError('`closure` must be a function');
-	}
-	if (typeof generatorBrand !== 'string') {
-		throw new $TypeError('`generatorBrand` must be a string');
-	}
-	var extraSlots = arguments.length > 3 ? arguments[3] : [];
-	if (arguments.length > 3) {
-		if (!IsArray(extraSlots) || !every(extraSlots, isString)) {
-			throw new $TypeError('`extraSlots` must be a List of String internal slot names');
-		}
-	}
-	var internalSlotsList = safeConcat(extraSlots, ['[[GeneratorContext]]', '[[GeneratorBrand]]', '[[GeneratorState]]']); // step 3
-	var generator = OrdinaryObjectCreate(proto, internalSlotsList); // steps 4, 6
-	SLOT.set(generator, '[[GeneratorBrand]]', generatorBrand); // step 5
-
-	SLOT.assert(closure, '[[Sentinel]]'); // our userland slot
-	SLOT.set(generator, '[[Sentinel]]', SLOT.get(closure, '[[Sentinel]]')); // our userland slot
-	SLOT.assert(closure, '[[CloseIfAbrupt]]'); // our second userland slot
-	SLOT.set(generator, '[[CloseIfAbrupt]]', SLOT.get(closure, '[[CloseIfAbrupt]]')); // our second userland slot
-
-	GeneratorStart(generator, closure); // step 13
-
-	return generator; // step 15
-};
-
-},{"./GeneratorStart":126,"es-abstract/2024/IsArray":27,"es-abstract/2024/IsCallable":28,"es-abstract/2024/OrdinaryObjectCreate":36,"es-abstract/helpers/every":50,"es-errors/type":66,"internal-slot":161,"safe-array-concat":196}],124:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-
-var CreateIterResultObject = require('es-abstract/2024/CreateIterResultObject');
-var GeneratorValidate = require('./GeneratorValidate');
-
-var SLOT = require('internal-slot');
-
-module.exports = function GeneratorResume(generator, value, generatorBrand) {
-	var state = GeneratorValidate(generator, generatorBrand); // step 1
-	if (state === 'completed') {
-		return CreateIterResultObject(void undefined, true); // step 2
-	}
-
-	if (state !== 'suspendedStart' && state !== 'suspendedYield') {
-		throw new $TypeError('Assertion failed: generator state is unexpected: ' + state); // step 3
-	}
-
-	var genContext = SLOT.get(generator, '[[GeneratorContext]]');
-
-	SLOT.set(generator, '[[GeneratorState]]', 'executing'); // step 7
-
-	var result = genContext(value); // steps 5-6, 8-10
-
-	return result;
-};
-
-},{"./GeneratorValidate":127,"es-abstract/2024/CreateIterResultObject":23,"es-errors/type":66,"internal-slot":161}],125:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-
-var CompletionRecord = require('es-abstract/2024/CompletionRecord');
-var CreateIterResultObject = require('es-abstract/2024/CreateIterResultObject');
-var GeneratorValidate = require('./GeneratorValidate');
-var NormalCompletion = require('es-abstract/2024/NormalCompletion');
-
-var SLOT = require('internal-slot');
-
-module.exports = function GeneratorResumeAbrupt(generator, abruptCompletion, generatorBrand) {
-	if (!(abruptCompletion instanceof CompletionRecord)) {
-		throw new $TypeError('Assertion failed: abruptCompletion must be a Completion Record');
-	}
-
-	var state = GeneratorValidate(generator, generatorBrand); // step 1
-
-	if (state === 'suspendedStart') { // step 2
-		SLOT.set(generator, '[[GeneratorState]]', 'completed'); // step 3.a
-		SLOT.set(generator, '[[GeneratorContext]]', null); // step 3.b
-		state = 'completed'; // step 3.c
-	}
-
-	var value = abruptCompletion.value();
-
-	if (state === 'completed') { // step 3
-		return CreateIterResultObject(value, true); // steps 3.a-b
-	}
-
-	if (state !== 'suspendedYield') {
-		throw new $TypeError('Assertion failed: generator state is unexpected: ' + state); // step 4
-	}
-	if (abruptCompletion.type() === 'return') {
-		// due to representing `GeneratorContext` as a function, we can't safely re-invoke it, so we can't support sending it a return completion
-		return CreateIterResultObject(SLOT.get(generator, '[[CloseIfAbrupt]]')(NormalCompletion(abruptCompletion.value())), true);
-	}
-
-	var genContext = SLOT.get(generator, '[[GeneratorContext]]'); // step 5
-
-	SLOT.set(generator, '[[GeneratorState]]', 'executing'); // step 8
-
-	var result = genContext(value); // steps 6-7, 8-11
-
-	return result; // step 12
-};
-
-},{"./GeneratorValidate":127,"es-abstract/2024/CompletionRecord":22,"es-abstract/2024/CreateIterResultObject":23,"es-abstract/2024/NormalCompletion":34,"es-errors/type":66,"internal-slot":161}],126:[function(require,module,exports){
-'use strict';
-
-var $TypeError = require('es-errors/type');
-
-var CreateIterResultObject = require('es-abstract/2024/CreateIterResultObject');
-var IsCallable = require('es-abstract/2024/IsCallable');
 var Type = require('es-abstract/2024/Type');
 
-var SLOT = require('internal-slot');
-
-module.exports = function GeneratorStart(generator, closure) {
-	SLOT.assert(generator, '[[GeneratorState]]');
-	SLOT.assert(generator, '[[GeneratorContext]]');
-	SLOT.assert(generator, '[[GeneratorBrand]]');
-	SLOT.assert(generator, '[[Sentinel]]'); // our userland slot
-	SLOT.assert(generator, '[[CloseIfAbrupt]]'); // our second userland slot
-
-	if (!IsCallable(closure) || closure.length !== 0) {
-		throw new $TypeError('`closure` must be a function that takes no arguments');
+module.exports = function GetOptionsObject(options) {
+	if (typeof options === 'undefined') { // step 1
+		return OrdinaryObjectCreate(null); // step 1.a
+	}
+	if (Type(options) === 'Object') { // step 2
+		return options; // step 2.a
 	}
 
-	var sentinel = SLOT.get(closure, '[[Sentinel]]');
-	if (Type(sentinel) !== 'Object') {
-		throw new $TypeError('`closure.[[Sentinel]]` must be an object');
+	throw new $TypeError('Invalid options object'); // step 3
+};
+
+},{"es-abstract/2024/OrdinaryObjectCreate":34,"es-abstract/2024/Type":54,"es-errors/type":128}],113:[function(require,module,exports){
+'use strict';
+
+var $TypeError = require('es-errors/type');
+
+var callBound = require('call-bound');
+
+var GetValueFromBuffer = require('es-abstract/2024/GetValueFromBuffer');
+var IsTypedArrayOutOfBounds = require('./IsTypedArrayOutOfBounds');
+var MakeTypedArrayWithBufferWitnessRecord = require('./MakeTypedArrayWithBufferWitnessRecord');
+var TypedArrayLength = require('./TypedArrayLength');
+
+var typedArrayBuffer = require('typed-array-buffer');
+var whichTypedArray = require('which-typed-array');
+var typedArrayByteOffset = require('typed-array-byte-offset');
+
+var $push = callBound('Array.prototype.push');
+
+module.exports = function GetUint8ArrayBytes(ta) {
+	if (whichTypedArray(ta) !== 'Uint8Array') {
+		throw new $TypeError('Assertion failed: `ta` must be a Uint8Array');
 	}
-	SLOT.set(generator, '[[GeneratorContext]]', function () { // steps 2-5
-		try {
-			var result = closure();
-			if (result === sentinel) {
-				SLOT.set(generator, '[[GeneratorState]]', 'completed');
-				SLOT.set(generator, '[[GeneratorContext]]', null);
-				return CreateIterResultObject(void undefined, true);
-			}
-			SLOT.set(generator, '[[GeneratorState]]', 'suspendedYield');
-			return CreateIterResultObject(result, false);
-		} catch (e) {
-			SLOT.set(generator, '[[GeneratorState]]', 'completed');
-			SLOT.set(generator, '[[GeneratorContext]]', null);
-			throw e;
+
+	var buffer = typedArrayBuffer(ta); // step 1
+
+	var taRecord = MakeTypedArrayWithBufferWitnessRecord(ta, 'SEQ-CST'); // step 2
+
+	if (IsTypedArrayOutOfBounds(taRecord)) {
+		throw new $TypeError('typed array is out of bounds'); // step 3
+	}
+
+	var len = TypedArrayLength(taRecord); // step 4
+
+	var byteOffset = typedArrayByteOffset(ta); // step 5
+
+	var bytes = []; // step 6
+
+	var index = 0; // step 7
+
+	while (index < len) { // step 8
+		var byteIndex = byteOffset + index; // step 8.a
+
+		var byte = GetValueFromBuffer(buffer, byteIndex, 'UINT8', true, 'UNORDERED'); // step 8.b
+
+		$push(bytes, byte); // step 8.c
+
+		index += 1; // step 8.d
+	}
+
+	return bytes;
+};
+
+},{"./IsTypedArrayOutOfBounds":115,"./MakeTypedArrayWithBufferWitnessRecord":116,"./TypedArrayLength":119,"call-bound":12,"es-abstract/2024/GetValueFromBuffer":22,"es-errors/type":128,"typed-array-buffer":205,"typed-array-byte-offset":206,"which-typed-array":212}],114:[function(require,module,exports){
+arguments[4][28][0].apply(exports,arguments)
+},{"call-bound":12,"dup":28,"es-errors/type":128,"is-array-buffer":157,"is-shared-array-buffer":169}],115:[function(require,module,exports){
+'use strict';
+
+var $TypeError = require('es-errors/type');
+
+var IsDetachedBuffer = require('es-abstract/2024/IsDetachedBuffer');
+var TypedArrayElementSize = require('es-abstract/2024/TypedArrayElementSize');
+
+// var isTypedArrayWithBufferWitnessRecord = require('es-abstract/helpers/records/typed-array-with-buffer-witness-record');
+
+var typedArrayBuffer = require('typed-array-buffer');
+var typedArrayByteOffset = require('typed-array-byte-offset');
+var typedArrayLength = require('typed-array-length');
+
+// https://tc39.es/ecma262/#sec-istypedarrayoutofbounds
+
+module.exports = function IsTypedArrayOutOfBounds(taRecord) {
+	// if (!isTypedArrayWithBufferWitnessRecord(taRecord)) {
+	// 	throw new $TypeError('Assertion failed: `taRecord` is not a TypedArray With Buffer Witness Record');
+	// }
+
+	var O = taRecord['[[Object]]']; // step 1
+
+	var bufferByteLength = taRecord['[[CachedBufferByteLength]]']; // step 2
+
+	if (IsDetachedBuffer(typedArrayBuffer(O)) && bufferByteLength !== 'DETACHEd') {
+		throw new $TypeError('Assertion failed: typed array is detached only if the byte length is ~DETACHED~'); // step 3
+	}
+
+	if (bufferByteLength === 'DETACHED') {
+		return true; // step 4
+	}
+
+	var byteOffsetStart = typedArrayByteOffset(O); // step 5
+
+	var byteOffsetEnd;
+	var length = typedArrayLength(O);
+	// TODO: probably use package for array length
+	// seems to apply when TA is backed by a resizable/growable AB
+	if (length === 'AUTO') { // step 6
+		byteOffsetEnd = bufferByteLength; // step 6.a
+	} else {
+		var elementSize = TypedArrayElementSize(O); // step 7.a
+
+		byteOffsetEnd = byteOffsetStart + (length * elementSize); // step 7.b
+	}
+
+	if (byteOffsetStart > bufferByteLength || byteOffsetEnd > bufferByteLength) {
+		return true; // step 8
+	}
+
+	// 9. NOTE: 0-length TypedArrays are not considered out-of-bounds.
+
+	return false; // step 10
+};
+
+},{"es-abstract/2024/IsDetachedBuffer":27,"es-abstract/2024/TypedArrayElementSize":55,"es-errors/type":128,"typed-array-buffer":205,"typed-array-byte-offset":206,"typed-array-length":207}],116:[function(require,module,exports){
+'use strict';
+
+var $TypeError = require('es-errors/type');
+
+var ArrayBufferByteLength = require('./ArrayBufferByteLength');
+var IsDetachedBuffer = require('es-abstract/2024/IsDetachedBuffer');
+
+var isTypedArray = require('is-typed-array');
+var typedArrayBuffer = require('typed-array-buffer');
+
+// https://tc39.es/ecma262/#sec-maketypedarraywithbufferwitnessrecord
+
+module.exports = function MakeTypedArrayWithBufferWitnessRecord(obj, order) {
+	if (!isTypedArray(obj)) {
+		throw new $TypeError('Assertion failed: `obj` must be a Typed Array');
+	}
+	if (order !== 'SEQ-CST' && order !== 'UNORDERED') {
+		throw new $TypeError('Assertion failed: `order` must be ~SEQ-CST~ or ~UNORDERED~');
+	}
+
+	var buffer = typedArrayBuffer(obj); // step 1
+
+	var byteLength = IsDetachedBuffer(buffer) ? 'DETACHED' : ArrayBufferByteLength(buffer, order); // steps 2 - 3
+
+	return { '[[Object]]': obj, '[[CachedBufferByteLength]]': byteLength }; // step 4
+};
+
+},{"./ArrayBufferByteLength":108,"es-abstract/2024/IsDetachedBuffer":27,"es-errors/type":128,"is-typed-array":172,"typed-array-buffer":205}],117:[function(require,module,exports){
+'use strict';
+
+var SetValueInBuffer = require('es-abstract/2024/SetValueInBuffer');
+var ValidateUint8Array = require('./ValidateUint8Array');
+
+var typedArrayBuffer = require('typed-array-buffer');
+var typedArrayByteOffset = require('typed-array-byte-offset');
+
+// https://tc39.es/proposal-arraybuffer-base64/spec/#sec-writeuint8arraybytes
+
+module.exports = function SetUint8ArrayBytes(into, bytes) {
+	ValidateUint8Array(into);
+
+	var offset = typedArrayByteOffset(into); // step 1
+
+	var len = bytes.length; // step 2
+
+	var index = 0; // step 3
+
+	while (index < len) { // step 4
+		var byte = bytes[index]; // step 4.a
+		var byteIndexInBuffer = index + offset; // step 4.b
+		SetValueInBuffer(typedArrayBuffer(into), byteIndexInBuffer, 'UINT8', byte, true, 'UNORDERED'); // step 4.c
+		index += 1; // step 4.d
+	}
+};
+
+},{"./ValidateUint8Array":120,"es-abstract/2024/SetValueInBuffer":36,"typed-array-buffer":205,"typed-array-byte-offset":206}],118:[function(require,module,exports){
+'use strict';
+
+var $TypeError = require('es-errors/type');
+var isInteger = require('math-intrinsics/isInteger');
+var callBound = require('call-bound');
+
+var $charCodeAt = callBound('String.prototype.charCodeAt');
+
+// https://tc39.es/proposal-arraybuffer-base64/spec/#sec-skipasciiwhitespace
+
+module.exports = function SkipAsciiWhitespace(string, index) {
+	if (typeof string !== 'string') {
+		throw new $TypeError('Assertion failed: `string` must be a string');
+	}
+	if (!isInteger(index) || index < 0) {
+		throw new $TypeError('Assertion failed: `index` must be a non-negative integer');
+	}
+
+	var length = string.length; // step 1
+
+	while (index < length) { // step 2
+		var char = $charCodeAt(string, index); // step 2.a
+
+		if (char !== 0x0009 && char !== 0x000A && char !== 0x000C && char !== 0x000D && char !== 0x0020) { // step 2.b
+			return index; // step 2.b.i
 		}
-	});
 
-	SLOT.set(generator, '[[GeneratorState]]', 'suspendedStart'); // step 6
+		// eslint-disable-next-line no-param-reassign
+		index += 1; // step 2.c
+	}
+	return index; // step 3
 };
 
-},{"es-abstract/2024/CreateIterResultObject":23,"es-abstract/2024/IsCallable":28,"es-abstract/2024/Type":44,"es-errors/type":66,"internal-slot":161}],127:[function(require,module,exports){
+},{"call-bound":12,"es-errors/type":128,"math-intrinsics/isInteger":180}],119:[function(require,module,exports){
 'use strict';
 
 var $TypeError = require('es-errors/type');
 
-var SLOT = require('internal-slot');
+var floor = require('es-abstract/2024/floor');
+var IsFixedLengthArrayBuffer = require('./IsFixedLengthArrayBuffer');
+var IsTypedArrayOutOfBounds = require('./IsTypedArrayOutOfBounds');
+var TypedArrayElementSize = require('es-abstract/2024/TypedArrayElementSize');
 
-module.exports = function GeneratorValidate(generator, generatorBrand) {
-	SLOT.assert(generator, '[[GeneratorState]]'); // step 1
-	SLOT.assert(generator, '[[GeneratorBrand]]'); // step 2
+var typedArrayBuffer = require('typed-array-buffer');
+var typedArrayByteOffset = require('typed-array-byte-offset');
+var typedArrayLength = require('typed-array-length');
 
-	var brand = SLOT.get(generator, '[[GeneratorBrand]]');
-	if (brand !== generatorBrand) {
-		throw new $TypeError('Assertion failed: generator brand is unexpected: ' + brand);
-	}
-	SLOT.assert(generator, '[[GeneratorContext]]'); // step 4
-	var state = SLOT.get(generator, '[[GeneratorState]]'); // step 5
-	if (state === 'executing') {
-		throw new $TypeError('generator is executing');
+module.exports = function TypedArrayLength(taRecord) {
+	if (IsTypedArrayOutOfBounds(taRecord)) {
+		throw new $TypeError('Assertion failed: `taRecord` is out of bounds'); // step 1
 	}
 
-	return state; // step 7
+	var O = taRecord['[[Object]]']; // step 2
+
+	var length = typedArrayLength(O);
+	if (length !== 'AUTO') {
+		return length; // step 3
+	}
+
+	if (IsFixedLengthArrayBuffer(typedArrayBuffer(O))) {
+		throw new $TypeError('Assertion failed: array buffer is not fixed length'); // step 4
+	}
+
+	var byteOffset = typedArrayByteOffset(O); // step 5
+
+	var elementSize = TypedArrayElementSize(O); // step 6
+
+	var byteLength = taRecord['[[CachedBufferByteLength]]']; // step 7
+
+	if (byteLength === 'DETACHED') {
+		throw new $TypeError('Assertion failed: typed array is detached'); // step 8
+	}
+
+	return floor((byteLength - byteOffset) / elementSize); // step 9
 };
 
-},{"es-errors/type":66,"internal-slot":161}],128:[function(require,module,exports){
+},{"./IsFixedLengthArrayBuffer":114,"./IsTypedArrayOutOfBounds":115,"es-abstract/2024/TypedArrayElementSize":55,"es-abstract/2024/floor":58,"es-errors/type":128,"typed-array-buffer":205,"typed-array-byte-offset":206,"typed-array-length":207}],120:[function(require,module,exports){
 'use strict';
 
 var $TypeError = require('es-errors/type');
 
-var Get = require('es-abstract/2024/Get');
-var Type = require('es-abstract/2024/Type');
+var whichTypedArray = require('which-typed-array');
 
-module.exports = function GetIteratorDirect(obj) {
-	if (Type(obj) !== 'Object') {
-		throw new $TypeError('Assertion failed: `obj` must be an Object');
+module.exports = function ValidateUint8Array(ta) {
+	if (whichTypedArray(ta) !== 'Uint8Array') {
+		throw new $TypeError('`this` value must be a Uint8Array'); // steps 1 - 2
 	}
-
-	var nextMethod = Get(obj, 'next'); // step 2
-
-	var iteratorRecord = { '[[Iterator]]': obj, '[[NextMethod]]': nextMethod, '[[Done]]': false }; // step 3
-
-	return iteratorRecord; // step 4
 };
 
-},{"es-abstract/2024/Get":24,"es-abstract/2024/Type":44,"es-errors/type":66}],129:[function(require,module,exports){
+},{"es-errors/type":128,"which-typed-array":212}],121:[function(require,module,exports){
 'use strict';
+
+var base64Characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+var base64UrlCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 
 var $TypeError = require('es-errors/type');
 
-var AdvanceStringIndex = require('es-abstract/2024/AdvanceStringIndex');
-var Call = require('es-abstract/2024/Call');
-var GetIteratorDirect = require('./GetIteratorDirect');
-var GetMethod = require('es-abstract/2024/GetMethod');
-var IsArray = require('es-abstract/2024/IsArray');
-var Type = require('es-abstract/2024/Type');
-
-var getIteratorMethod = require('es-abstract/helpers/getIteratorMethod');
-
-module.exports = function GetIteratorFlattenable(obj, stringHandling) {
-	if (Type(obj) !== 'Object') {
-		if (stringHandling === 'reject-strings' || typeof obj !== 'string') {
-			throw new $TypeError('obj must be an Object'); // step 1.a
-		}
+module.exports = function alphabetFromIdentifier(alphabet) {
+	if (alphabet === 'base64') {
+		return base64Characters;
 	}
 
-	var method = void undefined; // step 2
-
-	// method = GetMethod(obj, Symbol.iterator); // step 5.a
-	method = getIteratorMethod(
-		{
-			AdvanceStringIndex: AdvanceStringIndex,
-			GetMethod: GetMethod,
-			IsArray: IsArray
-		},
-		obj
-	);
-
-	var iterator;
-	if (typeof method === 'undefined') { // step 3
-		iterator = obj; // step 3.a
-	} else { // step 4
-		iterator = Call(method, obj); // step 4.a
+	if (alphabet === 'base64url') {
+		return base64UrlCharacters;
 	}
 
-	if (Type(iterator) !== 'Object') {
-		throw new $TypeError('iterator must be an Object'); // step 5
-	}
-	return GetIteratorDirect(iterator); // step 6
+	throw new $TypeError('expected alphabet to be either "base64" or "base64url"');
 };
 
-},{"./GetIteratorDirect":128,"es-abstract/2024/AdvanceStringIndex":19,"es-abstract/2024/Call":20,"es-abstract/2024/GetMethod":25,"es-abstract/2024/IsArray":27,"es-abstract/2024/Type":44,"es-abstract/helpers/getIteratorMethod":52,"es-errors/type":66}],130:[function(require,module,exports){
+},{"es-errors/type":128}],122:[function(require,module,exports){
+'use strict';
+
+/** @type {import('.')} */
+var $defineProperty = Object.defineProperty || false;
+if ($defineProperty) {
+	try {
+		$defineProperty({}, 'a', { value: 1 });
+	} catch (e) {
+		// IE 8 has a broken defineProperty
+		$defineProperty = false;
+	}
+}
+
+module.exports = $defineProperty;
+
+},{}],123:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./eval')} */
+module.exports = EvalError;
+
+},{}],124:[function(require,module,exports){
+'use strict';
+
+/** @type {import('.')} */
+module.exports = Error;
+
+},{}],125:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./range')} */
+module.exports = RangeError;
+
+},{}],126:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./ref')} */
+module.exports = ReferenceError;
+
+},{}],127:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./syntax')} */
+module.exports = SyntaxError;
+
+},{}],128:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./type')} */
+module.exports = TypeError;
+
+},{}],129:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./uri')} */
+module.exports = URIError;
+
+},{}],130:[function(require,module,exports){
 'use strict';
 
 var $TypeError = require('es-errors/type');
@@ -3206,7 +3787,7 @@ module.exports = function RequireObjectCoercible(value) {
 	return value;
 };
 
-},{"es-errors/type":66}],131:[function(require,module,exports){
+},{"es-errors/type":128}],131:[function(require,module,exports){
 'use strict';
 
 /** @type {import('.')} */
@@ -3221,43 +3802,6 @@ module.exports = function isObject(x) {
 };
 
 },{}],133:[function(require,module,exports){
-'use strict';
-
-var GetIntrinsic = require('get-intrinsic');
-
-var $defineProperty = GetIntrinsic('%Object.defineProperty%', true);
-
-var hasToStringTag = require('has-tostringtag/shams')();
-var hasOwn = require('hasown');
-var $TypeError = require('es-errors/type');
-
-var toStringTag = hasToStringTag ? Symbol.toStringTag : null;
-
-/** @type {import('.')} */
-module.exports = function setToStringTag(object, value) {
-	var overrideIfSet = arguments.length > 2 && !!arguments[2] && arguments[2].force;
-	var nonConfigurable = arguments.length > 2 && !!arguments[2] && arguments[2].nonConfigurable;
-	if (
-		(typeof overrideIfSet !== 'undefined' && typeof overrideIfSet !== 'boolean')
-		|| (typeof nonConfigurable !== 'undefined' && typeof nonConfigurable !== 'boolean')
-	) {
-		throw new $TypeError('if provided, the `overrideIfSet` and `nonConfigurable` options must be booleans');
-	}
-	if (toStringTag && (overrideIfSet || !hasOwn(object, toStringTag))) {
-		if ($defineProperty) {
-			$defineProperty(object, toStringTag, {
-				configurable: !nonConfigurable,
-				enumerable: false,
-				value: value,
-				writable: false
-			});
-		} else {
-			object[toStringTag] = value; // eslint-disable-line no-param-reassign
-		}
-	}
-};
-
-},{"es-errors/type":66,"get-intrinsic":144,"has-tostringtag/shams":159,"hasown":160}],134:[function(require,module,exports){
 'use strict';
 
 var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
@@ -3341,7 +3885,7 @@ module.exports = function ToPrimitive(input) {
 	return ordinaryToPrimitive(/** @type {object} */ (input), hint === 'default' ? 'number' : hint);
 };
 
-},{"./helpers/isPrimitive":135,"is-callable":165,"is-date-object":166,"is-symbol":174}],135:[function(require,module,exports){
+},{"./helpers/isPrimitive":134,"is-callable":161,"is-date-object":162,"is-symbol":171}],134:[function(require,module,exports){
 'use strict';
 
 /** @type {(value: unknown) => value is null | undefined | string | symbol | number | boolean | bigint} */
@@ -3349,7 +3893,7 @@ module.exports = function isPrimitive(value) {
 	return value === null || (typeof value !== 'function' && typeof value !== 'object');
 };
 
-},{}],136:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 'use strict';
 
 var isCallable = require('is-callable');
@@ -3420,7 +3964,7 @@ module.exports = function forEach(list, iterator, thisArg) {
     }
 };
 
-},{"is-callable":165}],137:[function(require,module,exports){
+},{"is-callable":161}],136:[function(require,module,exports){
 'use strict';
 
 /* eslint no-invalid-this: 1 */
@@ -3506,14 +4050,14 @@ module.exports = function bind(that) {
     return bound;
 };
 
-},{}],138:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
 
 module.exports = Function.prototype.bind || implementation;
 
-},{"./implementation":137}],139:[function(require,module,exports){
+},{"./implementation":136}],138:[function(require,module,exports){
 'use strict';
 
 var IsCallable = require('is-callable');
@@ -3587,7 +4131,7 @@ module.exports = function getName() {
 	return name;
 };
 
-},{"call-bound":12,"functions-have-names":143,"hasown":160,"is-callable":165}],140:[function(require,module,exports){
+},{"call-bound":12,"functions-have-names":142,"hasown":155,"is-callable":161}],139:[function(require,module,exports){
 'use strict';
 
 var define = require('define-properties');
@@ -3607,7 +4151,7 @@ define(bound, {
 
 module.exports = bound;
 
-},{"./implementation":139,"./polyfill":141,"./shim":142,"call-bind":11,"define-properties":14}],141:[function(require,module,exports){
+},{"./implementation":138,"./polyfill":140,"./shim":141,"call-bind":11,"define-properties":14}],140:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
@@ -3616,7 +4160,7 @@ module.exports = function getPolyfill() {
 	return implementation;
 };
 
-},{"./implementation":139}],142:[function(require,module,exports){
+},{"./implementation":138}],141:[function(require,module,exports){
 'use strict';
 
 var supportsDescriptors = require('define-properties').supportsDescriptors;
@@ -3653,7 +4197,7 @@ module.exports = function shimName() {
 	return polyfill;
 };
 
-},{"./polyfill":141,"define-properties":14,"functions-have-names":143}],143:[function(require,module,exports){
+},{"./polyfill":140,"define-properties":14,"functions-have-names":142}],142:[function(require,module,exports){
 'use strict';
 
 var functionsHaveNames = function functionsHaveNames() {
@@ -3686,7 +4230,7 @@ functionsHaveNames.boundFunctionsHaveNames = function boundFunctionsHaveNames() 
 
 module.exports = functionsHaveNames;
 
-},{}],144:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 'use strict';
 
 var undefined;
@@ -4066,7 +4610,7 @@ module.exports = function GetIntrinsic(name, allowMissing) {
 	return value;
 };
 
-},{"call-bind-apply-helpers/functionApply":6,"call-bind-apply-helpers/functionCall":7,"es-define-property":60,"es-errors":62,"es-errors/eval":61,"es-errors/range":63,"es-errors/ref":64,"es-errors/syntax":65,"es-errors/type":66,"es-errors/uri":67,"es-object-atoms":131,"function-bind":138,"get-proto":147,"get-proto/Object.getPrototypeOf":145,"get-proto/Reflect.getPrototypeOf":146,"gopd":153,"has-symbols":157,"hasown":160,"math-intrinsics/abs":179,"math-intrinsics/floor":181,"math-intrinsics/max":185,"math-intrinsics/min":186,"math-intrinsics/pow":187,"math-intrinsics/round":188,"math-intrinsics/sign":189}],145:[function(require,module,exports){
+},{"call-bind-apply-helpers/functionApply":7,"call-bind-apply-helpers/functionCall":8,"es-define-property":122,"es-errors":124,"es-errors/eval":123,"es-errors/range":125,"es-errors/ref":126,"es-errors/syntax":127,"es-errors/type":128,"es-errors/uri":129,"es-object-atoms":131,"function-bind":137,"get-proto":146,"get-proto/Object.getPrototypeOf":144,"get-proto/Reflect.getPrototypeOf":145,"gopd":148,"has-symbols":152,"hasown":155,"math-intrinsics/abs":176,"math-intrinsics/floor":178,"math-intrinsics/max":183,"math-intrinsics/min":184,"math-intrinsics/pow":186,"math-intrinsics/round":187,"math-intrinsics/sign":188}],144:[function(require,module,exports){
 'use strict';
 
 var $Object = require('es-object-atoms');
@@ -4074,13 +4618,13 @@ var $Object = require('es-object-atoms');
 /** @type {import('./Object.getPrototypeOf')} */
 module.exports = $Object.getPrototypeOf || null;
 
-},{"es-object-atoms":131}],146:[function(require,module,exports){
+},{"es-object-atoms":131}],145:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./Reflect.getPrototypeOf')} */
 module.exports = (typeof Reflect !== 'undefined' && Reflect.getPrototypeOf) || null;
 
-},{}],147:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 'use strict';
 
 var reflectGetProto = require('./Reflect.getPrototypeOf');
@@ -4109,92 +4653,13 @@ module.exports = reflectGetProto
 			}
 			: null;
 
-},{"./Object.getPrototypeOf":145,"./Reflect.getPrototypeOf":146,"dunder-proto/get":18}],148:[function(require,module,exports){
-/* eslint no-negated-condition: 0, no-new-func: 0 */
-
-'use strict';
-
-if (typeof self !== 'undefined') {
-	module.exports = self;
-} else if (typeof window !== 'undefined') {
-	module.exports = window;
-} else {
-	module.exports = Function('return this')();
-}
-
-},{}],149:[function(require,module,exports){
-'use strict';
-
-var defineProperties = require('define-properties');
-
-var implementation = require('./implementation');
-var getPolyfill = require('./polyfill');
-var shim = require('./shim');
-
-var polyfill = getPolyfill();
-
-var getGlobal = function () { return polyfill; };
-
-defineProperties(getGlobal, {
-	getPolyfill: getPolyfill,
-	implementation: implementation,
-	shim: shim
-});
-
-module.exports = getGlobal;
-
-},{"./implementation":148,"./polyfill":150,"./shim":151,"define-properties":14}],150:[function(require,module,exports){
-(function (global){(function (){
-'use strict';
-
-var implementation = require('./implementation');
-
-module.exports = function getPolyfill() {
-	if (typeof global !== 'object' || !global || global.Math !== Math || global.Array !== Array) {
-		return implementation;
-	}
-	return global;
-};
-
-}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./implementation":148}],151:[function(require,module,exports){
-'use strict';
-
-var define = require('define-properties');
-var gOPD = require('gopd');
-var getPolyfill = require('./polyfill');
-
-module.exports = function shimGlobal() {
-	var polyfill = getPolyfill();
-	if (define.supportsDescriptors) {
-		var descriptor = gOPD(polyfill, 'globalThis');
-		if (
-			!descriptor
-			|| (
-				descriptor.configurable
-				&& (descriptor.enumerable || !descriptor.writable || globalThis !== polyfill)
-			)
-		) {
-			Object.defineProperty(polyfill, 'globalThis', {
-				configurable: true,
-				enumerable: false,
-				value: polyfill,
-				writable: true
-			});
-		}
-	} else if (typeof globalThis !== 'object' || globalThis !== polyfill) {
-		polyfill.globalThis = polyfill;
-	}
-	return polyfill;
-};
-
-},{"./polyfill":150,"define-properties":14,"gopd":153}],152:[function(require,module,exports){
+},{"./Object.getPrototypeOf":144,"./Reflect.getPrototypeOf":145,"dunder-proto/get":18}],147:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./gOPD')} */
 module.exports = Object.getOwnPropertyDescriptor;
 
-},{}],153:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 'use strict';
 
 /** @type {import('.')} */
@@ -4211,7 +4676,7 @@ if ($gOPD) {
 
 module.exports = $gOPD;
 
-},{"./gOPD":152}],154:[function(require,module,exports){
+},{"./gOPD":147}],149:[function(require,module,exports){
 'use strict';
 
 var $BigInt = typeof BigInt !== 'undefined' && BigInt;
@@ -4223,7 +4688,7 @@ module.exports = function hasNativeBigInts() {
 		&& typeof BigInt(42) === 'bigint'; // eslint-disable-line no-magic-numbers
 };
 
-},{}],155:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 'use strict';
 
 var $defineProperty = require('es-define-property');
@@ -4247,7 +4712,7 @@ hasPropertyDescriptors.hasArrayLengthDefineBug = function hasArrayLengthDefineBu
 
 module.exports = hasPropertyDescriptors;
 
-},{"es-define-property":60}],156:[function(require,module,exports){
+},{"es-define-property":122}],151:[function(require,module,exports){
 'use strict';
 
 var test = {
@@ -4264,7 +4729,7 @@ module.exports = function hasProto() {
 	return result;
 };
 
-},{}],157:[function(require,module,exports){
+},{}],152:[function(require,module,exports){
 'use strict';
 
 var origSymbol = typeof Symbol !== 'undefined' && Symbol;
@@ -4280,7 +4745,7 @@ module.exports = function hasNativeSymbols() {
 	return hasSymbolSham();
 };
 
-},{"./shams":158}],158:[function(require,module,exports){
+},{"./shams":153}],153:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./shams')} */
@@ -4327,7 +4792,7 @@ module.exports = function hasSymbols() {
 	return true;
 };
 
-},{}],159:[function(require,module,exports){
+},{}],154:[function(require,module,exports){
 'use strict';
 
 var hasSymbols = require('has-symbols/shams');
@@ -4337,7 +4802,7 @@ module.exports = function hasToStringTagShams() {
 	return hasSymbols() && !!Symbol.toStringTag;
 };
 
-},{"has-symbols/shams":158}],160:[function(require,module,exports){
+},{"has-symbols/shams":153}],155:[function(require,module,exports){
 'use strict';
 
 var call = Function.prototype.call;
@@ -4347,7 +4812,7 @@ var bind = require('function-bind');
 /** @type {import('.')} */
 module.exports = bind.call(call, $hasOwn);
 
-},{"function-bind":138}],161:[function(require,module,exports){
+},{"function-bind":137}],156:[function(require,module,exports){
 'use strict';
 
 /** @typedef {`$${import('.').InternalSlot}`} SaltedInternalSlot */
@@ -4418,7 +4883,52 @@ if (Object.freeze) {
 
 module.exports = SLOT;
 
-},{"es-errors/type":66,"hasown":160,"side-channel":204}],162:[function(require,module,exports){
+},{"es-errors/type":128,"hasown":155,"side-channel":200}],157:[function(require,module,exports){
+'use strict';
+
+var callBind = require('call-bind');
+var callBound = require('call-bound');
+var GetIntrinsic = require('get-intrinsic');
+
+var $ArrayBuffer = GetIntrinsic('%ArrayBuffer%', true);
+/** @type {undefined | ((receiver: ArrayBuffer) => number) | ((receiver: unknown) => never)} */
+var $byteLength = callBound('ArrayBuffer.prototype.byteLength', true);
+var $toString = callBound('Object.prototype.toString');
+
+// in node 0.10, ArrayBuffers have no prototype methods, but have an own slot-checking `slice` method
+var abSlice = !!$ArrayBuffer && !$byteLength && (new $ArrayBuffer(0).slice || new Uint8Array(0).slice);
+var $abSlice = !!abSlice && callBind(abSlice);
+
+/** @type {import('.')} */
+module.exports = $byteLength || $abSlice
+	? function isArrayBuffer(obj) {
+		if (!obj || typeof obj !== 'object') {
+			return false;
+		}
+		try {
+			if ($byteLength) {
+				// @ts-expect-error no idea why TS can't handle the overload
+				$byteLength(obj);
+			} else {
+				// @ts-expect-error TS chooses not to type-narrow inside a closure
+				$abSlice(obj, 0);
+			}
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
+	: $ArrayBuffer
+		// in node 0.8, ArrayBuffers have no prototype or own methods, but also no Symbol.toStringTag
+		? function isArrayBuffer(obj) {
+			return $toString(obj) === '[object ArrayBuffer]';
+		}
+		// @ts-expect-error
+		: function isArrayBuffer(obj) { // eslint-disable-line no-unused-vars
+			return false;
+		};
+
+},{"call-bind":11,"call-bound":12,"get-intrinsic":143}],158:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -4452,7 +4962,7 @@ module.exports = function isAsyncFunction(fn) {
 	return asyncFunc && asyncFunc.prototype === getProto(fn);
 };
 
-},{"async-function":1,"call-bound":12,"get-proto":147,"has-tostringtag/shams":159,"safe-regex-test":198}],163:[function(require,module,exports){
+},{"async-function":2,"call-bound":12,"get-proto":146,"has-tostringtag/shams":154,"safe-regex-test":195}],159:[function(require,module,exports){
 'use strict';
 
 var hasBigInts = require('has-bigints')();
@@ -4495,7 +5005,7 @@ if (hasBigInts) {
 	};
 }
 
-},{"has-bigints":154}],164:[function(require,module,exports){
+},{"has-bigints":149}],160:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -4525,7 +5035,7 @@ module.exports = function isBoolean(value) {
 	return hasToStringTag ? tryBooleanObject(value) : $toString(value) === boolClass;
 };
 
-},{"call-bound":12,"has-tostringtag/shams":159}],165:[function(require,module,exports){
+},{"call-bound":12,"has-tostringtag/shams":154}],161:[function(require,module,exports){
 'use strict';
 
 var fnToStr = Function.prototype.toString;
@@ -4628,7 +5138,7 @@ module.exports = reflectApply
 		return tryFunctionObject(value);
 	};
 
-},{}],166:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -4657,7 +5167,7 @@ module.exports = function isDateObject(value) {
 	return hasToStringTag ? tryDateObject(value) : toStr(value) === dateClass;
 };
 
-},{"call-bound":12,"has-tostringtag/shams":159}],167:[function(require,module,exports){
+},{"call-bound":12,"has-tostringtag/shams":154}],163:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -4684,7 +5194,7 @@ module.exports = $register
 		return false;
 	};
 
-},{"call-bound":12}],168:[function(require,module,exports){
+},{"call-bound":12}],164:[function(require,module,exports){
 'use strict';
 
 var toStr = Object.prototype.toString;
@@ -4724,7 +5234,7 @@ module.exports = function isGeneratorFunction(fn) {
 	return getProto(fn) === GeneratorFunction;
 };
 
-},{"has-tostringtag/shams":159}],169:[function(require,module,exports){
+},{"has-tostringtag/shams":154}],165:[function(require,module,exports){
 'use strict';
 
 /** @const */
@@ -4773,7 +5283,7 @@ module.exports = exported || function isMap(x) {
 	return false;
 };
 
-},{}],170:[function(require,module,exports){
+},{}],166:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -4804,7 +5314,7 @@ module.exports = function isNumberObject(value) {
 	return hasToStringTag ? tryNumberObject(value) : $toString(value) === numClass;
 };
 
-},{"call-bound":12,"has-tostringtag/shams":159}],171:[function(require,module,exports){
+},{"call-bound":12,"has-tostringtag/shams":154}],167:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -4875,7 +5385,7 @@ if (hasToStringTag) {
 
 module.exports = fn;
 
-},{"call-bound":12,"gopd":153,"has-tostringtag/shams":159,"hasown":160}],172:[function(require,module,exports){
+},{"call-bound":12,"gopd":148,"has-tostringtag/shams":154,"hasown":155}],168:[function(require,module,exports){
 'use strict';
 
 var $Map = typeof Map === 'function' && Map.prototype ? Map : null;
@@ -4923,7 +5433,33 @@ module.exports = exported || function isSet(x) {
 	return false;
 };
 
-},{}],173:[function(require,module,exports){
+},{}],169:[function(require,module,exports){
+'use strict';
+
+var callBound = require('call-bound');
+
+/** @type {undefined | ((thisArg: SharedArrayBuffer) => number)} */
+var $byteLength = callBound('SharedArrayBuffer.prototype.byteLength', true);
+
+/** @type {import('.')} */
+module.exports = $byteLength
+	? function isSharedArrayBuffer(obj) {
+		if (!obj || typeof obj !== 'object') {
+			return false;
+		}
+		try {
+			// @ts-expect-error TS can't figure out this closed-over variable is non-nullable, and it's fine that `obj` might not be a SAB
+			$byteLength(obj);
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
+	: function isSharedArrayBuffer(_obj) { // eslint-disable-line no-unused-vars
+		return false;
+	};
+
+},{"call-bound":12}],170:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -4956,7 +5492,7 @@ module.exports = function isString(value) {
 	return hasToStringTag ? tryStringObject(value) : $toString(value) === strClass;
 };
 
-},{"call-bound":12,"has-tostringtag/shams":159}],174:[function(require,module,exports){
+},{"call-bound":12,"has-tostringtag/shams":154}],171:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -4998,7 +5534,17 @@ if (hasSymbols) {
 	};
 }
 
-},{"call-bound":12,"has-symbols":157,"safe-regex-test":198}],175:[function(require,module,exports){
+},{"call-bound":12,"has-symbols":152,"safe-regex-test":195}],172:[function(require,module,exports){
+'use strict';
+
+var whichTypedArray = require('which-typed-array');
+
+/** @type {import('.')} */
+module.exports = function isTypedArray(value) {
+	return !!whichTypedArray(value);
+};
+
+},{"which-typed-array":212}],173:[function(require,module,exports){
 'use strict';
 
 var $WeakMap = typeof WeakMap === 'function' && WeakMap.prototype ? WeakMap : null;
@@ -5046,7 +5592,7 @@ module.exports = exported || function isWeakMap(x) {
 	return false;
 };
 
-},{}],176:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -5072,7 +5618,7 @@ module.exports = typeof WeakRef === 'undefined'
 		}
 	};
 
-},{"call-bound":12}],177:[function(require,module,exports){
+},{"call-bound":12}],175:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -5117,62 +5663,26 @@ if ($setHas) {
 	};
 }
 
-},{"call-bound":12,"get-intrinsic":144}],178:[function(require,module,exports){
-'use strict';
-
-var GetIntrinsic = require('get-intrinsic');
-var gPO = require('reflect.getprototypeof');
-var hasSymbols = require('has-symbols');
-var define = require('define-properties');
-var setFunctionName = require('set-function-name');
-
-var arrayIterProto = GetIntrinsic('%ArrayIteratorPrototype%', true);
-
-var iterProto = arrayIterProto && gPO(arrayIterProto);
-
-var result = (iterProto !== Object.prototype && iterProto) || {};
-
-if (hasSymbols()) {
-	var defined = {};
-	var predicates = {};
-	var trueThunk = function () {
-		return true;
-	};
-
-	if (!(Symbol.iterator in result)) {
-		// needed when result === iterProto, or, node 0.11.15 - 3
-		defined[Symbol.iterator] = setFunctionName(function SymbolIterator() {
-			return this;
-		}, '[Symbol.iterator]', true);
-
-		predicates[Symbol.iterator] = trueThunk;
-	}
-
-	define(result, defined, predicates);
-}
-
-module.exports = result;
-
-},{"define-properties":14,"get-intrinsic":144,"has-symbols":157,"reflect.getprototypeof":193,"set-function-name":200}],179:[function(require,module,exports){
+},{"call-bound":12,"get-intrinsic":143}],176:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./abs')} */
 module.exports = Math.abs;
 
-},{}],180:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./maxSafeInteger')} */
 // eslint-disable-next-line no-extra-parens
 module.exports = /** @type {import('./maxSafeInteger')} */ (Number.MAX_SAFE_INTEGER) || 9007199254740991; // Math.pow(2, 53) - 1;
 
-},{}],181:[function(require,module,exports){
+},{}],178:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./floor')} */
 module.exports = Math.floor;
 
-},{}],182:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 'use strict';
 
 var $isNaN = require('./isNaN');
@@ -5186,7 +5696,7 @@ module.exports = function isFinite(x) {
 };
 
 
-},{"./isNaN":184}],183:[function(require,module,exports){
+},{"./isNaN":181}],180:[function(require,module,exports){
 'use strict';
 
 var $abs = require('./abs');
@@ -5204,7 +5714,7 @@ module.exports = function isInteger(argument) {
 	return $floor(absValue) === absValue;
 };
 
-},{"./abs":179,"./floor":181,"./isFinite":182,"./isNaN":184}],184:[function(require,module,exports){
+},{"./abs":176,"./floor":178,"./isFinite":179,"./isNaN":181}],181:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./isNaN')} */
@@ -5212,31 +5722,50 @@ module.exports = Number.isNaN || function isNaN(a) {
 	return a !== a;
 };
 
-},{}],185:[function(require,module,exports){
+},{}],182:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./isNegativeZero')} */
+module.exports = function isNegativeZero(x) {
+	return x === 0 && 1 / x === 1 / -0;
+};
+
+},{}],183:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./max')} */
 module.exports = Math.max;
 
-},{}],186:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./min')} */
 module.exports = Math.min;
 
-},{}],187:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
+'use strict';
+
+var $floor = require('./floor');
+
+/** @type {import('./mod')} */
+module.exports = function mod(number, modulo) {
+	var remain = number % modulo;
+	return $floor(remain >= 0 ? remain : remain + modulo);
+};
+
+},{"./floor":178}],186:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./pow')} */
 module.exports = Math.pow;
 
-},{}],188:[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./round')} */
 module.exports = Math.round;
 
-},{}],189:[function(require,module,exports){
+},{}],188:[function(require,module,exports){
 'use strict';
 
 var $isNaN = require('./isNaN');
@@ -5249,7 +5778,7 @@ module.exports = function sign(number) {
 	return number < 0 ? -1 : +1;
 };
 
-},{"./isNaN":184}],190:[function(require,module,exports){
+},{"./isNaN":181}],189:[function(require,module,exports){
 (function (global){(function (){
 var hasMap = typeof Map === 'function' && Map.prototype;
 var mapSizeDescriptor = Object.getOwnPropertyDescriptor && hasMap ? Object.getOwnPropertyDescriptor(Map.prototype, 'size') : null;
@@ -5797,7 +6326,7 @@ function arrObjKeys(obj, inspect) {
 }
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./util.inspect":3}],191:[function(require,module,exports){
+},{"./util.inspect":4}],190:[function(require,module,exports){
 'use strict';
 
 /** @type {import('.')} */
@@ -5815,7 +6344,7 @@ module.exports = [
 	'BigUint64Array'
 ];
 
-},{}],192:[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -5857,27 +6386,7 @@ module.exports = function getPrototypeOf(O) {
 	return null;
 };
 
-},{"es-abstract/2024/IsCallable":28,"es-abstract/helpers/isObject":55,"es-errors/type":66,"es-object-atoms":131,"get-intrinsic":144,"get-proto":147,"which-builtin-type":210}],193:[function(require,module,exports){
-'use strict';
-
-var callBind = require('call-bind');
-var define = require('define-properties');
-
-var implementation = require('./implementation');
-var getPolyfill = require('./polyfill');
-var shim = require('./shim');
-
-var bound = callBind(getPolyfill(), typeof Reflect === 'object' ? Reflect : Object);
-
-define(bound, {
-	getPolyfill: getPolyfill,
-	implementation: implementation,
-	shim: shim
-});
-
-module.exports = bound;
-
-},{"./implementation":192,"./polyfill":194,"./shim":195,"call-bind":11,"define-properties":14}],194:[function(require,module,exports){
+},{"es-abstract/2024/IsCallable":26,"es-abstract/helpers/isObject":76,"es-errors/type":128,"es-object-atoms":131,"get-intrinsic":143,"get-proto":146,"which-builtin-type":209}],192:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
@@ -5893,32 +6402,7 @@ module.exports = function getPolyfill() {
 		: implementation;
 };
 
-},{"./implementation":192,"get-proto":147}],195:[function(require,module,exports){
-(function (global){(function (){
-'use strict';
-
-var define = require('define-properties');
-var getPolyfill = require('./polyfill');
-
-module.exports = function shimGetPrototypeOf() {
-	define(
-		global,
-		{ Reflect: {} },
-		{ Reflect: function () { return typeof Reflect !== 'object' || !Reflect; } }
-	);
-
-	var polyfill = getPolyfill();
-	define(
-		Reflect,
-		{ getPrototypeOf: polyfill },
-		{ getPrototypeOf: function () { return Reflect.getPrototypeOf !== polyfill; } }
-	);
-
-	return polyfill;
-};
-
-}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./polyfill":194,"define-properties":14}],196:[function(require,module,exports){
+},{"./implementation":191,"get-proto":146}],193:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -5963,14 +6447,14 @@ module.exports = isConcatSpreadable
 	}
 	: callBind($concat, empty);
 
-},{"call-bind":11,"call-bound":12,"get-intrinsic":144,"has-symbols/shams":158,"isarray":197}],197:[function(require,module,exports){
+},{"call-bind":11,"call-bound":12,"get-intrinsic":143,"has-symbols/shams":153,"isarray":194}],194:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],198:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -5989,7 +6473,7 @@ module.exports = function regexTester(regex) {
 	};
 };
 
-},{"call-bound":12,"es-errors/type":66,"is-regex":171}],199:[function(require,module,exports){
+},{"call-bound":12,"es-errors/type":128,"is-regex":167}],196:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -6033,32 +6517,7 @@ module.exports = function setFunctionLength(fn, length) {
 	return fn;
 };
 
-},{"define-data-property":13,"es-errors/type":66,"get-intrinsic":144,"gopd":153,"has-property-descriptors":155}],200:[function(require,module,exports){
-'use strict';
-
-var define = require('define-data-property');
-var hasDescriptors = require('has-property-descriptors')();
-var functionsHaveConfigurableNames = require('functions-have-names').functionsHaveConfigurableNames();
-
-var $TypeError = require('es-errors/type');
-
-/** @type {import('.')} */
-module.exports = function setFunctionName(fn, name) {
-	if (typeof fn !== 'function') {
-		throw new $TypeError('`fn` is not a function');
-	}
-	var loose = arguments.length > 2 && !!arguments[2];
-	if (!loose || functionsHaveConfigurableNames) {
-		if (hasDescriptors) {
-			define(/** @type {Parameters<define>[0]} */ (fn), 'name', name, true, true);
-		} else {
-			define(/** @type {Parameters<define>[0]} */ (fn), 'name', name);
-		}
-	}
-	return fn;
-};
-
-},{"define-data-property":13,"es-errors/type":66,"functions-have-names":143,"has-property-descriptors":155}],201:[function(require,module,exports){
+},{"define-data-property":13,"es-errors/type":128,"get-intrinsic":143,"gopd":148,"has-property-descriptors":150}],197:[function(require,module,exports){
 'use strict';
 
 var inspect = require('object-inspect');
@@ -6173,7 +6632,7 @@ module.exports = function getSideChannelList() {
 	return channel;
 };
 
-},{"es-errors/type":66,"object-inspect":190}],202:[function(require,module,exports){
+},{"es-errors/type":128,"object-inspect":189}],198:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -6243,7 +6702,7 @@ module.exports = !!$Map && /** @type {Exclude<import('.'), false>} */ function g
 	return channel;
 };
 
-},{"call-bound":12,"es-errors/type":66,"get-intrinsic":144,"object-inspect":190}],203:[function(require,module,exports){
+},{"call-bound":12,"es-errors/type":128,"get-intrinsic":143,"object-inspect":189}],199:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -6329,7 +6788,7 @@ module.exports = $WeakMap
 	}
 	: getSideChannelMap;
 
-},{"call-bound":12,"es-errors/type":66,"get-intrinsic":144,"object-inspect":190,"side-channel-map":202}],204:[function(require,module,exports){
+},{"call-bound":12,"es-errors/type":128,"get-intrinsic":143,"object-inspect":189,"side-channel-map":198}],200:[function(require,module,exports){
 'use strict';
 
 var $TypeError = require('es-errors/type');
@@ -6374,7 +6833,7 @@ module.exports = function getSideChannel() {
 	return channel;
 };
 
-},{"es-errors/type":66,"object-inspect":190,"side-channel-list":201,"side-channel-map":202,"side-channel-weakmap":203}],205:[function(require,module,exports){
+},{"es-errors/type":128,"object-inspect":189,"side-channel-list":197,"side-channel-map":198,"side-channel-weakmap":199}],201:[function(require,module,exports){
 'use strict';
 
 var RequireObjectCoercible = require('es-object-atoms/RequireObjectCoercible');
@@ -6397,7 +6856,7 @@ module.exports = function trim() {
 	return $replace($replace(S, leftWhitespace, ''), rightWhitespace, '');
 };
 
-},{"call-bound":12,"es-abstract/2024/ToString":43,"es-object-atoms/RequireObjectCoercible":130}],206:[function(require,module,exports){
+},{"call-bound":12,"es-abstract/2024/ToString":49,"es-object-atoms/RequireObjectCoercible":130}],202:[function(require,module,exports){
 'use strict';
 
 var callBind = require('call-bind');
@@ -6422,7 +6881,7 @@ define(boundMethod, {
 
 module.exports = boundMethod;
 
-},{"./implementation":205,"./polyfill":207,"./shim":208,"call-bind":11,"define-properties":14,"es-object-atoms/RequireObjectCoercible":130}],207:[function(require,module,exports){
+},{"./implementation":201,"./polyfill":203,"./shim":204,"call-bind":11,"define-properties":14,"es-object-atoms/RequireObjectCoercible":130}],203:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
@@ -6443,7 +6902,7 @@ module.exports = function getPolyfill() {
 	return implementation;
 };
 
-},{"./implementation":205}],208:[function(require,module,exports){
+},{"./implementation":201}],204:[function(require,module,exports){
 'use strict';
 
 var supportsDescriptors = require('has-property-descriptors')();
@@ -6465,7 +6924,195 @@ module.exports = function shimStringTrim() {
 	return polyfill;
 };
 
-},{"./polyfill":207,"define-data-property":13,"has-property-descriptors":155}],209:[function(require,module,exports){
+},{"./polyfill":203,"define-data-property":13,"has-property-descriptors":150}],205:[function(require,module,exports){
+'use strict';
+
+var $TypeError = require('es-errors/type');
+
+var callBound = require('call-bound');
+
+/** @type {undefined | ((thisArg: import('.').TypedArray) => Buffer<ArrayBufferLike>)} */
+var $typedArrayBuffer = callBound('TypedArray.prototype.buffer', true);
+
+var isTypedArray = require('is-typed-array');
+
+/** @type {import('.')} */
+// node <= 0.10, < 0.11.4 has a nonconfigurable own property instead of a prototype getter
+module.exports = $typedArrayBuffer || function typedArrayBuffer(x) {
+	if (!isTypedArray(x)) {
+		throw new $TypeError('Not a Typed Array');
+	}
+	return x.buffer;
+};
+
+},{"call-bound":12,"es-errors/type":128,"is-typed-array":172}],206:[function(require,module,exports){
+(function (global){(function (){
+'use strict';
+
+var forEach = require('for-each');
+var callBind = require('call-bind');
+var gPO = require('reflect.getprototypeof/polyfill')();
+
+var typedArrays = require('available-typed-arrays')();
+
+/** @typedef {(x: import('.').TypedArray) => number} ByteOffsetGetter */
+
+/** @type {Record<import('.').TypedArrayName, ByteOffsetGetter>} */
+var getters = {
+	// @ts-expect-error TS can't handle __proto__ or `satisfies` in jsdoc
+	__proto__: null
+};
+
+var gOPD = require('gopd');
+var oDP = Object.defineProperty;
+if (gOPD) {
+	/** @type {ByteOffsetGetter} */
+	var getByteOffset = function (x) {
+		return x.byteOffset;
+	};
+	forEach(typedArrays, function (typedArray) {
+		// In Safari 7, Typed Array constructors are typeof object
+		if (typeof global[typedArray] === 'function' || typeof global[typedArray] === 'object') {
+			var Proto = global[typedArray].prototype;
+			// @ts-expect-error TS can't guarantee the callback is invoked sync
+			var descriptor = gOPD(Proto, 'byteOffset');
+			if (!descriptor) {
+				var superProto = gPO(Proto);
+				// @ts-expect-error TS can't guarantee the callback is invoked sync
+				descriptor = gOPD(superProto, 'byteOffset');
+			}
+			// Opera 12.16 has a magic byteOffset data property on instances AND on Proto
+			if (descriptor && descriptor.get) {
+				getters[typedArray] = callBind(descriptor.get);
+			} else if (oDP) {
+				// this is likely an engine where instances have a magic byteOffset data property
+				var arr = new global[typedArray](2);
+				// @ts-expect-error TS can't guarantee the callback is invoked sync
+				descriptor = gOPD(arr, 'byteOffset');
+				if (descriptor && descriptor.configurable) {
+					// oDP(arr, 'length', { value: 3 });
+				}
+				if (arr.length === 2) {
+					getters[typedArray] = getByteOffset;
+				}
+			}
+		}
+	});
+}
+
+/** @type {ByteOffsetGetter} */
+var tryTypedArrays = function tryAllTypedArrays(value) {
+	/** @type {number} */ var foundOffset;
+	forEach(getters, /** @type {(getter: ByteOffsetGetter) => void} */ function (getter) {
+		if (typeof foundOffset !== 'number') {
+			try {
+				var offset = getter(value);
+				if (typeof offset === 'number') {
+					foundOffset = offset;
+				}
+			} catch (e) {}
+		}
+	});
+	// @ts-expect-error TS can't guarantee the callback is invoked sync
+	return foundOffset;
+};
+
+var isTypedArray = require('is-typed-array');
+
+/** @type {import('.')} */
+module.exports = function typedArrayByteOffset(value) {
+	if (!isTypedArray(value)) {
+		return false;
+	}
+	return tryTypedArrays(value);
+};
+
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"available-typed-arrays":3,"call-bind":11,"for-each":135,"gopd":148,"is-typed-array":172,"reflect.getprototypeof/polyfill":192}],207:[function(require,module,exports){
+(function (global){(function (){
+'use strict';
+
+// / <reference types="node" />
+
+var callBind = require('call-bind');
+var forEach = require('for-each');
+var gOPD = require('gopd');
+var isTypedArray = require('is-typed-array');
+var typedArrays = require('possible-typed-array-names');
+var gPO = require('reflect.getprototypeof/polyfill')();
+
+/** @typedef {(value: import('.').TypedArray) => number} TypedArrayLengthGetter */
+/** @typedef {{ [k in `$${import('.').TypedArrayName}` | '__proto__']: k extends '__proto__' ? null : TypedArrayLengthGetter }} Cache */
+
+/** @type {Cache} */
+// @ts-expect-error TS doesn't seem to have a "will eventually satisfy" type
+var getters = { __proto__: null };
+var oDP = Object.defineProperty;
+if (gOPD) {
+	var getLength = /** @type {TypedArrayLengthGetter} */ function (x) {
+		return x.length;
+	};
+	forEach(typedArrays, /** @type {(typedArray: import('.').TypedArrayName) => void} */ function (typedArray) {
+		var TA = global[typedArray];
+		// In Safari 7, Typed Array constructors are typeof object
+		if (typeof TA === 'function' || typeof TA === 'object') {
+			var Proto = TA.prototype;
+			// @ts-expect-error TS doesn't narrow types inside callbacks, which is weird
+			var descriptor = gOPD(Proto, 'length');
+			if (!descriptor) {
+				var superProto = gPO(Proto);
+				// @ts-expect-error TS doesn't narrow types inside callbacks, which is weird
+				descriptor = gOPD(superProto, 'length');
+			}
+			// Opera 12.16 has a magic length data property on instances AND on Proto
+			if (descriptor && descriptor.get) {
+				// eslint-disable-next-line no-extra-parens
+				getters[/** @type {`$${import('.').TypedArrayName}`} */ ('$' + typedArray)] = callBind(descriptor.get);
+			} else if (oDP) {
+				// this is likely an engine where instances have a magic length data property
+				var arr = new global[typedArray](2);
+				// @ts-expect-error TS doesn't narrow types inside callbacks, which is weird
+				descriptor = gOPD(arr, 'length');
+				if (descriptor && descriptor.configurable) {
+					// oDP(arr, 'length', { value: 3 });
+				}
+				if (arr.length === 2) {
+				// eslint-disable-next-line no-extra-parens
+					getters[/** @type {`$${import('.').TypedArrayName}`} */ ('$' + typedArray)] = getLength;
+				}
+			}
+		}
+	});
+}
+
+/** @type {TypedArrayLengthGetter} */
+var tryTypedArrays = function tryAllTypedArrays(value) {
+	/** @type {number} */ var foundLength;
+	// @ts-expect-error not sure why this won't work
+	forEach(getters, /** @type {(getter: TypedArrayLengthGetter) => void} */ function (getter) {
+		if (typeof foundLength !== 'number') {
+			try {
+				var length = getter(value);
+				if (typeof length === 'number') {
+					foundLength = length;
+				}
+			} catch (e) {}
+		}
+	});
+	// @ts-expect-error TS can't guarantee the above callback is invoked sync
+	return foundLength;
+};
+
+/** @type {import('.')} */
+module.exports = function typedArrayLength(value) {
+	if (!isTypedArray(value)) {
+		return false;
+	}
+	return tryTypedArrays(value);
+};
+
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"call-bind":11,"for-each":135,"gopd":148,"is-typed-array":172,"possible-typed-array-names":190,"reflect.getprototypeof/polyfill":192}],208:[function(require,module,exports){
 'use strict';
 
 var isString = require('is-string');
@@ -6498,7 +7145,7 @@ module.exports = function whichBoxedPrimitive(value) {
 	}
 };
 
-},{"is-bigint":163,"is-boolean-object":164,"is-number-object":170,"is-string":173,"is-symbol":174}],210:[function(require,module,exports){
+},{"is-bigint":159,"is-boolean-object":160,"is-number-object":166,"is-string":170,"is-symbol":171}],209:[function(require,module,exports){
 'use strict';
 
 var whichBoxedPrimitive = require('which-boxed-primitive');
@@ -6632,9 +7279,9 @@ module.exports = function whichBuiltinType(value) {
 	return 'Object';
 };
 
-},{"call-bound":12,"function.prototype.name":140,"has-tostringtag/shams":159,"is-async-function":162,"is-date-object":166,"is-finalizationregistry":167,"is-generator-function":168,"is-regex":171,"is-weakref":176,"isarray":211,"which-boxed-primitive":209,"which-collection":212,"which-typed-array":213}],211:[function(require,module,exports){
-arguments[4][197][0].apply(exports,arguments)
-},{"dup":197}],212:[function(require,module,exports){
+},{"call-bound":12,"function.prototype.name":139,"has-tostringtag/shams":154,"is-async-function":158,"is-date-object":162,"is-finalizationregistry":163,"is-generator-function":164,"is-regex":167,"is-weakref":174,"isarray":210,"which-boxed-primitive":208,"which-collection":211,"which-typed-array":212}],210:[function(require,module,exports){
+arguments[4][194][0].apply(exports,arguments)
+},{"dup":194}],211:[function(require,module,exports){
 'use strict';
 
 var isMap = require('is-map');
@@ -6661,7 +7308,7 @@ module.exports = function whichCollection(/** @type {unknown} */ value) {
 	return false;
 };
 
-},{"is-map":169,"is-set":172,"is-weakmap":175,"is-weakset":177}],213:[function(require,module,exports){
+},{"is-map":165,"is-set":168,"is-weakmap":173,"is-weakset":175}],212:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -6706,7 +7353,7 @@ if (hasToStringTag && gOPD && getProto) {
 				descriptor = gOPD(superProto, Symbol.toStringTag);
 			}
 			// @ts-expect-error TODO: fix
-			cache['$' + typedArray] = callBind(descriptor.get);
+			if (descriptor) cache['$' + typedArray] = callBind(descriptor.get);
 		}
 	});
 } else {
@@ -6782,29 +7429,23 @@ module.exports = function whichTypedArray(value) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"available-typed-arrays":2,"call-bind":11,"call-bound":12,"for-each":136,"get-proto":147,"gopd":153,"has-tostringtag/shams":159}],214:[function(require,module,exports){
+},{"available-typed-arrays":3,"call-bind":11,"call-bound":12,"for-each":135,"get-proto":146,"gopd":148,"has-tostringtag/shams":154}],213:[function(require,module,exports){
 
-self._IteratorHelpersUtils = {
-  iteratorPrototype: {
-	  drop: require("es-iterator-helpers/Iterator.prototype.drop"),
-	  every: require("es-iterator-helpers/Iterator.prototype.every"),
-	  filter: require("es-iterator-helpers/Iterator.prototype.filter"),
-	  find: require("es-iterator-helpers/Iterator.prototype.find"),
-	  flatMap: require("es-iterator-helpers/Iterator.prototype.flatMap"),
-	  forEach: require("es-iterator-helpers/Iterator.prototype.forEach"),
-	  map: require("es-iterator-helpers/Iterator.prototype.map"),
-	  reduce: require("es-iterator-helpers/Iterator.prototype.reduce"),
-	  some: require("es-iterator-helpers/Iterator.prototype.some"),
-	  take: require("es-iterator-helpers/Iterator.prototype.take"),
-	  toArray: require("es-iterator-helpers/Iterator.prototype.toArray")
+self._ArrayBufferBase64Utils = {
+  uint8ArrayPrototype: {
+	  setFromBase64: require("es-arraybuffer-base64/Uint8Array.prototype.setFromBase64"),
+	  setFromHex: require("es-arraybuffer-base64/Uint8Array.prototype.setFromHex"),
+	  toBase64: require("es-arraybuffer-base64/Uint8Array.prototype.toBase64"),
+	  toHex: require("es-arraybuffer-base64/Uint8Array.prototype.toHex")
 	},
-	iterator: {
-	  from: require("es-iterator-helpers/Iterator.from")
+	uint8Array: {
+	  fromBase64: require("es-arraybuffer-base64/Uint8Array.fromBase64"),
+	  fromHex: require("es-arraybuffer-base64/Uint8Array.fromHex")
 	}
 }
 
-},{"es-iterator-helpers/Iterator.from":69,"es-iterator-helpers/Iterator.prototype.drop":73,"es-iterator-helpers/Iterator.prototype.every":77,"es-iterator-helpers/Iterator.prototype.filter":81,"es-iterator-helpers/Iterator.prototype.find":85,"es-iterator-helpers/Iterator.prototype.flatMap":89,"es-iterator-helpers/Iterator.prototype.forEach":93,"es-iterator-helpers/Iterator.prototype.map":97,"es-iterator-helpers/Iterator.prototype.reduce":101,"es-iterator-helpers/Iterator.prototype.some":105,"es-iterator-helpers/Iterator.prototype.take":109,"es-iterator-helpers/Iterator.prototype.toArray":113}]},{},[214]);
+},{"es-arraybuffer-base64/Uint8Array.fromBase64":85,"es-arraybuffer-base64/Uint8Array.fromHex":89,"es-arraybuffer-base64/Uint8Array.prototype.setFromBase64":93,"es-arraybuffer-base64/Uint8Array.prototype.setFromHex":97,"es-arraybuffer-base64/Uint8Array.prototype.toBase64":101,"es-arraybuffer-base64/Uint8Array.prototype.toHex":105}]},{},[213]);
 
 
-var IteratorHelpersUtils = self._IteratorHelpersUtils;
-delete self._IteratorHelpersUtils;
+var ArrayBufferBase64Utils = self._ArrayBufferBase64Utils;
+delete self._ArrayBufferBase64Utils;
