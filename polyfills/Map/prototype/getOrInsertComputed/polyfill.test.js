@@ -37,13 +37,15 @@ describe("getOrInsertComputed", function () {
 
 	it("throws for an invalid `this`", function () {
 		proclaim.throws(function () {
-			Map.prototype.getOrInsertComputed.call({}, "a", 1);
+			Map.prototype.getOrInsertComputed.call({}, "a", function () {
+				throw new Error("should not have been called");
+			});
 		}, TypeError);
 	});
 
 	it("throws for an invalid `callback`", function () {
 		proclaim.throws(function () {
-			Map.prototype.getOrInsertComputed.call(new Map(), "a", {});
+			new Map().getOrInsertComputed("a", {});
 		}, TypeError);
 	});
 });

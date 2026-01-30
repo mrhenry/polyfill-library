@@ -39,19 +39,23 @@ describe("getOrInsertComputed", function () {
 
 	it("throws for an invalid `this`", function () {
 		proclaim.throws(function () {
-			WeakMap.prototype.getOrInsertComputed.call({}, {}, 1);
+			WeakMap.prototype.getOrInsertComputed.call({}, {}, function () {
+				throw new Error("should not have been called");
+			});
 		}, TypeError);
 	});
 
 	it("throws for an invalid `key`", function () {
 		proclaim.throws(function () {
-			WeakMap.prototype.getOrInsertComputed.call(new WeakMap(), "a", 1);
+			new WeakMap().getOrInsertComputed("a", function () {
+				throw new Error("should not have been called");
+			});
 		}, TypeError);
 	});
 
 	it("throws for an invalid `callback`", function () {
 		proclaim.throws(function () {
-			WeakMap.prototype.getOrInsertComputed.call(new WeakMap(), {}, {});
+			new WeakMap().getOrInsertComputed({}, {});
 		}, TypeError);
 	});
 });

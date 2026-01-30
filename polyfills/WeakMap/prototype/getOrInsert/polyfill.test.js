@@ -39,7 +39,7 @@ describe("getOrInsert", function () {
 
 	it("throws for an invalid `key`", function () {
 		proclaim.throws(function () {
-			WeakMap.prototype.getOrInsert.call(new WeakMap(), "a", 1);
+			new WeakMap().getOrInsert("a", 1);
 		}, TypeError);
 	});
 });
