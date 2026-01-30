@@ -1,0 +1,11 @@
+{
+  "name": "@mrhenry/polyfill-library--math-sumprecise",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "math.sumprecise": "1.0.1"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
