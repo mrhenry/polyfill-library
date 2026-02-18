@@ -196,7 +196,7 @@ async function main() {
 	const url = `http://bs-local.com:9876/${director ? '' : 'test'}?${includePolyfills}&${always}${feature}`;
 
 	const jobConfigs = browsers.flatMap(browser => {
-		let configs = [];
+		let configs;
 		const baseConfig = {
 			browser: browser,
 			shard: false,

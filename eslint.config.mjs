@@ -18,6 +18,8 @@ const browserScriptDefaults = {
 		"no-empty": ["error", {
 			"allowEmptyCatch": true,
 		}],
+		"no-useless-assignment": ["off"],
+		"preserve-caught-error": ["off"]
 	},
 	languageOptions: {
 		ecmaVersion: 3,
