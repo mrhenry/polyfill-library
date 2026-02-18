@@ -1,3 +1,5 @@
+/* globals Intl */
+
 describe("Intl.PluralRules", function () {
 	before(function () {
 		if (
