@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### v5.3.0
+
+- Add `iterator-helpers` polyfills [`#76`](https://github.com/mrhenry/polyfill-library/pull/76) by @mhassan1
+- Add `Promise.try` polyfill [`#82`](https://github.com/mrhenry/polyfill-library/pull/82) by @mhassan1
+- Add `Error.isError` polyfill [`#97`](https://github.com/mrhenry/polyfill-library/pull/97) by @mhassan1
+- Add `RegExp.escape` polyfill [`#98`](https://github.com/mrhenry/polyfill-library/pull/98) by @mhassan1
+- Add `Iterator.concat` polyfill [`#121`](https://github.com/mrhenry/polyfill-library/pull/121) by @mhassan1
+
 #### v5.2.1
 
 - Fix location of `.d.ts` files so that `sources.d.ts` is correctly detected.
