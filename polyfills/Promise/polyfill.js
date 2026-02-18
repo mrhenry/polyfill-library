@@ -11,6 +11,7 @@
 (function () {
 	'use strict';
 
+	// eslint-disable-next-line no-unassigned-vars
 	var $undefined
 	, $null = null
 	, isBrowser = typeof self === 'object'

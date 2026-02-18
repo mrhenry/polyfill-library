@@ -40,7 +40,9 @@ glob('polyfills/**/config.toml', globOptions)
 				try {
 					return Object.assign({ src: source }, TOML.parse(fs.readFileSync(source, 'utf-8')));
 				} catch (error) {
-					throw new Error('Failed on ' + source + '. Error: ' + error);
+					throw new Error('Failed on ' + source, {
+						cause: error
+					});
 				}
 			})
 			.filter(config => 'install' in config))  installPolyfill(toml);

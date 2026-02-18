@@ -1,3 +1,5 @@
+/* globals Intl */
+
 before(function () {
 	if (
 		Intl.PluralRules &&

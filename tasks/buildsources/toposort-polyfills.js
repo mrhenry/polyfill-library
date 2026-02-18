@@ -25,8 +25,9 @@ module.exports = function toposortPolyfills(polyfills) {
 	} catch (error) {
 		throw new Error(
 			'There is a circle in the dependency graph.\n' +
-			'Check the `dependencies` property of polyfill config files that have recently changed, and ensure that they do not form a circle of references.\n' +
-			error
+			'Check the `dependencies` property of polyfill config files that have recently changed, and ensure that they do not form a circle of references.', {
+				cause: error
+			}
 		);
 	}
 }
