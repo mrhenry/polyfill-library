@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### v5.3.1
+
+- Rename `IteratorHelpersUtils` to `IteratorHelpers` to better fit existing naming patterns
+
 #### v5.3.0
 
 - Add `iterator-helpers` polyfills [`#76`](https://github.com/mrhenry/polyfill-library/pull/76) by @mhassan1

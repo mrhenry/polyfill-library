@@ -1,5 +1,5 @@
-/* global CreateMethodProperty, Iterator, IteratorHelpersUtils */
+/* global CreateMethodProperty, Iterator, IteratorHelpers */
 // 3.1.3.6 Iterator.prototype.flatMap ( mapper )
 CreateMethodProperty(Iterator.prototype, "flatMap", function flatMap(mapper) {
-	return IteratorHelpersUtils.iteratorPrototype.flatMap(this, mapper);
+	return IteratorHelpers.iteratorPrototype.flatMap(this, mapper);
 });
