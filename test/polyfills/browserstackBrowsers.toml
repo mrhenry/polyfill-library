@@ -381,6 +381,20 @@ real_mobile = true
 os = "android"
 os_version = "16.0"
 browser = "android"
+device = "Samsung Galaxy S26"
+real_mobile = true
+
+[[browsers]]
+os = "android"
+os_version = "16.0"
+browser = "android"
+device = "Samsung Galaxy S26 Ultra"
+real_mobile = true
+
+[[browsers]]
+os = "android"
+os_version = "16.0"
+browser = "android"
 device = "Samsung Galaxy Tab S11"
 real_mobile = true
 
@@ -10444,85 +10458,169 @@ browser_version = "143.0"
 os = "OS X"
 os_version = "Ventura"
 browser = "chrome"
-browser_version = "144.0 beta"
+browser_version = "144.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chrome"
+browser_version = "144.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chrome"
+browser_version = "144.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chrome"
+browser_version = "144.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Monterey"
 browser = "chrome"
-browser_version = "144.0 beta"
+browser_version = "144.0"
 
 [[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "chrome"
-browser_version = "144.0 beta"
+browser_version = "144.0"
 
 [[browsers]]
 os = "Windows"
 os_version = "10"
 browser = "chrome"
-browser_version = "144.0 beta"
+browser_version = "144.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Ventura"
 browser = "chrome"
-browser_version = "144.0"
-
-[[browsers]]
-os = "OS X"
-os_version = "Sonoma"
-browser = "chrome"
-browser_version = "144.0 beta"
-
-[[browsers]]
-os = "OS X"
-os_version = "Sonoma"
-browser = "chrome"
-browser_version = "144.0"
-
-[[browsers]]
-os = "OS X"
-os_version = "Sequoia"
-browser = "chrome"
-browser_version = "144.0 beta"
-
-[[browsers]]
-os = "OS X"
-os_version = "Sequoia"
-browser = "chrome"
-browser_version = "144.0"
+browser_version = "145.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Tahoe"
 browser = "chrome"
-browser_version = "144.0 beta"
+browser_version = "145.0"
 
 [[browsers]]
 os = "OS X"
-os_version = "Tahoe"
+os_version = "Sonoma"
 browser = "chrome"
-browser_version = "144.0"
+browser_version = "145.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chrome"
+browser_version = "145.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Monterey"
 browser = "chrome"
-browser_version = "144.0"
+browser_version = "145.0"
 
 [[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "chrome"
-browser_version = "144.0"
+browser_version = "145.0"
 
 [[browsers]]
 os = "Windows"
 os_version = "10"
 browser = "chrome"
-browser_version = "144.0"
+browser_version = "145.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chrome"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chrome"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chrome"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chrome"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chrome"
+browser_version = "146.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chrome"
+browser_version = "146.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chrome"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chrome"
+browser_version = "147.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chrome"
+browser_version = "147.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chrome"
+browser_version = "147.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chrome"
+browser_version = "147.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chrome"
+browser_version = "147.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chrome"
+browser_version = "147.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chrome"
+browser_version = "147.0 beta"
 
 [[browsers]]
 os = "Windows"
@@ -14866,43 +14964,169 @@ browser_version = "143.0"
 os = "OS X"
 os_version = "Ventura"
 browser = "edge"
-browser_version = "144.0 beta"
+browser_version = "144.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Tahoe"
 browser = "edge"
-browser_version = "144.0 beta"
+browser_version = "144.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Sonoma"
 browser = "edge"
-browser_version = "144.0 beta"
+browser_version = "144.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Sequoia"
 browser = "edge"
-browser_version = "144.0 beta"
+browser_version = "144.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Monterey"
 browser = "edge"
-browser_version = "144.0 beta"
+browser_version = "144.0"
 
 [[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "edge"
-browser_version = "144.0 beta"
+browser_version = "144.0"
 
 [[browsers]]
 os = "Windows"
 os_version = "10"
 browser = "edge"
-browser_version = "144.0 beta"
+browser_version = "144.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "edge"
+browser_version = "145.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "edge"
+browser_version = "145.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "edge"
+browser_version = "145.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "edge"
+browser_version = "145.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "edge"
+browser_version = "145.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "edge"
+browser_version = "145.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "edge"
+browser_version = "145.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "edge"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "edge"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "edge"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "edge"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "edge"
+browser_version = "146.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "edge"
+browser_version = "146.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "edge"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "edge"
+browser_version = "147.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "edge"
+browser_version = "147.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "edge"
+browser_version = "147.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "edge"
+browser_version = "147.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "edge"
+browser_version = "147.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "edge"
+browser_version = "147.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "edge"
+browser_version = "147.0 beta"
 
 [[browsers]]
 os = "OS X"
@@ -26710,55 +26934,109 @@ browser_version = "147.0"
 os = "OS X"
 os_version = "Ventura"
 browser = "firefox"
-browser_version = "148.0 beta"
+browser_version = "148.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Tahoe"
 browser = "firefox"
-browser_version = "148.0 beta"
+browser_version = "148.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Sonoma"
 browser = "firefox"
-browser_version = "148.0 beta"
+browser_version = "148.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Sequoia"
 browser = "firefox"
-browser_version = "148.0 beta"
+browser_version = "148.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Monterey"
 browser = "firefox"
-browser_version = "148.0 beta"
+browser_version = "148.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
-browser_version = "148.0 beta"
+browser_version = "148.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Big Sur"
 browser = "firefox"
-browser_version = "148.0 beta"
+browser_version = "148.0"
 
 [[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "firefox"
-browser_version = "148.0 beta"
+browser_version = "148.0"
 
 [[browsers]]
 os = "Windows"
 os_version = "10"
 browser = "firefox"
-browser_version = "148.0 beta"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "firefox"
+browser_version = "149.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "firefox"
+browser_version = "149.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "firefox"
+browser_version = "149.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "firefox"
+browser_version = "149.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "firefox"
+browser_version = "149.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Catalina"
+browser = "firefox"
+browser_version = "149.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Big Sur"
+browser = "firefox"
+browser_version = "149.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "firefox"
+browser_version = "149.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "firefox"
+browser_version = "149.0 beta"
 
 [[browsers]]
 os = "Windows"
@@ -27217,6 +27495,13 @@ real_mobile = true
 os = "ios"
 os_version = "26"
 browser = "iphone"
+device = "iPhone 17e"
+real_mobile = true
+
+[[browsers]]
+os = "ios"
+os_version = "26"
+browser = "iphone"
 device = "iPhone Air"
 real_mobile = true
 
@@ -27598,6 +27883,20 @@ os = "android"
 os_version = "16.0"
 browser = "samsung"
 device = "Samsung Galaxy S24"
+real_mobile = true
+
+[[browsers]]
+os = "android"
+os_version = "16.0"
+browser = "samsung"
+device = "Samsung Galaxy S26"
+real_mobile = true
+
+[[browsers]]
+os = "android"
+os_version = "16.0"
+browser = "samsung"
+device = "Samsung Galaxy S26 Ultra"
 real_mobile = true
 
 [[browsers]]
