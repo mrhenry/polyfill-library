@@ -129,7 +129,6 @@ module.exports = class TestJob {
 			await this.setState("started");
 			this.useragent = await this.browser.execute(function () {
 				// browser context - you may not access client or console
-				// eslint-disable-next-line no-undef
 				return navigator.userAgent;
 			});
 			await this.browser.navigateTo(this.url);

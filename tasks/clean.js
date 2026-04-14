@@ -2,8 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const {promisify} = require('node:util');
-const glob = promisify(require('glob'));
+const { glob } = require('glob');
 const TOML = require('@iarna/toml');
 const cwd = path.join(__dirname, '../');
 const globOptions = { cwd: cwd };
@@ -21,7 +20,9 @@ glob('polyfills/**/config.toml', globOptions).then((files) => {
 		try {
 			return Object.assign({ src: source }, TOML.parse(fs.readFileSync(source, 'utf-8')));
 		} catch (error) {
-			throw new Error('Failed on ' + source + '. Error: ' + error);
+			throw new Error('Failed on ' + source, {
+				cause: error
+			});
 		}
 	})
 	.filter((config) => {

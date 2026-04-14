@@ -10,8 +10,8 @@ docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global
 [browsers]
 android = "*"
 chrome = "<136"
-edge = "<136"
-edge_mob = "<136"
+edge = "*"
+edge_mob = "*"
 firefox = "<134"
 firefox_mob = "<134"
 ie = "*"
