@@ -37,3 +37,4 @@ samsung_mob = "<8.0"
 [install]
 module = "seamless-scroll-polyfill"
 postinstall = "update.task.js"
+clean = [ "polyfill.js" ]

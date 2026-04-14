@@ -2,8 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const {promisify} = require('node:util');
-const glob = promisify(require('glob'));
+const { glob } = require('glob');
 const TOML = require('@iarna/toml');
 const cwd = path.join(__dirname, '../');
 const globOptions = { cwd: cwd };

@@ -1,20 +1,25 @@
 {
 	"compilerOptions": {
-		"module": "CommonJS",
-		"target": "ES2015",
-		"lib": ["ES2015"],
-		"checkJs": true,
-		"noEmit": true,
-		"strict": true,
-		"allowUnusedLabels": false,
+		"allowJs": true,
 		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+		"checkJs": true,
+		"declaration": true,
+		"declarationDir": "./",
+		"emitDeclarationOnly": true,
+		"lib": ["ES2024"],
+		"module": "commonjs",
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitReturns": false,
-		"noUnusedParameters": true,
 		"noUncheckedIndexedAccess": true,
+		"noUnusedParameters": true,
+		"outDir": "lib",
 		"resolveJsonModule": true,
-		"esModuleInterop": true,
-		"skipLibCheck": false
+		"skipLibCheck": false,
+		"strict": true,
+		"target": "ES2015",
+		"types": ["node"]
 	},
-	"include": ["lib/**/*.js"]
+	"include": ["lib/*.js"],
+	"exclude": []
 }
