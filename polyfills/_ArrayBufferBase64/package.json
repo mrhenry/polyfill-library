@@ -1,0 +1,12 @@
+{
+  "name": "@mrhenry/polyfill-library--arraybuffer-base64",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "browserify": "17.0.0",
+    "es-arraybuffer-base64": "1.1.2"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
