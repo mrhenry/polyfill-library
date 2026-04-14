@@ -2,8 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const {promisify} = require('node:util');
-const glob = promisify(require('glob'));
+const { glob } = require('glob');
 const TOML = require('@iarna/toml');
 const cwd = path.join(__dirname, '../');
 const globOptions = { cwd: cwd };
@@ -28,6 +27,8 @@ const installPolyfill = config => {
 
 	if (config.install.postinstall) {
 		console.log(' * Running module-specific update task ' + config.install.postinstall);
+		console.log(path.resolve(polyfillOutputFolder, config.install.postinstall));
+
 		require(path.resolve(polyfillOutputFolder, config.install.postinstall));
 	}
 };
@@ -40,7 +41,9 @@ glob('polyfills/**/config.toml', globOptions)
 				try {
 					return Object.assign({ src: source }, TOML.parse(fs.readFileSync(source, 'utf-8')));
 				} catch (error) {
-					throw new Error('Failed on ' + source + '. Error: ' + error);
+					throw new Error('Failed on ' + source, {
+						cause: error
+					});
 				}
 			})
 			.filter(config => 'install' in config))  installPolyfill(toml);

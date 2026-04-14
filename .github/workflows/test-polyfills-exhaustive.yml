@@ -30,12 +30,12 @@ jobs:
         - safari
 
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 1
 
 
-      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
           cache: 'npm'
@@ -47,7 +47,7 @@ jobs:
 
       - name: cache __dist
         id: cache-dist
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: polyfills/__dist
           key: cache--dist--${{ env.commit-sha }}
@@ -58,7 +58,7 @@ jobs:
       - name: Test ${{ matrix.browser }}
         run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js
           test-polyfill-combinations targeted director browser="${{ matrix.browser }}"
-        timeout-minutes: 30
+        timeout-minutes: 45
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}

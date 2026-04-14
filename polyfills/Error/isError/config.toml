@@ -1,4 +1,4 @@
-aliases = [ "es2025" ]
+aliases = [ "es2026" ]
 dependencies = [
 	"_ESAbstract.CreateMethodProperty",
 	"_ESAbstract.Type",
@@ -18,7 +18,7 @@ firefox_mob = "<138"
 ie = "*"
 ie_mob = "*"
 opera = "<120"
-op_mob = "*"
+op_mob = "<88"
 op_mini = "*"
 safari = "*"
 ios_saf = "*"

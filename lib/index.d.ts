@@ -81,12 +81,12 @@ export function describePolyfill(featureName: string): Promise<sources.PolyfillM
  * @return {NormalisedOptions} options - options_ merged with the defaults option values.
  */
 export function getOptions(options_?: {
-    minify?: boolean;
-    unknown?: "ignore" | "polyfill";
-    features?: Record<string, FeatureInput>;
-    callback?: false | string;
-    excludes?: Array<string>;
-    ua?: UaParser;
+    minify?: boolean | undefined;
+    unknown?: "ignore" | "polyfill" | undefined;
+    features?: Record<string, FeatureInput> | undefined;
+    callback?: string | false | undefined;
+    excludes?: string[] | undefined;
+    ua?: UaParser | undefined;
 }): NormalisedOptions;
 /**
  * @typedef {'gated'|'always'} Flag
@@ -106,13 +106,13 @@ export function getOptions(options_?: {
  * @return {Promise<Object.<string, Feature>>} - Canonicalised feature definitions filtered for UA
  */
 export function getPolyfills(options_: {
-    minify?: boolean;
-    unknown?: "ignore" | "polyfill";
+    minify?: boolean | undefined;
+    unknown?: "ignore" | "polyfill" | undefined;
     features?: {
         [x: string]: FeatureInput;
-    };
-    excludes?: Array<string>;
-    ua?: UaParser;
+    } | undefined;
+    excludes?: string[] | undefined;
+    ua?: UaParser | undefined;
 }): Promise<{
     [x: string]: Feature;
 }>;
@@ -131,14 +131,14 @@ export function getPolyfills(options_: {
  * @return {Promise<string>|stream.Readable} - Polyfill bundle as either a utf-8 stream or a promise of a utf-8 string.
  */
 export function getPolyfillString(options_: {
-    minify?: boolean;
-    unknown?: "ignore" | "polyfill";
+    minify?: boolean | undefined;
+    unknown?: "ignore" | "polyfill" | undefined;
     features?: {
         [x: string]: FeatureInput;
-    };
-    excludes?: Array<string>;
-    ua?: UaParser;
-    stream?: boolean;
+    } | undefined;
+    excludes?: string[] | undefined;
+    ua?: UaParser | undefined;
+    stream?: boolean | undefined;
 }): Promise<string> | stream.Readable;
 /**
  * Create a polyfill bundle.
@@ -152,12 +152,12 @@ export function getPolyfillString(options_: {
  * @returns {AsyncGenerator<string>}
  */
 export function generatePolyfillString(options_: {
-    minify?: boolean;
-    unknown?: "ignore" | "polyfill";
-    features?: Record<string, FeatureInput>;
-    callback?: false | string;
-    excludes?: Array<string>;
-    ua?: UaParser;
+    minify?: boolean | undefined;
+    unknown?: "ignore" | "polyfill" | undefined;
+    features?: Record<string, FeatureInput> | undefined;
+    callback?: string | false | undefined;
+    excludes?: string[] | undefined;
+    ua?: UaParser | undefined;
 }): AsyncGenerator<string>;
 import sources = require("./sources");
 import stream = require("stream");

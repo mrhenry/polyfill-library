@@ -129,7 +129,6 @@ module.exports = class TestJob {
 			await this.setState("started");
 			this.useragent = await this.browser.execute(function () {
 				// browser context - you may not access client or console
-				// eslint-disable-next-line no-undef
 				return navigator.userAgent;
 			});
 			await this.browser.navigateTo(this.url);
@@ -176,7 +175,7 @@ module.exports = class TestJob {
 				"An unknown server-side error occurred while processing the command."
 			) ||
 			error.message.includes(
-				'The operation was aborted due to timeout when running "execute/sync" with method "POST"'
+				'The operation was aborted due to timeout when running'
 			)
 		);
 	}

@@ -58,7 +58,6 @@ function parseRange(range) {
 
 	if (operatorBuffer.length > 0) {
 		operators.push(operatorBuffer)
-		operatorBuffer = '';
 	}
 
 	operators = operators.filter(operator => operator.trim().length > 0);
