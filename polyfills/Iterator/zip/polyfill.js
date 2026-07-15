@@ -1,5 +1,5 @@
 /* global CreateMethodProperty, Get, GetIterator, GetIteratorFlattenable, GetOptionsObject, Iterator, IteratorClose, IteratorCloseAll, IteratorStepValue, IteratorZip, NormalCompletion, ThrowCompletion, Type */
-// 1 Iterator.zip ( iterables [ , options ] )
+// 27.1.3.2.4 Iterator.zip ( iterables [ , options ] )
 CreateMethodProperty(Iterator, "zip", function zip(iterables /* , options */) {
 	// 1. If iterables is not an Object, throw a TypeError exception.
 	if (Type(iterables) !== "object") {
@@ -53,11 +53,13 @@ CreateMethodProperty(Iterator, "zip", function zip(iterables /* , options */) {
 			try {
 				iter = GetIteratorFlattenable(next, "reject-primitives");
 			}
-			// ii. IfAbruptCloseIterators(iter, the list-concatenation of « inputIter » and iters).
+			// ii. Let needClosing be the list-concatenation of « inputIter » and iters.
+			// iii. IfAbruptCloseIterators(iter, needClosing).
 			catch (error) {
-				return IteratorCloseAll([inputIter].concat(iters), ThrowCompletion(error));
+				var needClosing = [inputIter].concat(iters);
+				return IteratorCloseAll(needClosing, ThrowCompletion(error));
 			}
-			// iii. Append iter to iters.
+			// iv. Append iter to iters.
 			iters.push(iter);
 		}
 	}
@@ -67,7 +69,7 @@ CreateMethodProperty(Iterator, "zip", function zip(iterables /* , options */) {
 	if (mode === "longest") {
 		// a. If paddingOption is undefined, then
 		if (paddingOption === undefined) {
-			// i. Perform the following steps iterCount times:
+			// i. Repeat iterCount times:
 			for (var i = 0; i < iterCount; i++) {
 				// 1. Append undefined to padding.
 				padding.push(undefined);
@@ -86,7 +88,7 @@ CreateMethodProperty(Iterator, "zip", function zip(iterables /* , options */) {
 			}
 			// iii. Let usingIterator be true.
 			var usingIterator = true;
-			// iv. Perform the following steps iterCount times:
+			// iv. Repeat iterCount times:
 			for (var j = 0; j < iterCount; j++) {
 				// 1. If usingIterator is true, then
 				if (usingIterator === true) {

@@ -1,4 +1,4 @@
-aliases = [ "es2026" ]
+aliases = [ "es2027" ]
 dependencies = [
 	"_ESAbstract.CreateDataPropertyOrThrow",
 	"_ESAbstract.CreateMethodProperty",
@@ -13,7 +13,7 @@ dependencies = [
 	"Reflect.getOwnPropertyDescriptor",
 	"Reflect.ownKeys",
 ]
-spec = "https://tc39.es/proposal-joint-iteration/#sec-iterator.zipkeyed"
+spec = "https://tc39.es/ecma262/#sec-iterator.zipkeyed"
 docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/zipKeyed"
 
 [browsers]

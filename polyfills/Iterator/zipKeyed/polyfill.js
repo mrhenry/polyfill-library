@@ -1,5 +1,5 @@
 /* global CreateDataPropertyOrThrow, CreateMethodProperty, Get, GetIteratorFlattenable, GetOptionsObject, Iterator, IteratorCloseAll, IteratorZip, Reflect, ThrowCompletion, Type */
-// 2 Iterator.zipKeyed ( iterables [ , options ] )
+// 27.1.3.2.5 Iterator.zipKeyed ( iterables [ , options ] )
 CreateMethodProperty(Iterator, "zipKeyed", function zipKeyed(iterables /* , options */) {
 	// 1. If iterables is not an Object, throw a TypeError exception.
 	if (Type(iterables) !== "object") {
@@ -39,16 +39,16 @@ CreateMethodProperty(Iterator, "zipKeyed", function zipKeyed(iterables /* , opti
 	// 12. For each element key of allKeys, do
 	for (var j = 0; j < allKeys.length; j++) {
 		var key = allKeys[j];
-		// a. Let desc be Completion(iterables.[[GetOwnProperty]](key)).
-		var desc;
+		// a. Let propertyDesc be Completion(iterables.[[GetOwnProperty]](key)).
+		var propertyDesc;
 		try {
-			desc = Reflect.getOwnPropertyDescriptor(iterables, key);
+			propertyDesc = Reflect.getOwnPropertyDescriptor(iterables, key);
 		} catch (error) {
-			// b. IfAbruptCloseIterators(desc, iters).
+			// b. IfAbruptCloseIterators(propertyDesc, iters).
 			return IteratorCloseAll(iters, ThrowCompletion(error));
 		}
-		// c. If desc is not undefined and desc.[[Enumerable]] is true, then
-		if (desc !== undefined && desc.enumerable === true) {
+		// c. If propertyDesc is not undefined and propertyDesc.[[Enumerable]] is true, then
+		if (propertyDesc !== undefined && propertyDesc.enumerable === true) {
 			// i. Let value be Completion(Get(iterables, key)).
 			var value;
 			try {
@@ -80,7 +80,7 @@ CreateMethodProperty(Iterator, "zipKeyed", function zipKeyed(iterables /* , opti
 	if (mode === "longest") {
 		// a. If paddingOption is undefined, then
 		if (paddingOption === undefined) {
-			// i. Perform the following steps iterCount times:
+			// i. Repeat iterCount times:
 			for (var i = 0; i < iterCount; i++) {
 				// 1. Append undefined to padding.
 				padding.push(undefined);

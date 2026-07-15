@@ -14,13 +14,13 @@ var IteratorHelperPrototype = (function () {
 	return Object.getPrototypeOf(iteratorHelper);
 })();
 
-// 3 IteratorZip ( iters, mode, padding, finishResults )
+// 27.1.3.4.1 IteratorZip ( iters, mode, padding, finishResults )
 function IteratorZip(iters, mode, padding, finishResults) { // eslint-disable-line no-unused-vars
 	// 1. Let iterCount be the number of elements in iters.
 	var iterCount = iters.length;
 	// 2. Let openIters be a copy of iters.
 	var openIters = iters.slice(0);
-	// 3. Let closure be a new Abstract Closure with no parameters that captures iters, iterCount, openIters, mode, padding, and finishResults, and performs the following steps when called:
+	// 3. Let closure be a new Abstract Closure with no parameters that captures iters, iterCount, openIters, mode, padding, and finishResults and performs the following steps when called:
 	// 4. Let gen be CreateIteratorFromClosure(closure, "Iterator Helper", %IteratorHelperPrototype%, « [[UnderlyingIterators]] »).
 	var gen = Object.create(IteratorHelperPrototype);
 	gen["[[Done]]"] = false;
@@ -136,9 +136,8 @@ function IteratorZip(iters, mode, padding, finishResults) { // eslint-disable-li
 				results = finishResults(results);
 				return CreateIterResultObject(results, false);
 			}
-			// vi. If completion is an abrupt completion, then
+			// vi. IfAbruptCloseIterators(completion, openIters).
 			catch (error) {
-				// 1. Return ? IteratorCloseAll(openIters, completion).
 				this["[[Done]]"] = true;
 				return IteratorCloseAll(openIters, ThrowCompletion(error));
 			}

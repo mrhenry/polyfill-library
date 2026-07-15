@@ -8,7 +8,7 @@ dependencies = [
 	"Iterator.prototype.take",
 	"Symbol.iterator",
 ]
-spec = "https://tc39.es/proposal-joint-iteration/#sec-IteratorZip"
+spec = "https://tc39.es/ecma262/#sec-iteratorzip"
 
 [browsers]
 android = "*"
