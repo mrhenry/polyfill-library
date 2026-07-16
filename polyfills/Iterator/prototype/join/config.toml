@@ -1,0 +1,31 @@
+aliases = [ "es2027" ]
+dependencies = [
+	"_ESAbstract.CreateMethodProperty",
+	"_ESAbstract.Get",
+	"_ESAbstract.IteratorClose",
+	"_ESAbstract.IteratorStepValue",
+	"_ESAbstract.ThrowCompletion",
+	"_ESAbstract.ToString",
+	"_ESAbstract.Type",
+	"Iterator",
+]
+spec = "TODO"
+docs = "TODO"
+
+# TODO
+[browsers]
+android = "*"
+bb = "*"
+chrome = "*"
+edge = "*"
+edge_mob = "*"
+firefox = "*"
+firefox_mob = "*"
+ie = "*"
+ie_mob = "*"
+opera = "*"
+op_mob = "*"
+op_mini = "*"
+safari = "*"
+ios_saf = "*"
+samsung_mob = "*"
