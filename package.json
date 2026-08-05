@@ -71,6 +71,10 @@
     "webdriverio": "^9.19.2"
   },
   "volta": {
-    "node": "24.8.0"
+    "node": "26.6.0"
+  },
+  "allowScripts": {
+    "edgedriver@6.1.2": true,
+    "geckodriver@5.0.0": true
   }
 }
