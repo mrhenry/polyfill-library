@@ -15,30 +15,9 @@ real_mobile = true
 
 [[browsers]]
 os = "android"
-os_version = "9.0"
-browser = "android"
-device = "Samsung Galaxy S10"
-real_mobile = true
-
-[[browsers]]
-os = "android"
-os_version = "10.0"
-browser = "android"
-device = "Motorola Moto G9 Play"
-real_mobile = true
-
-[[browsers]]
-os = "android"
 os_version = "10.0"
 browser = "android"
 device = "Oppo Reno 3 Pro"
-real_mobile = true
-
-[[browsers]]
-os = "android"
-os_version = "10.0"
-browser = "android"
-device = "Samsung Galaxy A51"
 real_mobile = true
 
 [[browsers]]
@@ -73,13 +52,6 @@ real_mobile = true
 os = "android"
 os_version = "11.0"
 browser = "android"
-device = "Google Pixel 5"
-real_mobile = true
-
-[[browsers]]
-os = "android"
-os_version = "11.0"
-browser = "android"
 device = "Motorola Moto G71 5G"
 real_mobile = true
 
@@ -88,13 +60,6 @@ os = "android"
 os_version = "11.0"
 browser = "android"
 device = "OnePlus 9"
-real_mobile = true
-
-[[browsers]]
-os = "android"
-os_version = "11.0"
-browser = "android"
-device = "Oppo Reno 6"
 real_mobile = true
 
 [[browsers]]
@@ -158,13 +123,6 @@ os = "android"
 os_version = "12.0"
 browser = "android"
 device = "Google Pixel 6"
-real_mobile = true
-
-[[browsers]]
-os = "android"
-os_version = "12.0"
-browser = "android"
-device = "Google Pixel 6 Pro"
 real_mobile = true
 
 [[browsers]]
@@ -399,6 +357,13 @@ device = "Samsung Galaxy Tab S11"
 real_mobile = true
 
 [[browsers]]
+os = "android"
+os_version = "17.0"
+browser = "android"
+device = "Google Pixel 9"
+real_mobile = true
+
+[[browsers]]
 os = "OS X"
 os_version = "Yosemite"
 browser = "chrome"
@@ -4996,6 +4961,12 @@ browser_version = "70.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "70.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "70.0"
@@ -5098,6 +5069,12 @@ browser_version = "71.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "71.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "71.0"
@@ -5200,6 +5177,12 @@ browser_version = "72.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "72.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "72.0"
@@ -5302,6 +5285,12 @@ browser_version = "73.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "73.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "73.0"
@@ -5404,6 +5393,12 @@ browser_version = "74.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "74.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "74.0"
@@ -5506,6 +5501,12 @@ browser_version = "75.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "75.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "75.0"
@@ -5608,6 +5609,12 @@ browser_version = "76.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "76.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "76.0"
@@ -5710,6 +5717,12 @@ browser_version = "77.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "77.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "77.0"
@@ -5812,6 +5825,12 @@ browser_version = "78.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "78.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "78.0"
@@ -5914,6 +5933,12 @@ browser_version = "79.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "79.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "79.0"
@@ -6016,6 +6041,12 @@ browser_version = "80.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "80.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "80.0"
@@ -6118,6 +6149,12 @@ browser_version = "81.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "81.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "81.0"
@@ -6220,6 +6257,12 @@ browser_version = "83.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "83.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "83.0"
@@ -6322,6 +6365,12 @@ browser_version = "84.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "84.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "84.0"
@@ -6424,6 +6473,12 @@ browser_version = "85.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "85.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "85.0"
@@ -6526,6 +6581,12 @@ browser_version = "86.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "86.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "El Capitan"
 browser = "chrome"
 browser_version = "86.0"
@@ -6623,6 +6684,12 @@ browser_version = "87.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "87.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "87.0"
 
@@ -6719,6 +6786,12 @@ browser_version = "88.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "88.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "88.0"
 
@@ -6815,6 +6888,12 @@ browser_version = "89.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "89.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "89.0"
 
@@ -6911,6 +6990,12 @@ browser_version = "90.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "90.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "90.0"
 
@@ -7007,6 +7092,12 @@ browser_version = "91.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "91.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "91.0"
 
@@ -7103,6 +7194,12 @@ browser_version = "92.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "92.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "92.0"
 
@@ -7199,6 +7296,12 @@ browser_version = "93.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "93.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "93.0"
 
@@ -7295,6 +7398,12 @@ browser_version = "94.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "94.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "94.0"
 
@@ -7391,6 +7500,12 @@ browser_version = "95.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "95.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "95.0"
 
@@ -7487,6 +7602,12 @@ browser_version = "96.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "96.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "96.0"
 
@@ -7583,6 +7704,12 @@ browser_version = "97.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "97.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "97.0"
 
@@ -7679,6 +7806,12 @@ browser_version = "98.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "98.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "98.0"
 
@@ -7775,6 +7908,12 @@ browser_version = "99.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "99.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "99.0"
 
@@ -7871,6 +8010,12 @@ browser_version = "100.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "100.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "100.0"
 
@@ -7967,6 +8112,12 @@ browser_version = "101.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "101.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "101.0"
 
@@ -8063,6 +8214,12 @@ browser_version = "102.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "102.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "102.0"
 
@@ -8159,6 +8316,12 @@ browser_version = "103.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "103.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "103.0"
 
@@ -8249,6 +8412,12 @@ browser_version = "104.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "104.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "104.0"
 
@@ -8333,6 +8502,12 @@ browser_version = "105.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "105.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "105.0"
 
@@ -8417,6 +8592,12 @@ browser_version = "106.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "106.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "106.0"
 
@@ -8501,6 +8682,12 @@ browser_version = "107.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "107.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "107.0"
 
@@ -8585,6 +8772,12 @@ browser_version = "108.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "108.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "108.0"
 
@@ -8669,6 +8862,12 @@ browser_version = "109.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "109.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "109.0"
 
@@ -8753,6 +8952,12 @@ browser_version = "110.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "110.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "110.0"
 
@@ -8819,6 +9024,12 @@ browser_version = "111.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "111.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "111.0"
 
@@ -8885,6 +9096,12 @@ browser_version = "112.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "112.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "112.0"
 
@@ -8951,6 +9168,12 @@ browser_version = "113.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "113.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "113.0"
 
@@ -9017,6 +9240,12 @@ browser_version = "114.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "114.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "114.0"
 
@@ -9083,6 +9312,12 @@ browser_version = "115.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "115.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "115.0"
 
@@ -9149,6 +9384,12 @@ browser_version = "116.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "chrome"
+browser_version = "116.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "chrome"
 browser_version = "116.0"
 
@@ -9418,6 +9659,12 @@ browser_version = "122.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "122.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "chrome"
 browser_version = "122.0"
@@ -9472,6 +9719,12 @@ browser_version = "123.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "123.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "chrome"
 browser_version = "123.0"
@@ -9526,6 +9779,12 @@ browser_version = "124.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "124.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "chrome"
 browser_version = "124.0"
@@ -9580,6 +9839,12 @@ browser_version = "125.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "125.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "chrome"
 browser_version = "125.0"
@@ -9634,6 +9899,12 @@ browser_version = "126.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "126.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "chrome"
 browser_version = "126.0"
@@ -9688,6 +9959,12 @@ browser_version = "127.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "127.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "chrome"
 browser_version = "127.0"
@@ -9742,6 +10019,12 @@ browser_version = "128.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "128.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "chrome"
 browser_version = "128.0"
@@ -9796,6 +10079,12 @@ browser_version = "129.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "129.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "chrome"
 browser_version = "129.0"
@@ -9844,6 +10133,12 @@ browser_version = "130.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "130.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "chrome"
 browser_version = "130.0"
@@ -9892,6 +10187,12 @@ browser_version = "131.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "131.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "chrome"
 browser_version = "131.0"
@@ -9940,6 +10241,12 @@ browser_version = "132.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "132.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "chrome"
 browser_version = "132.0"
@@ -9988,6 +10295,12 @@ browser_version = "133.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "133.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "chrome"
 browser_version = "133.0"
@@ -10036,6 +10349,12 @@ browser_version = "134.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "134.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "chrome"
 browser_version = "134.0"
@@ -10084,6 +10403,12 @@ browser_version = "135.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "135.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "chrome"
 browser_version = "135.0"
@@ -10132,6 +10457,12 @@ browser_version = "136.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "136.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "chrome"
 browser_version = "136.0"
@@ -10180,6 +10511,12 @@ browser_version = "137.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "137.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "chrome"
 browser_version = "137.0"
@@ -10228,6 +10565,12 @@ browser_version = "138.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "138.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "chrome"
 browser_version = "138.0"
@@ -10275,6 +10618,12 @@ browser = "chrome"
 browser_version = "139.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "139.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "chrome"
@@ -10317,6 +10666,12 @@ browser = "chrome"
 browser_version = "140.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "140.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "chrome"
@@ -10359,6 +10714,12 @@ browser = "chrome"
 browser_version = "141.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "141.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "chrome"
@@ -10401,6 +10762,12 @@ browser = "chrome"
 browser_version = "142.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "142.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "chrome"
@@ -10443,6 +10810,12 @@ browser = "chrome"
 browser_version = "143.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "143.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "chrome"
@@ -10485,6 +10858,12 @@ browser = "chrome"
 browser_version = "144.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "144.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "chrome"
@@ -10527,6 +10906,12 @@ browser = "chrome"
 browser_version = "145.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "145.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "chrome"
@@ -10569,6 +10954,12 @@ browser = "chrome"
 browser_version = "146.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "146.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "chrome"
@@ -10584,43 +10975,1003 @@ browser_version = "146.0"
 os = "OS X"
 os_version = "Ventura"
 browser = "chrome"
-browser_version = "147.0 beta"
+browser_version = "147.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Tahoe"
 browser = "chrome"
-browser_version = "147.0 beta"
+browser_version = "147.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Sonoma"
 browser = "chrome"
-browser_version = "147.0 beta"
+browser_version = "147.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Sequoia"
 browser = "chrome"
-browser_version = "147.0 beta"
+browser_version = "147.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Monterey"
 browser = "chrome"
-browser_version = "147.0 beta"
+browser_version = "147.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "147.0"
 
 [[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "chrome"
-browser_version = "147.0 beta"
+browser_version = "147.0"
 
 [[browsers]]
 os = "Windows"
 os_version = "10"
 browser = "chrome"
-browser_version = "147.0 beta"
+browser_version = "147.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chrome"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chrome"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chrome"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chrome"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chrome"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "148.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chrome"
+browser_version = "148.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chrome"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chrome"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chrome"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chrome"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chrome"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chrome"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "149.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chrome"
+browser_version = "149.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chrome"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chrome"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chrome"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chrome"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chrome"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chrome"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "150.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chrome"
+browser_version = "150.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chrome"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chrome"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chrome"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chrome"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chrome"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "151.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chrome"
+browser_version = "151.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chrome"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chrome"
+browser_version = "152.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chrome"
+browser_version = "152.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chrome"
+browser_version = "152.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chrome"
+browser_version = "152.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chrome"
+browser_version = "152.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chrome"
+browser_version = "152.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chrome"
+browser_version = "152.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chromeForTesting"
+browser_version = "141.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chromeForTesting"
+browser_version = "141.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chromeForTesting"
+browser_version = "141.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chromeForTesting"
+browser_version = "141.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chromeForTesting"
+browser_version = "141.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chromeForTesting"
+browser_version = "141.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "XP"
+browser = "chromeForTesting"
+browser_version = "141.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chromeForTesting"
+browser_version = "141.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chromeForTesting"
+browser_version = "141.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "7"
+browser = "chromeForTesting"
+browser_version = "141.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chromeForTesting"
+browser_version = "142.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chromeForTesting"
+browser_version = "142.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chromeForTesting"
+browser_version = "142.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chromeForTesting"
+browser_version = "142.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chromeForTesting"
+browser_version = "142.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chromeForTesting"
+browser_version = "142.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "XP"
+browser = "chromeForTesting"
+browser_version = "142.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chromeForTesting"
+browser_version = "142.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chromeForTesting"
+browser_version = "142.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "7"
+browser = "chromeForTesting"
+browser_version = "142.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chromeForTesting"
+browser_version = "143.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chromeForTesting"
+browser_version = "143.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chromeForTesting"
+browser_version = "143.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chromeForTesting"
+browser_version = "143.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chromeForTesting"
+browser_version = "143.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chromeForTesting"
+browser_version = "143.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "XP"
+browser = "chromeForTesting"
+browser_version = "143.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chromeForTesting"
+browser_version = "143.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chromeForTesting"
+browser_version = "143.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "7"
+browser = "chromeForTesting"
+browser_version = "143.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chromeForTesting"
+browser_version = "144.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chromeForTesting"
+browser_version = "144.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chromeForTesting"
+browser_version = "144.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chromeForTesting"
+browser_version = "144.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chromeForTesting"
+browser_version = "144.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chromeForTesting"
+browser_version = "144.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "XP"
+browser = "chromeForTesting"
+browser_version = "144.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chromeForTesting"
+browser_version = "144.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chromeForTesting"
+browser_version = "144.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "7"
+browser = "chromeForTesting"
+browser_version = "144.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chromeForTesting"
+browser_version = "145.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chromeForTesting"
+browser_version = "145.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chromeForTesting"
+browser_version = "145.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chromeForTesting"
+browser_version = "145.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chromeForTesting"
+browser_version = "145.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chromeForTesting"
+browser_version = "145.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "XP"
+browser = "chromeForTesting"
+browser_version = "145.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chromeForTesting"
+browser_version = "145.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chromeForTesting"
+browser_version = "145.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "7"
+browser = "chromeForTesting"
+browser_version = "145.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chromeForTesting"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chromeForTesting"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chromeForTesting"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chromeForTesting"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chromeForTesting"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chromeForTesting"
+browser_version = "146.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "XP"
+browser = "chromeForTesting"
+browser_version = "146.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chromeForTesting"
+browser_version = "146.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chromeForTesting"
+browser_version = "146.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "7"
+browser = "chromeForTesting"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chromeForTesting"
+browser_version = "147.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chromeForTesting"
+browser_version = "147.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chromeForTesting"
+browser_version = "147.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chromeForTesting"
+browser_version = "147.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chromeForTesting"
+browser_version = "147.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chromeForTesting"
+browser_version = "147.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "XP"
+browser = "chromeForTesting"
+browser_version = "147.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chromeForTesting"
+browser_version = "147.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chromeForTesting"
+browser_version = "147.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "7"
+browser = "chromeForTesting"
+browser_version = "147.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chromeForTesting"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chromeForTesting"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chromeForTesting"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chromeForTesting"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chromeForTesting"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chromeForTesting"
+browser_version = "148.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "XP"
+browser = "chromeForTesting"
+browser_version = "148.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chromeForTesting"
+browser_version = "148.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chromeForTesting"
+browser_version = "148.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "7"
+browser = "chromeForTesting"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chromeForTesting"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chromeForTesting"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chromeForTesting"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chromeForTesting"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chromeForTesting"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Mojave"
+browser = "chromeForTesting"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chromeForTesting"
+browser_version = "149.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "XP"
+browser = "chromeForTesting"
+browser_version = "149.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chromeForTesting"
+browser_version = "149.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chromeForTesting"
+browser_version = "149.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "7"
+browser = "chromeForTesting"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chromeForTesting"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chromeForTesting"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chromeForTesting"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chromeForTesting"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "chromeForTesting"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Mojave"
+browser = "chromeForTesting"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chromeForTesting"
+browser_version = "150.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "XP"
+browser = "chromeForTesting"
+browser_version = "150.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chromeForTesting"
+browser_version = "150.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chromeForTesting"
+browser_version = "150.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "7"
+browser = "chromeForTesting"
+browser_version = "150.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "XP"
+browser = "chromeForTesting"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Mojave"
+browser = "chromeForTesting"
+browser_version = "151.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "XP"
+browser = "chromeForTesting"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chromeForTesting"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chromeForTesting"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chromeForTesting"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "7"
+browser = "chromeForTesting"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "chromeForTesting"
+browser_version = "151.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "chromeForTesting"
+browser_version = "151.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "chromeForTesting"
+browser_version = "151.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "7"
+browser = "chromeForTesting"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chromeForTesting"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chromeForTesting"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "chromeForTesting"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "chromeForTesting"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chromeForTesting"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "chromeForTesting"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chromeForTesting"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "chromeForTesting"
+browser_version = "151.0"
 
 [[browsers]]
 os = "Windows"
@@ -10696,6 +12047,12 @@ browser_version = "80.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "80.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "80.0"
@@ -10786,6 +12143,12 @@ browser_version = "81.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "81.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "81.0"
@@ -10876,6 +12239,12 @@ browser_version = "83.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "83.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "83.0"
@@ -10966,6 +12335,12 @@ browser_version = "84.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "84.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "84.0"
@@ -11056,6 +12431,12 @@ browser_version = "85.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "85.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "85.0"
@@ -11146,6 +12527,12 @@ browser_version = "86.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "86.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "86.0"
@@ -11236,6 +12623,12 @@ browser_version = "87.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "87.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "87.0"
@@ -11326,6 +12719,12 @@ browser_version = "88.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "88.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "88.0"
@@ -11416,6 +12815,12 @@ browser_version = "89.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "89.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "89.0"
@@ -11506,6 +12911,12 @@ browser_version = "90.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "90.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "90.0"
@@ -11596,6 +13007,12 @@ browser_version = "91.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "91.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "91.0"
@@ -11686,6 +13103,12 @@ browser_version = "92.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "92.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "92.0"
@@ -11776,6 +13199,12 @@ browser_version = "93.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "93.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "93.0"
@@ -11866,6 +13295,12 @@ browser_version = "94.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "94.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "94.0"
@@ -11956,6 +13391,12 @@ browser_version = "95.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "95.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "95.0"
@@ -12046,6 +13487,12 @@ browser_version = "96.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "96.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "96.0"
@@ -12136,6 +13583,12 @@ browser_version = "97.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "97.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "97.0"
@@ -12226,6 +13679,12 @@ browser_version = "98.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "98.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "98.0"
@@ -12316,6 +13775,12 @@ browser_version = "99.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "99.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "99.0"
@@ -12406,6 +13871,12 @@ browser_version = "100.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "100.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "100.0"
@@ -12496,6 +13967,12 @@ browser_version = "101.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "101.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "101.0"
@@ -12586,6 +14063,12 @@ browser_version = "102.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "102.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "102.0"
@@ -12671,6 +14154,12 @@ browser_version = "103.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "edge"
+browser_version = "103.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "edge"
 browser_version = "103.0"
 
@@ -12755,6 +14244,12 @@ browser_version = "104.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "edge"
+browser_version = "104.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "edge"
 browser_version = "104.0"
 
@@ -12839,6 +14334,12 @@ browser_version = "105.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "edge"
+browser_version = "105.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "edge"
 browser_version = "105.0"
 
@@ -12923,6 +14424,12 @@ browser_version = "106.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "edge"
+browser_version = "106.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "edge"
 browser_version = "106.0"
 
@@ -13007,6 +14514,12 @@ browser_version = "107.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "edge"
+browser_version = "107.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "edge"
 browser_version = "107.0"
 
@@ -13091,6 +14604,12 @@ browser_version = "108.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "edge"
+browser_version = "108.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "edge"
 browser_version = "108.0"
 
@@ -13175,6 +14694,12 @@ browser_version = "109.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "edge"
+browser_version = "109.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "edge"
 browser_version = "109.0"
 
@@ -13259,6 +14784,12 @@ browser_version = "110.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "edge"
+browser_version = "110.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "edge"
 browser_version = "110.0"
 
@@ -13325,6 +14856,12 @@ browser_version = "111.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "edge"
+browser_version = "111.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "edge"
 browser_version = "111.0"
 
@@ -13391,6 +14928,12 @@ browser_version = "112.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "edge"
+browser_version = "112.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "edge"
 browser_version = "112.0"
 
@@ -13457,6 +15000,12 @@ browser_version = "113.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "edge"
+browser_version = "113.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "edge"
 browser_version = "113.0"
 
@@ -13523,6 +15072,12 @@ browser_version = "114.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "edge"
+browser_version = "114.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "edge"
 browser_version = "114.0"
 
@@ -13589,6 +15144,12 @@ browser_version = "115.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "edge"
+browser_version = "115.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "edge"
 browser_version = "115.0"
 
@@ -13655,6 +15216,12 @@ browser_version = "116.0"
 [[browsers]]
 os = "OS X"
 os_version = "High Sierra"
+browser = "edge"
+browser_version = "116.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
 browser = "edge"
 browser_version = "116.0"
 
@@ -13924,6 +15491,12 @@ browser_version = "122.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "122.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "122.0"
@@ -13978,6 +15551,12 @@ browser_version = "123.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "123.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "123.0"
@@ -14032,6 +15611,12 @@ browser_version = "124.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "124.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "124.0"
@@ -14086,6 +15671,12 @@ browser_version = "125.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "125.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "125.0"
@@ -14140,6 +15731,12 @@ browser_version = "126.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "126.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "126.0"
@@ -14194,6 +15791,12 @@ browser_version = "127.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "127.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "127.0"
@@ -14248,6 +15851,12 @@ browser_version = "128.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "128.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "edge"
 browser_version = "128.0"
@@ -14302,6 +15911,12 @@ browser_version = "129.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "129.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "edge"
 browser_version = "129.0"
@@ -14350,6 +15965,12 @@ browser_version = "130.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "130.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "edge"
 browser_version = "130.0"
@@ -14398,6 +16019,12 @@ browser_version = "131.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "131.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "edge"
 browser_version = "131.0"
@@ -14446,6 +16073,12 @@ browser_version = "132.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "132.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "edge"
 browser_version = "132.0"
@@ -14494,6 +16127,12 @@ browser_version = "133.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "133.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "edge"
 browser_version = "133.0"
@@ -14542,6 +16181,12 @@ browser_version = "134.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "134.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "edge"
 browser_version = "134.0"
@@ -14590,6 +16235,12 @@ browser_version = "135.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "135.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "edge"
 browser_version = "135.0"
@@ -14638,6 +16289,12 @@ browser_version = "136.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "136.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "edge"
 browser_version = "136.0"
@@ -14686,6 +16343,12 @@ browser_version = "137.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "137.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "edge"
 browser_version = "137.0"
@@ -14734,6 +16397,12 @@ browser_version = "138.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "138.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Big Sur"
 browser = "edge"
 browser_version = "138.0"
@@ -14781,6 +16450,12 @@ browser = "edge"
 browser_version = "139.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "139.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "edge"
@@ -14823,6 +16498,12 @@ browser = "edge"
 browser_version = "140.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "140.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "edge"
@@ -14865,6 +16546,12 @@ browser = "edge"
 browser_version = "141.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "141.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "edge"
@@ -14907,6 +16594,12 @@ browser = "edge"
 browser_version = "142.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "142.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "edge"
@@ -14949,6 +16642,12 @@ browser = "edge"
 browser_version = "143.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "143.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "edge"
@@ -14991,6 +16690,12 @@ browser = "edge"
 browser_version = "144.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "144.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "edge"
@@ -15033,6 +16738,12 @@ browser = "edge"
 browser_version = "145.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "145.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "edge"
@@ -15075,6 +16786,12 @@ browser = "edge"
 browser_version = "146.0"
 
 [[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "146.0"
+
+[[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "edge"
@@ -15090,43 +16807,235 @@ browser_version = "146.0"
 os = "OS X"
 os_version = "Ventura"
 browser = "edge"
-browser_version = "147.0 beta"
+browser_version = "147.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Tahoe"
 browser = "edge"
-browser_version = "147.0 beta"
+browser_version = "147.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Sonoma"
 browser = "edge"
-browser_version = "147.0 beta"
+browser_version = "147.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Sequoia"
 browser = "edge"
-browser_version = "147.0 beta"
+browser_version = "147.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Monterey"
 browser = "edge"
-browser_version = "147.0 beta"
+browser_version = "147.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "147.0"
 
 [[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "edge"
-browser_version = "147.0 beta"
+browser_version = "147.0"
 
 [[browsers]]
 os = "Windows"
 os_version = "10"
 browser = "edge"
-browser_version = "147.0 beta"
+browser_version = "147.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "edge"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "edge"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "edge"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "edge"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "edge"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "148.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "edge"
+browser_version = "148.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "edge"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "edge"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "edge"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "edge"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "edge"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "edge"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "149.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "edge"
+browser_version = "149.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "edge"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "edge"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "edge"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "edge"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "edge"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "edge"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "150.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "edge"
+browser_version = "150.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "edge"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "edge"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "edge"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "edge"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "edge"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "edge"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "edge"
+browser_version = "151.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "edge"
+browser_version = "151.0 beta"
 
 [[browsers]]
 os = "OS X"
@@ -22102,6 +24011,12 @@ browser_version = "81.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "81.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "81.0"
@@ -22192,6 +24107,12 @@ browser_version = "82.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "82.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "82.0"
@@ -22282,6 +24203,12 @@ browser_version = "83.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "83.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "83.0"
@@ -22372,6 +24299,12 @@ browser_version = "84.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "84.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "84.0"
@@ -22462,6 +24395,12 @@ browser_version = "85.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "85.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "85.0"
@@ -22552,6 +24491,12 @@ browser_version = "86.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "86.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "86.0"
@@ -22642,6 +24587,12 @@ browser_version = "87.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "87.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "87.0"
@@ -22732,6 +24683,12 @@ browser_version = "88.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "88.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "88.0"
@@ -22822,6 +24779,12 @@ browser_version = "89.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "89.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "89.0"
@@ -22912,6 +24875,12 @@ browser_version = "90.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "90.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "90.0"
@@ -23002,6 +24971,12 @@ browser_version = "91.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "91.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "91.0"
@@ -23092,6 +25067,12 @@ browser_version = "92.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "92.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "92.0"
@@ -23182,6 +25163,12 @@ browser_version = "93.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "93.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "93.0"
@@ -23272,6 +25259,12 @@ browser_version = "94.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "94.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "94.0"
@@ -23362,6 +25355,12 @@ browser_version = "95.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "95.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "95.0"
@@ -23452,6 +25451,12 @@ browser_version = "96.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "96.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "96.0"
@@ -23542,6 +25547,12 @@ browser_version = "97.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "97.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "97.0"
@@ -23632,6 +25643,12 @@ browser_version = "98.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "98.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "98.0"
@@ -23722,6 +25739,12 @@ browser_version = "99.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "99.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "99.0"
@@ -23812,6 +25835,12 @@ browser_version = "100.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "100.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "100.0"
@@ -23902,6 +25931,12 @@ browser_version = "101.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "101.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "101.0"
@@ -23992,6 +26027,12 @@ browser_version = "102.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "102.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "102.0"
@@ -24082,6 +26123,12 @@ browser_version = "103.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "103.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "103.0"
@@ -24172,6 +26219,12 @@ browser_version = "104.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "104.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "104.0"
@@ -24262,6 +26315,12 @@ browser_version = "105.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "105.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "105.0"
@@ -24352,6 +26411,12 @@ browser_version = "106.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "106.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "106.0"
@@ -24442,6 +26507,12 @@ browser_version = "107.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "107.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "107.0"
@@ -24532,6 +26603,12 @@ browser_version = "108.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "108.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "108.0"
@@ -24622,6 +26699,12 @@ browser_version = "109.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "109.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "109.0"
@@ -24712,6 +26795,12 @@ browser_version = "110.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "110.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "110.0"
@@ -24802,6 +26891,12 @@ browser_version = "111.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "111.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "111.0"
@@ -24892,6 +26987,12 @@ browser_version = "112.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "112.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "112.0"
@@ -24982,6 +27083,12 @@ browser_version = "113.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "113.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "113.0"
@@ -25072,6 +27179,12 @@ browser_version = "114.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "114.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "114.0"
@@ -25162,6 +27275,12 @@ browser_version = "115.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "115.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "115.0"
@@ -25234,6 +27353,12 @@ browser_version = "116.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "116.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "116.0"
@@ -25288,6 +27413,12 @@ browser_version = "117.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "117.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "117.0"
@@ -25342,6 +27473,12 @@ browser_version = "118.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "118.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "118.0"
@@ -25396,6 +27533,12 @@ browser_version = "119.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "119.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "119.0"
@@ -25450,6 +27593,12 @@ browser_version = "120.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "120.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "120.0"
@@ -25504,6 +27653,12 @@ browser_version = "121.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "121.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "121.0"
@@ -25558,6 +27713,12 @@ browser_version = "122.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "122.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "122.0"
@@ -25612,6 +27773,12 @@ browser_version = "123.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "123.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "123.0"
@@ -25666,6 +27833,12 @@ browser_version = "124.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "124.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "124.0"
@@ -25720,6 +27893,12 @@ browser_version = "125.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "125.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "125.0"
@@ -25774,6 +27953,12 @@ browser_version = "126.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "126.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "126.0"
@@ -25828,6 +28013,12 @@ browser_version = "127.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "127.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "127.0"
@@ -25882,6 +28073,12 @@ browser_version = "128.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "128.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "128.0"
@@ -25936,6 +28133,12 @@ browser_version = "129.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "129.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "129.0"
@@ -25990,6 +28193,12 @@ browser_version = "130.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "130.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "130.0"
@@ -26044,6 +28253,12 @@ browser_version = "131.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "131.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "131.0"
@@ -26098,6 +28313,12 @@ browser_version = "132.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "132.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "132.0"
@@ -26152,6 +28373,12 @@ browser_version = "133.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "133.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "133.0"
@@ -26206,6 +28433,12 @@ browser_version = "134.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "134.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "134.0"
@@ -26260,6 +28493,12 @@ browser_version = "135.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "135.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "135.0"
@@ -26314,6 +28553,12 @@ browser_version = "136.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "136.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "136.0"
@@ -26368,6 +28613,12 @@ browser_version = "137.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "137.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "137.0"
@@ -26422,6 +28673,12 @@ browser_version = "138.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "138.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "138.0"
@@ -26476,6 +28733,12 @@ browser_version = "139.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "139.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "139.0"
@@ -26530,6 +28793,12 @@ browser_version = "140.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "140.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "140.0"
@@ -26584,6 +28853,12 @@ browser_version = "141.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "141.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "141.0"
@@ -26638,6 +28913,12 @@ browser_version = "142.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "142.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "142.0"
@@ -26692,6 +28973,12 @@ browser_version = "143.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "143.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "143.0"
@@ -26746,6 +29033,12 @@ browser_version = "144.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "144.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "144.0"
@@ -26800,6 +29093,12 @@ browser_version = "145.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "145.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "145.0"
@@ -26854,6 +29153,12 @@ browser_version = "146.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "146.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "146.0"
@@ -26908,6 +29213,12 @@ browser_version = "147.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "147.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "147.0"
@@ -26962,6 +29273,12 @@ browser_version = "148.0"
 
 [[browsers]]
 os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "148.0"
+
+[[browsers]]
+os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
 browser_version = "148.0"
@@ -26988,55 +29305,361 @@ browser_version = "148.0"
 os = "OS X"
 os_version = "Ventura"
 browser = "firefox"
-browser_version = "149.0 beta"
+browser_version = "149.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Tahoe"
 browser = "firefox"
-browser_version = "149.0 beta"
+browser_version = "149.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Sonoma"
 browser = "firefox"
-browser_version = "149.0 beta"
+browser_version = "149.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Sequoia"
 browser = "firefox"
-browser_version = "149.0 beta"
+browser_version = "149.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Monterey"
 browser = "firefox"
-browser_version = "149.0 beta"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "149.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Catalina"
 browser = "firefox"
-browser_version = "149.0 beta"
+browser_version = "149.0"
 
 [[browsers]]
 os = "OS X"
 os_version = "Big Sur"
 browser = "firefox"
-browser_version = "149.0 beta"
+browser_version = "149.0"
 
 [[browsers]]
 os = "Windows"
 os_version = "11"
 browser = "firefox"
-browser_version = "149.0 beta"
+browser_version = "149.0"
 
 [[browsers]]
 os = "Windows"
 os_version = "10"
 browser = "firefox"
-browser_version = "149.0 beta"
+browser_version = "149.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "firefox"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "firefox"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "firefox"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "firefox"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "firefox"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Catalina"
+browser = "firefox"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Big Sur"
+browser = "firefox"
+browser_version = "150.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "firefox"
+browser_version = "150.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "firefox"
+browser_version = "150.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "firefox"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "firefox"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "firefox"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "firefox"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "firefox"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Catalina"
+browser = "firefox"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Big Sur"
+browser = "firefox"
+browser_version = "151.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "firefox"
+browser_version = "151.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "firefox"
+browser_version = "151.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "firefox"
+browser_version = "152.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "firefox"
+browser_version = "152.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "firefox"
+browser_version = "152.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "firefox"
+browser_version = "152.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "firefox"
+browser_version = "152.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "152.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Catalina"
+browser = "firefox"
+browser_version = "152.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Big Sur"
+browser = "firefox"
+browser_version = "152.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "firefox"
+browser_version = "152.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "firefox"
+browser_version = "152.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "firefox"
+browser_version = "153.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "firefox"
+browser_version = "153.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "firefox"
+browser_version = "153.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "firefox"
+browser_version = "153.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "firefox"
+browser_version = "153.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "153.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Catalina"
+browser = "firefox"
+browser_version = "153.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Big Sur"
+browser = "firefox"
+browser_version = "153.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "firefox"
+browser_version = "153.0"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "firefox"
+browser_version = "153.0"
+
+[[browsers]]
+os = "OS X"
+os_version = "Ventura"
+browser = "firefox"
+browser_version = "154.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Tahoe"
+browser = "firefox"
+browser_version = "154.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sonoma"
+browser = "firefox"
+browser_version = "154.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Sequoia"
+browser = "firefox"
+browser_version = "154.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Monterey"
+browser = "firefox"
+browser_version = "154.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "firefox"
+browser_version = "154.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Catalina"
+browser = "firefox"
+browser_version = "154.0 beta"
+
+[[browsers]]
+os = "OS X"
+os_version = "Big Sur"
+browser = "firefox"
+browser_version = "154.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "11"
+browser = "firefox"
+browser_version = "154.0 beta"
+
+[[browsers]]
+os = "Windows"
+os_version = "10"
+browser = "firefox"
+browser_version = "154.0 beta"
 
 [[browsers]]
 os = "Windows"
@@ -27103,13 +29726,6 @@ real_mobile = true
 os = "ios"
 os_version = "14"
 browser = "ipad"
-device = "iPad Air 4"
-real_mobile = true
-
-[[browsers]]
-os = "ios"
-os_version = "14"
-browser = "ipad"
 device = "iPad Pro 12.9 2020"
 real_mobile = true
 
@@ -27125,13 +29741,6 @@ os = "ios"
 os_version = "15"
 browser = "ipad"
 device = "iPad 9th"
-real_mobile = true
-
-[[browsers]]
-os = "ios"
-os_version = "15"
-browser = "ipad"
-device = "iPad Mini 2021"
 real_mobile = true
 
 [[browsers]]
@@ -27208,6 +29817,13 @@ real_mobile = true
 os = "ios"
 os_version = "26"
 browser = "ipad"
+device = "iPad Air 11 2026"
+real_mobile = true
+
+[[browsers]]
+os = "ios"
+os_version = "26"
+browser = "ipad"
 device = "iPad Air 13 2025"
 real_mobile = true
 
@@ -27230,6 +29846,27 @@ os = "ios"
 os_version = "26"
 browser = "ipad"
 device = "iPad Pro 13 2025"
+real_mobile = true
+
+[[browsers]]
+os = "ios"
+os_version = "27 Beta"
+browser = "ipad"
+device = "iPad 10th"
+real_mobile = true
+
+[[browsers]]
+os = "ios"
+os_version = "27 Beta"
+browser = "ipad"
+device = "iPad Pro 11 2022"
+real_mobile = true
+
+[[browsers]]
+os = "ios"
+os_version = "27 Beta"
+browser = "ipad"
+device = "iPad Pro 13 2024"
 real_mobile = true
 
 [[browsers]]
@@ -27321,13 +29958,6 @@ os = "ios"
 os_version = "16"
 browser = "iphone"
 device = "iPhone 14 Pro Max"
-real_mobile = true
-
-[[browsers]]
-os = "ios"
-os_version = "16"
-browser = "iphone"
-device = "iPhone SE 2020"
 real_mobile = true
 
 [[browsers]]
@@ -27503,6 +30133,27 @@ os = "ios"
 os_version = "26"
 browser = "iphone"
 device = "iPhone Air"
+real_mobile = true
+
+[[browsers]]
+os = "ios"
+os_version = "27 Beta"
+browser = "iphone"
+device = "iPhone 15"
+real_mobile = true
+
+[[browsers]]
+os = "ios"
+os_version = "27 Beta"
+browser = "iphone"
+device = "iPhone 15 Pro"
+real_mobile = true
+
+[[browsers]]
+os = "ios"
+os_version = "27 Beta"
+browser = "iphone"
+device = "iPhone 16 Pro Max"
 real_mobile = true
 
 [[browsers]]
@@ -27701,27 +30352,19 @@ browser_version = "18.4"
 os = "OS X"
 os_version = "Tahoe"
 browser = "safari"
-browser_version = "26.2"
+browser_version = "26.4"
+
+[[browsers]]
+os = "OS X"
+os_version = "Golden Gate"
+browser = "safari"
+browser_version = "27.0"
 
 [[browsers]]
 os = "android"
 os_version = "8.1"
 browser = "samsung"
 device = "Samsung Galaxy Note 9"
-real_mobile = true
-
-[[browsers]]
-os = "android"
-os_version = "9.0"
-browser = "samsung"
-device = "Samsung Galaxy S10"
-real_mobile = true
-
-[[browsers]]
-os = "android"
-os_version = "10.0"
-browser = "samsung"
-device = "Samsung Galaxy A51"
 real_mobile = true
 
 [[browsers]]
