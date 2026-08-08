@@ -1,0 +1,30 @@
+dependencies = [
+	"ArrayBuffer",
+	"ArrayBuffer.prototype.@@toStringTag",
+	"TypedArray.prototype.@@toStringTag",
+]
+notes = [ ]
+license = "MIT"
+repo = "https://github.com/es-shims/es-arraybuffer-base64"
+
+[browsers]
+android = "*"
+bb = "*"
+chrome = "*"
+edge = "*"
+edge_mob = "*"
+firefox = "*"
+firefox_mob = "*"
+ie = "*"
+ie_mob = "*"
+opera = "*"
+op_mob = "*"
+op_mini = "*"
+safari = "*"
+ios_saf = "*"
+samsung_mob = "*"
+
+[install]
+module = "es-arraybuffer-base64"
+postinstall = "update.task.js"
+clean = [ "polyfill.js" ]
