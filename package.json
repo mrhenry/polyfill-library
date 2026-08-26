@@ -11,10 +11,8 @@
   "bugs": {
     "url": "https://github.com/mrhenry/polyfill-library/issues"
   },
-  "workspaces": [
-    "polyfills/**/*"
-  ],
   "scripts": {
+    "prebuild": "bash tasks/install-polyfill-dependencies.sh",
     "lint": "eslint polyfills lib tasks test && tsc --noEmit",
     "lint-config": "node tasks/lint-config/index.js",
     "clean": "node tasks/clean",

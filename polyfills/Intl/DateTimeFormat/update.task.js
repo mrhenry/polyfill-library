@@ -21,10 +21,8 @@ var LocalesPath = path.dirname(
 
 var NumberFormatLocalesPath = path.dirname(require.resolve('@formatjs/intl-numberformat/locale-data/en.js'));
 
-var IntlPolyfillOutput = path.resolve("polyfills/Intl/DateTimeFormat");
-var LocalesPolyfillOutput = path.resolve(
-	"polyfills/Intl/DateTimeFormat/~locale"
-);
+var IntlPolyfillOutput = __dirname;
+var LocalesPolyfillOutput = path.join(__dirname, "~locale");
 
 var TOML = require("@iarna/toml");
 var localeMatcher = require('@formatjs/intl-localematcher');
