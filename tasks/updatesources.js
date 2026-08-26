@@ -6,7 +6,7 @@ const { glob } = require('glob');
 const TOML = require('@iarna/toml');
 const cwd = path.join(__dirname, '../');
 const globOptions = { cwd: cwd };
-const { execSync } = require('node:child_process');
+const { execFileSync } = require('node:child_process');
 
 const loadSource = polyfillPaths => {
 	return polyfillPaths.map(p => fs.readFileSync(p)).join('');
@@ -14,6 +14,14 @@ const loadSource = polyfillPaths => {
 
 const installPolyfill = config => {
 	const polyfillOutputFolder = path.dirname(config.src);
+	if (path.resolve(polyfillOutputFolder).includes('node_modules')) {
+		throw new Error("Attempting to run polyfill install commands for an npm dependency");
+	}
+
+	if (!path.resolve(polyfillOutputFolder).startsWith(cwd)) {
+		throw new Error("Attempting to run polyfill install commands outside the current working dir");
+	}
+
 	const polyfillOutputPath = path.join(polyfillOutputFolder, 'polyfill.js');
 
 	const polyfillSourcePaths = (config.install.paths || ['']).map((p) => {
@@ -30,8 +38,9 @@ const installPolyfill = config => {
 		console.log(' * Running module-specific update task ' + config.install.postinstall);
 		console.log(path.resolve(polyfillOutputFolder, config.install.postinstall));
 
-		execSync(
-			`node ${path.resolve(polyfillOutputFolder, config.install.postinstall)}`,
+		execFileSync(
+			'node',
+			[config.install.postinstall],
 			{
 				stdio: 'inherit',
 				cwd: polyfillOutputFolder
