@@ -3,7 +3,7 @@ const stream = require("stream");
 const browserify = require("browserify");
 const path = require("path");
 
-const URLPolyfillOutput = path.resolve("polyfills/URL");
+const URLPolyfillOutput = __dirname;
 
 const entry = `
 const { URL, URLSearchParams } = require("whatwg-url");

@@ -3,9 +3,7 @@ const stream = require("stream");
 const browserify = require("browserify");
 const path = require("path");
 
-const IteratorHelpersPolyfillOutput = path.resolve(
-	"polyfills/_IteratorHelpers"
-);
+const IteratorHelpersPolyfillOutput = __dirname;
 
 const entry = `
 self._IteratorHelpers = {
