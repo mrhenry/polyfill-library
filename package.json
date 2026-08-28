@@ -72,7 +72,7 @@
     "node": "26.6.0"
   },
   "allowScripts": {
-    "edgedriver@6.1.2": true,
-    "geckodriver@5.0.0": true
+    "edgedriver@6.3.0": true,
+    "geckodriver@6.1.1": true
   }
 }
