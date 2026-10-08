@@ -1,14 +1,13 @@
 name: Test Polyfills
 on:
+  merge_group:
   pull_request:
   workflow_dispatch:
-
-permissions:
-  contents: read
 
 concurrency:
   group: browserstack
   cancel-in-progress: false
+  queue: max
 
 jobs:
   # Branch-based pull request

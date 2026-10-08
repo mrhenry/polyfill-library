@@ -8,6 +8,7 @@ on:
 concurrency:
   group: browserstack
   cancel-in-progress: false
+  queue: max
 
 jobs:
   test:
