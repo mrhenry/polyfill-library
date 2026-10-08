@@ -1,4 +1,5 @@
 const exec = require('node:child_process').exec;
+const fs = require('node:fs');
 const path = require('node:path');
 const toposort = require('toposort');
 const polyfillio = require('../../lib');
@@ -184,6 +185,25 @@ function toposortPolyfills(polyfillMetas) {
 }
 
 function getModifiedFiles() {
+	// When the BrowserStack tests run from a privileged workflow the fork's git
+	// history is not available. In that case the unprivileged build workflow
+	// writes the list of changed files to a file which is passed along here.
+	if (process.env.MODIFIED_FILES_FILE) {
+		try {
+			return Promise.resolve(
+				fs
+					.readFileSync(process.env.MODIFIED_FILES_FILE, 'utf-8')
+					.split(/\r\n|\r|\n/)
+					.filter((x) => {
+						return !!x;
+					})
+			);
+		} catch (error) {
+			console.warn(`error while reading modified files : ${error.message}`);
+			return Promise.resolve([]);
+		}
+	}
+
 	return new Promise((resolve) => {
 		const baseBranch = process.env.GITHUB_ACTIONS ? 'upstream/main' : 'main';
 

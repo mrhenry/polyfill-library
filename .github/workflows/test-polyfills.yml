@@ -11,6 +11,9 @@ concurrency:
 jobs:
   # Branch-based pull request
   test:
+    # Pull requests from forks are tested by the privileged "Test Polyfills
+    # (fork)" workflow, which needs a maintainer to approve each commit.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1

@@ -1,0 +1,59 @@
+name: Build
+
+# Unprivileged build for pull requests from forks.
+#
+# Pull requests from forks never receive secrets, so the build (which executes
+# the pull request's code) is separated from the BrowserStack tests (which need
+# secrets). This workflow only builds and uploads data. The privileged
+# "Test Polyfills (fork)" workflow consumes the artifact after approval.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event.pull_request.head.repo.fork == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 50
+
+      # Fetch main to determine which polyfills have changed and need testing.
+      # This must run before the build so that generated files do not show up in
+      # the diff.
+      - name: Determine modified files
+        run: |
+          git remote add upstream https://github.com/mrhenry/polyfill-library.git
+          git fetch --depth=50 upstream main
+          git --no-pager diff --name-only HEAD $(git merge-base --fork-point upstream/main) > modified-files.txt
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npm run build
+
+      # Only data is uploaded: the built polyfills, the polyfill test suites and
+      # the list of changed files. The privileged workflow treats all of it as
+      # untrusted input.
+      - name: Upload build output
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: polyfill-dist
+          path: |
+            polyfills/__dist
+            polyfills/**/polyfill.test.js
+            modified-files.txt
+          retention-days: 2
+          overwrite: true
