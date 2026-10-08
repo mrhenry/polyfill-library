@@ -1,7 +1,7 @@
-name: Test Polyfills
+name: Test Polyfills (fork)
 on:
-  pull_request:
-  workflow_dispatch:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
@@ -13,7 +13,9 @@ concurrency:
 jobs:
   # Branch-based pull request
   test:
-    if: github.event.pull_request.head.repo.fork != true
+    # Required reviewers on this environment mean a maintainer approves each run.
+    environment: browserstack
+    if: github.event.pull_request.head.repo.fork == true
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
@@ -36,6 +38,7 @@ jobs:
     - name: Branch based PR checkout
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
+        ref: ${{ github.event.pull_request.head.sha }}
         fetch-depth: 50
 
     # Fetch main branch to determine which polyfills have changed and need testing.
