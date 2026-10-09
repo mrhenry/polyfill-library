@@ -10,7 +10,3 @@ test/polyfills/results-*.json
 # BrowserStackLocal tunnel binary, cached by the Go test runner.
 BrowserStackLocal
 BrowserStackLocal.exe
-
-# Go build output
-/scripts/*-browserstack
-/scripts/*-update-browser-list
