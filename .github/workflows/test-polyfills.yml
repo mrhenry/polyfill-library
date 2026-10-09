@@ -3,12 +3,10 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 concurrency:
   group: browserstack
   cancel-in-progress: false
+  queue: max
 
 jobs:
   # Branch-based pull request
@@ -44,7 +42,6 @@ jobs:
         git remote add upstream https://github.com/mrhenry/polyfill-library.git
         git fetch --depth=50 upstream main
 
-    # <insert integration tests needing secrets>
     - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
       with:
         node-version: 24
@@ -72,3 +69,34 @@ jobs:
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+
+  report:
+    name: report
+    needs: test
+    if: always() && needs.test.result != 'skipped'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - name: Publish the gate as a commit status
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          SHA: ${{ github.sha }}
+          TEST_RESULT: ${{ needs.test.result }}
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            // Required status checks pass on success, skipped *and* neutral, so
+            // anything that is not an explicit success has to be a failure.
+            const state = process.env.TEST_RESULT === 'success' ? 'success' : 'failure';
+            const summary = `Test Polyfills: ${process.env.TEST_RESULT}`;
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.SHA,
+              state,
+              target_url: '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}',
+              context: 'Browserstack',
+              description: summary.slice(0, 140),
+            });
