@@ -25,9 +25,10 @@
     "test-unit": "node --test 'test/unit/**/*.test.js'",
     "test": "node --test 'test/unit/**/*.test.js' && node --test 'test/node/**/*.test.js' && node --test 'test/end-to-end/**/*.test.js'",
     "test-older-node": "node --test 'test/unit' && node --test 'test/node' && node --test 'test/end-to-end'",
+    "test-browserstack": "node ./test/polyfills/server.js & go run ./scripts/polyfills-browserstack",
     "prepublishOnly": "npm run build",
     "create-new-polyfill": "node ./tasks/create-new-polyfill.js",
-    "update-browserstack-list": "node ./tasks/updatebrowserstacklist.js"
+    "update-browserstack-list": "go run ./scripts/polyfills-update-browser-list"
   },
   "license": "MIT",
   "engines": {
