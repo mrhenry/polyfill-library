@@ -895,13 +895,18 @@ func waitForPageLoad(ctx context.Context, session *browserstack.Session, j *job)
 	}
 }
 
-// pageStateScript reports whether the suite's own script has run, which is a
-// more reliable signal than readyState for a page that pulls in several
-// scripts.
+// pageStateScript reports whether the suite has started.
+//
+// The two page shapes need different signals. The director page publishes
+// window.global_test_progress at the top level and keeps mocha inside an
+// iframe, so `typeof mocha` is always "undefined" there. The standalone runner
+// page has no progress global until the very end, so it needs mocha.
 const pageStateScript = `
 	return {
 		readyState: document.readyState,
-		loaded: typeof mocha !== "undefined" || typeof window.global_test_results !== "undefined",
+		loaded: typeof window.global_test_progress !== "undefined" ||
+			typeof window.global_test_results !== "undefined" ||
+			typeof mocha !== "undefined",
 		results: typeof window.global_test_results !== "undefined"
 	};`
 
