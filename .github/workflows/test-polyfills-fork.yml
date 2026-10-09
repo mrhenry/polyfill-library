@@ -1,0 +1,171 @@
+name: Test Polyfills (fork)
+on:
+  workflow_run:
+    workflows: ["Build"]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  test:
+    name: test
+    # "Build" only ever runs for pull requests from forks, so following it is
+    # enough. A failed or cancelled build is not worth testing.
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    # Job level permissions replace the workflow level ones, so all three are
+    # restated here.
+    permissions:
+      contents: read
+      actions: read
+      statuses: write
+    # Job level so that the BrowserStack slot is only held while tests run.
+    concurrency:
+      group: browserstack
+      cancel-in-progress: false
+      queue: max
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        browser:
+        - ie
+        - android
+        - chrome/1 - 50
+        - chrome/51 - 100
+        - chrome/>= 101
+        - edge
+        - firefox/1 - 50
+        - firefox/51 - 100
+        - firefox/>= 101
+        - ios
+        - safari
+    steps:
+
+    - name: Branch based PR checkout
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        ref: ${{ github.event.repository.default_branch }}
+
+    - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      with:
+        node-version: 24
+        cache: 'npm'
+
+    # Installed before the untrusted artifact is on disk at all.
+    - run: npm ci
+
+    # Downloaded into a separate directory so the artifact cannot overwrite this
+    # workflow, the test harness or node_modules. The run id comes from the event,
+    # so there is nothing to wait for.
+    - name: Download build output
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        name: polyfill-dist
+        path: artifact
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ github.token }}
+
+    # Copy across only the paths the test harness reads.
+    - name: Apply build output
+      run: |
+        rm -rf polyfills
+        cp -R artifact/polyfills polyfills
+        cp artifact/modified-files.txt modified-files.txt
+
+    # "polyfills/__dist/meta.json" comes from the fork and decides where the test
+    # harness reads the test suites from, so make sure it cannot point outside of
+    # the polyfills directory.
+    - name: Validate build output
+      run: |
+        node -e '
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const root = path.resolve("polyfills");
+          const meta = JSON.parse(fs.readFileSync("polyfills/__dist/meta.json", "utf-8"));
+          for (const [name, data] of Object.entries(meta)) {
+            const resolved = path.resolve(root, data.baseDir || "");
+            if (resolved !== root && !resolved.startsWith(root + path.sep)) {
+              throw new Error(`Invalid baseDir for ${name}: ${data.baseDir}`);
+            }
+          }
+        '
+
+    - name: Test ${{ matrix.browser }}
+      id: test
+      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js
+        test-modified-only targeted director browser="${{ matrix.browser }}"
+      timeout-minutes: 30
+      env:
+        MODIFIED_FILES_FILE: modified-files.txt
+        BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+        BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+
+    # The check runs of a "workflow_run" attach to the default branch and are not
+    # evaluated against the pull request, so they cannot satisfy the "Browserstack"
+    # ruleset. Commit statuses are created through the API rather than by the
+    # runner, so they are exempt from that restriction and do appear on the pull
+    # request.
+    #
+    # The context name is derived from the matrix value, so it cannot drift from
+    # the name the trusted workflow produces for the same browser.
+    - name: Publish test result as a commit status
+      if: always()
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        BROWSER: ${{ matrix.browser }}
+        HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        TEST_OUTCOME: ${{ steps.test.outcome }}
+      with:
+        github-token: ${{ github.token }}
+        script: |
+          // Required status checks pass on success, skipped *and* neutral, so
+          // anything that is not an explicit success has to be a failure here.
+          // That includes the test step being skipped because an earlier step
+          // failed, which steps.test.outcome reports as "skipped".
+          const state = process.env.TEST_OUTCOME === 'success' ? 'success' : 'failure';
+          const summary = `Test Polyfills (fork): ${process.env.TEST_OUTCOME}`;
+          await github.rest.repos.createCommitStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            sha: process.env.HEAD_SHA,
+            state,
+            target_url: '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}',
+            context: `test (${process.env.BROWSER})`,
+            description: summary.slice(0, 140),
+          });
+
+  report:
+    name: report
+    needs: test
+    if: always() && needs.test.result != 'skipped'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - name: Publish the gate as a commit status
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          TEST_RESULT: ${{ needs.test.result }}
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            // Required status checks pass on success, skipped *and* neutral, so
+            // anything that is not an explicit success has to be a failure.
+            const state = process.env.TEST_RESULT === 'success' ? 'success' : 'failure';
+            const summary = `Test Polyfills (fork): ${process.env.TEST_RESULT}`;
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.SHA,
+              state,
+              target_url: '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}',
+              context: 'Browserstack',
+              description: summary.slice(0, 140),
+            });
