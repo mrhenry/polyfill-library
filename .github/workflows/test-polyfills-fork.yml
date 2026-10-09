@@ -9,7 +9,6 @@ permissions:
   actions: read
 
 jobs:
-  # Branch-based pull request
   test:
     name: test
     # "Build" only ever runs for pull requests from forks, so following it is
@@ -139,3 +138,34 @@ jobs:
             context: `test (${process.env.BROWSER})`,
             description: summary.slice(0, 140),
           });
+
+  report:
+    name: report
+    needs: test
+    if: always() && needs.test.result != 'skipped'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - name: Publish the gate as a commit status
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          TEST_RESULT: ${{ needs.test.result }}
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            // Required status checks pass on success, skipped *and* neutral, so
+            // anything that is not an explicit success has to be a failure.
+            const state = process.env.TEST_RESULT === 'success' ? 'success' : 'failure';
+            const summary = `Test Polyfills (fork): ${process.env.TEST_RESULT}`;
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.SHA,
+              state,
+              target_url: '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}',
+              context: 'Browserstack',
+              description: summary.slice(0, 140),
+            });
