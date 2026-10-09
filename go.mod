@@ -1,4 +1,4 @@
-module github.com/mrhenry/polyfill-library/scripts
+module github.com/mrhenry/polyfill-library
 
 go 1.23.2
 
