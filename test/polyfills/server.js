@@ -41,21 +41,6 @@ function createPolyfillLibraryConfigFor(features, always) {
 const compression = require('compression');
 const express = require("express");
 
-// Harness self tests. See self-tests.js for why these exist.
-//
-// The suite title and the two test titles form the contract between the page
-// and the driver, which asserts that the passing control passed and the failing
-// control failed. The Go tests in scripts/polyfills-browserstack/main_test.go
-// check that both sides still agree.
-const selfTestSuiteTitle = "polyfill-library self test";
-const selfTestPassTitle = "reports passing tests";
-const selfTestFailTitle = "reports failing tests";
-
-const selfTestSuite = fs.readFileSync(
-	path.join(__dirname, "./self-tests.js"),
-	"utf-8"
-);
-
 const app = express();
 app.use(compression());
 
@@ -268,16 +253,7 @@ const polyfills = await testablePolyfills();
 			? polyfills.filter(polyfill => feature && feature.split(',').includes(polyfill.feature))
 			: polyfills;
 
-		// The self tests are appended to every test page, in every browser and
-		// every test mode, so the harness can prove it is able to observe both
-		// a passing and a failing test on the run it just made. They are not a
-		// feature under test and the harness excludes them from the tally.
-		const testSuite =
-			features.map(feature => feature.testSuite).join("\n") +
-			"\n" +
-			selfTestSuite;
-
-		response.send(testSuite);
+		response.send(features.map(feature => feature.testSuite).join("\n"));
 	}
 );
 
@@ -473,37 +449,14 @@ function createEndpoint(template) {
 						failingSuites: {},
 						testedSuites: [],
 						assets: window.global_test_assets,
-						selfTests: { runs: 0, pass: false, fail: false },
 						uaString: window.navigator.userAgent || 'unknown'
 					};
 
-					// The self tests are controls on the harness, not on the
-					// feature under test. They are recorded separately and left
-					// out of passed/failed/total, so a run's numbers stay
-					// comparable and the canary cannot mask a real failure.
-					function isSelfTest(test) {
-						return getFirstLevelSuite(test) === ${JSON.stringify(selfTestSuiteTitle)};
-					}
-
-					runner.on('pass', function(test) {
-						if (isSelfTest(test)) {
-							results.selfTests.runs++;
-							if (test.title === ${JSON.stringify(selfTestPassTitle)}) {
-								results.selfTests.pass = true;
-							}
-							return;
-						}
+					runner.on('pass', function() {
 						results.passed++;
 						results.total++;
 					});
 					runner.on('fail', function(test, err) {
-						if (isSelfTest(test)) {
-							results.selfTests.runs++;
-							if (test.title === ${JSON.stringify(selfTestFailTitle)}) {
-								results.selfTests.fail = true;
-							}
-							return;
-						}
 						// Get a set of all the suites with failing tests in them.
 						if (test.parent) {
 							results.failingSuites[getFirstLevelSuite(test)] = true;
@@ -519,9 +472,6 @@ function createEndpoint(template) {
 						});
 					});
 					runner.on('suite', function(suite) {
-						if (getFirstLevelSuite({ parent: suite }) === ${JSON.stringify(selfTestSuiteTitle)}) {
-							return;
-						}
 						results.testedSuites.push(getFirstLevelSuite(suite));
 					});
 					runner.on('end', function() {

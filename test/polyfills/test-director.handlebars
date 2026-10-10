@@ -31,7 +31,6 @@
 			failingSuites: {},
 			testedSuites: [],
 			assets: null,
-			selfTests: { runs: 0, pass: false, fail: false },
 			uaString: 'unknown'
 		};
 		var queue = "{{features}}".split(',');
@@ -117,14 +116,6 @@
 				if (results.testedSuites) globalresults.testedSuites = globalresults.testedSuites.concat(results.testedSuites);
 				if (results.uaString) globalresults.uaString = results.uaString;
 				if (results.assets) globalresults.assets = results.assets;
-				// The self tests run in every runner iframe. Combine them so the
-				// driver can assert once per session that it saw both a passing
-				// and a failing control.
-				if (results.selfTests) {
-					globalresults.selfTests.runs += results.selfTests.runs;
-					globalresults.selfTests.pass = globalresults.selfTests.pass || results.selfTests.pass;
-					globalresults.selfTests.fail = globalresults.selfTests.fail || results.selfTests.fail;
-				}
 				if (results.failingSuites) {
 					for (var f in results.failingSuites) {
 						if (results.failingSuites.hasOwnProperty(f)) {

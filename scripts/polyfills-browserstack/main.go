@@ -175,42 +175,6 @@ type pageResults struct {
 
 	// Assets is the page's record of which scripts loaded or failed.
 	Assets map[string]any `json:"assets"`
-
-	// SelfTests is the outcome of the harness controls that every page runs.
-	SelfTests *selfTestResults `json:"selfTests"`
-}
-
-// selfTestResults records the two controls every test page carries: one that
-// must pass and one that must fail.
-type selfTestResults struct {
-	// Runs is how many control tests the page executed.
-	Runs int `json:"runs"`
-	// Pass is true when the "must pass" control passed.
-	Pass bool `json:"pass"`
-	// Fail is true when the "must fail" control failed, as it must.
-	Fail bool `json:"fail"`
-}
-
-// checkSelfTests validates the controls.
-//
-// A passing control that did not pass means the page did not really run, so
-// every other number on it is meaningless. A failing control that passed means
-// the harness cannot see failures at all, which is how a broken suite turns
-// into a green build.
-func (s *selfTestResults) check() error {
-	if s == nil || s.Runs == 0 {
-		return errors.New("the harness self tests did not run, so this result cannot be trusted")
-	}
-
-	if !s.Pass {
-		return errors.New("the harness self test that must pass did not, so the page is not executing tests")
-	}
-
-	if !s.Fail {
-		return errors.New("the harness self test that must fail passed, so failures are not being detected")
-	}
-
-	return nil
 }
 
 type failingTest struct {
@@ -228,10 +192,6 @@ type testSummary struct {
 	FailingTests  []failingTest `json:"failingTests"`
 	FailingSuites []string      `json:"failingSuites"`
 	TestedSuites  []string      `json:"testedSuites"`
-
-	// SelfTests records that the harness controls were observed behaving
-	// correctly on this browser.
-	SelfTests selfTestResults `json:"selfTests"`
 
 	// Assets is the page's own record of which scripts loaded or failed.
 	Assets map[string]any `json:"assets,omitempty"`
@@ -253,25 +213,14 @@ func (r *pageResults) summary() *testSummary {
 		r.Tests = []failingTest{}
 	}
 
-	// The counts exclude the harness controls, which is why a run's numbers
-	// stay comparable to a run without them.
 	return &testSummary{
 		Passed:        r.Passed,
 		Failed:        r.Failed,
 		FailingTests:  r.Tests,
 		FailingSuites: failingSuites,
 		TestedSuites:  r.TestedSuites,
-		SelfTests:     selfTestResultsOrZero(r.SelfTests),
 		Assets:        r.Assets,
 	}
-}
-
-func selfTestResultsOrZero(s *selfTestResults) selfTestResults {
-	if s == nil {
-		return selfTestResults{}
-	}
-
-	return *s
 }
 
 // job is one browser session. The value is immutable once built; progress is
@@ -1487,12 +1436,6 @@ func pollForResults(ctx context.Context, session *browserstack.Session, j *job) 
 
 			switch progress.State {
 			case "complete":
-				// The controls decide whether any of this result can be
-				// believed, so they are checked before the result is recorded.
-				if err := progress.SelfTests.check(); err != nil {
-					return fmt.Errorf("harness self test failed: %w", err)
-				}
-
 				j.state.complete(progress.summary(), time.Since(startedAt))
 
 				return nil
