@@ -1,0 +1,25 @@
+name: BrowserStack Unit Test
+
+# Tests the Go BrowserStack harness. It needs neither Node nor a build of the
+# polyfills, so it does not vary over the Node matrix that unit-test.yml covers.
+#
+# The live session tests in scripts/browserstack/live_test.go sit behind the
+# "browserstack" build tag: they create real, billable sessions, so they stay out
+# of ordinary builds. Run them with:
+#
+#   go test -tags browserstack ./scripts/browserstack
+on:
+  merge_group:
+  pull_request:
+jobs:
+  browserstack-unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
+        with:
+          go-version: stable
+          cache-dependency-path: go.sum
+      - run: go test ./scripts/...

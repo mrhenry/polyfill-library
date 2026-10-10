@@ -5,13 +5,40 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>Mocha test suite for polyfill-library</title>
 
-	<link rel="stylesheet" type="text/css" href="/mocha.css">
-	<meta id="test-iframe-src" name="test-iframe-src" content="/iframe.html?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}&feature={{features}}">
-	<script src="/polyfill.js?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}{{#unless requestedPolyfillCombinations}}&feature={{features}}{{/unless}}"></script>
-	<script src="/mocha.js"></script>
-	<script src="/proclaim.js"></script>
+	<link rel="stylesheet" type="text/css" href="/mocha.css?trace={{{trace}}}">
+	<meta id="test-iframe-src" name="test-iframe-src" content="/iframe.html?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}&feature={{features}}&trace={{{trace}}}">
+
+	<script>
+	// Declared before any other script so every tag below can report into it.
+	// A script that never arrives fires onerror, one that arrives and throws
+	// fires onload plus a window error, and recording both lets the runner name
+	// the asset that broke instead of only reporting a suite that never started.
+	//
+	// Inline handlers, because IE 9 has no addEventListener on script elements.
+	window.global_test_assets = { loaded: [], failed: [], errors: [] };
+	window.__assetLoaded = function (name) {
+		window.global_test_assets.loaded.push(name);
+	};
+	window.__assetFailed = function (name) {
+		window.global_test_assets.failed.push(name);
+	};
+	window.onerror = function (message, url, line) {
+		if (window.global_test_assets.errors.length < 5) {
+			window.global_test_assets.errors.push(
+				String(message).slice(0, 300) +
+				' @ ' + String(url).slice(0, 200) + ':' + line
+			);
+		}
+		// Already reported to the driver; keep it out of the console.
+		return true;
+	};
+	</script>
+
+	<script src="/polyfill.js?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}{{#unless requestedPolyfillCombinations}}&feature={{features}}{{/unless}}&trace={{{trace}}}" onload="__assetLoaded('polyfill.js')" onerror="__assetFailed('polyfill.js')"></script>
+	<script src="/mocha.js?trace={{{trace}}}" onload="__assetLoaded('mocha.js')" onerror="__assetFailed('mocha.js')"></script>
+	<script src="/proclaim.js?trace={{{trace}}}" onload="__assetLoaded('proclaim.js')" onerror="__assetFailed('proclaim.js')"></script>
 	<script>mocha.setup('bdd');</script>
-	<script src="/polyfill.test.js{{#requestedFeature}}?feature={{features}}{{/requestedFeature}}"></script>
+	<script src="/polyfill.test.js?trace={{{trace}}}{{#requestedFeature}}&feature={{features}}{{/requestedFeature}}" onload="__assetLoaded('polyfill.test.js')" onerror="__assetFailed('polyfill.test.js')"></script>
 </head>
 <body>
 

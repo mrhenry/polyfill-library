@@ -56,6 +56,11 @@ jobs:
         node-version: 24
         cache: 'npm'
 
+    - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
+      with:
+        go-version: stable
+        cache-dependency-path: go.sum
+
     # Installed before the untrusted artifact is on disk at all.
     - run: npm ci
 
@@ -97,7 +102,7 @@ jobs:
 
     - name: Test ${{ matrix.browser }}
       id: test
-      run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js
+      run: node ./test/polyfills/server.js & go run ./scripts/polyfills-browserstack
         test-modified-only targeted director browser="${{ matrix.browser }}"
       timeout-minutes: 30
       env:

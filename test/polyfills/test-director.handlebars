@@ -25,17 +25,23 @@
 			tests: [],
 			failingSuites: {},
 			testedSuites: [],
+			assets: null,
 			uaString: 'unknown'
 		};
 		var queue = "{{features}}".split(',');
 		var runnerCompletedCount = 0;
 		var runnerTotalCount = queue.length;
-		var windowQueryString = "?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}";
+		var windowQueryString = "?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}&trace={{{trace}}}";
 		var timeout = 30000;
 		var timeoutMaxRetries = 2;
 		var timeoutRetryCount = 0;
 		window.onload = function() {
 			runner = document.getElementById('runner');
+			// This page keeps mocha inside the iframe, so the driver cannot tell it from
+			// the runner page by which globals exist.
+			window.global_test_page = 'director';
+			window.global_test_expected_runs = queue.length;
+			window.global_test_started = true;
 			if (queue.length) {
 				executeTest();
 			} else {
@@ -58,11 +64,22 @@
 				parent.postMessage(JSON.stringify({featureName:featureName, result:result, mode:'{{{mode}}}'}), '*');
 			}
 		}
+		function snapshotRunnerAssets() {
+			// Same origin, but a cross-origin or not-yet-loaded iframe throws.
+			try {
+				if (runner && runner.contentWindow && runner.contentWindow.global_test_assets) {
+					globalresults.assets = runner.contentWindow.global_test_assets;
+				}
+			} catch (e) {}
+		}
 		function receiveTestResults(featureList, results) {
 			var resultsummary = [], featureName;
 			clearTimeout(timer);
 			if (!results) {
 				resultsummary.push('<span class="fail">Timeout waiting for results</span>');
+				// The timeout path never received results, but the iframe may still
+				// hold the reason.
+				snapshotRunnerAssets();
 				if (timeoutRetryCount < timeoutMaxRetries) {
 					timeoutRetryCount++;
 					resultsummary.push('Scheduling retry ('+timeoutRetryCount+'/'+timeoutMaxRetries+')');
@@ -84,6 +101,7 @@
 				if (results.tests) globalresults.tests = globalresults.tests.concat(results.tests);
 				if (results.testedSuites) globalresults.testedSuites = globalresults.testedSuites.concat(results.testedSuites);
 				if (results.uaString) globalresults.uaString = results.uaString;
+				if (results.assets) globalresults.assets = results.assets;
 				if (results.failingSuites) {
 					for (var f in results.failingSuites) {
 						if (results.failingSuites.hasOwnProperty(f)) {

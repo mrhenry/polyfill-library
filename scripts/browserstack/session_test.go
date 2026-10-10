@@ -1,0 +1,107 @@
+package browserstack
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"testing"
+)
+
+// TestIsSessionStartFailure covers the classification the retry policy branches
+// on: transient session-start problems are retried, test failures are not.
+func TestIsSessionStartFailure(t *testing.T) {
+	retryable := []string{
+		"All parallel tests are currently in use",
+		"Could not start Mobile Browser",
+		"Could not start Browser / Emulator",
+		"There was an error. Please try again.",
+		"Failed to create session",
+		"unknown command",
+		"not implemented",
+	}
+
+	for _, message := range retryable {
+		if !IsSessionStartFailure(errors.New(message)) {
+			t.Errorf("IsSessionStartFailure(%q) = false, want true", message)
+		}
+	}
+
+	notRetryable := []string{
+		"2 tests failed",
+		"the browser never issued its navigation",
+	}
+
+	for _, message := range notRetryable {
+		if IsSessionStartFailure(errors.New(message)) {
+			t.Errorf("IsSessionStartFailure(%q) = true, want false", message)
+		}
+	}
+
+	if IsSessionStartFailure(nil) {
+		t.Error("IsSessionStartFailure(nil) = true, want false")
+	}
+}
+
+// TestIsSessionStartFailureTagged covers the tag the runner adds to every
+// NewSession error, which is what makes a stalled or queued start retryable
+// even when its message matches nothing.
+func TestIsSessionStartFailureTagged(t *testing.T) {
+	if !IsSessionStartFailure(fmt.Errorf("%w: context deadline exceeded", ErrSessionStart)) {
+		t.Error("a tagged session-start timeout should be retryable")
+	}
+
+	if !IsSessionStartFailure(fmt.Errorf("%w: %w", ErrSessionStart, context.DeadlineExceeded)) {
+		t.Error("a tagged context deadline should be retryable")
+	}
+
+	// A cancelled run must not be retried.
+	if IsSessionStartFailure(fmt.Errorf("%w: %w", ErrSessionStart, context.Canceled)) {
+		t.Error("a cancelled session start must not be retryable")
+	}
+
+	// An untagged deadline is a command timeout, not a session start.
+	if IsSessionStartFailure(context.DeadlineExceeded) {
+		t.Error("a bare deadline must not be treated as a session-start failure")
+	}
+}
+
+func TestCommandTimeoutError(t *testing.T) {
+	wrapped := commandTimeoutError(context.DeadlineExceeded)
+	if !errors.Is(wrapped, ErrCommandTimeout) {
+		t.Errorf("commandTimeoutError(deadline) does not unwrap to ErrCommandTimeout")
+	}
+
+	other := errors.New("connection reset")
+	if commandTimeoutError(other) != other {
+		t.Error("commandTimeoutError must pass through non-deadline errors unchanged")
+	}
+}
+
+// TestPageCrashIsClassified covers the classification that lets the runner
+// replace a session whose renderer has crashed. BrowserStack reports it as an
+// ordinary protocol error, but the browser process is gone.
+func TestPageCrashIsClassified(t *testing.T) {
+	crashes := []string{
+		`{"value":{"error":"unknown error","message":"unknown error: session deleted because of page crash\nfrom tab crashed"}}`,
+		`{"value":{"error":"unknown error","message":"tab crashed"}}`,
+		`{"value":{"error":"unknown error","message":"page crashed"}}`,
+	}
+
+	for _, body := range crashes {
+		err := newProtocolError(500, []byte(body))
+		if !errors.Is(err, ErrPageCrash) {
+			t.Errorf("newProtocolError(%q) = %v, want it to unwrap to ErrPageCrash", body, err)
+		}
+	}
+
+	ordinary := []string{
+		`{"value":{"error":"no such element","message":"no such element"}}`,
+		`{"value":{"error":"javascript error","message":"Cannot read property 'x' of undefined"}}`,
+	}
+
+	for _, body := range ordinary {
+		if err := newProtocolError(500, []byte(body)); errors.Is(err, ErrPageCrash) {
+			t.Errorf("newProtocolError(%q) = %v, must not be a page crash", body, err)
+		}
+	}
+}
