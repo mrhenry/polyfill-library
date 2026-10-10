@@ -24,7 +24,6 @@ type Session struct {
 	sessionID string
 	userName  string
 	accessKey string
-	meta      map[string]any
 }
 
 // sessionResponse is the W3C New Session response.
@@ -36,9 +35,8 @@ type Session struct {
 // rather than silently yielding a browser that is not the one requested.
 type sessionResponse struct {
 	Value struct {
-		SessionID    string         `json:"sessionId"`
-		Capabilities map[string]any `json:"capabilities"`
-		Message      string         `json:"message"`
+		SessionID string `json:"sessionId"`
+		Message   string `json:"message"`
 	} `json:"value"`
 	Status    int            `json:"status"`
 	SessionID string         `json:"sessionId"`
@@ -109,7 +107,6 @@ func NewSession(ctx context.Context, httpClient *http.Client, hubURL string, cap
 	}
 
 	sessionID := parsed.Value.SessionID
-	meta := parsed.Value.Capabilities
 
 	// A legacy shaped reply means BrowserStack did not honour the requested
 	// capabilities, so the session is almost certainly not routed through the
@@ -139,19 +136,7 @@ func NewSession(ctx context.Context, httpClient *http.Client, hubURL string, cap
 		sessionID: sessionID,
 		userName:  creds.UserName,
 		accessKey: creds.AccessKey,
-		meta:      meta,
 	}, nil
-}
-
-// ID is the WebDriver session identifier.
-func (s *Session) ID() string {
-	return s.sessionID
-}
-
-// Capabilities are the capabilities the server reported back, which for
-// BrowserStack include the real browser version.
-func (s *Session) Capabilities() map[string]any {
-	return s.meta
 }
 
 // Navigate sends a W3C Navigate To command.
@@ -213,19 +198,6 @@ func (s *Session) ExecuteScript(ctx context.Context, script string, args []any) 
 	}
 
 	return value, nil
-}
-
-// ExecuteBool runs a script and coerces the result to a bool, matching the
-// leniency of the JavaScript harness where a missing global is not an error.
-func (s *Session) ExecuteBool(ctx context.Context, script string) (bool, error) {
-	value, err := s.ExecuteScript(ctx, script, nil)
-	if err != nil {
-		return false, err
-	}
-
-	result, ok := value.(bool)
-
-	return ok && result, nil
 }
 
 // Delete ends the session.
@@ -325,34 +297,4 @@ func IsSessionStartFailure(err error) bool {
 		strings.Contains(message, "Failed to create session") ||
 		strings.Contains(message, "unknown command") ||
 		strings.Contains(message, "not implemented")
-}
-
-// GetSession reads a session back. It reports what the server is willing to say
-// about a live session, which is the only chance to learn machine identity
-// before the session ends.
-func GetSession(ctx context.Context, httpClient *http.Client, hubURL, sessionID string, creds Credentials) (map[string]any, error) {
-	res, err := do(ctx, httpClient, creds, http.MethodGet, hubURL+"/session/"+sessionID, nil)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	raw, err := io.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	if res.StatusCode != http.StatusOK {
-		return nil, newProtocolError(res.StatusCode, raw)
-	}
-
-	var parsed struct {
-		Value map[string]any `json:"value"`
-	}
-
-	if err := json.Unmarshal(raw, &parsed); err != nil {
-		return nil, fmt.Errorf("parsing get session response: %w", err)
-	}
-
-	return parsed.Value, nil
 }

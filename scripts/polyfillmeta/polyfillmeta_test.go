@@ -112,6 +112,60 @@ func TestModifiedPolyfillsWithTests(t *testing.T) {
 	}
 }
 
+// TestDependentsThroughUntestedPolyfills proves the dependency walk does not
+// stop at a polyfill without tests: changing a.polyfill still pulls in
+// c.polyfill, which depends on b.polyfill, which depends on a.polyfill.
+//
+// This is the case the removed JavaScript unit test called "include polyfill
+// dependents, even when the graph has gaps in tests".
+func TestDependentsThroughUntestedPolyfills(t *testing.T) {
+	c := testCollection(map[string]*Meta{
+		"a.polyfill": {HasTests: true, IsPublic: true, IsTestable: true},
+		"b.polyfill": {HasTests: false, IsPublic: true, IsTestable: true, Dependencies: []string{"a.polyfill"}},
+		"c.polyfill": {HasTests: true, IsPublic: true, IsTestable: true, Dependencies: []string{"b.polyfill"}},
+	})
+
+	got := c.ModifiedPolyfillsWithTests([]string{"polyfills/a/polyfill/index.js"})
+
+	if got.TestEverything {
+		t.Fatal("TestEverything = true, want false")
+	}
+
+	for _, want := range []string{"a.polyfill", "c.polyfill"} {
+		if _, ok := got.AffectedPolyfills[want]; !ok {
+			t.Errorf("%s should be affected, got %v", want, keys(got.AffectedPolyfills))
+		}
+	}
+
+	if _, ok := got.AffectedPolyfills["b.polyfill"]; ok {
+		t.Error("b.polyfill has no tests so it must not be affected")
+	}
+}
+
+// TestNonTestablePolyfillsAreExcluded pins a deliberate difference from the
+// JavaScript implementation this package replaces.
+//
+// The old code selected any polyfill with hasTests. This package additionally
+// requires isTestable, which excludes polyfills that opt out of CI with
+// `[test] ci = false` (console.profile, console.profileEnd and console.profiles
+// are the only ones). Selecting them would ask the test server for a suite it
+// refuses to serve, so excluding them is correct.
+func TestNonTestablePolyfillsAreExcluded(t *testing.T) {
+	c := testCollection(map[string]*Meta{
+		"console.profile": {HasTests: true, IsPublic: true, IsTestable: false},
+	})
+
+	got := c.ModifiedPolyfillsWithTests([]string{"polyfills/console/profile/index.js"})
+
+	if !got.TestEverything {
+		t.Error("a change to only non-testable polyfills should fall back to testing everything")
+	}
+
+	if len(got.AffectedPolyfills) != 0 {
+		t.Errorf("AffectedPolyfills = %v, want none", keys(got.AffectedPolyfills))
+	}
+}
+
 // TestAliasesPullInDependents proves an alias pulls in everything depending on
 // the alias name, which is why aliases are added to the changed set.
 func TestAliasesPullInDependents(t *testing.T) {

@@ -246,9 +246,9 @@ app.get(
 		response.status(200);
 		response.set(headers);
 
-const polyfills = await testablePolyfills();
+		const polyfills = await testablePolyfills();
 
-		// Filter for querystery args
+		// Filter for querystring args
 		const features = requestedFeature
 			? polyfills.filter(polyfill => feature && feature.split(',').includes(polyfill.feature))
 			: polyfills;

@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"strconv"
 	"strings"
 	"sync/atomic"
 )
@@ -61,25 +60,4 @@ func slugify(s string) string {
 	}
 
 	return b.String()
-}
-
-// traceSequence extracts the sequence number from a trace id, for tests.
-func traceSequence(trace string) int {
-	parts := strings.SplitN(trace, "-", 2)
-	if len(parts) == 0 {
-		return 0
-	}
-
-	digits := strings.TrimLeft(parts[0], "r")
-
-	for len(digits) > 0 && digits[len(digits)-1] >= '0' && digits[len(digits)-1] <= '9' {
-		digits = digits[:len(digits)-1]
-	}
-
-	n, err := strconv.Atoi(digits)
-	if err != nil {
-		return 0
-	}
-
-	return n
 }

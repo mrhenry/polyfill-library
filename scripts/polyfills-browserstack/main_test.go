@@ -602,6 +602,36 @@ func TestWaitForFirstRequestIgnoresTheProbe(t *testing.T) {
 	}
 }
 
+// TestProbeTestServer covers the reachability check the retry loop depends on:
+// a healthy server must pass, and anything else must fail so the loop keeps
+// waiting rather than running against a server that is not ready.
+func TestProbeTestServer(t *testing.T) {
+	healthy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer healthy.Close()
+
+	if err := probeTestServer(context.Background(), healthy.URL); err != nil {
+		t.Errorf("probing a healthy server returned %v", err)
+	}
+
+	unready := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}))
+	defer unready.Close()
+
+	if err := probeTestServer(context.Background(), unready.URL); err == nil {
+		t.Error("probing a server that is not ready should return an error")
+	}
+
+	cancelled, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	if err := probeTestServer(cancelled, healthy.URL); err == nil {
+		t.Error("probing with a cancelled context should return an error")
+	}
+}
+
 // TestDeadSessionIsClassifiedForReplacement pins the property runJob branches on.
 func TestDeadSessionIsClassifiedForReplacement(t *testing.T) {
 	dead := &noBrowserRequestError{trace: "r1a2-008", stats: traceStats{Requests: 1, Paths: []string{"HEAD /"}}}

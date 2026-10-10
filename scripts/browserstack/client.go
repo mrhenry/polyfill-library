@@ -53,9 +53,8 @@ func (c Credentials) Valid() bool {
 
 // Client talks to the BrowserStack REST API.
 type Client struct {
-	http            *http.Client
-	credentials     Credentials
-	localIdentifier string
+	http        *http.Client
+	credentials Credentials
 }
 
 // Config configures a Client.
@@ -76,13 +75,7 @@ func New(config Config) *Client {
 		http: &http.Client{
 			Transport: transport,
 		},
-		localIdentifier: newLocalIdentifier(),
 	}
-}
-
-// LocalIdentifier ties sessions to this process' tunnel.
-func (c *Client) LocalIdentifier() string {
-	return c.localIdentifier
 }
 
 // HTTPClient is the authenticated HTTP client, used for WebDriver calls.

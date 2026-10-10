@@ -99,7 +99,6 @@ func TestMobileCapabilitiesAreAppium2(t *testing.T) {
 	caps := CapabilitiesFor(
 		Browser{OS: "ios", OSVersion: "13", Browser: "iphone", Device: "iPhone 11", RealMobile: true},
 		"session", "polyfill-library", "tunnel-id",
-		Credentials{UserName: "u", AccessKey: "k"},
 	)
 
 	encoded, err := caps.MarshalJSON()

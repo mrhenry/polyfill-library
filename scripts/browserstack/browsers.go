@@ -153,7 +153,7 @@ func (c Capabilities) MarshalJSON() ([]byte, error) {
 // non-empty: with a single tunnel per process BrowserStack routes on
 // `local: true` alone, and sending an identifier the tunnel never registered
 // prevents the remote browser from reaching the test server.
-func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string, credentials Credentials) Capabilities {
+func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string) Capabilities {
 	caps := Capabilities{
 		BStack: map[string]any{
 			"sessionName": sessionName,

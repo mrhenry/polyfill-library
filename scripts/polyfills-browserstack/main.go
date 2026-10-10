@@ -89,8 +89,22 @@ const (
 	// them is visible rather than quietly green.
 	sessionReplacements = 3
 
-	// processTimeout caps a whole run, matching the CI timeout-minutes.
-	processTimeout = 30 * time.Minute
+	// testServerStartTimeout bounds how long to wait for the JavaScript test
+	// server to accept connections.
+	//
+	// CI starts `node ./test/polyfills/server.js &` beside this process, so the
+	// two race: the server is usually listening within a second, but a cold
+	// machine can take longer. Polling replaces both a fixed sleep and a single
+	// probe that would abort the whole run on a lost race.
+	testServerStartTimeout = 20 * time.Second
+
+	// testServerProbeTimeout bounds a single reachability probe. The server is
+	// local, so it either answers promptly or is not up yet.
+	testServerProbeTimeout = 500 * time.Millisecond
+
+	// testServerProbeInterval is the pause between probes while waiting for the
+	// server to start.
+	testServerProbeInterval = 250 * time.Millisecond
 )
 
 // mode is a test configuration, matching the JavaScript harness' mode flags.
@@ -371,7 +385,12 @@ func main() {
 func run(opts options) error {
 	repo := repoRoot()
 
-	if err := ensureTestServer(repo); err != nil && !opts.list {
+	// The whole run is bounded by the CI job timeout, so there is no separate
+	// process deadline. This context only carries interruption.
+	runnerCtx, stopSignals := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stopSignals()
+
+	if err := ensureTestServer(runnerCtx, repo); err != nil && !opts.list {
 		return err
 	}
 
@@ -442,12 +461,6 @@ func run(opts options) error {
 	}
 
 	client := browserstack.New(browserstack.Config{Credentials: credentials})
-
-	processCtx, processCancel := context.WithTimeout(context.Background(), processTimeout)
-	defer processCancel()
-
-	runnerCtx, stopSignals := signal.NotifyContext(processCtx, os.Interrupt, syscall.SIGTERM)
-	defer stopSignals()
 
 	closeTunnel, err := client.OpenTunnel(runnerCtx)
 
@@ -953,7 +966,6 @@ func runJobOnce(ctx context.Context, client *browserstack.Client, credentials br
 		projectName,
 		// One tunnel per process, so no local identifier is needed.
 		"",
-		credentials,
 	)
 
 	session, err := browserstack.NewSession(sessionCtx, client.HTTPClient(), browserstack.Hub(), caps, credentials)
@@ -1642,23 +1654,57 @@ func repoRoot() string {
 	}
 }
 
-// ensureTestServer checks the JavaScript test server is reachable, since the
-// runner drives pages it serves.
-func ensureTestServer(repo string) error {
+// ensureTestServer waits for the JavaScript test server to become reachable,
+// since the runner drives pages it serves.
+//
+// It polls rather than probing once because CI launches the server in the
+// background beside this process: a single probe loses that race on a cold
+// machine and aborts the run before it starts.
+func ensureTestServer(ctx context.Context, repo string) error {
 	if _, err := os.Stat(filepath.Join(repo, "test/polyfills/server.js")); err != nil {
 		return fmt.Errorf("cannot find test/polyfills/server.js - run from the repository root: %w", err)
 	}
 
 	target := fmt.Sprintf("http://127.0.0.1:%d/test?includePolyfills=yes&always=no", serverPort)
 
-	client := &http.Client{Timeout: 5 * time.Second}
+	deadline := time.Now().Add(testServerStartTimeout)
 
-	res, err := client.Get(target) //nolint:noctx // a short probe, not part of a larger flow
+	var lastErr error
+
+	for {
+		probeCtx, cancel := context.WithTimeout(ctx, testServerProbeTimeout)
+		lastErr = probeTestServer(probeCtx, target)
+		cancel()
+
+		if lastErr == nil {
+			return nil
+		}
+
+		if time.Now().After(deadline) {
+			return fmt.Errorf("test server is not reachable on port %d - start it with `node ./test/polyfills/server.js &`: %w", serverPort, lastErr)
+		}
+
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(testServerProbeInterval):
+		}
+	}
+}
+
+// probeTestServer makes one reachability request against the test server.
+func probeTestServer(ctx context.Context, target string) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, target, nil)
 	if err != nil {
-		return fmt.Errorf("test server is not reachable on port %d - start it with `node ./test/polyfills/server.js &`: %w", serverPort, err)
+		return err
 	}
 
-	res.Body.Close()
+	res, err := serverClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf("test server returned %d for %s", res.StatusCode, target)

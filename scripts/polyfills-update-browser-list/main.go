@@ -281,8 +281,8 @@ func readEntryStates(path string) map[string]entryState {
 		case strings.HasPrefix(trimmed, "]"):
 			inBrowsersArray = false
 		case inBrowsersArray && strings.HasPrefix(trimmed, "#"):
-			if entry, _, ok := parseEntry(trimmed); ok {
-				states[entry] = entryState{disabled: true}
+			if entry, comment, ok := parseEntry(trimmed); ok {
+				states[entry] = entryState{disabled: true, comment: comment}
 			}
 		case inBrowsersArray && trimmed != "":
 			if entry, comment, ok := parseEntry(trimmed); ok {
@@ -312,10 +312,8 @@ func parseEntry(line string) (entry string, comment string, ok bool) {
 
 	entry = body[start+1 : end]
 
-	if disabled {
-		return entry, "", true
-	}
-
+	// A trailing comment is kept whether or not the entry is commented out, so
+	// a maintainer's note beside a disabled entry survives regeneration.
 	if hash := strings.Index(body[end+1:], "#"); hash != -1 {
 		comment = strings.TrimSpace(body[end+1+hash+1:])
 	}
