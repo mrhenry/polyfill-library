@@ -145,8 +145,8 @@ type Capabilities struct {
 	Standard map[string]any
 }
 
-// MarshalJSON renders the W3C session request body. Only "capabilities" is
-// emitted, because BrowserStack drops JSON Wire Protocol support in 2026.
+// MarshalJSON renders the W3C session request body, the only shape
+// BrowserStack accepts once the legacy protocol is retired.
 func (c Capabilities) MarshalJSON() ([]byte, error) {
 	alwaysMatch := map[string]any{}
 	for k, v := range c.Standard {
@@ -198,8 +198,7 @@ func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string
 		caps.BStack["localIdentifier"] = localIdentifier
 	}
 
-	// Desktop browsers are keyed by browser/browser_version. A platform is only
-	// sent when the caller set one; otherwise BrowserStack chooses.
+	// Desktop browsers are keyed by browser/browser_version.
 	if b.Device == "" {
 		if b.Browser != "" {
 			caps.Standard["browserName"] = b.Browser

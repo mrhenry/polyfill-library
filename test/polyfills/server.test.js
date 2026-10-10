@@ -227,7 +227,7 @@ describe('the runner page', () => {
 		assert.deepEqual(page.global_test_assets.loaded, ['mocha.js']);
 		assert.deepEqual(page.global_test_assets.failed, ['polyfill.test.js']);
 
-		assert.equal(page.onerror('is not defined', 'http://bs-local.com:9876/test', 12), true);
+		page.onerror('is not defined', 'http://bs-local.com:9876/test', 12);
 		assert.match(page.global_test_assets.errors[0], /is not defined @ http:\/\/bs-local\.com:9876\/test:12/);
 	});
 

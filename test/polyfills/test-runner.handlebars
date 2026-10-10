@@ -9,10 +9,11 @@
 	<meta id="test-iframe-src" name="test-iframe-src" content="/iframe.html?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}&feature={{features}}&trace={{{trace}}}">
 
 	<script>
-	// Declared before any other script so every tag below can report into it.
-	// A script that never arrives fires onerror, one that arrives and throws
-	// fires onload plus a window error, and recording both lets the runner name
-	// the asset that broke instead of only reporting a suite that never started.
+	// Declared before any other script so every tag below can report into it: one
+	// that never arrives fires onerror, one that throws fires a window error, and
+	// recording both lets the runner name the asset that broke. mocha captures
+	// window.onerror when it loads and chains to it, so this has to be in place
+	// first.
 	//
 	// Inline handlers, because IE 9 has no addEventListener on script elements.
 	window.global_test_assets = { loaded: [], failed: [], errors: [] };
@@ -29,8 +30,6 @@
 				' @ ' + String(url).slice(0, 200) + ':' + line
 			);
 		}
-		// Already reported to the driver; keep it out of the console.
-		return true;
 	};
 	</script>
 

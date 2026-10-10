@@ -85,8 +85,8 @@ app.use(compression());
 
 		entry.requests += 1;
 
-		// BrowserStack probes the session URL with a HEAD on its own user agent, so
-		// the GET count is what shows the browser itself made a request.
+		// BrowserStack probes the session URL with a HEAD, so GETs are what
+		// shows the browser itself made a request.
 		if (request.method === "GET") {
 			entry.gets += 1;
 		}
@@ -405,12 +405,12 @@ function createEndpoint(template) {
 				always: always,
 				trace: request.trace || "",
 				afterTestSuite: `
-				// Declared before anything runs, so the driver reads the page's
-				// own identity rather than inferring it from which globals exist.
+				// The driver reads the page's own identity rather than inferring it
+				// from which globals exist.
 				window.global_test_page = 'runner';
 
-				// mocha has parsed the suite by now, so its size says whether
-				// the test script arrived intact.
+				// mocha has parsed the suite by now, so its size says whether the
+				// test script arrived intact.
 				window.global_test_suite_size = (typeof mocha !== 'undefined' && mocha.suite) ? mocha.suite.total() : 0;
 				window.global_test_started = true;
 

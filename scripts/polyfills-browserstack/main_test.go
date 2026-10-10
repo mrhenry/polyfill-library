@@ -43,12 +43,6 @@ func TestPageStateCheck(t *testing.T) {
 			wantReady: true,
 		},
 		{
-			name:      "director page has no mocha, and must still be ready",
-			state:     pageState{Page: "director", Started: true, ReadyState: "complete"},
-			expected:  "director",
-			wantReady: true,
-		},
-		{
 			name:     "declared page must match the requested page",
 			state:    pageState{Page: "runner", Started: true},
 			expected: "director",

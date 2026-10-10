@@ -8,11 +8,7 @@ import (
 	"sync/atomic"
 )
 
-// Correlation ids.
-//
-// Every request a browser makes while running a job carries `trace`, so a
-// failure can be attributed to the exact requests it caused. The id is
-// "<run><seq>-<slug>", unique per process and job, and URL safe.
+// Correlation ids: "<run><seq>-<slug>", unique per process and job, URL safe.
 
 var traceCounter atomic.Int64
 

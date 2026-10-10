@@ -37,8 +37,7 @@
 		var timeoutRetryCount = 0;
 		window.onload = function() {
 			runner = document.getElementById('runner');
-			// This page keeps mocha inside the iframe, so the driver cannot tell it from
-			// the runner page by which globals exist.
+			// mocha lives in the iframe, so the driver cannot infer the page from globals.
 			window.global_test_page = 'director';
 			window.global_test_expected_runs = queue.length;
 			window.global_test_started = true;

@@ -631,9 +631,8 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			state:        newJobState(),
 		}
 
-		// A desktop platform is only requested on the first session, and only
-		// when the entry pins one. Real devices need their os/os_version on
-		// every session, so they are left untouched.
+		// Real devices need their os/os_version on every session, so they are
+		// left untouched.
 		if browser.Device == "" {
 			if browserstack.HasPreference(entry) {
 				base.preferred = browser
@@ -712,9 +711,8 @@ func needsShard(entry string) bool {
 	return entry == "ie/9.0" || entry == "ie/10.0" || strings.HasPrefix(entry, "ios/11")
 }
 
-// browserFor returns the platform for a session. The pinned platform is only
-// requested on the first session; later sessions omit it so BrowserStack can
-// place the browser on any platform.
+// browserFor returns the platform for a session, relaxing the pinned one after
+// the first attempt so a retry can land on any platform.
 func (j *job) browserFor(sessionIndex int) browserstack.Browser {
 	if sessionIndex == 0 && j.hasPreferred {
 		return j.preferred
@@ -1106,10 +1104,9 @@ const traceStatsTimeout = 5 * time.Second
 // arrivalGrace bounds how long a navigation is given to produce its first
 // request before the session is treated as dead.
 //
-// Healthy navigations block for 1 to 24 seconds and their requests are already
-// recorded by the time Navigate returns; dead ones return in under a second
-// without issuing any. Measured across 50 sessions, 8s misclassified none of
-// the 42 healthy ones.
+// Healthy navigations block for 1 to 24 seconds; dead ones return in under a
+// second without issuing any. Measured across 50 sessions, 8s misclassified
+// none of the 42 healthy ones.
 const arrivalGrace = 8 * time.Second
 
 // serverClient talks to the test server running on this machine.
@@ -1309,8 +1306,6 @@ const testServerURL = "http://127.0.0.1:9876"
 func fetchTraceStats(ctx context.Context, baseURL, trace string) (traceStats, error) {
 	var stats traceStats
 
-	// Address this machine directly rather than bs-local.com, which only
-	// resolves while the tunnel is running.
 	target := fmt.Sprintf("%s/__trace-stats?%s=%s",
 		baseURL, inspectTraceParam, url.QueryEscape(trace))
 
@@ -1666,7 +1661,6 @@ func mergeSummaries(a, b *testSummary) *testSummary {
 
 // reportFailures lists everything that failed, with a URL to reproduce it.
 func reportFailures(jobs []*job, opts options) {
-	// bs-local.com only resolves while the tunnel is running, which it is here.
 	baseURL := fmt.Sprintf("http://bs-local.com:%d/test", serverPort)
 
 	log.Println("\nFailures:")
