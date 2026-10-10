@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -37,10 +38,36 @@ type sessionResponse struct {
 	Value struct {
 		SessionID    string         `json:"sessionId"`
 		Capabilities map[string]any `json:"capabilities"`
+		Message      string         `json:"message"`
 	} `json:"value"`
 	Status    int            `json:"status"`
 	SessionID string         `json:"sessionId"`
 	LegacyCap map[string]any `json:"capabilities"`
+}
+
+// newSessionRejected is a session BrowserStack refused to create, carrying the
+// reason it gave.
+type newSessionRejected struct {
+	message string
+}
+
+func (e *newSessionRejected) Error() string {
+	return "browserstack refused to create the session: " + e.message
+}
+
+// tunnelNotConnectedMessage is what BrowserStack says when a local session is
+// requested before the tunnel has finished registering with them.
+const tunnelNotConnectedMessage = "local testing through BrowserStack is not connected"
+
+// ErrTunnelNotConnected reports whether BrowserStack refused the session
+// because the tunnel is not yet usable.
+func ErrTunnelNotConnected(err error) bool {
+	var rejected *newSessionRejected
+	if errors.As(err, &rejected) {
+		return strings.Contains(rejected.message, tunnelNotConnectedMessage)
+	}
+
+	return false
 }
 
 // commandResponse is the W3C command response envelope.
@@ -95,6 +122,14 @@ func NewSession(ctx context.Context, httpClient *http.Client, hubURL string, cap
 	}
 
 	if sessionID == "" {
+		// BrowserStack answers HTTP 200 with the reason in value.message, for
+		// example when a tunnel has not finished registering. Reporting
+		// "no sessionId" would throw that away, which is exactly the
+		// information needed to explain a failed run.
+		if parsed.Value.Message != "" {
+			return nil, &newSessionRejected{message: parsed.Value.Message}
+		}
+
 		return nil, fmt.Errorf("new session response contained no sessionId: %s", strings.TrimSpace(string(raw)))
 	}
 
@@ -290,4 +325,34 @@ func IsSessionStartFailure(err error) bool {
 		strings.Contains(message, "Failed to create session") ||
 		strings.Contains(message, "unknown command") ||
 		strings.Contains(message, "not implemented")
+}
+
+// GetSession reads a session back. It reports what the server is willing to say
+// about a live session, which is the only chance to learn machine identity
+// before the session ends.
+func GetSession(ctx context.Context, httpClient *http.Client, hubURL, sessionID string, creds Credentials) (map[string]any, error) {
+	res, err := do(ctx, httpClient, creds, http.MethodGet, hubURL+"/session/"+sessionID, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	raw, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return nil, newProtocolError(res.StatusCode, raw)
+	}
+
+	var parsed struct {
+		Value map[string]any `json:"value"`
+	}
+
+	if err := json.Unmarshal(raw, &parsed); err != nil {
+		return nil, fmt.Errorf("parsing get session response: %w", err)
+	}
+
+	return parsed.Value, nil
 }

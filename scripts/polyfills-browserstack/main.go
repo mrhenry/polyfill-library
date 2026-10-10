@@ -50,27 +50,48 @@ const (
 	// browser timeout.
 	concurrency = 4
 
-	// testBrowserTimeout is how long one browser may run for.
+	// testBrowserTimeout is how long one browser may run for without making
+	// progress. Measured runs complete in well under two minutes; the older
+	// browsers in the matrix are the slow ones, and the limit exists to catch a
+	// wedged session rather than a slow one, so it is generous.
 	testBrowserTimeout = 10 * time.Minute
 
-	// pollTick is how often test progress is read from the page.
+	// pollTick is how often test progress is read from the page. Each poll is a
+	// WebDriver round trip against a remote browser, so this trades a little
+	// latency at the end of a job for not adding load to every browser at once.
 	pollTick = time.Second
 
-	// sessionStartTimeout bounds a single New Session call.
+	// sessionStartTimeout bounds a single New Session call. Measured session
+	// creation took 6 to 32 seconds, including for the browsers whose machines
+	// were struggling.
 	sessionStartTimeout = 2 * time.Minute
 
-	// maxAttempts is how many times a browser is retried.
+	// maxAttempts is how many times a browser whose session could not start is
+	// retried. Dead sessions are bounded separately by sessionReplacements,
+	// because a replacement is expected to work rather than to be a last resort.
 	maxAttempts = 3
 
-	// retryDelay is the pause between attempts.
+	// retryDelay is the pause between attempts that failed to start a session.
+	// A tunnel that is still registering needs time, and retrying instantly just
+	// queues another rejection behind the same cause.
 	retryDelay = 30 * time.Second
+
+	// sessionReplacements bounds how many times one job discards a session that
+	// accepted a navigation but never acted on it.
+	//
+	// A replacement usually works, but not always: measured runs have needed two
+	// in a row for the same browser, so a bound of two left those jobs one bad
+	// session away from a red build that had nothing to do with the polyfills.
+	// Three keeps the per-attempt failure rate negligible while staying small
+	// enough that a genuinely broken machine still fails rather than spinning.
+	//
+	// Replacements are counted and reported for every job, so a run that leans on
+	// them is visible rather than quietly green.
+	sessionReplacements = 3
 
 	// processTimeout caps a whole run, matching the CI timeout-minutes.
 	processTimeout = 30 * time.Minute
 )
-
-// debug prints the navigation target and negotiated session capabilities.
-var debug = os.Getenv("POLYFILLS_BROWSERSTACK_DEBUG") != ""
 
 // mode is a test configuration, matching the JavaScript harness' mode flags.
 type mode string
@@ -151,6 +172,45 @@ type pageResults struct {
 	TestedSuites         []string        `json:"testedSuites"`
 	RunnerCompletedCount int             `json:"runnerCompletedCount"`
 	RunnerCount          int             `json:"runnerCount"`
+
+	// Assets is the page's record of which scripts loaded or failed.
+	Assets map[string]any `json:"assets"`
+
+	// SelfTests is the outcome of the harness controls that every page runs.
+	SelfTests *selfTestResults `json:"selfTests"`
+}
+
+// selfTestResults records the two controls every test page carries: one that
+// must pass and one that must fail.
+type selfTestResults struct {
+	// Runs is how many control tests the page executed.
+	Runs int `json:"runs"`
+	// Pass is true when the "must pass" control passed.
+	Pass bool `json:"pass"`
+	// Fail is true when the "must fail" control failed, as it must.
+	Fail bool `json:"fail"`
+}
+
+// checkSelfTests validates the controls.
+//
+// A passing control that did not pass means the page did not really run, so
+// every other number on it is meaningless. A failing control that passed means
+// the harness cannot see failures at all, which is how a broken suite turns
+// into a green build.
+func (s *selfTestResults) check() error {
+	if s == nil || s.Runs == 0 {
+		return errors.New("the harness self tests did not run, so this result cannot be trusted")
+	}
+
+	if !s.Pass {
+		return errors.New("the harness self test that must pass did not, so the page is not executing tests")
+	}
+
+	if !s.Fail {
+		return errors.New("the harness self test that must fail passed, so failures are not being detected")
+	}
+
+	return nil
 }
 
 type failingTest struct {
@@ -168,6 +228,17 @@ type testSummary struct {
 	FailingTests  []failingTest `json:"failingTests"`
 	FailingSuites []string      `json:"failingSuites"`
 	TestedSuites  []string      `json:"testedSuites"`
+
+	// SelfTests records that the harness controls were observed behaving
+	// correctly on this browser.
+	SelfTests selfTestResults `json:"selfTests"`
+
+	// Assets is the page's own record of which scripts loaded or failed.
+	Assets map[string]any `json:"assets,omitempty"`
+
+	// SessionReplacements counts sessions this job discarded because their
+	// browser never issued its navigation. Omitted when zero.
+	SessionReplacements int `json:"sessionReplacements,omitempty"`
 }
 
 func (r *pageResults) summary() *testSummary {
@@ -182,13 +253,25 @@ func (r *pageResults) summary() *testSummary {
 		r.Tests = []failingTest{}
 	}
 
+	// The counts exclude the harness controls, which is why a run's numbers
+	// stay comparable to a run without them.
 	return &testSummary{
 		Passed:        r.Passed,
 		Failed:        r.Failed,
 		FailingTests:  r.Tests,
 		FailingSuites: failingSuites,
 		TestedSuites:  r.TestedSuites,
+		SelfTests:     selfTestResultsOrZero(r.SelfTests),
+		Assets:        r.Assets,
 	}
+}
+
+func selfTestResultsOrZero(s *selfTestResults) selfTestResults {
+	if s == nil {
+		return selfTestResults{}
+	}
+
+	return *s
 }
 
 // job is one browser session. The value is immutable once built; progress is
@@ -200,6 +283,8 @@ type job struct {
 
 	testMode             mode
 	url                  string
+	expectedPage         string
+	trace                string
 	shard                int
 	polyfillCombinations bool
 
@@ -214,6 +299,12 @@ type jobState struct {
 	failure  *pageResults
 	err      error
 	duration time.Duration
+
+	// replacements counts sessions discarded because their browser never issued
+	// its navigation. A job that ends up passing after a replacement has still
+	// passed, but the count is reported rather than dropped so the run's health
+	// stays visible.
+	replacements int
 }
 
 func newJobState() *jobState {
@@ -225,6 +316,42 @@ func (s *jobState) setState(state string) {
 	defer s.mu.Unlock()
 
 	s.state = state
+}
+
+// summarisePaths renders the requests a job made, which is usually enough to
+// show that a script never arrived.
+func summarisePaths(paths []string) string {
+	if len(paths) == 0 {
+		return "nothing"
+	}
+
+	unique := map[string]bool{}
+	order := make([]string, 0, len(paths))
+
+	for _, path := range paths {
+		if !unique[path] {
+			unique[path] = true
+
+			order = append(order, path)
+		}
+	}
+
+	return strings.Join(order, ", ")
+}
+
+func plural(n int) string {
+	if n == 1 {
+		return ""
+	}
+
+	return "s"
+}
+
+func (s *jobState) setReplacementCount(n int) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.replacements = n
 }
 
 func (s *jobState) setError(err error) {
@@ -255,11 +382,11 @@ func (s *jobState) complete(results *testSummary, duration time.Duration) {
 }
 
 // snapshot copies the current progress under the lock.
-func (s *jobState) snapshot() (state string, results *testSummary, failure *pageResults, err error, duration time.Duration) {
+func (s *jobState) snapshot() (state string, results *testSummary, failure *pageResults, err error, duration time.Duration, replacements int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	return s.state, s.results, s.failure, s.err, s.duration
+	return s.state, s.results, s.failure, s.err, s.duration, s.replacements
 }
 
 // failed reports whether this job counts as a failure.
@@ -356,7 +483,10 @@ func run(opts options) error {
 		return nil
 	}
 
-	jobs := buildJobs(entries, browserstack.NewIndex(stackList.Browsers), opts)
+	runID := newRunID()
+	log.Printf("run id : %s (appears as trace=<run><seq>-<browser> in the test server log)", runID)
+
+	jobs := buildJobs(entries, browserstack.NewIndex(stackList.Browsers), opts, runID)
 	if len(jobs) == 0 {
 		log.Println("nothing to test")
 		return nil
@@ -380,7 +510,14 @@ func run(opts options) error {
 
 	log.Println("tunnel ready")
 
-	sessionName := fmt.Sprintf("Polyfill Library: %s", time.Now().Format(time.RFC3339))
+	// The tunnel binary reports itself ready seconds before BrowserStack will
+	// route a session through it. Starting jobs in that window is what made
+	// runs fail at startup, so wait for the tunnel to actually be usable.
+	if err := client.WaitForTunnel(runnerCtx); err != nil {
+		return err
+	}
+
+	sessionName := fmt.Sprintf("Polyfill Library: %s", runID)
 	failed := execute(runnerCtx, client, credentials, jobs, sessionName, opts.maxConcurrency)
 
 	if err := writeResults(repo, opts, jobs); err != nil {
@@ -520,7 +657,7 @@ func neededForAny(ua *browserua.UA, affected []*polyfillmeta.Meta) bool {
 }
 
 // buildJobs expands browser entries into session jobs.
-func buildJobs(entries []string, index *browserstack.Index, opts options) []*job {
+func buildJobs(entries []string, index *browserstack.Index, opts options, runID string) []*job {
 	baseURL := fmt.Sprintf("http://bs-local.com:%d", serverPort)
 
 	var jobs []*job
@@ -533,10 +670,12 @@ func buildJobs(entries []string, index *browserstack.Index, opts options) []*job
 		}
 
 		base := job{
-			name:     entry,
-			browser:  browser,
-			testMode: opts.testMode,
-			state:    newJobState(),
+			name:         entry,
+			browser:      browser,
+			testMode:     opts.testMode,
+			expectedPage: opts.expectedPage(),
+			trace:        nextTrace(runID, entry),
+			state:        newJobState(),
 		}
 
 		// Slow browsers are split in two when the whole suite runs, so a
@@ -545,14 +684,15 @@ func buildJobs(entries []string, index *browserstack.Index, opts options) []*job
 			for shard := 1; shard <= 2; shard++ {
 				sharded := base
 				sharded.shard = shard
-				sharded.url = testURL(baseURL, opts, shard, false)
+				sharded.trace = nextTrace(runID, fmt.Sprintf("%s#%d", entry, shard))
+				sharded.url = testURL(baseURL, opts, shard, false, sharded.trace)
 				jobs = append(jobs, &sharded)
 			}
 
 			continue
 		}
 
-		base.url = testURL(baseURL, opts, 0, false)
+		base.url = testURL(baseURL, opts, 0, false, base.trace)
 		jobs = append(jobs, &base)
 	}
 
@@ -561,7 +701,9 @@ func buildJobs(entries []string, index *browserstack.Index, opts options) []*job
 		for _, j := range jobs {
 			combined := *j
 			combined.polyfillCombinations = true
-			combined.url = testURL(baseURL, opts, j.shard, true)
+			combined.trace = nextTrace(runID, j.name+"#combined")
+			combined.url = testURL(baseURL, opts, j.shard, true, combined.trace)
+			combined.state = newJobState()
 
 			expanded = append(expanded, j, &combined)
 		}
@@ -602,7 +744,7 @@ func needsShard(entry string) bool {
 }
 
 // testURL builds the URL a browser loads.
-func testURL(baseURL string, opts options, shard int, polyfillCombinations bool) string {
+func testURL(baseURL string, opts options, shard int, polyfillCombinations bool, trace string) string {
 	path := "/test"
 	if opts.director {
 		path = "/"
@@ -622,6 +764,13 @@ func testURL(baseURL string, opts options, shard int, polyfillCombinations bool)
 
 	if shard > 0 {
 		values.Set("shard", fmt.Sprint(shard))
+	}
+
+	// Carried through to every sub-resource the page requests, so each request
+	// in the test server log can be attributed to this job. Timestamps cannot
+	// do that once sessions overlap.
+	if trace != "" {
+		values.Set("trace", trace)
 	}
 
 	return baseURL + path + "?" + values.Encode()
@@ -748,9 +897,49 @@ func (s *browserSlots) release(name string) {
 	s.mu.Unlock()
 }
 
-// runJob drives one browser to completion, retrying session starts.
-func runJob(ctx context.Context, client *browserstack.Client, credentials browserstack.Credentials, j *job, sessionName string) {
+// action is what runJob should do after an attempt fails.
+type action int
+
+const (
+	// actionFail gives up and records the error.
+	actionFail action = iota
+	// actionRetryStart retries the whole attempt after a pause.
+	actionRetryStart
+	// actionReplaceSession discards the session and starts again immediately.
+	actionReplaceSession
+)
+
+// nextAction decides how to recover from a failed attempt.
+//
+// A session whose browser never issued its navigation is not retried: that
+// session never recovers, and re-navigating it returns in about a tenth of a
+// second without issuing anything. A replacement session is, and it needs no
+// pause because the tunnel is demonstrably working, which is why a replacement
+// does not consume an attempt and so never trips the pause in runJob. A session
+// that could not start is usually a tunnel still registering, and is worth
+// waiting out.
+//
+// Separated from runJob so the policy can be tested without a network.
+func nextAction(err error, replacements int) action {
+	switch {
+	case errors.Is(err, ErrNoBrowserRequest):
+		if replacements >= sessionReplacements {
+			return actionFail
+		}
+
+		return actionReplaceSession
+	case browserstack.IsSessionStartFailure(err):
+		return actionRetryStart
+	default:
+		return actionFail
+	}
+}
+
+// runJob drives one browser to completion.
+func runJob(ctx context.Context, client *browserstack.Client, credentials browserstack.Credentials, j *job, batchName string) {
 	var lastErr error
+
+	replacements := 0
 
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
 		if ctx.Err() != nil {
@@ -767,18 +956,36 @@ func runJob(ctx context.Context, client *browserstack.Client, credentials browse
 			}
 		}
 
-		lastErr = runJobOnce(ctx, client, credentials, j, sessionName)
+		lastErr = runJobOnce(ctx, client, credentials, j, batchName)
 		if lastErr == nil {
 			return
 		}
 
-		if !browserstack.IsSessionStartFailure(lastErr) {
+		switch nextAction(lastErr, replacements) {
+		case actionFail:
+			if browserstack.IsSessionStartFailure(lastErr) {
+				log.Printf("%s: %v", j.name, lastErr)
+			}
+
 			j.state.setError(lastErr)
 
 			return
-		}
 
-		log.Printf("%s: %v", j.name, lastErr)
+		case actionRetryStart:
+			log.Printf("%s: %v", j.name, lastErr)
+
+		case actionReplaceSession:
+			replacements++
+
+			j.state.setReplacementCount(replacements)
+			j.state.setState("browser never requested the page, replacing the session")
+
+			log.Printf("%s: %v (replacing the session)", j.name, lastErr)
+
+			// A replacement does not consume an attempt: it is the same job,
+			// not a third of three goes at the problem.
+			attempt--
+		}
 	}
 
 	j.state.setError(lastErr)
@@ -789,9 +996,7 @@ func runJobOnce(ctx context.Context, client *browserstack.Client, credentials br
 
 	sessionCtx, cancelSession := context.WithTimeout(ctx, sessionStartTimeout)
 
-	sessionName := fmt.Sprintf("%s: %s - %s - %s - %s",
-		batchName, j.name, combinationName(j.polyfillCombinations), shardName(j.shard),
-		time.Now().Format(time.RFC3339))
+	sessionName := sessionLabel(batchName, j)
 
 	caps := browserstack.CapabilitiesFor(
 		j.browser,
@@ -819,26 +1024,33 @@ func runJobOnce(ctx context.Context, client *browserstack.Client, credentials br
 		}
 	}()
 
-	if debug {
-		if raw, err := json.Marshal(caps); err == nil {
-			log.Printf("capabilities for %s: %s", j.name, raw)
-		}
-
-		log.Printf("session capabilities: %v", session.Capabilities())
-		log.Printf("navigating %s to %s", j.name, j.url)
-	}
-
 	j.state.setState("initializing browser")
+
+	navigatedAt := time.Now()
 
 	if err := session.Navigate(ctx, j.url); err != nil {
 		return err
 	}
 
-	// Fail fast when the page never arrives at all. Polling for results alone
-	// cannot tell "the suite is still running" from "the browser never loaded
-	// anything", so a session that cannot reach the test server would burn the
-	// whole per browser timeout before reporting a bare timeout.
-	if err := waitForPageLoad(ctx, session, j); err != nil {
+	navigateFor := time.Since(navigatedAt)
+
+	// Establish that the browser actually asked for something before spending
+	// the page load budget waiting for a page that was never requested.
+	stats, arrived, err := waitForFirstRequest(ctx, testServerURL(), j.trace, arrivalGrace)
+	if err != nil {
+		return fmt.Errorf("%s: asking the test server what this job requested: %w", j.name, err)
+	}
+
+	if !arrived {
+		return &noBrowserRequestError{trace: j.trace, stats: stats, navigateFor: navigateFor}
+	}
+
+	// Fail fast when the page never arrives, or when it is not the page we
+	// asked for. Polling for results alone cannot tell "the suite is still
+	// running" from "the browser never loaded anything", and sniffing for
+	// globals like `mocha` cannot tell the director page from the runner page
+	// because the director keeps mocha inside an iframe.
+	if err := waitForPageLoad(ctx, session, j, j.expectedPage); err != nil {
 		return err
 	}
 
@@ -847,44 +1059,148 @@ func runJobOnce(ctx context.Context, client *browserstack.Client, credentials br
 	return pollForResults(ctx, session, j)
 }
 
-// pageLoadTimeout bounds how long the test page has to start.
+// expectedPage is the page identity the harness asked for.
+func (o options) expectedPage() string {
+	if o.director {
+		return "director"
+	}
+
+	return "runner"
+}
+
+// pageLoadTimeout bounds how long the test page has to start, once its request
+// has arrived.
+//
+// Reaching this timeout means the page was fetched and never ran, so it is
+// waiting on assets rather than on the tunnel. The oldest browsers in the matrix
+// load the full suite slowly, and the page only declares itself started from an
+// inline script after its assets parse, so this stays generous.
 const pageLoadTimeout = 90 * time.Second
 
-// waitForPageLoad polls until the test page has loaded far enough to run the
-// suite.
-func waitForPageLoad(ctx context.Context, session *browserstack.Session, j *job) error {
+// traceStatsTimeout bounds the question asked of the test server. It is a local
+// request to a process this one started, so it either answers immediately or the
+// server is gone.
+const traceStatsTimeout = 5 * time.Second
+
+// arrivalGrace bounds how long a navigation is given to produce its first
+// request before the session is treated as dead.
+//
+// Healthy navigations block for 1 to 24 seconds and their requests are already
+// recorded by the time Navigate returns; dead ones return in under a second
+// without issuing any. Measured across 50 sequential sessions, waiting 8s before
+// giving up misclassified none of the 42 healthy ones, while the 90s page load
+// timeout it replaces cost a minute per dead session.
+const arrivalGrace = 8 * time.Second
+
+// serverClient talks to the test server running on this machine. Requests are
+// small and local, so the timeout is short enough to never delay a real
+// failure noticeably.
+var serverClient = &http.Client{Timeout: traceStatsTimeout}
+
+// pageState is the readiness contract the test pages publish, as read back
+// over the WebDriver execute command.
+type pageState struct {
+	// Page is the identity the page declares: "director" or "runner".
+	Page string
+	// Started is true once the page has begun its work.
+	Started bool
+
+	ReadyState   string
+	Href         string
+	Title        string
+	SuiteSize    *int
+	ExpectedRuns *int
+
+	// Assets is the page's own record of which scripts loaded, which failed
+	// to load, and which threw while evaluating.
+	Assets map[string]any
+}
+
+// check decides whether the page has started, and reports a mismatch between
+// the page served and the page requested.
+//
+// The pages declare their own identity rather than the harness inferring it,
+// because the director page keeps mocha inside an iframe, so `typeof mocha` is
+// always "undefined" there, and the runner page publishes no progress global
+// until the very end. Probing either signal on its own produced a false
+// failure on the full suite.
+func (p pageState) check(expected string) (bool, error) {
+	// A page that declares itself as something other than what was requested
+	// means the harness is driving the wrong page, so fail immediately rather
+	// than waiting out the timeout.
+	if p.Page != "" && p.Page != expected {
+		return false, fmt.Errorf(
+			"loaded the %q page but the %q page was requested : harness and test page disagree",
+			p.Page, expected)
+	}
+
+	return p.Page == expected && p.Started, nil
+}
+
+// describe renders the state for an error message, including the page's own
+// asset diagnostics so a failure names what broke.
+func (p pageState) describe(expected string) string {
+	return fmt.Sprintf(
+		"the %q page never started (readyState=%q, page=%q, started=%t, url=%q, title=%q)%s",
+		expected, p.ReadyState, p.Page, p.Started, p.Href, p.Title, describeAssets(p.Assets))
+}
+
+func parsePageState(value any) pageState {
+	fields, _ := value.(map[string]any)
+
+	state := pageState{}
+
+	state.Page, _ = fields["page"].(string)
+	state.Started, _ = fields["started"].(bool)
+	state.ReadyState, _ = fields["readyState"].(string)
+	state.Href, _ = fields["href"].(string)
+	state.Title, _ = fields["title"].(string)
+
+	if n, ok := fields["suiteSize"].(float64); ok {
+		size := int(n)
+		state.SuiteSize = &size
+	}
+
+	if n, ok := fields["expectedRuns"].(float64); ok {
+		runs := int(n)
+		state.ExpectedRuns = &runs
+	}
+
+	if a, ok := fields["assets"].(map[string]any); ok {
+		state.Assets = a
+	}
+
+	return state
+}
+
+// waitForPageLoad polls until the test page has declared its identity and
+// started.
+func waitForPageLoad(ctx context.Context, session *browserstack.Session, j *job, expected string) error {
 	deadline := time.Now().Add(pageLoadTimeout)
 
-	var lastReady string
+	var last pageState
 
 	for {
-		state, err := session.ExecuteScript(ctx, pageStateScript, nil)
+		value, err := session.ExecuteScript(ctx, pageStateScript, nil)
 		if err != nil {
 			return err
 		}
 
-		fields, ok := state.(map[string]any)
-		if !ok {
-			fields = nil
+		last = parsePageState(value)
+
+		ready, err := last.check(expected)
+		if err != nil {
+			return fmt.Errorf("%s: %w", j.name, err)
 		}
 
-		if s, ok := fields["readyState"].(string); ok {
-			lastReady = s
-		}
-
-		if loaded, ok := fields["loaded"].(bool); ok && loaded {
+		if ready {
 			j.state.setState("page loaded")
 
 			return nil
 		}
 
 		if time.Now().After(deadline) {
-			return fmt.Errorf(
-				"%s: the test page never started the suite (readyState=%q, mocha loaded=%t, results published=%t) : "+
-					"the page loaded but its scripts did not run, which usually means the tunnel or the local test "+
-					"server dropped requests under concurrency",
-				j.name, lastReady,
-				fields["loaded"] == true, fields["results"] == true)
+			return j.pageLoadFailure(last, expected)
 		}
 
 		select {
@@ -895,22 +1211,233 @@ func waitForPageLoad(ctx context.Context, session *browserstack.Session, j *job)
 	}
 }
 
-// pageStateScript reports whether the suite has started.
+// traceStats is what the test server recorded for one job.
+type traceStats struct {
+	Requests int `json:"requests"`
+	// Gets counts only the browser's own requests. BrowserStack probes the
+	// session URL with a HEAD, which carries the same trace, so Requests alone
+	// cannot distinguish "never navigated" from "navigated".
+	Gets  int      `json:"gets"`
+	Paths []string `json:"paths"`
+}
+
+// inspectTraceParam is how the harness asks the test server about a trace. It is
+// deliberately not the parameter browsers send, so a poll can never be recorded
+// as one of the requests it is measuring.
+const inspectTraceParam = "inspect-trace"
+
+// ErrNoBrowserRequest marks a session that accepted a navigation but whose
+// browser never issued one. It is worth its own error because the fix is
+// different from every other failure: the suite, the page and the polyfills are
+// all irrelevant to it, and the same session never recovers.
+var ErrNoBrowserRequest = errors.New("the browser never issued its navigation")
+
+// noBrowserRequestError carries what the test server did see, which is usually
+// only BrowserStack's own probe of the session URL.
+type noBrowserRequestError struct {
+	trace string
+	stats traceStats
+
+	// navigateFor is how long Navigate took to return. It is the strongest
+	// signal available for this failure: across 50 measured sessions every dead
+	// one returned in under 2.4 seconds while every healthy one took at least
+	// 1.7 and usually far longer, so it separates "the browser bailed" from "the
+	// browser is slow" without a single server request.
+	navigateFor time.Duration
+}
+
+func (e *noBrowserRequestError) Error() string {
+	return fmt.Sprintf(
+		"the browser never issued its navigation: Navigate returned after %s without the browser having "+
+			"requested anything in the following %s, and the test server only saw %d non-GET request(s) "+
+			"(BrowserStack's own probe). The failure is between the remote machine and this server, "+
+			"not in the page or the suite",
+		e.navigateFor.Round(time.Millisecond), arrivalGrace, e.stats.Requests)
+}
+
+func (e *noBrowserRequestError) Unwrap() error {
+	return ErrNoBrowserRequest
+}
+
+// waitForFirstRequest reports whether the browser's own request reached the test
+// server.
 //
-// The two page shapes need different signals. The director page publishes
-// window.global_test_progress at the top level and keeps mocha inside an
-// iframe, so `typeof mocha` is always "undefined" there. The standalone runner
-// page has no progress global until the very end, so it needs mocha.
+// A session can look entirely healthy while its browser has issued nothing, and
+// nothing in the session can tell the difference. The server can, because only
+// the browser's GETs carry a trace that came from a navigation: BrowserStack
+// probes the session URL itself with a HEAD, which is why this waits for a GET
+// rather than for any request at all.
+func waitForFirstRequest(ctx context.Context, baseURL, trace string, budget time.Duration) (traceStats, bool, error) {
+	deadline := time.Now().Add(budget)
+
+	for {
+		stats, err := fetchTraceStats(ctx, baseURL, trace)
+		if err != nil {
+			return stats, false, err
+		}
+
+		if stats.Gets > 0 {
+			return stats, true, nil
+		}
+
+		if time.Now().After(deadline) {
+			return stats, false, nil
+		}
+
+		select {
+		case <-ctx.Done():
+			return stats, false, ctx.Err()
+		case <-time.After(200 * time.Millisecond):
+		}
+	}
+}
+
+// testServerURL addresses the test server on this machine directly. bs-local.com
+// only resolves while the tunnel is running, and nothing here needs it.
+func testServerURL() string {
+	return fmt.Sprintf("http://127.0.0.1:%d", serverPort)
+}
+
+// fetchTraceStats asks the test server what a trace requested. It is the only
+// witness to whether a navigation arrived at all: the session can look fine
+// while nothing ever reaches us.
+func fetchTraceStats(ctx context.Context, baseURL, trace string) (traceStats, error) {
+	var stats traceStats
+
+	// The base URL addresses this machine directly rather than bs-local.com,
+	// which only resolves while the tunnel is running. A missing hosts entry
+	// would turn a precise diagnosis into a silent one.
+	target := fmt.Sprintf("%s/__trace-stats?%s=%s",
+		baseURL, inspectTraceParam, url.QueryEscape(trace))
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, target, nil)
+	if err != nil {
+		return stats, err
+	}
+
+	res, err := serverClient.Do(req)
+	if err != nil {
+		return stats, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return stats, fmt.Errorf("trace stats returned %d", res.StatusCode)
+	}
+
+	if err := json.NewDecoder(res.Body).Decode(&stats); err != nil {
+		return stats, err
+	}
+
+	return stats, nil
+}
+
+// pageLoadFailure reports why the page never started.
+//
+// Reaching here means the browser's request did arrive: waitForFirstRequest has
+// already ruled out a session that never navigated, and that case is handled by
+// replacing the session. So this is always a page that was fetched but never
+// ran, which is a page or asset problem rather than a session one. Listing what
+// arrived is what makes the difference diagnosable.
+func (j *job) pageLoadFailure(last pageState, expected string) error {
+	return pageLoadFailure(j.name, j.trace, last, expected, fmt.Sprintf("http://127.0.0.1:%d", serverPort))
+}
+
+func pageLoadFailure(name, trace string, last pageState, expected, baseURL string) error {
+	described := fmt.Sprintf("%s: %s", name, last.describe(expected))
+
+	ctx, cancel := context.WithTimeout(context.Background(), traceStatsTimeout)
+	defer cancel()
+
+	stats, err := fetchTraceStats(ctx, baseURL, trace)
+	if err != nil {
+		// Not being able to tell the two cases apart must not hide the
+		// original failure, so the browser's own description is kept.
+		return fmt.Errorf("%s (%s; the test server could not be asked what this job requested: %v)", described, trace, err)
+	}
+
+	return fmt.Errorf("%s (%s; the page was fetched but never started, and the browser only ever asked for %s)",
+		described, trace, summarisePaths(stats.Paths))
+}
+
+func (p pageState) String() string {
+	suite := "n/a"
+	if p.SuiteSize != nil {
+		suite = fmt.Sprint(*p.SuiteSize)
+	}
+
+	runs := "n/a"
+	if p.ExpectedRuns != nil {
+		runs = fmt.Sprint(*p.ExpectedRuns)
+	}
+
+	return fmt.Sprintf("page %q ready (suite size %s, expected runs %s, assets %s)",
+		p.Page, suite, runs, describeAssets(p.Assets))
+}
+
+// describeAssets renders the page's own diagnostics, so a failure names the
+// asset that broke instead of only saying the page stalled.
+func describeAssets(assets map[string]any) string {
+	if assets == nil {
+		return ""
+	}
+
+	parts := []string{}
+
+	if failed, ok := assets["failed"].([]any); ok && len(failed) > 0 {
+		parts = append(parts, "assets that failed to load: "+joinAny(failed))
+	}
+
+	if errs, ok := assets["errors"].([]any); ok && len(errs) > 0 {
+		parts = append(parts, "script errors: "+joinAny(errs))
+	}
+
+	if loaded, ok := assets["loaded"].([]any); ok && len(loaded) > 0 {
+		parts = append(parts, "assets that loaded: "+joinAny(loaded))
+	}
+
+	if len(parts) == 0 {
+		return ""
+	}
+
+	return " ; " + strings.Join(parts, " ; ")
+}
+
+func joinAny(values []any) string {
+	out := make([]string, 0, len(values))
+	for _, v := range values {
+		out = append(out, fmt.Sprint(v))
+	}
+
+	return strings.Join(out, ", ")
+}
+
+// pageStateScript reads the contract the test pages publish. Every field it
+// touches is written by test-runner.handlebars or test-director.handlebars, so
+// a rename there fails here rather than silently reading undefined.
 const pageStateScript = `
 	return {
+		page: typeof window.global_test_page === 'string' ? window.global_test_page : null,
+		started: window.global_test_started === true,
+		suiteSize: typeof window.global_test_suite_size === 'number' ? window.global_test_suite_size : null,
+		expectedRuns: typeof window.global_test_expected_runs === 'number' ? window.global_test_expected_runs : null,
 		readyState: document.readyState,
-		loaded: typeof window.global_test_progress !== "undefined" ||
-			typeof window.global_test_results !== "undefined" ||
-			typeof mocha !== "undefined",
-		results: typeof window.global_test_results !== "undefined"
+		href: String(document.location ? document.location.href : ''),
+		title: String(document.title || ''),
+		assets: window.global_test_assets || null
 	};`
 
 // combinationName labels individual versus combined runs.
+// sessionLabel names a BrowserStack session so it can be matched to a line in
+// the test server log. The trace is last: it is the field that ties the two
+// together, and it is more precise than a clock time because it does not depend
+// on the two clocks agreeing.
+func sessionLabel(batchName string, j *job) string {
+	return fmt.Sprintf("%s: %s - %s - %s - %s",
+		batchName, j.name, combinationName(j.polyfillCombinations), shardName(j.shard),
+		j.trace)
+}
+
 func combinationName(combined bool) string {
 	if combined {
 		return "interop"
@@ -960,6 +1487,12 @@ func pollForResults(ctx context.Context, session *browserstack.Session, j *job) 
 
 			switch progress.State {
 			case "complete":
+				// The controls decide whether any of this result can be
+				// believed, so they are checked before the result is recorded.
+				if err := progress.SelfTests.check(); err != nil {
+					return fmt.Errorf("harness self test failed: %w", err)
+				}
+
 				j.state.complete(progress.summary(), time.Since(startedAt))
 
 				return nil
@@ -977,7 +1510,7 @@ func pollForResults(ctx context.Context, session *browserstack.Session, j *job) 
 		// Only a run that stops making progress counts as a timeout, so a slow
 		// but progressing browser is not killed.
 		if !lastUpdatedAt.IsZero() && time.Since(lastUpdatedAt) > testBrowserTimeout {
-			current, _, _, _, _ := j.state.snapshot()
+			current, _, _, _, _, _ := j.state.snapshot()
 			timedOut := fmt.Errorf("timed out at %q on %q", current, j.name)
 			j.state.setError(timedOut)
 
@@ -1003,7 +1536,7 @@ func printProgress(jobs []*job) {
 	queued := 0
 
 	for _, j := range jobs {
-		state, results, failure, err, duration := j.state.snapshot()
+		state, results, failure, err, duration, replacements := j.state.snapshot()
 
 		message := ""
 
@@ -1018,8 +1551,12 @@ func printProgress(jobs []*job) {
 			if duration > 0 {
 				message += fmt.Sprintf("  %d seconds to complete", int(duration.Seconds()))
 			}
+
+			if replacements > 0 {
+				message += fmt.Sprintf("  (%d session%s replaced)", replacements, plural(replacements))
+			}
 		case "error":
-			message = fmt.Sprintf("⚠️  %v", err)
+			message = fmt.Sprintf("⚠️  %v [trace %s]", err, j.trace)
 		case "ready":
 			queued++
 		case "running":
@@ -1048,9 +1585,13 @@ func writeResults(repo string, opts options, jobs []*job) error {
 	results := map[string]map[string]map[string]*testSummary{}
 
 	record := func(j *job) {
-		_, jobResults, _, _, _ := j.state.snapshot()
+		_, jobResults, _, _, _, replacements := j.state.snapshot()
 		if jobResults == nil {
 			return
+		}
+
+		if replacements > 0 {
+			jobResults.SessionReplacements = replacements
 		}
 
 		key := browserua.New(browserua.FromBrowserEntry(j.name)).Normalize()
@@ -1089,13 +1630,16 @@ func writeResults(repo string, opts options, jobs []*job) error {
 
 // reportFailures lists everything that failed, with a URL to reproduce it.
 func reportFailures(jobs []*job, opts options) {
-	baseURL := fmt.Sprintf("http://bs-local.com:%d/test?includePolyfills=%s&always=%s",
-		serverPort, includePolyfillsFor(opts.testMode), alwaysFor(opts.testMode))
+	// These URLs are only ever printed, but they are printed for someone about
+	// to paste them into a browser, so they have to actually work. Appending to
+	// a URL that already had a query produced a second "?" and duplicated the
+	// parameters, which is exactly the kind of thing that costs an afternoon.
+	baseURL := fmt.Sprintf("http://bs-local.com:%d/test", serverPort)
 
 	log.Println("\nFailures:")
 
 	for _, j := range jobs {
-		state, results, _, err, _ := j.state.snapshot()
+		state, results, _, err, _, _ := j.state.snapshot()
 
 		if results == nil || results.Failed == 0 {
 			if err != nil || state != "complete" {

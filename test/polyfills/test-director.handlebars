@@ -3,6 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- Measured against real sessions: this stops every desktop browser in the
+	     matrix from falling back to /favicon.ico, but not iOS 13-18, which
+	     requests it even with no icon declared. Those get a 204 from the
+	     server rather than the 404 this used to cause. -->
+	<link rel="icon" href="data:,">
 	<title>polyfill-library test director</title>
 
 	<style>
@@ -25,17 +30,28 @@
 			tests: [],
 			failingSuites: {},
 			testedSuites: [],
+			assets: null,
+			selfTests: { runs: 0, pass: false, fail: false },
 			uaString: 'unknown'
 		};
 		var queue = "{{features}}".split(',');
 		var runnerCompletedCount = 0;
 		var runnerTotalCount = queue.length;
-		var windowQueryString = "?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}";
+		var windowQueryString = "?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}&trace={{{trace}}}";
 		var timeout = 30000;
 		var timeoutMaxRetries = 2;
 		var timeoutRetryCount = 0;
 		window.onload = function() {
 			runner = document.getElementById('runner');
+			// Declare what this page is before running anything, so the driver
+			// can assert it got the page it asked for instead of inferring it
+			// from which globals happen to exist. This page keeps mocha inside
+			// the iframe, so `typeof mocha` is always "undefined" here.
+			window.global_test_page = 'director';
+			// The number of feature runs the director intends to do, which
+			// doubles as a progress denominator.
+			window.global_test_expected_runs = queue.length;
+			window.global_test_started = true;
 			if (queue.length) {
 				executeTest();
 			} else {
@@ -58,11 +74,27 @@
 				parent.postMessage(JSON.stringify({featureName:featureName, result:result, mode:'{{{mode}}}'}), '*');
 			}
 		}
+		function snapshotRunnerAssets() {
+			// Same origin, so the iframe's globals are reachable. Wrapped because
+			// a cross-origin or not-yet-loaded iframe throws on access.
+			try {
+				if (runner && runner.contentWindow && runner.contentWindow.global_test_assets) {
+					globalresults.assets = runner.contentWindow.global_test_assets;
+				}
+			} catch (e) {}
+		}
 		function receiveTestResults(featureList, results) {
 			var resultsummary = [], featureName;
 			clearTimeout(timer);
 			if (!results) {
 				resultsummary.push('<span class="fail">Timeout waiting for results</span>');
+				// The runner iframe publishes its own asset diagnostics. On the
+				// timeout path it never reported results, but the iframe may
+				// still be alive and holding the reason - for example when
+				// polyfill.js failed to load, which leaves mocha undefined and
+				// stops the suite from ever starting. Reading them here is what
+				// turns "Timeout waiting for results" into a named asset.
+				snapshotRunnerAssets();
 				if (timeoutRetryCount < timeoutMaxRetries) {
 					timeoutRetryCount++;
 					resultsummary.push('Scheduling retry ('+timeoutRetryCount+'/'+timeoutMaxRetries+')');
@@ -84,6 +116,15 @@
 				if (results.tests) globalresults.tests = globalresults.tests.concat(results.tests);
 				if (results.testedSuites) globalresults.testedSuites = globalresults.testedSuites.concat(results.testedSuites);
 				if (results.uaString) globalresults.uaString = results.uaString;
+				if (results.assets) globalresults.assets = results.assets;
+				// The self tests run in every runner iframe. Combine them so the
+				// driver can assert once per session that it saw both a passing
+				// and a failing control.
+				if (results.selfTests) {
+					globalresults.selfTests.runs += results.selfTests.runs;
+					globalresults.selfTests.pass = globalresults.selfTests.pass || results.selfTests.pass;
+					globalresults.selfTests.fail = globalresults.selfTests.fail || results.selfTests.fail;
+				}
 				if (results.failingSuites) {
 					for (var f in results.failingSuites) {
 						if (results.failingSuites.hasOwnProperty(f)) {

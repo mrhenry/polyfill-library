@@ -184,6 +184,9 @@ export default [
 		files: [
 			"polyfills/**/*.test.js",
 			"tasks/polyfill-templates/*.test.js",
+			// The harness self tests are loaded into the browser test page the
+			// same way the generated polyfill suites are.
+			"test/polyfills/self-tests.js",
 		],
 		languageOptions: {
 			...browserScriptDefaults.languageOptions,

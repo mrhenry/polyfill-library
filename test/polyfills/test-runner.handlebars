@@ -3,15 +3,56 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- Measured against real sessions: this stops every desktop browser in the
+	     matrix from falling back to /favicon.ico, but not iOS 13-18, which
+	     requests it even with no icon declared. Those get a 204 from the
+	     server rather than the 404 this used to cause. -->
+	<link rel="icon" href="data:,">
 	<title>Mocha test suite for polyfill-library</title>
 
-	<link rel="stylesheet" type="text/css" href="/mocha.css">
-	<meta id="test-iframe-src" name="test-iframe-src" content="/iframe.html?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}&feature={{features}}">
-	<script src="/polyfill.js?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}{{#unless requestedPolyfillCombinations}}&feature={{features}}{{/unless}}"></script>
-	<script src="/mocha.js"></script>
-	<script src="/proclaim.js"></script>
+	<link rel="stylesheet" type="text/css" href="/mocha.css?trace={{{trace}}}">
+	<meta id="test-iframe-src" name="test-iframe-src" content="/iframe.html?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}&feature={{features}}&trace={{{trace}}}">
+
+	<script>
+	// Asset and error diagnostics, declared before any other script so that
+	// every tag below can report into it.
+	//
+	// Two distinct failures look identical from the outside when a script has
+	// no handler: the request never arrives (a dropped tunnel connection, a
+	// 404), or it arrives and throws while evaluating. The first fires the
+	// element's onerror, the second fires the element's onload and raises a
+	// window error. Recording both is what lets the runner say which asset
+	// broke instead of reporting that the suite never started.
+	//
+	// Handlers are inline attributes rather than addEventListener because the
+	// oldest browser in the matrix is IE 9, which does not support
+	// addEventListener on script elements. Listeners are capped because the
+	// whole object is read back over a WebDriver execute call on browsers
+	// where that is expensive.
+	window.global_test_assets = { loaded: [], failed: [], errors: [] };
+	window.__assetLoaded = function (name) {
+		window.global_test_assets.loaded.push(name);
+	};
+	window.__assetFailed = function (name) {
+		window.global_test_assets.failed.push(name);
+	};
+	window.onerror = function (message, url, line) {
+		if (window.global_test_assets.errors.length < 5) {
+			window.global_test_assets.errors.push(
+				String(message).slice(0, 300) +
+				' @ ' + String(url).slice(0, 200) + ':' + line
+			);
+		}
+		// Reported already; keep it out of the console.
+		return true;
+	};
+	</script>
+
+	<script src="/polyfill.js?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}{{#unless requestedPolyfillCombinations}}&feature={{features}}{{/unless}}&trace={{{trace}}}" onload="__assetLoaded('polyfill.js')" onerror="__assetFailed('polyfill.js')"></script>
+	<script src="/mocha.js?trace={{{trace}}}" onload="__assetLoaded('mocha.js')" onerror="__assetFailed('mocha.js')"></script>
+	<script src="/proclaim.js?trace={{{trace}}}" onload="__assetLoaded('proclaim.js')" onerror="__assetFailed('proclaim.js')"></script>
 	<script>mocha.setup('bdd');</script>
-	<script src="/polyfill.test.js{{#requestedFeature}}?feature={{features}}{{/requestedFeature}}"></script>
+	<script src="/polyfill.test.js?trace={{{trace}}}{{#requestedFeature}}&feature={{features}}{{/requestedFeature}}" onload="__assetLoaded('polyfill.test.js')" onerror="__assetFailed('polyfill.test.js')"></script>
 </head>
 <body>
 
