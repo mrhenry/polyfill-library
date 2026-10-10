@@ -37,10 +37,9 @@
 		var timeoutRetryCount = 0;
 		window.onload = function() {
 			runner = document.getElementById('runner');
-			// Declare what this page is before running anything, so the driver
-			// can assert it got the page it asked for instead of inferring it
-			// from which globals happen to exist. This page keeps mocha inside
-			// the iframe, so `typeof mocha` is always "undefined" here.
+			// Declare the page identity so the driver can assert it got the
+			// page it asked for. This page keeps mocha inside the iframe, so
+			// `typeof mocha` is always "undefined" here.
 			window.global_test_page = 'director';
 			// The number of feature runs the director intends to do, which
 			// doubles as a progress denominator.
@@ -69,8 +68,8 @@
 			}
 		}
 		function snapshotRunnerAssets() {
-			// Same origin, so the iframe's globals are reachable. Wrapped because
-			// a cross-origin or not-yet-loaded iframe throws on access.
+			// Same origin, so the iframe's globals are reachable. Wrapped
+			// because a cross-origin or not-yet-loaded iframe throws on access.
 			try {
 				if (runner && runner.contentWindow && runner.contentWindow.global_test_assets) {
 					globalresults.assets = runner.contentWindow.global_test_assets;
@@ -84,10 +83,8 @@
 				resultsummary.push('<span class="fail">Timeout waiting for results</span>');
 				// The runner iframe publishes its own asset diagnostics. On the
 				// timeout path it never reported results, but the iframe may
-				// still be alive and holding the reason - for example when
-				// polyfill.js failed to load, which leaves mocha undefined and
-				// stops the suite from ever starting. Reading them here is what
-				// turns "Timeout waiting for results" into a named asset.
+				// still hold the reason, so reading them turns "Timeout waiting
+				// for results" into a named asset.
 				snapshotRunnerAssets();
 				if (timeoutRetryCount < timeoutMaxRetries) {
 					timeoutRetryCount++;

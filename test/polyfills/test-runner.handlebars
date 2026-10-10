@@ -9,21 +9,16 @@
 	<meta id="test-iframe-src" name="test-iframe-src" content="/iframe.html?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}&feature={{features}}&trace={{{trace}}}">
 
 	<script>
-	// Asset and error diagnostics, declared before any other script so that
-	// every tag below can report into it.
+	// Asset and error diagnostics, declared before any other script so every
+	// tag below can report into it.
 	//
-	// Two distinct failures look identical from the outside when a script has
-	// no handler: the request never arrives (a dropped tunnel connection, a
-	// 404), or it arrives and throws while evaluating. The first fires the
-	// element's onerror, the second fires the element's onload and raises a
-	// window error. Recording both is what lets the runner say which asset
-	// broke instead of reporting that the suite never started.
+	// A script that never arrives (a dropped tunnel, a 404) fires onerror, and
+	// one that arrives and throws fires onload plus a window error. Recording
+	// both lets the runner name the asset that broke instead of only reporting
+	// that the suite never started.
 	//
-	// Handlers are inline attributes rather than addEventListener because the
-	// oldest browser in the matrix is IE 9, which does not support
-	// addEventListener on script elements. Listeners are capped because the
-	// whole object is read back over a WebDriver execute call on browsers
-	// where that is expensive.
+	// Inline handlers are used because the oldest browser in the matrix is IE 9,
+	// which has no addEventListener on script elements.
 	window.global_test_assets = { loaded: [], failed: [], errors: [] };
 	window.__assetLoaded = function (name) {
 		window.global_test_assets.loaded.push(name);

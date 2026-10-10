@@ -1,11 +1,7 @@
-// Package browserstack contains the BrowserStack integration: credentials,
-// the BrowserStackLocal tunnel and a W3C WebDriver session client.
-//
-// The WebDriver client here speaks W3C WebDriver only. It never sends
-// "desiredCapabilities" and never negotiates a WebDriver BiDi websocket, so
-// it does not depend on the JSON Wire Protocol that BrowserStack retires in
-// December 2026, nor on the extra session handshake commands that WebdriverIO
-// v10 issues for browsers with no BiDi support.
+// Package browserstack contains the BrowserStack integration: credentials, the
+// BrowserStackLocal tunnel and a W3C-only WebDriver session client. It never
+// sends "desiredCapabilities" or negotiates BiDi, so it does not depend on the
+// JSON Wire Protocol that BrowserStack retires in December 2026.
 package browserstack
 
 import (
@@ -24,8 +20,7 @@ import (
 // HubURL is the BrowserStack Automate WebDriver endpoint.
 const HubURL = "https://hub-cloud.browserstack.com/wd/hub"
 
-// hubURLEnv overrides the WebDriver endpoint, which is only useful for testing
-// the client against a local server.
+// hubURLEnv overrides the WebDriver endpoint, for tests.
 const hubURLEnv = "POLYFILLS_BROWSERSTACK_HUB"
 
 // Hub returns the WebDriver endpoint to use.
@@ -112,8 +107,7 @@ func (c *Client) Browsers(ctx context.Context) ([]Browser, error) {
 		return nil, err
 	}
 
-	// BrowserStack answers with a plain text body on auth failures rather
-	// than a JSON error envelope.
+	// Auth failures come back as plain text, not a JSON error envelope.
 	if strings.Contains(string(body), "HTTP Basic: Access denied.") {
 		return nil, errors.New("access denied")
 	}
@@ -137,8 +131,7 @@ type Plan struct {
 	ParallelSessionsRunning    int    `json:"parallel_sessions_running"`
 }
 
-// Plan reads the account plan. It is best effort: an account that will not
-// answer falls back to the caller's default.
+// Plan reads the account plan. Best effort: the caller supplies a default.
 func (c *Client) Plan(ctx context.Context) (Plan, error) {
 	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
 	defer cancel()
@@ -206,8 +199,7 @@ func (f roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
 }
 
-// dialHost is the magic hostname BrowserStackLocal resolves for the machine
-// running the tunnel.
+// dialHost is the hostname BrowserStackLocal resolves to the tunnel machine.
 const dialHost = "bs-local.com"
 
 // tunnelURL builds a URL the remote browser can reach through the tunnel.

@@ -48,13 +48,9 @@ app.use(compression());
 	// Correlation id.
 	//
 	// The driver appends `trace=<run>-<job>` to the test page URL, and the page
-	// templates carry it onto every sub-resource, so each request a browser makes
-	// can be attributed to the job that caused it. Without it the only way to
-	// correlate a failure with the server log is by timestamp, which is ambiguous
-	// when sessions overlap.
-	//
-	// The id is stripped from the URL before the cache middleware sees it, so
-	// per-request ids do not defeat caching.
+	// templates carry it onto every sub-resource, so each request can be
+	// attributed to the job that caused it. It is stripped before the cache
+	// middleware sees it, so per-request ids do not defeat caching.
 	const traceParam = "trace";
 	const inspectTraceParam = "inspect-trace";
 	const tracePattern = /^[A-Za-z0-9._-]{1,80}$/;
@@ -275,10 +271,8 @@ const testablePolyfillsCache = {};
 // Every polyfill's metadata and test file is read once, not once per browser.
 //
 // describePolyfill() re-reads meta.json from disk on every call, and
-// testablePolyfills() calls it for all ~3400 polyfills once per distinct
-// user agent. A 49 browser matrix entry therefore caused ~168k metadata
-// reads, all on the event loop that also has to serve the remote browsers,
-// which is enough to stall the pages that are already running.
+// testablePolyfills() calls it for all ~3400 polyfills once per distinct user
+// agent, which is enough metadata reads to stall the pages being served.
 const polyfillSourcesPromise = (async () => {
 	const polyfills = await polyfillio.listAllPolyfills();
 
@@ -416,9 +410,8 @@ function createEndpoint(template) {
 				always: always,
 				trace: request.trace || "",
 				afterTestSuite: `
-				// Declare what this page is before running anything, so the
-				// driver can tell the runner page apart from the director page
-				// instead of inferring it from which globals happen to exist.
+				// Declare the page identity before running anything, so the
+				// driver does not have to infer it from which globals exist.
 				window.global_test_page = 'runner';
 
 				// ${JSON.stringify(features.map(f => f.feature))} is loaded and parsed by the time this
@@ -475,11 +468,11 @@ function createEndpoint(template) {
 						results.testedSuites.push(getFirstLevelSuite(suite));
 					});
 					runner.on('end', function() {
-						// A suite that registered no tests used to be reported
-						// as passed:0 failed:0, which every driver scored as a
-						// success. That happens when polyfill.test.js fails to
-						// load or throws before calling describe, so record it
-						// as a failure and name the asset that broke.
+						// A suite that registered no tests would report
+						// passed:0 failed:0, which scores as a success. That
+						// happens when polyfill.test.js fails to load or throws
+						// before calling describe, so record it as a failure and
+						// name the asset that broke.
 						if (!results.total) {
 							results.failed = 1;
 							results.total = 1;

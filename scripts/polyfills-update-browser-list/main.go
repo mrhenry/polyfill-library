@@ -1,16 +1,10 @@
 // Command polyfills-update-browser-list refreshes the BrowserStack browser
 // matrix, replacing `npm run update-browserstack-list`.
 //
-// It writes two files:
-//
-//	test/polyfills/browserstackBrowsers.toml - every browser, version, device
-//	                                          and platform BrowserStack offers.
-//	test/polyfills/browsers.toml              - the curated "family/version"
-//	                                          entries actually under test.
-//
-// Unlike the JavaScript script it replaced, browsers.toml keeps the existing
-// curation: entries a maintainer has commented out stay commented out, and
-// newly offered browsers are added uncommented and ready to be reviewed.
+// It writes browserstackBrowsers.toml (every browser BrowserStack offers) and
+// browsers.toml (the curated entries under test). Existing curation is kept:
+// entries a maintainer commented out stay commented out, and newly offered
+// browsers are added uncommented and ready for review.
 package main
 
 import (
@@ -63,8 +57,8 @@ func run(browsersPath, stackPath string) error {
 		return err
 	}
 
-	// Non Safari browsers on iOS cannot be targeted by the polyfill library,
-	// because every iOS browser is driven through Safari.
+	// Non Safari browsers on iOS cannot be targeted, because every iOS browser
+	// is driven through Safari.
 	filtered := browsers[:0]
 	for _, b := range browsers {
 		if strings.EqualFold(b.OS, "ios") && !strings.EqualFold(b.Browser, "iphone") && !strings.EqualFold(b.Browser, "ipad") {
@@ -90,8 +84,7 @@ func run(browsersPath, stackPath string) error {
 		return entryLess(entries[i], entries[j])
 	})
 
-	// Preserve the curation a maintainer wrote by hand: which entries are
-	// commented out, and the notes beside them.
+	// Preserve the curation a maintainer wrote by hand.
 	states := readEntryStates(browsersPath)
 
 	rendered := renderBrowsersTOML(entries, states)
@@ -117,10 +110,8 @@ func run(browsersPath, stackPath string) error {
 	return nil
 }
 
-// browserLess reproduces the sort in tasks/updatebrowserstacklist.js.
-//
-// Desktop browser versions ascend; Windows and OS X platform versions
-// descend, so the newest platform is listed first for each browser version.
+// browserLess reproduces the sort in the JavaScript script it replaced:
+// desktop browser versions ascend, and Windows/OS X platform versions descend.
 func browserLess(a, b browserstack.Browser) bool {
 	if a.Browser != b.Browser {
 		return localeLess(a.Browser, b.Browser)
@@ -164,8 +155,7 @@ func entryLess(a, b string) bool {
 }
 
 // versionLess compares the leading numeric part of two version strings,
-// falling back to a string comparison, matching semver.coerce plus
-// semver.compare.
+// falling back to a string comparison, matching semver.coerce plus compare.
 func versionLess(a, b string) bool {
 	ca, oka := coerceVersion(a)
 	cb, okb := coerceVersion(b)
@@ -260,8 +250,8 @@ type entryState struct {
 }
 
 // readEntryStates reads the existing browsers.toml and records, for every
-// entry, whether it is commented out and any trailing comment. Both are
-// curation a maintainer wrote by hand, so both are preserved on rewrite.
+// entry, whether it is commented out and any trailing comment, so both survive
+// regeneration.
 func readEntryStates(path string) map[string]entryState {
 	raw, err := os.ReadFile(path)
 	if err != nil {

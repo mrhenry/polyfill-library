@@ -13,35 +13,27 @@ import (
 )
 
 // ErrSessionStart marks an error raised while creating a WebDriver session.
-//
-// Creating a session is retried, unlike a command against an established
-// session, so every failure from NewSession is wrapped in this. BrowserStack
-// commonly queues or stalls a session start when the account is busy, and a
-// queued start is worth another attempt rather than a red build.
+// Session starts are retried, so every NewSession failure is wrapped in this.
 var ErrSessionStart = errors.New("creating webdriver session")
 
 // ErrCommandTimeout marks a command against an established session that did
-// not answer within its budget, which means the remote browser has wedged. The
-// caller replaces the session instead of retrying the command.
+// not answer in time, which means the remote browser has wedged.
 var ErrCommandTimeout = errors.New("webdriver command timed out")
 
-// ErrPageCrash marks a session whose remote renderer has crashed. The session
-// cannot be recovered, so the caller replaces it rather than retrying a command
-// against a browser that is already gone.
+// ErrPageCrash marks a session whose remote renderer has crashed.
 var ErrPageCrash = errors.New("remote browser renderer crashed")
 
 const (
-	// commandTimeout bounds an execute command. A live browser answers in
+	// commandTimeout bounds an execute command; a live browser answers in
 	// milliseconds, so this only fires when the session has wedged.
 	commandTimeout = 60 * time.Second
 
 	// navigateTimeout bounds a navigation, which returns only once the page
-	// load completes, so it is larger than a command timeout.
+	// load completes.
 	navigateTimeout = 3 * time.Minute
 )
 
-// commandTimeoutError tags a deadline as a wedged browser, so the caller can
-// replace the session rather than retry the command.
+// commandTimeoutError tags a deadline as a wedged browser.
 func commandTimeoutError(err error) error {
 	if errors.Is(err, context.DeadlineExceeded) {
 		return fmt.Errorf("%w: %w", ErrCommandTimeout, err)
@@ -52,11 +44,8 @@ func commandTimeoutError(err error) error {
 
 // Session is a W3C WebDriver session.
 //
-// Only four W3C endpoints are used: create session, navigate, execute script
-// and delete session. In particular this client never calls
-// GET /session/{id}/window, which older drivers do not implement, and never
-// requests a BiDi websocket, so it works against the whole pinned browser
-// matrix without per-browser capability workarounds.
+// Only create, navigate, execute script and delete are used, so the whole
+// pinned browser matrix works without per-browser capability workarounds.
 type Session struct {
 	client    *http.Client
 	baseURL   string
@@ -67,11 +56,9 @@ type Session struct {
 
 // sessionResponse is the W3C New Session response.
 //
-// BrowserStack answers with the W3C shape {"value":{"sessionId":...}} for a
-// session whose capabilities it honoured, and with the legacy JSON Wire
-// Protocol shape {"status":0,"sessionId":...,"value":{...caps}} otherwise. Both
-// are accepted here so the reason for a bad session is visible in the error
-// rather than silently yielding a browser that is not the one requested.
+// BrowserStack answers with the legacy JSON Wire Protocol shape when it did not
+// honour the requested capabilities. Both are accepted so the reason is visible
+// in the error rather than yielding a browser that is not the one requested.
 type sessionResponse struct {
 	Value struct {
 		SessionID string `json:"sessionId"`
@@ -82,8 +69,7 @@ type sessionResponse struct {
 	LegacyCap map[string]any `json:"capabilities"`
 }
 
-// newSessionRejected is a session BrowserStack refused to create, carrying the
-// reason it gave.
+// newSessionRejected is a session BrowserStack refused to create.
 type newSessionRejected struct {
 	message string
 }
@@ -93,7 +79,7 @@ func (e *newSessionRejected) Error() string {
 }
 
 // tunnelNotConnectedMessage is what BrowserStack says when a local session is
-// requested before the tunnel has finished registering with them.
+// requested before the tunnel has finished registering.
 const tunnelNotConnectedMessage = "local testing through BrowserStack is not connected"
 
 // ErrTunnelNotConnected reports whether BrowserStack refused the session
@@ -114,11 +100,9 @@ type commandResponse struct {
 
 // NewSession starts a W3C WebDriver session on BrowserStack.
 //
-// capabilities is sent verbatim: Capabilities.MarshalJSON already renders the
-// complete {"capabilities":{"alwaysMatch":...,"firstMatch":[{}]}} body, so it
-// must not be wrapped again. No desiredCapabilities fallback is attempted, so
-// a driver that only speaks JSON Wire Protocol fails loudly here rather than
-// part way through a test run.
+// caps is sent verbatim: Capabilities.MarshalJSON already renders the complete
+// body. No desiredCapabilities fallback is attempted, so a driver that only
+// speaks JSON Wire Protocol fails loudly here.
 func NewSession(ctx context.Context, httpClient *http.Client, hubURL string, caps Capabilities, creds Credentials) (*Session, error) {
 	body, err := json.Marshal(caps)
 	if err != nil {
@@ -147,9 +131,8 @@ func NewSession(ctx context.Context, httpClient *http.Client, hubURL string, cap
 
 	sessionID := parsed.Value.SessionID
 
-	// A legacy shaped reply means BrowserStack did not honour the requested
-	// capabilities, so the session is almost certainly not routed through the
-	// tunnel. Refuse it instead of running the suite against the wrong browser.
+	// A legacy shaped reply means the requested capabilities were not honoured,
+	// so the session is almost certainly not routed through the tunnel.
 	if sessionID == "" && parsed.SessionID != "" {
 		return nil, fmt.Errorf(
 			"browserstack ignored the requested capabilities and returned a legacy JSON Wire Protocol session "+
@@ -159,9 +142,7 @@ func NewSession(ctx context.Context, httpClient *http.Client, hubURL string, cap
 
 	if sessionID == "" {
 		// BrowserStack answers HTTP 200 with the reason in value.message, for
-		// example when a tunnel has not finished registering. Reporting
-		// "no sessionId" would throw that away, which is exactly the
-		// information needed to explain a failed run.
+		// example when the tunnel has not finished registering.
 		if parsed.Value.Message != "" {
 			return nil, &newSessionRejected{message: parsed.Value.Message}
 		}
@@ -300,8 +281,8 @@ type protocolError struct {
 func newProtocolError(statusCode int, body []byte) error {
 	text := protocolErrorMessage(statusCode, body)
 
-	// A crashed renderer is reported as an ordinary protocol error, but the
-	// session is not usable again, so it is tagged for the caller to replace.
+	// A crashed renderer is an ordinary protocol error, but the session is not
+	// usable again, so it is tagged for the caller to replace.
 	if isPageCrash(text) {
 		return fmt.Errorf("%w: %s", ErrPageCrash, text)
 	}
@@ -341,7 +322,7 @@ func protocolErrorMessage(statusCode int, body []byte) string {
 }
 
 // pageCrashMarkers are the substrings Chromedriver and BrowserStack use when
-// the remote renderer has crashed. None of them can be recovered in place.
+// the remote renderer has crashed. None can be recovered in place.
 var pageCrashMarkers = []string{
 	"session deleted because of page crash",
 	"tab crashed",
@@ -361,22 +342,19 @@ func isPageCrash(text string) bool {
 	return false
 }
 
-// IsSessionStartFailure reports whether an error came from creating a
-// session, as opposed to a test failing afterwards. Session starts are
-// retried; test failures are not.
+// IsSessionStartFailure reports whether an error came from creating a session,
+// as opposed to a test failing afterwards. Session starts are retried.
 func IsSessionStartFailure(err error) bool {
 	if err == nil {
 		return false
 	}
 
-	// A cancelled run is not worth retrying.
 	if errors.Is(err, context.Canceled) {
 		return false
 	}
 
-	// Every error from creating a session is tagged, which covers the transport
-	// timeouts a queued or stalled start produces that the message list below
-	// cannot name.
+	// Every NewSession error is tagged, which covers transport timeouts that
+	// the message list below cannot name.
 	if errors.Is(err, ErrSessionStart) {
 		return true
 	}

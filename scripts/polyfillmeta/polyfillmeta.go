@@ -1,10 +1,8 @@
 // Package polyfillmeta reads the built polyfill metadata and works out which
 // polyfills a change set affects.
 //
-// This is a port of test/utils/modified-polyfills-with-tests.js. The harness
-// only needs the browser targets, aliases, dependencies and test status, all
-// of which the build writes into polyfills/__dist, so nothing here needs the
-// JavaScript library.
+// This is a port of test/utils/modified-polyfills-with-tests.js. The build
+// writes everything needed into polyfills/__dist.
 package polyfillmeta
 
 import (
@@ -45,9 +43,8 @@ func Load(repoRoot string) (*Collection, error) {
 
 	// polyfills/__dist/meta.json is the authoritative feature list, exactly as
 	// lib/sources.js listPolyfills() uses it. Directory names are not a
-	// reliable substitute: polyfill names contain dots
-	// ("Promise.prototype.finally") alongside non-polyfill siblings
-	// (meta.json, aliases.json).
+	// reliable substitute: polyfill names contain dots alongside non-polyfill
+	// siblings (meta.json, aliases.json).
 	index := map[string]*Meta{}
 
 	raw, err := os.ReadFile(filepath.Join(dist, "meta.json"))

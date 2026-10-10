@@ -20,10 +20,8 @@ const (
 
 // capacityGate admits session starts against the account's parallel allowance.
 //
-// The allowance is shared with every other user of the account, so a fixed
-// concurrency either wastes capacity or over-subscribes it. Before each session
-// this reads how many are running and waits while there is no room, so the run
-// uses whatever is actually free rather than what was free at startup.
+// The allowance is shared with every other user of the account, so before each
+// session this reads how many are running and waits while there is no room.
 type capacityGate struct {
 	plan     func(context.Context) (browserstack.Plan, error)
 	headroom int
@@ -67,8 +65,7 @@ func (g *capacityGate) refreshLocked(ctx context.Context, force bool) {
 	g.max = plan.ParallelSessionsMaxAllowed
 
 	// running counts this run's own sessions too; subtracting the ones in
-	// flight leaves only other users' usage, which is what rations a shared
-	// account.
+	// flight leaves only other users' usage.
 	g.external = plan.ParallelSessionsRunning - g.inflight
 	if g.external < 0 {
 		g.external = 0

@@ -1,15 +1,10 @@
 // Command polyfills-browserstack runs the polyfill-library browser test suite
-// on BrowserStack.
-//
-// It replaces the WebdriverIO harness in test/polyfills/remotetest.js. The
-// test pages are still served by test/polyfills/server.js, because producing
-// the polyfill bundle needs the JavaScript library; this command only drives
+// on BrowserStack, replacing the WebdriverIO harness in remotetest.js. The test
+// pages are still served by test/polyfills/server.js; this command only drives
 // browsers.
 //
-// Only the W3C WebDriver protocol is used: capabilities go out as
-// alwaysMatch, commands use the W3C routes, and there is no JSON Wire
-// Protocol fallback. BrowserStack retires JSON Wire Protocol support on
-// 22 December 2026.
+// Only the W3C WebDriver protocol is used: capabilities go out as alwaysMatch
+// and commands use the W3C routes, with no JSON Wire Protocol fallback.
 package main
 
 import (
@@ -45,69 +40,43 @@ const (
 	projectName = "polyfill-library"
 
 	// concurrency is how many BrowserStack sessions run at once. Four matches
-	// BrowserStack's default Automate parallel allowance; exceeding it makes
-	// sessions queue on the hub and can leave them waiting past the per
-	// browser timeout.
+	// BrowserStack's default Automate parallel allowance.
 	concurrency = 4
 
-	// testBrowserTimeout is how long one browser may run for without making
-	// progress. Measured runs complete in well under two minutes; the older
-	// browsers in the matrix are the slow ones, and the limit exists to catch a
-	// wedged session rather than a slow one, so it is generous.
+	// testBrowserTimeout is how long one browser may run without making
+	// progress. Measured runs finish well under two minutes.
 	testBrowserTimeout = 10 * time.Minute
 
-	// pollTick is how often test progress is read from the page. Each poll is a
-	// WebDriver round trip against a remote browser, so this trades a little
-	// latency at the end of a job for not adding load to every browser at once.
+	// pollTick is how often test progress is read from the page.
 	pollTick = time.Second
 
 	// sessionStartTimeout bounds a single New Session call. Measured session
-	// creation took 6 to 32 seconds, including for the browsers whose machines
-	// were struggling.
+	// creation took 6 to 32 seconds.
 	sessionStartTimeout = 2 * time.Minute
 
 	// maxAttempts is how many times a browser whose session could not start is
-	// retried. Dead sessions are bounded separately by sessionReplacements,
-	// because a replacement is expected to work rather than to be a last resort.
+	// retried.
 	maxAttempts = 3
 
 	// retryDelay is the pause between attempts that failed to start a session.
-	// A tunnel that is still registering needs time, and retrying instantly just
-	// queues another rejection behind the same cause.
 	retryDelay = 30 * time.Second
 
-	// replacementDelay is the pause before a replacement session is requested.
-	//
-	// A discarded session releases its BrowserStack machine a moment after its
-	// DELETE returns. Browsers with a small machine pool (IE 10 especially)
-	// queue the replacement against that machine if it is requested
-	// immediately, and the queue is what becomes a session-start timeout.
+	// replacementDelay is the pause before a replacement session is requested,
+	// giving BrowserStack a moment to release the discarded machine. Browsers
+	// with a small pool (IE 10 especially) queue the replacement otherwise.
 	replacementDelay = 15 * time.Second
 
 	// sessionReplacements bounds how many times one job discards a session that
-	// accepted a navigation but never acted on it.
-	//
-	// A replacement usually works, but not always: measured runs have needed two
-	// in a row for the same browser, so a bound of two left those jobs one bad
-	// session away from a red build that had nothing to do with the polyfills.
-	// Three keeps the per-attempt failure rate negligible while staying small
-	// enough that a genuinely broken machine still fails rather than spinning.
-	//
-	// Replacements are counted and reported for every job, so a run that leans on
-	// them is visible rather than quietly green.
+	// accepted a navigation but never acted on it. Replacements are reported
+	// for every job, so a run that leans on them stays visible.
 	sessionReplacements = 3
 
 	// testServerStartTimeout bounds how long to wait for the JavaScript test
-	// server to accept connections.
-	//
-	// CI starts `node ./test/polyfills/server.js &` beside this process, so the
-	// two race: the server is usually listening within a second, but a cold
-	// machine can take longer. Polling replaces both a fixed sleep and a single
-	// probe that would abort the whole run on a lost race.
+	// server to accept connections. CI starts it beside this process, so the
+	// two race.
 	testServerStartTimeout = 20 * time.Second
 
-	// testServerProbeTimeout bounds a single reachability probe. The server is
-	// local, so it either answers promptly or is not up yet.
+	// testServerProbeTimeout bounds a single reachability probe.
 	testServerProbeTimeout = 500 * time.Millisecond
 
 	// testServerProbeInterval is the pause between probes while waiting for the
@@ -145,7 +114,7 @@ type options struct {
 	concurrencyExplicit bool
 
 	// feature is the comma separated polyfill subset to test, derived from the
-	// change set rather than passed on the command line.
+	// change set.
 	feature string
 
 	// testEverything disables per browser polyfill gating.
@@ -277,9 +246,8 @@ type jobState struct {
 	duration time.Duration
 
 	// replacements counts sessions discarded because their browser never issued
-	// its navigation. A job that ends up passing after a replacement has still
-	// passed, but the count is reported rather than dropped so the run's health
-	// stays visible.
+	// its navigation. Reported rather than dropped so the run's health stays
+	// visible.
 	replacements int
 }
 
@@ -398,8 +366,8 @@ func main() {
 func run(opts options) error {
 	repo := repoRoot()
 
-	// The whole run is bounded by the CI job timeout, so there is no separate
-	// process deadline. This context only carries interruption.
+	// The whole run is bounded by the CI job timeout; this context only carries
+	// interruption.
 	runnerCtx, stopSignals := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stopSignals()
 
@@ -486,17 +454,15 @@ func run(opts options) error {
 	log.Println("tunnel ready")
 
 	// The tunnel binary reports itself ready seconds before BrowserStack will
-	// route a session through it. Starting jobs in that window is what made
-	// runs fail at startup, so wait for the tunnel to actually be usable.
+	// route a session through it, so wait for it to actually be usable.
 	if err := client.WaitForTunnel(runnerCtx); err != nil {
 		return err
 	}
 
 	sessionName := fmt.Sprintf("Polyfill Library: %s", runID)
 
-	// The gate is the shared-account rations: it admits each session start
-	// against the account's current free capacity, and the local concurrency
-	// limit only bounds this process.
+	// The gate admits each session start against the account's current free
+	// capacity; the local concurrency limit only bounds this process.
 	gate := newCapacityGate(client)
 	failed := execute(runnerCtx, client, credentials, jobs, sessionName, gate, concurrencyFor(runnerCtx, gate, opts))
 
@@ -667,9 +633,8 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 				sharded.trace = nextTrace(runID, fmt.Sprintf("%s#%d", entry, shard))
 				sharded.url = testURL(baseURL, opts, shard, false, sharded.trace)
 				// Each shard is a separate session and needs its own progress,
-				// results and error. Sharing base.state let the two shards
-				// overwrite each other, so a failing shard could be hidden by a
-				// passing one (and both rows reported the same state).
+				// results and error; sharing base.state let them overwrite each
+				// other, hiding a failing shard behind a passing one.
 				sharded.state = newJobState()
 				jobs = append(jobs, &sharded)
 			}
@@ -752,8 +717,7 @@ func testURL(baseURL string, opts options, shard int, polyfillCombinations bool,
 	}
 
 	// Carried through to every sub-resource the page requests, so each request
-	// in the test server log can be attributed to this job. Timestamps cannot
-	// do that once sessions overlap.
+	// in the test server log can be attributed to this job.
 	if trace != "" {
 		values.Set("trace", trace)
 	}
@@ -780,10 +744,9 @@ func alwaysFor(m mode) string {
 // concurrencyFor decides how many sessions may run at once.
 //
 // The account plan's parallel allowance is the real ceiling, and this process
-// is not necessarily its only user: a CI run, another developer or a leftover
-// session all draw from the same allowance. Leaving one slot free turns the
-// most common cause of a queued session start into spare capacity instead of a
-// timeout. An explicit -concurrency is respected as-is.
+// is not necessarily its only user. Leaving one slot free turns the most common
+// cause of a queued session start into spare capacity instead of a timeout. An
+// explicit -concurrency is respected as-is.
 func concurrencyFor(ctx context.Context, gate *capacityGate, opts options) int {
 	if opts.concurrencyExplicit {
 		return opts.maxConcurrency
@@ -924,14 +887,10 @@ const (
 
 // nextAction decides how to recover from a failed attempt.
 //
-// A session whose browser never issued its navigation is not retried: that
-// session never recovers, and re-navigating it returns in about a tenth of a
-// second without issuing anything. A session whose renderer crashed is in the
-// same position: the browser process is gone and no command against it can
-// succeed. A replacement session is, and it needs no pause because the tunnel
-// is demonstrably working, which is why a replacement does not consume an
-// attempt and so never trips the pause in runJob. A session that could not
-// start is usually a tunnel still registering, and is worth waiting out.
+// A session whose browser never issued its navigation, whose renderer crashed,
+// or that stopped answering is not usable again, so it is replaced rather than
+// retried. A session that could not start is usually a tunnel still
+// registering, and is worth waiting out.
 //
 // Separated from runJob so the policy can be tested without a network.
 func nextAction(err error, replacements int) action {
@@ -939,10 +898,6 @@ func nextAction(err error, replacements int) action {
 	case errors.Is(err, ErrNoBrowserRequest),
 		errors.Is(err, browserstack.ErrPageCrash),
 		errors.Is(err, browserstack.ErrCommandTimeout):
-		// All three mean the session's browser is not usable: it never
-		// navigated, its renderer crashed, or it stopped answering. A fresh
-		// session is the recovery, and it works often enough to be worth the
-		// replacements budget.
 		if replacements >= sessionReplacements {
 			return actionFail
 		}
@@ -1002,18 +957,16 @@ func runJob(ctx context.Context, client *browserstack.Client, credentials browse
 
 			log.Printf("%s: %v (replacing the session)", j.name, lastErr)
 
-			// Give BrowserStack a moment to release the machine the discarded
-			// session used. Browsers with a small pool (IE 10 especially) queue
-			// the replacement against the not-yet-released machine, and the
-			// queue is what turns into a start timeout.
+			// Give BrowserStack a moment to release the discarded machine;
+			// otherwise browsers with a small pool queue the replacement and
+			// that queue becomes a start timeout.
 			select {
 			case <-ctx.Done():
 				return
 			case <-time.After(replacementDelay):
 			}
 
-			// A replacement does not consume an attempt: it is the same job,
-			// not a third of three goes at the problem.
+			// A replacement is the same job, not one of three goes at it.
 			attempt--
 		}
 	}
@@ -1025,8 +978,7 @@ func runJobOnce(ctx context.Context, client *browserstack.Client, credentials br
 	j.state.setState("waiting for account capacity")
 
 	// Hold the session back while the account has no free parallel slot, rather
-	// than requesting one that will queue and time out. This is what lets the
-	// run use whatever capacity is free right now.
+	// than requesting one that will queue and time out.
 	if err := gate.wait(ctx); err != nil {
 		return err
 	}
@@ -1090,11 +1042,10 @@ func runJobOnce(ctx context.Context, client *browserstack.Client, credentials br
 		return &noBrowserRequestError{trace: j.trace, stats: stats, navigateFor: navigateFor}
 	}
 
-	// Fail fast when the page never arrives, or when it is not the page we
-	// asked for. Polling for results alone cannot tell "the suite is still
-	// running" from "the browser never loaded anything", and sniffing for
-	// globals like `mocha` cannot tell the director page from the runner page
-	// because the director keeps mocha inside an iframe.
+	// Fail fast when the page never arrives, or is not the page requested.
+	// Polling for results alone cannot tell "still running" from "never
+	// loaded", and sniffing for globals cannot tell the director page from the
+	// runner page because the director keeps mocha inside an iframe.
 	if err := waitForPageLoad(ctx, session, j, j.expectedPage); err != nil {
 		return err
 	}
@@ -1114,17 +1065,13 @@ func (o options) expectedPage() string {
 }
 
 // pageLoadTimeout bounds how long the test page has to start, once its request
-// has arrived.
-//
-// Reaching this timeout means the page was fetched and never ran, so it is
-// waiting on assets rather than on the tunnel. The oldest browsers in the matrix
-// load the full suite slowly, and the page only declares itself started from an
-// inline script after its assets parse, so this stays generous.
+// has arrived. Reaching it means the page was fetched and never ran, so it is
+// waiting on assets rather than on the tunnel. The oldest browsers load the
+// full suite slowly, so this stays generous.
 const pageLoadTimeout = 90 * time.Second
 
-// traceStatsTimeout bounds the question asked of the test server. It is a local
-// request to a process this one started, so it either answers immediately or the
-// server is gone.
+// traceStatsTimeout bounds the question asked of the test server, a local
+// process that either answers immediately or is gone.
 const traceStatsTimeout = 5 * time.Second
 
 // arrivalGrace bounds how long a navigation is given to produce its first
@@ -1132,14 +1079,11 @@ const traceStatsTimeout = 5 * time.Second
 //
 // Healthy navigations block for 1 to 24 seconds and their requests are already
 // recorded by the time Navigate returns; dead ones return in under a second
-// without issuing any. Measured across 50 sequential sessions, waiting 8s before
-// giving up misclassified none of the 42 healthy ones, while the 90s page load
-// timeout it replaces cost a minute per dead session.
+// without issuing any. Measured across 50 sessions, 8s misclassified none of
+// the 42 healthy ones.
 const arrivalGrace = 8 * time.Second
 
-// serverClient talks to the test server running on this machine. Requests are
-// small and local, so the timeout is short enough to never delay a real
-// failure noticeably.
+// serverClient talks to the test server running on this machine.
 var serverClient = &http.Client{Timeout: traceStatsTimeout}
 
 // pageState is the readiness contract the test pages publish, as read back
@@ -1156,23 +1100,19 @@ type pageState struct {
 	SuiteSize    *int
 	ExpectedRuns *int
 
-	// Assets is the page's own record of which scripts loaded, which failed
-	// to load, and which threw while evaluating.
+	// Assets is the page's own record of which scripts loaded, failed to load,
+	// and threw while evaluating.
 	Assets map[string]any
 }
 
 // check decides whether the page has started, and reports a mismatch between
 // the page served and the page requested.
 //
-// The pages declare their own identity rather than the harness inferring it,
-// because the director page keeps mocha inside an iframe, so `typeof mocha` is
-// always "undefined" there, and the runner page publishes no progress global
-// until the very end. Probing either signal on its own produced a false
-// failure on the full suite.
+// The pages declare their own identity because the director page keeps mocha
+// inside an iframe, so `typeof mocha` is always "undefined" there.
 func (p pageState) check(expected string) (bool, error) {
-	// A page that declares itself as something other than what was requested
-	// means the harness is driving the wrong page, so fail immediately rather
-	// than waiting out the timeout.
+	// A page that declares itself as something else means the harness is
+	// driving the wrong page, so fail rather than waiting out the timeout.
 	if p.Page != "" && p.Page != expected {
 		return false, fmt.Errorf(
 			"loaded the %q page but the %q page was requested : harness and test page disagree",
@@ -1260,21 +1200,19 @@ func waitForPageLoad(ctx context.Context, session *browserstack.Session, j *job,
 type traceStats struct {
 	Requests int `json:"requests"`
 	// Gets counts only the browser's own requests. BrowserStack probes the
-	// session URL with a HEAD, which carries the same trace, so Requests alone
-	// cannot distinguish "never navigated" from "navigated".
+	// session URL with a HEAD carrying the same trace, so Requests alone cannot
+	// distinguish "never navigated" from "navigated".
 	Gets  int      `json:"gets"`
 	Paths []string `json:"paths"`
 }
 
 // inspectTraceParam is how the harness asks the test server about a trace. It is
-// deliberately not the parameter browsers send, so a poll can never be recorded
-// as one of the requests it is measuring.
+// deliberately not the parameter browsers send, so a poll is never recorded as
+// one of the requests it is measuring.
 const inspectTraceParam = "inspect-trace"
 
 // ErrNoBrowserRequest marks a session that accepted a navigation but whose
-// browser never issued one. It is worth its own error because the fix is
-// different from every other failure: the suite, the page and the polyfills are
-// all irrelevant to it, and the same session never recovers.
+// browser never issued one. The same session never recovers, so it is replaced.
 var ErrNoBrowserRequest = errors.New("the browser never issued its navigation")
 
 // noBrowserRequestError carries what the test server did see, which is usually
@@ -1283,11 +1221,8 @@ type noBrowserRequestError struct {
 	trace string
 	stats traceStats
 
-	// navigateFor is how long Navigate took to return. It is the strongest
-	// signal available for this failure: across 50 measured sessions every dead
-	// one returned in under 2.4 seconds while every healthy one took at least
-	// 1.7 and usually far longer, so it separates "the browser bailed" from "the
-	// browser is slow" without a single server request.
+	// navigateFor is how long Navigate took to return: dead sessions return in
+	// under a second, healthy ones take at least 1.7.
 	navigateFor time.Duration
 }
 
@@ -1304,14 +1239,13 @@ func (e *noBrowserRequestError) Unwrap() error {
 	return ErrNoBrowserRequest
 }
 
-// waitForFirstRequest reports whether the browser's own request reached the test
-// server.
+// waitForFirstRequest reports whether the browser's own request reached the
+// test server.
 //
-// A session can look entirely healthy while its browser has issued nothing, and
-// nothing in the session can tell the difference. The server can, because only
-// the browser's GETs carry a trace that came from a navigation: BrowserStack
-// probes the session URL itself with a HEAD, which is why this waits for a GET
-// rather than for any request at all.
+// A session can look healthy while its browser has issued nothing, and nothing
+// in the session can tell the difference. Only the browser's GETs carry a trace
+// that came from a navigation, which is why this waits for a GET rather than
+// any request.
 func waitForFirstRequest(ctx context.Context, baseURL, trace string, budget time.Duration) (traceStats, bool, error) {
 	deadline := time.Now().Add(budget)
 
@@ -1337,21 +1271,19 @@ func waitForFirstRequest(ctx context.Context, baseURL, trace string, budget time
 	}
 }
 
-// testServerURL addresses the test server on this machine directly. bs-local.com
-// only resolves while the tunnel is running, and nothing here needs it.
+// testServerURL addresses the test server on this machine directly.
+// bs-local.com only resolves while the tunnel is running.
 func testServerURL() string {
 	return fmt.Sprintf("http://127.0.0.1:%d", serverPort)
 }
 
 // fetchTraceStats asks the test server what a trace requested. It is the only
-// witness to whether a navigation arrived at all: the session can look fine
-// while nothing ever reaches us.
+// witness to whether a navigation arrived at all.
 func fetchTraceStats(ctx context.Context, baseURL, trace string) (traceStats, error) {
 	var stats traceStats
 
-	// The base URL addresses this machine directly rather than bs-local.com,
-	// which only resolves while the tunnel is running. A missing hosts entry
-	// would turn a precise diagnosis into a silent one.
+	// Address this machine directly rather than bs-local.com, which only
+	// resolves while the tunnel is running.
 	target := fmt.Sprintf("%s/__trace-stats?%s=%s",
 		baseURL, inspectTraceParam, url.QueryEscape(trace))
 
@@ -1379,11 +1311,9 @@ func fetchTraceStats(ctx context.Context, baseURL, trace string) (traceStats, er
 
 // pageLoadFailure reports why the page never started.
 //
-// Reaching here means the browser's request did arrive: waitForFirstRequest has
-// already ruled out a session that never navigated, and that case is handled by
-// replacing the session. So this is always a page that was fetched but never
-// ran, which is a page or asset problem rather than a session one. Listing what
-// arrived is what makes the difference diagnosable.
+// Reaching here means the browser's request did arrive, so this is always a
+// page that was fetched but never ran: a page or asset problem rather than a
+// session one. Listing what arrived makes the difference diagnosable.
 func (j *job) pageLoadFailure(last pageState, expected string) error {
 	return pageLoadFailure(j.name, j.trace, last, expected, fmt.Sprintf("http://127.0.0.1:%d", serverPort))
 }
@@ -1473,9 +1403,8 @@ const pageStateScript = `
 	};`
 
 // sessionLabel names a BrowserStack session so it can be matched to a line in
-// the test server log. The trace is last: it is the field that ties the two
-// together, and it is more precise than a clock time because it does not depend
-// on the two clocks agreeing.
+// the test server log. The trace is last: it ties the two together without
+// depending on the two clocks agreeing.
 func sessionLabel(batchName string, j *job) string {
 	return fmt.Sprintf("%s: %s - %s - %s - %s",
 		batchName, j.name, combinationName(j.polyfillCombinations), shardName(j.shard),
@@ -1504,14 +1433,10 @@ const pollProgressScript = `return window.global_test_results || window.global_t
 
 // pollForResults waits for the page to publish test results.
 func pollForResults(ctx context.Context, session *browserstack.Session, j *job) error {
-	deadline := time.Now().Add(testBrowserTimeout)
-
 	startedAt := time.Now()
+	lastUpdatedAt := startedAt
 
-	var (
-		lastSeen      int
-		lastUpdatedAt time.Time
-	)
+	var lastSeen int
 
 	for {
 		value, err := session.ExecuteScript(ctx, pollProgressScript, nil)
@@ -1548,16 +1473,12 @@ func pollForResults(ctx context.Context, session *browserstack.Session, j *job) 
 
 		// Only a run that stops making progress counts as a timeout, so a slow
 		// but progressing browser is not killed.
-		if !lastUpdatedAt.IsZero() && time.Since(lastUpdatedAt) > testBrowserTimeout {
+		if time.Since(lastUpdatedAt) > testBrowserTimeout {
 			current, _, _, _, _, _ := j.state.snapshot()
 			timedOut := fmt.Errorf("timed out at %q on %q", current, j.name)
 			j.state.setError(timedOut)
 
 			return timedOut
-		}
-
-		if time.Now().After(deadline) {
-			return fmt.Errorf("timed out on %q", j.name)
 		}
 
 		select {
@@ -1675,8 +1596,7 @@ func writeResults(repo string, opts options, jobs []*job) error {
 // mergeSummaries folds two summaries recorded under the same browser and mode
 // together, which is what a sharded browser produces: two sessions, one entry.
 //
-// The result is a new summary, so neither input is mutated, and the suite lists
-// are unions so a suite exercised by both shards is only reported once.
+// The result is a new summary, and the suite lists are unions.
 func mergeSummaries(a, b *testSummary) *testSummary {
 	if a == nil {
 		return b
@@ -1720,10 +1640,9 @@ func mergeSummaries(a, b *testSummary) *testSummary {
 
 // reportFailures lists everything that failed, with a URL to reproduce it.
 func reportFailures(jobs []*job, opts options) {
-	// These URLs are only ever printed, but they are printed for someone about
-	// to paste them into a browser, so they have to actually work. Appending to
-	// a URL that already had a query produced a second "?" and duplicated the
-	// parameters, which is exactly the kind of thing that costs an afternoon.
+	// These URLs are printed for someone about to paste them into a browser, so
+	// they have to work. Appending to a URL that already had a query produced a
+	// second "?" and duplicated the parameters.
 	baseURL := fmt.Sprintf("http://bs-local.com:%d/test", serverPort)
 
 	log.Println("\nFailures:")
@@ -1762,11 +1681,8 @@ func firstNonNil(err error, fallback string) string {
 	return fallback
 }
 
-// repoRoot locates the repository root.
-//
-// `go run ./polyfills-browserstack` from the scripts directory starts in
-// scripts/, so walk up until the test tree is found. This keeps the command
-// usable both from the repo root (installed binary) and via go run.
+// repoRoot locates the repository root by walking up until the test tree is
+// found, so the command works both from the repo root and via go run.
 func repoRoot() string {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -1789,12 +1705,10 @@ func repoRoot() string {
 	}
 }
 
-// ensureTestServer waits for the JavaScript test server to become reachable,
-// since the runner drives pages it serves.
+// ensureTestServer waits for the JavaScript test server to become reachable.
 //
 // It polls rather than probing once because CI launches the server in the
-// background beside this process: a single probe loses that race on a cold
-// machine and aborts the run before it starts.
+// background beside this process, so a single probe can lose the race.
 func ensureTestServer(ctx context.Context, repo string) error {
 	if _, err := os.Stat(filepath.Join(repo, "test/polyfills/server.js")); err != nil {
 		return fmt.Errorf("cannot find test/polyfills/server.js - run from the repository root: %w", err)
@@ -1850,12 +1764,11 @@ func probeTestServer(ctx context.Context, target string) error {
 
 // modifiedFiles resolves which files changed.
 //
-// MODIFIED_FILES_FILE takes precedence so a privileged workflow can hand the
+// MODIFIED_FILES_FILE takes precedence, so a privileged workflow can hand the
 // list over from an unprivileged build job.
 //
 // A git failure is not fatal: the result is reported as "no changes", which
-// makes the run test everything. Testing more is safe, whereas refusing to run
-// leaves a pull request permanently red for an environmental reason.
+// makes the run test everything. Testing more is safe.
 func modifiedFiles() []string {
 	if path := os.Getenv("MODIFIED_FILES_FILE"); path != "" {
 		raw, err := os.ReadFile(path)

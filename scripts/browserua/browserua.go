@@ -1,15 +1,11 @@
 // Package browserua reimplements the parts of
-// @financial-times/polyfill-useragent-normaliser that the BrowserStack test
-// harness depends on.
-//
-// The harness only ever feeds this package the short "family/version" form
-// used by test/polyfills/browsers.toml (for example "chrome/32.0" or
-// "ios_saf/13"), never a real User-Agent header, so the full User-Agent
-// parser from the original package is not ported.
+// @financial-times/polyfill-useragent-normaliser that the BrowserStack harness
+// depends on. It only accepts the short "family/version" form used by
+// test/polyfills/browsers.toml, never a real User-Agent header.
 //
 // Normalisation matters because polyfill browser targets are keyed by the
 // normalised family: a browser below the family's baseline normalises to
-// "other/0.0.0" and is skipped by the harness entirely.
+// "other/0.0.0" and is skipped by the harness.
 package browserua
 
 import (
@@ -24,13 +20,12 @@ import (
 // Unknown is what an unrecognised or below-baseline browser normalises to.
 const Unknown = "other/0.0.0"
 
-// shortForm matches the shorthand the harness works with, and is the only
-// input form this package accepts. The original package's regex is
-// /^(\w+)\/(\d+)(?:\.(\d+)(?:\.(\d+))?)?$/i.
+// shortForm is the only input form this package accepts, matching the original
+// package's /^(\w+)\/(\d+)(?:\.(\d+)(?:\.(\d+))?)?$/i.
 var shortForm = regexp.MustCompile(`(?i)^(\w+)/(\d+)(?:\.(\d+)(?:\.(\d+))?)?$`)
 
-// baselines is UA.getBaselines() from the original package. A browser whose
-// major version is below its family's baseline is not recognised.
+// baselines is UA.getBaselines() from the original package. A browser below its
+// family's baseline is not recognised.
 var baselines = map[string]string{
 	"edge":        "*",
 	"edge_mob":    "*",
@@ -50,8 +45,8 @@ var baselines = map[string]string{
 	"samsung_mob": "4",
 }
 
-// operaToChrome remaps the Chromium-based Opera releases onto the Chrome
-// versions they are equivalent to, matching the table in the original package.
+// operaToChrome remaps Chromium-based Opera releases onto the Chrome versions
+// they are equivalent to, matching the original package.
 var operaToChrome = map[int][2]int{
 	20: {33, 0}, 21: {34, 0}, 22: {35, 0}, 23: {36, 0}, 24: {37, 0},
 	25: {38, 0}, 26: {39, 0}, 27: {40, 0}, 28: {41, 0}, 29: {42, 0},
@@ -139,8 +134,7 @@ func (u *UA) Normalize() string {
 // Satisfies reports whether the browser falls within a semver range, such as
 // the "32 - 63" targets used by polyfill config.toml files.
 //
-// An unknown browser satisfies every range, which mirrors the original
-// package: it only ever compared the numeric version.
+// An unknown browser satisfies every range, mirroring the original package.
 func (u *UA) Satisfies(rangeStr string) bool {
 	if u.family == "other" {
 		return true

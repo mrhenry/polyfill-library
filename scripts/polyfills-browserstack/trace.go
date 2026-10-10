@@ -11,12 +11,8 @@ import (
 // Correlation ids.
 //
 // Every request a browser makes while running a job carries `trace`, so a
-// failure can be attributed to the exact requests it caused in the test server
-// log. Timestamps cannot do that once sessions overlap.
-//
-// The id is "<run><seq>-<slug>", where the run is unique per process and the
-// sequence numbers jobs in the order they were built. It is deliberately URL
-// safe and short enough to read in a log line.
+// failure can be attributed to the exact requests it caused. The id is
+// "<run><seq>-<slug>", unique per process and job, and URL safe.
 
 var traceCounter atomic.Int64
 
@@ -40,8 +36,7 @@ func nextTrace(runID, slug string) string {
 	return fmt.Sprintf("%s%03d-%s", runID, sequence, slugify(slug))
 }
 
-// slugify makes a browser name safe to carry in a query parameter, so the log
-// line identifies the browser as well as the job.
+// slugify makes a browser name safe to carry in a query parameter.
 func slugify(s string) string {
 	var b strings.Builder
 

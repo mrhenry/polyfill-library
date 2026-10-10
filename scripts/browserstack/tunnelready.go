@@ -9,34 +9,22 @@ import (
 
 // tunnelReadyTimeout bounds how long to wait for a fresh tunnel to become
 // usable. Sessions were rejected for roughly 55 seconds after the binary
-// reported ready, so the window has to be comfortably longer than that.
+// reported ready, so the window is comfortably longer than that.
 const tunnelReadyTimeout = 3 * time.Minute
 
 // tunnelProbeInterval is how often to re-probe while waiting. Each probe is a
-// real session that has to be created and torn down, so probing faster than
-// this would mostly measure BrowserStack's session queue rather than the tunnel.
+// real session that has to be created and torn down.
 const tunnelProbeInterval = 5 * time.Second
 
 // WaitForTunnel blocks until BrowserStack will actually route a local session
 // through the tunnel.
 //
-// This is not the same as the tunnel being up.
-//
-// Measured on this account, BrowserStackLocal prints "Press Ctrl-C to exit" and
-// its own http://localhost:45454/status reports {"status":true} within about
-// three seconds of starting, but for roughly the next fifty seconds every
-// local session is refused with:
-//
-//	[browserstack.local] is set to true but local testing through BrowserStack
-//	is not connected.
-//
-// Nothing in the tunnel's output marks the moment it becomes usable - not even
-// with --enable-logging-for-api - and the account tunnel list endpoint stays
-// empty, so neither is usable as a signal. The only authoritative one is a
-// session request actually succeeding, which is what this probes.
-//
-// Starting jobs into that window is what made runs fail at startup, so the
-// probe runs before any job and costs one throwaway session per run.
+// BrowserStackLocal prints "Press Ctrl-C to exit" and reports ready within
+// seconds of starting, but for roughly the next fifty seconds every local
+// session is refused with "local testing through BrowserStack is not
+// connected". Nothing in the tunnel's output marks the moment it becomes
+// usable, so the only authoritative signal is a session request succeeding.
+// Starting jobs into that window is what made runs fail at startup.
 func (c *Client) WaitForTunnel(ctx context.Context) error {
 	// The cheapest browser that still exercises the same tunnel path.
 	probe := Capabilities{
