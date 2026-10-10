@@ -68,7 +68,6 @@ var preferredPlatform = map[string]struct{ OS, OSVersion string }{
 	"ie/10.0": {OS: "Windows", OSVersion: "8"},
 }
 
-// matchesPreferred reports whether b is the preferred platform for a key.
 func matchesPreferred(key string, b Browser) bool {
 	want, ok := preferredPlatform[key]
 
@@ -82,7 +81,8 @@ func HasPreference(entry string) bool {
 	return ok
 }
 
-// NewIndex builds a lookup over a browserstackBrowsers.toml entry list.
+// NewIndex indexes a browserstackBrowsers.toml entry list for Lookup. Later
+// entries never displace an earlier one, except for a preferred platform.
 func NewIndex(browsers []Browser) *Index {
 	idx := &Index{
 		byOS:      map[string]Browser{},
@@ -238,8 +238,8 @@ func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string
 	return caps
 }
 
-// mobileBrowserName maps a browser-list device entry onto the browser
-// BrowserStack actually runs on that device.
+// mobileBrowserName maps a device entry onto the browser BrowserStack runs on
+// that device.
 //
 // The REST list reports "iphone", "ipad" and "android", meaning "the default
 // browser on that device". Those are device aliases, not W3C browser names.

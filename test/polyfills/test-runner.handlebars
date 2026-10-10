@@ -9,8 +9,7 @@
 	<meta id="test-iframe-src" name="test-iframe-src" content="/iframe.html?includePolyfills={{{includePolyfills}}}&always={{{always}}}&polyfillCombinations={{{polyfillCombinations}}}&feature={{features}}&trace={{{trace}}}">
 
 	<script>
-	// Asset and error diagnostics, declared before any other script so every
-	// tag below can report into it.
+	// Declared before any other script so every tag below can report into it.
 	//
 	// A script that never arrives (a dropped tunnel, a 404) fires onerror, and
 	// one that arrives and throws fires onload plus a window error. Recording

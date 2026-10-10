@@ -21,7 +21,6 @@ const localBinaryName = "BrowserStackLocal"
 // localBinaryEnv overrides where the tunnel binary lives.
 const localBinaryEnv = "BROWSERSTACK_LOCAL_BINARY_PATH"
 
-// cacheDir is where BrowserStackLocal caches its binary.
 const cacheDir = ".browserstack"
 
 // downloadBaseURL serves the tunnel binary per platform and architecture.
@@ -52,8 +51,6 @@ func platformSuffix(goos, goarch string) string {
 	}
 }
 
-// hostSupportsNative reports whether this machine can execute the given
-// architecture's binary directly rather than through emulation.
 func hostSupportsNative(goarch string) bool {
 	return goarch == runtime.GOARCH
 }

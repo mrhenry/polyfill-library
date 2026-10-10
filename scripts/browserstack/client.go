@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -197,19 +196,4 @@ type roundTripperFunc func(*http.Request) (*http.Response, error)
 
 func (f roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
-}
-
-// dialHost is the hostname BrowserStackLocal resolves to the tunnel machine.
-const dialHost = "bs-local.com"
-
-// tunnelURL builds a URL the remote browser can reach through the tunnel.
-func tunnelURL(port int, path string, query url.Values) string {
-	u := url.URL{
-		Scheme:   "http",
-		Host:     fmt.Sprintf("%s:%d", dialHost, port),
-		Path:     path,
-		RawQuery: query.Encode(),
-	}
-
-	return u.String()
 }

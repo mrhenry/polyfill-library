@@ -69,7 +69,7 @@ type sessionResponse struct {
 	LegacyCap map[string]any `json:"capabilities"`
 }
 
-// newSessionRejected is a session BrowserStack refused to create.
+// newSessionRejected carries BrowserStack's reason for refusing a session.
 type newSessionRejected struct {
 	message string
 }
@@ -100,9 +100,8 @@ type commandResponse struct {
 
 // NewSession starts a W3C WebDriver session on BrowserStack.
 //
-// caps is sent verbatim: Capabilities.MarshalJSON already renders the complete
-// body. No desiredCapabilities fallback is attempted, so a driver that only
-// speaks JSON Wire Protocol fails loudly here.
+// No desiredCapabilities fallback is attempted, so a driver that only speaks
+// JSON Wire Protocol fails loudly here.
 func NewSession(ctx context.Context, httpClient *http.Client, hubURL string, caps Capabilities, creds Credentials) (*Session, error) {
 	body, err := json.Marshal(caps)
 	if err != nil {
@@ -322,7 +321,7 @@ func protocolErrorMessage(statusCode int, body []byte) string {
 }
 
 // pageCrashMarkers are the substrings Chromedriver and BrowserStack use when
-// the remote renderer has crashed. None can be recovered in place.
+// the remote renderer has crashed. None of those sessions recover in place.
 var pageCrashMarkers = []string{
 	"session deleted because of page crash",
 	"tab crashed",

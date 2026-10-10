@@ -36,7 +36,6 @@ const (
 	// serverPort is the port test/polyfills/server.js listens on.
 	serverPort = 9876
 
-	// projectName labels the BrowserStack project.
 	projectName = "polyfill-library"
 
 	// concurrency is how many BrowserStack sessions run at once. Four matches
@@ -76,7 +75,6 @@ const (
 	// two race.
 	testServerStartTimeout = 20 * time.Second
 
-	// testServerProbeTimeout bounds a single reachability probe.
 	testServerProbeTimeout = 500 * time.Millisecond
 
 	// testServerProbeInterval is the pause between probes while waiting for the
@@ -312,7 +310,6 @@ func (s *jobState) setError(err error) {
 	s.state = "error"
 }
 
-// recordProgress stores the latest progress read from the page.
 func (s *jobState) recordProgress(progress *pageResults) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -321,7 +318,6 @@ func (s *jobState) recordProgress(progress *pageResults) {
 	s.state = "running"
 }
 
-// complete stores the final results.
 func (s *jobState) complete(results *testSummary, duration time.Duration) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -331,7 +327,6 @@ func (s *jobState) complete(results *testSummary, duration time.Duration) {
 	s.state = "complete"
 }
 
-// snapshot copies the current progress under the lock.
 func (s *jobState) snapshot() (state string, results *testSummary, failure *pageResults, err error, duration time.Duration, replacements int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -339,7 +334,6 @@ func (s *jobState) snapshot() (state string, results *testSummary, failure *page
 	return s.state, s.results, s.failure, s.err, s.duration, s.replacements
 }
 
-// failed reports whether this job counts as a failure.
 func (s *jobState) failed() bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -616,7 +610,6 @@ func neededForAny(ua *browserua.UA, affected []*polyfillmeta.Meta) bool {
 	return false
 }
 
-// buildJobs expands browser entries into session jobs.
 func buildJobs(entries []string, index *browserstack.Index, opts options, runID string) []*job {
 	baseURL := fmt.Sprintf("http://bs-local.com:%d", serverPort)
 
@@ -885,7 +878,6 @@ type browserSlots struct {
 	inflight map[string]bool
 }
 
-// acquire blocks until no other session is running for name.
 func (s *browserSlots) acquire(ctx context.Context, name string) {
 	for {
 		s.mu.Lock()
@@ -929,8 +921,6 @@ const (
 // or that stopped answering is not usable again, so it is replaced rather than
 // retried. A session that could not start is usually a tunnel still
 // registering, and is worth waiting out.
-//
-// Separated from runJob so the policy can be tested without a network.
 func nextAction(err error, replacements int) action {
 	switch {
 	case errors.Is(err, ErrNoBrowserRequest),
@@ -1098,7 +1088,7 @@ func runJobOnce(ctx context.Context, client *browserstack.Client, credentials br
 	return pollForResults(ctx, session, j)
 }
 
-// expectedPage is the page identity the harness asked for.
+// expectedPage names the page identity the harness asked for.
 func (o options) expectedPage() string {
 	if o.director {
 		return "director"
@@ -1479,7 +1469,6 @@ func shardName(shard int) string {
 // pollProgressScript reads whichever result object the page has published.
 const pollProgressScript = `return window.global_test_results || window.global_test_progress;`
 
-// pollForResults waits for the page to publish test results.
 func pollForResults(ctx context.Context, session *browserstack.Session, j *job) error {
 	startedAt := time.Now()
 	lastUpdatedAt := startedAt
@@ -1537,7 +1526,6 @@ func pollForResults(ctx context.Context, session *browserstack.Session, j *job) 
 	}
 }
 
-// printProgress renders the live status of every job.
 func printProgress(jobs []*job) {
 	lines := []string{strings.Repeat("-", 80)}
 

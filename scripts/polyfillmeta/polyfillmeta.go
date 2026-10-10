@@ -84,7 +84,7 @@ func Load(repoRoot string) (*Collection, error) {
 	return c, nil
 }
 
-// Meta returns the metadata for one polyfill.
+// Meta returns the metadata for one polyfill, and whether it is known.
 func (c *Collection) Meta(name string) (*Meta, bool) {
 	meta, ok := c.Metas[name]
 
@@ -106,7 +106,7 @@ type Modified struct {
 	TestEverything         bool
 }
 
-// hasTestsOnly reports whether a polyfill can be exercised in the browser.
+// hasTestsOnly narrows a polyfill to the ones the browser suite can exercise.
 func hasTestsOnly(m *Meta) bool {
 	return m.IsPublic && m.IsTestable && m.HasTests
 }
@@ -240,8 +240,8 @@ func (c *Collection) ModifiedPolyfillsWithTests(modifiedFiles []string) *Modifie
 	return modified
 }
 
-// dependents maps a polyfill name to every polyfill that depends on it,
-// directly or through another polyfill.
+// dependents maps a polyfill name to the polyfills that declare it as a direct
+// dependency. The transitive closure is the caller's to walk.
 func (c *Collection) dependents() map[string][]string {
 	out := map[string][]string{}
 

@@ -45,8 +45,6 @@ const app = express();
 app.use(compression());
 
 {
-	// Correlation id.
-	//
 	// The driver appends `trace=<run>-<job>` to the test page URL, and the page
 	// templates carry it onto every sub-resource, so each request can be
 	// attributed to the job that caused it. It is stripped before the cache
@@ -68,7 +66,9 @@ app.use(compression());
 	function traceRequests(request) {
 		const trace = request.trace;
 
-		if (!trace) {
+		// A favicon request is not a navigation, so it must not count as the
+		// browser having asked for something.
+		if (!trace || request.path === "/favicon.ico") {
 			return;
 		}
 
@@ -316,7 +316,6 @@ async function testablePolyfills(ua) {
 	for (const source of allSources) {
 		if (ua) {
 			const [family, version] = ua.split('/');
-			// A polyfill is only exercised by the browsers it targets.
 			if (!source.browsers[family] || !semver.satisfies(version, source.browsers[family])) {
 				continue;
 			}
@@ -414,9 +413,8 @@ function createEndpoint(template) {
 				// driver does not have to infer it from which globals exist.
 				window.global_test_page = 'runner';
 
-				// ${JSON.stringify(features.map(f => f.feature))} is loaded and parsed by the time this
-				// inline script runs, so the suite size says whether the test
-				// script itself arrived intact.
+				// The test script is loaded and parsed by the time this inline
+				// script runs, so the suite size says whether it arrived intact.
 				window.global_test_suite_size = (typeof mocha !== 'undefined' && mocha.suite) ? mocha.suite.total() : 0;
 				window.global_test_started = true;
 

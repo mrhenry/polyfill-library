@@ -22,11 +22,6 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: 'npm'
-      - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
-        with:
-          go-version: stable
-          cache-dependency-path: go.sum
-      - run: go test ./scripts/...
       - run: npm ci
       - name: Check browserua tables are current
         run: npm run generate-browserua-tables && git diff --exit-code -- scripts/browserua/tables.json

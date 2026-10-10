@@ -290,6 +290,27 @@ func TestIframeRequestsCarryTheTrace(t *testing.T) {
 	}
 }
 
+// TestFaviconIsNotEvidenceOfNavigation guards the dead session detector. A
+// favicon request is not a navigation, so counting it against a trace would
+// make a session whose browser never loaded the page look alive.
+func TestFaviconIsNotEvidenceOfNavigation(t *testing.T) {
+	raw, err := os.ReadFile(filepath.Join(repoRoot(), "test/polyfills/server.js"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	content := string(raw)
+
+	for _, needle := range []string{
+		`request.path === "/favicon.ico"`,
+		`app.get("/favicon.ico"`,
+	} {
+		if !strings.Contains(content, needle) {
+			t.Errorf("server.js is missing %q", needle)
+		}
+	}
+}
+
 // TestMatrixSelectionIsStable locks in the browser matrix the runner tests.
 //
 // This replaces comparing against the JavaScript harness, which has been

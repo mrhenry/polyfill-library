@@ -74,11 +74,10 @@ func (g *capacityGate) refreshLocked(ctx context.Context, force bool) {
 	g.checked = time.Now()
 }
 
-// allowance is the account max adjusted for headroom, or 0 when unknown.
-func (g *capacityGate) allowance() int {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-
+// allowanceLocked is the account max less headroom, never below one, or 0 when
+// unknown. wait and concurrencyFor must agree on this, or a one-session plan
+// admits no session at all.
+func (g *capacityGate) allowanceLocked() int {
 	if g.max == 0 {
 		return 0
 	}
@@ -89,6 +88,13 @@ func (g *capacityGate) allowance() int {
 	}
 
 	return allowance
+}
+
+func (g *capacityGate) allowance() int {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	return g.allowanceLocked()
 }
 
 // maxAllowance forces a fresh reading and returns the headroom-adjusted
@@ -106,7 +112,9 @@ func (g *capacityGate) wait(ctx context.Context) error {
 		g.mu.Lock()
 		g.refreshLocked(ctx, false)
 
-		if g.max == 0 || g.external+g.inflight < g.max-g.headroom {
+		allowance := g.allowanceLocked()
+
+		if allowance == 0 || g.external+g.inflight < allowance {
 			g.inflight++
 			g.mu.Unlock()
 

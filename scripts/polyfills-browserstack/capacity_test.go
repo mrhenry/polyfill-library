@@ -73,6 +73,30 @@ func TestCapacityGateBacksOffForExternalUsage(t *testing.T) {
 	}
 }
 
+// TestCapacityGateAdmitsOnAOneSessionPlan proves headroom can never reduce the
+// allowance to nothing. A single-session plan minus the one slot of headroom is
+// zero, which used to block every session start until the CI timeout.
+func TestCapacityGateAdmitsOnAOneSessionPlan(t *testing.T) {
+	g := newTestGate(staticPlan(browserstack.Plan{ParallelSessionsMaxAllowed: 1}), time.Hour)
+
+	ctx := context.Background()
+
+	if got := g.maxAllowance(ctx); got != 1 {
+		t.Fatalf("maxAllowance = %d, want 1", got)
+	}
+
+	if err := g.wait(ctx); err != nil {
+		t.Fatalf("a one-session plan should still admit one session: %v", err)
+	}
+
+	blocked, cancel := context.WithTimeout(ctx, 30*time.Millisecond)
+	defer cancel()
+
+	if err := g.wait(blocked); !errors.Is(err, context.DeadlineExceeded) {
+		t.Errorf("wait past the allowance = %v, want it to block", err)
+	}
+}
+
 func TestCapacityGateReleaseFreesSlot(t *testing.T) {
 	g := newTestGate(staticPlan(browserstack.Plan{ParallelSessionsMaxAllowed: 5}), time.Hour)
 

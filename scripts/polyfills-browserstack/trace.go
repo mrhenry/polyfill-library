@@ -16,7 +16,6 @@ import (
 
 var traceCounter atomic.Int64
 
-// newRunID returns an identifier unique to this process.
 func newRunID() string {
 	var buf [3]byte
 
@@ -29,14 +28,12 @@ func newRunID() string {
 	return "r" + hex.EncodeToString(buf[:])
 }
 
-// nextTrace returns the correlation id for one job.
 func nextTrace(runID, slug string) string {
 	sequence := traceCounter.Add(1)
 
 	return fmt.Sprintf("%s%03d-%s", runID, sequence, slugify(slug))
 }
 
-// slugify makes a browser name safe to carry in a query parameter.
 func slugify(s string) string {
 	var b strings.Builder
 
