@@ -11,7 +11,7 @@ import (
 )
 
 func newTestGate(plan func(context.Context) (browserstack.Plan, error), interval time.Duration) *capacityGate {
-	return &capacityGate{plan: plan, headroom: 1, interval: interval}
+	return &capacityGate{plan: plan, interval: interval}
 }
 
 func staticPlan(plan browserstack.Plan) func(context.Context) (browserstack.Plan, error) {
@@ -32,14 +32,14 @@ func TestCapacityGateFailsOpenWhenPlanUnavailable(t *testing.T) {
 	}
 }
 
-// TestCapacityGateRationsToAllowance covers the headroom: max 5 with a headroom
-// of 1 admits four sessions and blocks the fifth.
-func TestCapacityGateRationsToAllowance(t *testing.T) {
+// TestCapacityGateRationsToTheAccountMax covers the ceiling: a five session
+// account admits five sessions and blocks the sixth.
+func TestCapacityGateRationsToTheAccountMax(t *testing.T) {
 	g := newTestGate(staticPlan(browserstack.Plan{ParallelSessionsMaxAllowed: 5}), time.Hour)
 
 	ctx := context.Background()
 
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 5; i++ {
 		if err := g.wait(ctx); err != nil {
 			t.Fatalf("admission %d failed: %v", i, err)
 		}
@@ -56,13 +56,15 @@ func TestCapacityGateRationsToAllowance(t *testing.T) {
 // TestCapacityGateBacksOffForExternalUsage proves another user's sessions are
 // subtracted, so only the genuinely free slots are used.
 func TestCapacityGateBacksOffForExternalUsage(t *testing.T) {
-	// Three sessions already running elsewhere, allowance is four.
+	// Three sessions already running elsewhere, allowance is five.
 	g := newTestGate(staticPlan(browserstack.Plan{ParallelSessionsMaxAllowed: 5, ParallelSessionsRunning: 3}), time.Hour)
 
 	ctx := context.Background()
 
-	if err := g.wait(ctx); err != nil {
-		t.Fatalf("the one free slot should be granted: %v", err)
+	for i := 0; i < 2; i++ {
+		if err := g.wait(ctx); err != nil {
+			t.Fatalf("free slot %d should be granted: %v", i, err)
+		}
 	}
 
 	blocked, cancel := context.WithTimeout(ctx, 30*time.Millisecond)
@@ -73,9 +75,9 @@ func TestCapacityGateBacksOffForExternalUsage(t *testing.T) {
 	}
 }
 
-// TestCapacityGateAdmitsOnAOneSessionPlan proves headroom can never reduce the
-// allowance to nothing. A single-session plan minus the one slot of headroom is
-// zero, which used to block every session start until the CI timeout.
+// TestCapacityGateAdmitsOnAOneSessionPlan proves a known small allowance is not
+// mistaken for an unread plan. Zero means "could not read", so it has to admit
+// without blocking, while one means "exactly one slot" and admits exactly once.
 func TestCapacityGateAdmitsOnAOneSessionPlan(t *testing.T) {
 	g := newTestGate(staticPlan(browserstack.Plan{ParallelSessionsMaxAllowed: 1}), time.Hour)
 
@@ -102,7 +104,7 @@ func TestCapacityGateReleaseFreesSlot(t *testing.T) {
 
 	ctx := context.Background()
 
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 5; i++ {
 		if err := g.wait(ctx); err != nil {
 			t.Fatalf("admission %d failed: %v", i, err)
 		}

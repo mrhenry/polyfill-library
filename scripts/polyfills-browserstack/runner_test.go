@@ -318,29 +318,27 @@ func TestBrowserSlotsSerialiseOneBrowser(t *testing.T) {
 	}
 }
 
-// TestConcurrencyForCapsToTheAccountPlan covers the local session limit. The
-// account allowance is the real ceiling and is shared with everyone else, so a
-// run that exceeds it queues sessions until they time out.
-func TestConcurrencyForCapsToTheAccountPlan(t *testing.T) {
+// TestConcurrencyForFollowsTheAccountPlan covers the local session limit. The
+// account allowance is the real ceiling, so a run that exceeds it queues
+// sessions until they time out.
+func TestConcurrencyForFollowsTheAccountPlan(t *testing.T) {
 	gateWith := func(plan browserstack.Plan, err error) *capacityGate {
 		return &capacityGate{
 			plan:     func(context.Context) (browserstack.Plan, error) { return plan, err },
-			headroom: capacityHeadroom,
 			interval: time.Millisecond,
 		}
 	}
 
 	roomy := options{testEverything: true, maxConcurrency: 4}
 
-	if got := concurrencyFor(context.Background(), gateWith(browserstack.Plan{ParallelSessionsMaxAllowed: 10}, nil), roomy); got != 4 {
-		t.Errorf("concurrencyFor = %d, want the default 4 on a roomy plan", got)
+	if got := concurrencyFor(context.Background(), gateWith(browserstack.Plan{ParallelSessionsMaxAllowed: 10}, nil), roomy); got != 10 {
+		t.Errorf("concurrencyFor = %d, want the whole allowance on a roomy plan", got)
 	}
 
-	if got := concurrencyFor(context.Background(), gateWith(browserstack.Plan{ParallelSessionsMaxAllowed: 2}, nil), roomy); got != 1 {
-		t.Errorf("concurrencyFor = %d, want the allowance 2 less one slot of headroom", got)
+	if got := concurrencyFor(context.Background(), gateWith(browserstack.Plan{ParallelSessionsMaxAllowed: 2}, nil), roomy); got != 2 {
+		t.Errorf("concurrencyFor = %d, want the whole allowance on a small plan", got)
 	}
 
-	// A one session plan must still admit one session rather than none.
 	if got := concurrencyFor(context.Background(), gateWith(browserstack.Plan{ParallelSessionsMaxAllowed: 1}, nil), roomy); got != 1 {
 		t.Errorf("concurrencyFor = %d, want 1 on a one session plan", got)
 	}

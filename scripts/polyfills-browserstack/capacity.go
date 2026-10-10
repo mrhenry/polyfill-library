@@ -8,15 +8,9 @@ import (
 	"github.com/mrhenry/polyfill-library/scripts/browserstack"
 )
 
-const (
-	// capacityPollInterval is how long a waiting session pauses before asking
-	// the account again.
-	capacityPollInterval = 3 * time.Second
-
-	// capacityHeadroom is how many parallel slots this run leaves unused, so a
-	// burst of other sessions (or this run's own tunnel probe) still fits.
-	capacityHeadroom = 1
-)
+// capacityPollInterval is how long a waiting session pauses before asking the
+// account again.
+const capacityPollInterval = 3 * time.Second
 
 // capacityGate admits session starts against the account's parallel allowance.
 //
@@ -24,7 +18,6 @@ const (
 // session this reads how many are running and waits while there is no room.
 type capacityGate struct {
 	plan     func(context.Context) (browserstack.Plan, error)
-	headroom int
 	interval time.Duration
 
 	mu       sync.Mutex
@@ -37,7 +30,6 @@ type capacityGate struct {
 func newCapacityGate(client *browserstack.Client) *capacityGate {
 	return &capacityGate{
 		plan:     client.Plan,
-		headroom: capacityHeadroom,
 		interval: capacityPollInterval,
 	}
 }
@@ -74,35 +66,15 @@ func (g *capacityGate) refreshLocked(ctx context.Context, force bool) {
 	g.checked = time.Now()
 }
 
-// allowanceLocked is the account max less headroom, never below one, or 0 when
-// unknown. wait and concurrencyFor must agree on this, or a one-session plan
-// admits no session at all.
-func (g *capacityGate) allowanceLocked() int {
-	if g.max == 0 {
-		return 0
-	}
-
-	allowance := g.max - g.headroom
-	if allowance < 1 {
-		allowance = 1
-	}
-
-	return allowance
-}
-
-func (g *capacityGate) allowance() int {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-
-	return g.allowanceLocked()
-}
-
-// maxAllowance forces a fresh reading and returns the headroom-adjusted
-// allowance. Used once at startup to size the local concurrency limit.
+// maxAllowance forces a fresh reading and returns the account's allowance, or 0
+// when the plan could not be read. Used once at startup to size concurrency.
 func (g *capacityGate) maxAllowance(ctx context.Context) int {
 	g.refresh(ctx, true)
 
-	return g.allowance()
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	return g.max
 }
 
 // wait blocks until a session may start, then reserves the slot. The
@@ -112,9 +84,9 @@ func (g *capacityGate) wait(ctx context.Context) error {
 		g.mu.Lock()
 		g.refreshLocked(ctx, false)
 
-		allowance := g.allowanceLocked()
-
-		if allowance == 0 || g.external+g.inflight < allowance {
+		// A max of zero means the plan has not been read, so admit and let the
+		// retry policy cover it.
+		if g.max == 0 || g.external+g.inflight < g.max {
 			g.inflight++
 			g.mu.Unlock()
 

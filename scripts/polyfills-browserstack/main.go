@@ -38,8 +38,8 @@ const (
 
 	projectName = "polyfill-library"
 
-	// concurrency is how many BrowserStack sessions run at once. Four matches
-	// BrowserStack's default Automate parallel allowance.
+	// concurrency is how many BrowserStack sessions run at once, used when the
+	// account plan cannot be read.
 	concurrency = 4
 
 	// testBrowserTimeout is how long one browser may run without making
@@ -771,29 +771,20 @@ func alwaysFor(m mode) string {
 
 // concurrencyFor decides how many sessions may run at once.
 //
-// The account plan's parallel allowance is the real ceiling, and this process
-// is not necessarily its only user. Leaving one slot free turns the most common
-// cause of a queued session start into spare capacity instead of a timeout. An
-// explicit -concurrency is respected as-is.
+// The account plan's parallel allowance is the real ceiling, and this process is
+// not necessarily its only user, so -concurrency is the way to hold back.
 func concurrencyFor(ctx context.Context, gate *capacityGate, opts options) int {
 	if opts.concurrencyExplicit {
 		return opts.maxConcurrency
 	}
 
-	allowance := gate.maxAllowance(ctx)
-	if allowance == 0 {
-		log.Printf("could not read the account plan, using concurrency %d", opts.maxConcurrency)
-
-		return opts.maxConcurrency
+	if allowance := gate.maxAllowance(ctx); allowance > 0 {
+		return allowance
 	}
 
-	if opts.maxConcurrency <= allowance {
-		return opts.maxConcurrency
-	}
+	log.Printf("could not read the account plan, using concurrency %d", opts.maxConcurrency)
 
-	log.Printf("account allows %d parallel sessions, capping concurrency at %d", allowance+gate.headroom, allowance)
-
-	return allowance
+	return opts.maxConcurrency
 }
 
 // execute runs every job, at most concurrency at a time, and never runs two
