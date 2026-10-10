@@ -59,12 +59,13 @@ type Index struct {
 
 // preferredPlatform pins a browser version to the platform that provisions most
 // reliably when BrowserStack offers the same version on several. IE 10 is
-// offered on Windows 8 and 7, and Windows 7 starts reliably while Windows 8
-// stalls. The generated list puts the newest Windows first, so the preference
-// has to be explicit. If the preferred platform is withdrawn, the first offered
-// one is used instead.
+// offered on Windows 7 and 8; measured against the account, Windows 7 fails to
+// start (BrowserStack reports start-error after the full session-start timeout)
+// while Windows 8 starts reliably and runs the same IE 10 build. The generated
+// list puts the newest Windows first, so the preference has to be explicit. If
+// the preferred platform is withdrawn, the first offered one is used instead.
 var preferredPlatform = map[string]struct{ OS, OSVersion string }{
-	"ie/10.0": {OS: "Windows", OSVersion: "7"},
+	"ie/10.0": {OS: "Windows", OSVersion: "8"},
 }
 
 // matchesPreferred reports whether b is the preferred platform for a key.
@@ -72,6 +73,13 @@ func matchesPreferred(key string, b Browser) bool {
 	want, ok := preferredPlatform[key]
 
 	return ok && strings.EqualFold(b.OS, want.OS) && b.OSVersion == want.OSVersion
+}
+
+// HasPreference reports whether an entry has a pinned platform.
+func HasPreference(entry string) bool {
+	_, ok := preferredPlatform[entry]
+
+	return ok
 }
 
 // NewIndex builds a lookup over a browserstackBrowsers.toml entry list.
@@ -160,10 +168,12 @@ func (c Capabilities) MarshalJSON() ([]byte, error) {
 
 // CapabilitiesFor builds the W3C capabilities for a BrowserStack browser.
 //
-// Desktop browsers use browserName/browserVersion. Real devices are keyed by
-// os/os_version: the device fixes the OS, and the browser version follows the
-// OS. No Appium capability is sent; BrowserStack selects the compatible Appium
-// version and driver from the device, which keeps the full iOS range working.
+// Desktop browsers use browserName/browserVersion, plus os/osVersion when the
+// caller set a platform; otherwise BrowserStack chooses one. Real devices are
+// keyed by os/os_version: the device fixes the OS, and the browser version
+// follows the OS. No Appium capability is sent; BrowserStack selects the
+// compatible Appium version and driver from the device, which keeps the full
+// iOS range working.
 //
 // localIdentifier binds sessions to a specific tunnel, and is only sent when
 // non-empty. With a single tunnel per process, `local: true` is enough.
@@ -189,7 +199,8 @@ func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string
 		caps.BStack["localIdentifier"] = localIdentifier
 	}
 
-	// Desktop browsers are keyed by browser/browser_version.
+	// Desktop browsers are keyed by browser/browser_version. A platform is only
+	// sent when the caller set one; otherwise BrowserStack chooses.
 	if b.Device == "" {
 		if b.Browser != "" {
 			caps.Standard["browserName"] = b.Browser
@@ -197,6 +208,14 @@ func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string
 
 		if b.BrowserVersion != "" {
 			caps.Standard["browserVersion"] = b.BrowserVersion
+		}
+
+		if b.OS != "" {
+			caps.BStack["os"] = b.OS
+		}
+
+		if b.OSVersion != "" {
+			caps.BStack["osVersion"] = b.OSVersion
 		}
 
 		// BrowserStack otherwise selects a recent Edge build over the EdgeHTML

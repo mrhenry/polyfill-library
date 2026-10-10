@@ -226,6 +226,12 @@ type job struct {
 	name    string
 	browser browserstack.Browser
 
+	// preferred is the platform requested on the first session, when the
+	// browser has one. Later sessions omit it so BrowserStack can pick any
+	// platform, which is what makes a retry relax the preference.
+	preferred    browserstack.Browser
+	hasPreferred bool
+
 	testMode             mode
 	url                  string
 	expectedPage         string
@@ -632,6 +638,19 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			state:        newJobState(),
 		}
 
+		// A desktop platform is only requested on the first session, and only
+		// when the entry pins one. Real devices need their os/os_version on
+		// every session, so they are left untouched.
+		if browser.Device == "" {
+			if browserstack.HasPreference(entry) {
+				base.preferred = browser
+				base.hasPreferred = true
+			}
+
+			base.browser.OS = ""
+			base.browser.OSVersion = ""
+		}
+
 		// Slow browsers are split in two when the whole suite runs, so a
 		// single browser cannot monopolise the run.
 		if needsShard(entry) && opts.testEverything {
@@ -699,6 +718,17 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 // needsShard reports whether an entry is sharded during a full run.
 func needsShard(entry string) bool {
 	return entry == "ie/8.0" || entry == "ie/9.0" || entry == "ie/10.0" || strings.HasPrefix(entry, "ios/11")
+}
+
+// browserFor returns the platform for a session. The pinned platform is only
+// requested on the first session; later sessions omit it so BrowserStack can
+// place the browser on any platform.
+func (j *job) browserFor(sessionIndex int) browserstack.Browser {
+	if sessionIndex == 0 && j.hasPreferred {
+		return j.preferred
+	}
+
+	return j.browser
 }
 
 // testURL builds the URL a browser loads.
@@ -923,6 +953,7 @@ func runJob(ctx context.Context, client *browserstack.Client, credentials browse
 	var lastErr error
 
 	replacements := 0
+	sessions := 0
 
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
 		if ctx.Err() != nil {
@@ -939,7 +970,9 @@ func runJob(ctx context.Context, client *browserstack.Client, credentials browse
 			}
 		}
 
-		lastErr = runJobOnce(ctx, client, credentials, j, batchName, gate)
+		lastErr = runJobOnce(ctx, client, credentials, j, batchName, gate, sessions)
+		sessions++
+
 		if lastErr == nil {
 			return
 		}
@@ -982,7 +1015,7 @@ func runJob(ctx context.Context, client *browserstack.Client, credentials browse
 	j.state.setError(lastErr)
 }
 
-func runJobOnce(ctx context.Context, client *browserstack.Client, credentials browserstack.Credentials, j *job, batchName string, gate *capacityGate) error {
+func runJobOnce(ctx context.Context, client *browserstack.Client, credentials browserstack.Credentials, j *job, batchName string, gate *capacityGate, sessionIndex int) error {
 	j.state.setState("waiting for account capacity")
 
 	// Hold the session back while the account has no free parallel slot, rather
@@ -995,10 +1028,12 @@ func runJobOnce(ctx context.Context, client *browserstack.Client, credentials br
 
 	sessionCtx, cancelSession := context.WithTimeout(ctx, sessionStartTimeout)
 
-	sessionName := sessionLabel(batchName, j)
+	browser := j.browserFor(sessionIndex)
+
+	sessionName := sessionLabel(batchName, j, browser)
 
 	caps := browserstack.CapabilitiesFor(
-		j.browser,
+		browser,
 		sessionName,
 		projectName,
 		// One tunnel per process, so no local identifier is needed.
@@ -1411,12 +1446,17 @@ const pageStateScript = `
 	};`
 
 // sessionLabel names a BrowserStack session so it can be matched to a line in
-// the test server log. The trace is last: it ties the two together without
-// depending on the two clocks agreeing.
-func sessionLabel(batchName string, j *job) string {
-	return fmt.Sprintf("%s: %s - %s - %s - %s",
+// the test server log. The trace ties the two together without depending on the
+// two clocks agreeing, and the platform is shown when one is requested.
+func sessionLabel(batchName string, j *job, browser browserstack.Browser) string {
+	platform := ""
+	if browser.OS != "" {
+		platform = fmt.Sprintf(" - %s %s", browser.OS, browser.OSVersion)
+	}
+
+	return fmt.Sprintf("%s: %s - %s - %s - %s%s",
 		batchName, j.name, combinationName(j.polyfillCombinations), shardName(j.shard),
-		j.trace)
+		j.trace, platform)
 }
 
 // combinationName labels individual versus combined runs.

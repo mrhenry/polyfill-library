@@ -556,22 +556,87 @@ func TestCombinedJobsGetTheirOwnTrace(t *testing.T) {
 // to the requests it made.
 func TestSessionLabelCarriesTheTrace(t *testing.T) {
 	for _, tt := range []struct {
-		name string
-		job  job
-		want string
+		name    string
+		job     job
+		browser browserstack.Browser
+		want    string
 	}{
 		{name: "plain", job: job{name: "chrome/63.0", trace: "r1a2-001-chrome-63.0"},
-			want: "run: chrome/63.0 - individual - 1 - r1a2-001-chrome-63.0"},
+			browser: browserstack.Browser{Browser: "chrome", BrowserVersion: "63.0"},
+			want:    "run: chrome/63.0 - individual - 1 - r1a2-001-chrome-63.0"},
 		{name: "shard and combination", job: job{name: "ie/9.0", shard: 2, polyfillCombinations: true, trace: "r1a2-007-ie-9.0"},
-			want: "run: ie/9.0 - interop - 2 - r1a2-007-ie-9.0"},
+			browser: browserstack.Browser{Browser: "ie", BrowserVersion: "9.0"},
+			want:    "run: ie/9.0 - interop - 2 - r1a2-007-ie-9.0"},
+		{name: "pinned platform", job: job{name: "ie/10.0", trace: "r1a2-009-ie-10.0"},
+			browser: browserstack.Browser{Browser: "ie", BrowserVersion: "10.0", OS: "Windows", OSVersion: "7"},
+			want:    "run: ie/10.0 - individual - 1 - r1a2-009-ie-10.0 - Windows 7"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			j := tt.job
 
-			if got := sessionLabel("run", &j); got != tt.want {
+			if got := sessionLabel("run", &j, tt.browser); got != tt.want {
 				t.Errorf("sessionLabel() = %q, want %q", got, tt.want)
 			}
 		})
+	}
+}
+
+// TestPreferredPlatformOnlyOnFirstSession covers the relaxation: the pinned
+// platform is requested on the first session and omitted afterwards, so a retry
+// can run on any platform. Desktop browsers without a preference never request
+// one.
+func TestPreferredPlatformOnlyOnFirstSession(t *testing.T) {
+	root := repoRoot()
+
+	list, err := browserstack.LoadBrowserList(filepath.Join(root, "test/polyfills/browsers.toml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	stackList, err := browserstack.LoadBrowserStackList(filepath.Join(root, "test/polyfills/browserstackBrowsers.toml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	jobs := buildJobs(
+		selectBrowsers(list.Browsers, options{testEverything: true, browserFilter: "ie"}, nil),
+		browserstack.NewIndex(stackList.Browsers),
+		options{testEverything: true},
+		"run1",
+	)
+
+	var pinned int
+
+	for _, j := range jobs {
+		if j.name == "ie/10.0" {
+			pinned++
+
+			if !j.hasPreferred {
+				t.Fatalf("%s should have a preferred platform", j.name)
+			}
+
+			if got := j.browserFor(0); got.OS != "Windows" || got.OSVersion != "8" {
+				t.Errorf("%s first session platform = %s %s, want Windows 8", j.name, got.OS, got.OSVersion)
+			}
+
+			if got := j.browserFor(1); got.OS != "" || got.OSVersion != "" {
+				t.Errorf("%s later session platform = %s %s, want none", j.name, got.OS, got.OSVersion)
+			}
+
+			continue
+		}
+
+		if j.hasPreferred {
+			t.Errorf("%s should not have a preferred platform", j.name)
+		}
+
+		if got := j.browserFor(0); got.OS != "" || got.OSVersion != "" {
+			t.Errorf("%s desktop job requests a platform: %s %s", j.name, got.OS, got.OSVersion)
+		}
+	}
+
+	if pinned == 0 {
+		t.Fatal("no ie/10.0 job was built")
 	}
 }
 

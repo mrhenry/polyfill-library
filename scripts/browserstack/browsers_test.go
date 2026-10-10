@@ -68,8 +68,8 @@ func TestBrowserListRoundTrip(t *testing.T) {
 // reliably is chosen, and if it is withdrawn the first offered is used.
 func TestPreferredPlatformIsApplied(t *testing.T) {
 	index := NewIndex([]Browser{
-		{Browser: "ie", BrowserVersion: "10.0", OS: "Windows", OSVersion: "8"},
 		{Browser: "ie", BrowserVersion: "10.0", OS: "Windows", OSVersion: "7"},
+		{Browser: "ie", BrowserVersion: "10.0", OS: "Windows", OSVersion: "8"},
 	})
 
 	got, ok := index.Lookup("ie/10.0")
@@ -77,16 +77,16 @@ func TestPreferredPlatformIsApplied(t *testing.T) {
 		t.Fatal("ie/10.0 did not resolve")
 	}
 
-	if got.OSVersion != "7" {
-		t.Errorf("ie/10.0 resolved to Windows %s, want the preferred Windows 7", got.OSVersion)
+	if got.OSVersion != "8" {
+		t.Errorf("ie/10.0 resolved to Windows %s, want the preferred Windows 8", got.OSVersion)
 	}
 
 	fallback := NewIndex([]Browser{
-		{Browser: "ie", BrowserVersion: "10.0", OS: "Windows", OSVersion: "8"},
+		{Browser: "ie", BrowserVersion: "10.0", OS: "Windows", OSVersion: "7"},
 	})
 
-	if got, ok := fallback.Lookup("ie/10.0"); !ok || got.OSVersion != "8" {
-		t.Errorf("ie/10.0 with only Windows 8 offered resolved to %+v, want Windows 8", got)
+	if got, ok := fallback.Lookup("ie/10.0"); !ok || got.OSVersion != "7" {
+		t.Errorf("ie/10.0 with only Windows 7 offered resolved to %+v, want Windows 7", got)
 	}
 }
 
@@ -119,6 +119,45 @@ func TestCapabilitiesAreW3COnly(t *testing.T) {
 		if !contains(got, required) {
 			t.Errorf("capabilities are missing %s", required)
 		}
+	}
+}
+
+// TestCapabilitiesForDesktopPlatform proves a pinned desktop platform is sent in
+// bstack:options, and that no platform is sent when none is set, so
+// BrowserStack chooses.
+func TestCapabilitiesForDesktopPlatform(t *testing.T) {
+	pinned := alwaysMatch(t, CapabilitiesFor(
+		Browser{Browser: "ie", BrowserVersion: "10.0", OS: "Windows", OSVersion: "7"},
+		"session", "polyfill-library", "",
+	))
+
+	bstack, _ := pinned["bstack:options"].(map[string]any)
+	if bstack["os"] != "Windows" || bstack["osVersion"] != "7" {
+		t.Errorf("bstack:options = %v, want os=Windows osVersion=7", bstack)
+	}
+
+	unpinned := alwaysMatch(t, CapabilitiesFor(
+		Browser{Browser: "ie", BrowserVersion: "10.0"},
+		"session", "polyfill-library", "",
+	))
+
+	options, _ := unpinned["bstack:options"].(map[string]any)
+	if _, ok := options["os"]; ok {
+		t.Error("os must not be sent when no platform is set")
+	}
+
+	if _, ok := options["osVersion"]; ok {
+		t.Error("osVersion must not be sent when no platform is set")
+	}
+}
+
+func TestHasPreference(t *testing.T) {
+	if !HasPreference("ie/10.0") {
+		t.Error("ie/10.0 should have a pinned platform")
+	}
+
+	if HasPreference("chrome/32.0") {
+		t.Error("chrome/32.0 should not have a pinned platform")
 	}
 }
 
