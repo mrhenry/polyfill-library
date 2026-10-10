@@ -40,6 +40,9 @@ func Hub() string {
 // BrowsersAPIURL lists every browser and version BrowserStack offers.
 const BrowsersAPIURL = "https://api.browserstack.com/automate/browsers.json"
 
+// PlanAPIURL reports the account's plan, including its parallel allowance.
+const PlanAPIURL = "https://api.browserstack.com/automate/plan.json"
+
 // Credentials are the BrowserStack account details.
 type Credentials struct {
 	UserName  string
@@ -125,6 +128,47 @@ func (c *Client) Browsers(ctx context.Context) ([]Browser, error) {
 	}
 
 	return browsers, nil
+}
+
+// Plan is the account plan, of which the parallel session allowance is used.
+type Plan struct {
+	AutomatePlan               string `json:"automate_plan"`
+	ParallelSessionsMaxAllowed int    `json:"parallel_sessions_max_allowed"`
+	ParallelSessionsRunning    int    `json:"parallel_sessions_running"`
+}
+
+// Plan reads the account plan. It is best effort: an account that will not
+// answer falls back to the caller's default.
+func (c *Client) Plan(ctx context.Context) (Plan, error) {
+	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, PlanAPIURL, nil)
+	if err != nil {
+		return Plan{}, err
+	}
+
+	res, err := c.http.Do(req)
+	if err != nil {
+		return Plan{}, err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return Plan{}, err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return Plan{}, decodeError(res.StatusCode, body)
+	}
+
+	var plan Plan
+	if err := json.Unmarshal(body, &plan); err != nil {
+		return Plan{}, fmt.Errorf("parsing account plan: %w", err)
+	}
+
+	return plan, nil
 }
 
 // apiError is BrowserStack's JSON error envelope.

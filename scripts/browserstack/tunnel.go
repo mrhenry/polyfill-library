@@ -215,6 +215,11 @@ func (c *Client) OpenTunnel(ctx context.Context) (func() error, error) {
 		// it.
 	)
 
+	// BrowserStackLocal forks helper processes; a process group lets closer
+	// terminate the whole tree instead of orphaning a registered tunnel that
+	// keeps interfering with later runs.
+	configureProcessGroup(cmd)
+
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		cmdCancel()
@@ -287,17 +292,20 @@ func (c *Client) OpenTunnel(ctx context.Context) (func() error, error) {
 
 		closed = true
 		cmdCancel()
+		killProcessGroup(cmd)
 
+		// Killing the process is the expected way to stop the tunnel, so wait
+		// for it to actually go rather than returning while it is still
+		// registered with BrowserStack.
 		select {
 		case err := <-errChan:
-			// Killing the process is the expected way to stop the tunnel.
 			if err != nil && strings.Contains(err.Error(), "signal: killed") {
 				return nil
 			}
 
 			return err
-		default:
-			return nil
+		case <-time.After(15 * time.Second):
+			return fmt.Errorf("tunnel process did not exit after being killed")
 		}
 	}
 

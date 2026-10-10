@@ -9,7 +9,41 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
+
+// ErrSessionStart marks an error raised while creating a WebDriver session.
+//
+// Creating a session is retried, unlike a command against an established
+// session, so every failure from NewSession is wrapped in this. BrowserStack
+// commonly queues or stalls a session start when the account is busy, and a
+// queued start is worth another attempt rather than a red build.
+var ErrSessionStart = errors.New("creating webdriver session")
+
+// ErrCommandTimeout marks a command against an established session that did
+// not answer within its budget, which means the remote browser has wedged. The
+// caller replaces the session instead of retrying the command.
+var ErrCommandTimeout = errors.New("webdriver command timed out")
+
+const (
+	// commandTimeout bounds an execute command. A live browser answers in
+	// milliseconds, so this only fires when the session has wedged.
+	commandTimeout = 60 * time.Second
+
+	// navigateTimeout bounds a navigation, which returns only once the page
+	// load completes, so it is larger than a command timeout.
+	navigateTimeout = 3 * time.Minute
+)
+
+// commandTimeoutError tags a deadline as a wedged browser, so the caller can
+// replace the session rather than retry the command.
+func commandTimeoutError(err error) error {
+	if errors.Is(err, context.DeadlineExceeded) {
+		return fmt.Errorf("%w: %w", ErrCommandTimeout, err)
+	}
+
+	return err
+}
 
 // Session is a W3C WebDriver session.
 //
@@ -141,6 +175,9 @@ func NewSession(ctx context.Context, httpClient *http.Client, hubURL string, cap
 
 // Navigate sends a W3C Navigate To command.
 func (s *Session) Navigate(ctx context.Context, target string) error {
+	ctx, cancel := context.WithTimeout(ctx, navigateTimeout)
+	defer cancel()
+
 	body, err := json.Marshal(map[string]string{"url": target})
 	if err != nil {
 		return err
@@ -148,7 +185,7 @@ func (s *Session) Navigate(ctx context.Context, target string) error {
 
 	res, err := do(ctx, s.client, s.credentials(), http.MethodPost, s.commandURL("/url"), body)
 	if err != nil {
-		return err
+		return commandTimeoutError(err)
 	}
 	defer res.Body.Close()
 
@@ -163,6 +200,9 @@ func (s *Session) Navigate(ctx context.Context, target string) error {
 // ExecuteScript sends a W3C Execute Script command and returns the decoded
 // result value.
 func (s *Session) ExecuteScript(ctx context.Context, script string, args []any) (any, error) {
+	ctx, cancel := context.WithTimeout(ctx, commandTimeout)
+	defer cancel()
+
 	if args == nil {
 		args = []any{}
 	}
@@ -174,7 +214,7 @@ func (s *Session) ExecuteScript(ctx context.Context, script string, args []any) 
 
 	res, err := do(ctx, s.client, s.credentials(), http.MethodPost, s.commandURL("/execute/sync"), body)
 	if err != nil {
-		return nil, err
+		return nil, commandTimeoutError(err)
 	}
 	defer res.Body.Close()
 
@@ -287,6 +327,18 @@ func newProtocolError(statusCode int, body []byte) error {
 func IsSessionStartFailure(err error) bool {
 	if err == nil {
 		return false
+	}
+
+	// A cancelled run is not worth retrying.
+	if errors.Is(err, context.Canceled) {
+		return false
+	}
+
+	// Every error from creating a session is tagged, which covers the transport
+	// timeouts a queued or stalled start produces that the message list below
+	// cannot name.
+	if errors.Is(err, ErrSessionStart) {
+		return true
 	}
 
 	message := err.Error()

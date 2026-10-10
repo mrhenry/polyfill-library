@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -649,6 +650,8 @@ func TestDeadSessionIsClassifiedForReplacement(t *testing.T) {
 func TestNextAction(t *testing.T) {
 	dead := &noBrowserRequestError{trace: "r1a2-008"}
 	started := errors.New("browserstack refused to create the session: Failed to create session")
+	timedOutStart := fmt.Errorf("%w: context deadline exceeded", browserstack.ErrSessionStart)
+	commandTimeout := fmt.Errorf("%w: context deadline exceeded", browserstack.ErrCommandTimeout)
 	testFailure := errors.New("2 tests failed")
 
 	if got := nextAction(dead, 0); got != actionReplaceSession {
@@ -663,9 +666,70 @@ func TestNextAction(t *testing.T) {
 		t.Errorf("a session that could not start should be retried, got %v", got)
 	}
 
+	// A session start that times out is a busy account or a queued session, so
+	// it must be retried rather than failing the job.
+	if got := nextAction(timedOutStart, 0); got != actionRetryStart {
+		t.Errorf("a session start timeout should be retried, got %v", got)
+	}
+
+	// A command timeout means the established session wedged, so it is replaced.
+	if got := nextAction(commandTimeout, 0); got != actionReplaceSession {
+		t.Errorf("a command timeout should replace the session, got %v", got)
+	}
+
+	if got := nextAction(commandTimeout, sessionReplacements); got != actionFail {
+		t.Errorf("command-timeout replacements must be bounded, got %v", got)
+	}
+
 	// A real test failure must never be retried: that is the case where a retry
 	// would hide a regression.
 	if got := nextAction(testFailure, 0); got != actionFail {
 		t.Errorf("a test failure must not be retried, got %v", got)
+	}
+}
+
+// TestShardsHaveIndependentState pins the fix for the IE regression: the two
+// shards of a slow browser are separate sessions, so sharing one jobState let
+// them overwrite each other's results and errors.
+func TestShardsHaveIndependentState(t *testing.T) {
+	root := repoRoot()
+
+	list, err := browserstack.LoadBrowserList(filepath.Join(root, "test/polyfills/browsers.toml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	stackList, err := browserstack.LoadBrowserStackList(filepath.Join(root, "test/polyfills/browserstackBrowsers.toml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	jobs := buildJobs(
+		selectBrowsers(list.Browsers, options{testEverything: true}, nil),
+		browserstack.NewIndex(stackList.Browsers),
+		options{testEverything: true},
+		"run1",
+	)
+
+	seen := map[*jobState]string{}
+
+	var shards int
+
+	for _, j := range jobs {
+		if j.shard == 0 {
+			continue
+		}
+
+		shards++
+
+		if prev, ok := seen[j.state]; ok {
+			t.Errorf("%s and %s share one jobState", prev, j.name)
+		}
+
+		seen[j.state] = j.name
+	}
+
+	if shards == 0 {
+		t.Fatal("no sharded jobs were built")
 	}
 }

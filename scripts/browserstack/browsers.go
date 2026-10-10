@@ -59,6 +59,27 @@ type Index struct {
 	byBrowser map[string]Browser
 }
 
+// preferredPlatform pins a browser version to the platform that provisions
+// most reliably when BrowserStack offers the same version on several.
+//
+// IE 10 is offered on both Windows 8 and Windows 7. Measured against the
+// account, Windows 8 stalls for the full session-start timeout on most second
+// and later requests, while Windows 7 starts in single-digit seconds every
+// time and runs the same IE 10 build. The generated list puts the newest
+// Windows first, so the preference has to be explicit. If the preferred
+// platform is ever withdrawn, the first offered one is used instead.
+var preferredPlatform = map[string]struct{ OS, OSVersion string }{
+	"ie/10.0": {OS: "Windows", OSVersion: "7"},
+}
+
+// matchesPreferred reports whether b is the preferred platform for a browser
+// version key.
+func matchesPreferred(key string, b Browser) bool {
+	want, ok := preferredPlatform[key]
+
+	return ok && strings.EqualFold(b.OS, want.OS) && b.OSVersion == want.OSVersion
+}
+
 // NewIndex builds a lookup over a browserstackBrowsers.toml entry list.
 func NewIndex(browsers []Browser) *Index {
 	idx := &Index{
@@ -76,11 +97,20 @@ func NewIndex(browsers []Browser) *Index {
 			}
 		}
 
-		if b.Browser != "" && b.BrowserVersion != "" {
-			key := b.Browser + "/" + b.BrowserVersion
-			if _, exists := idx.byBrowser[key]; !exists {
-				idx.byBrowser[key] = b
-			}
+		if b.Browser == "" || b.BrowserVersion == "" {
+			continue
+		}
+
+		key := b.Browser + "/" + b.BrowserVersion
+
+		existing, exists := idx.byBrowser[key]
+
+		switch {
+		case !exists:
+			idx.byBrowser[key] = b
+		case matchesPreferred(key, b) && !matchesPreferred(key, existing):
+			// Upgrade a fallback to the preferred platform.
+			idx.byBrowser[key] = b
 		}
 	}
 
@@ -165,6 +195,12 @@ func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string
 			"debug":       true,
 			"consoleLogs": "errors",
 			"networkLogs": true,
+			// A session whose client has gone away - for example one created
+			// just after a client-side start timeout - is stopped after this
+			// many seconds without a WebDriver command, so it cannot hold a
+			// parallel slot indefinitely. Kept above navigateTimeout, which is
+			// the longest a live session goes without issuing a command.
+			"idleTimeout": 300,
 		},
 		Standard: map[string]any{},
 	}

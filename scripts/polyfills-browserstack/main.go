@@ -76,6 +76,14 @@ const (
 	// queues another rejection behind the same cause.
 	retryDelay = 30 * time.Second
 
+	// replacementDelay is the pause before a replacement session is requested.
+	//
+	// A discarded session releases its BrowserStack machine a moment after its
+	// DELETE returns. Browsers with a small machine pool (IE 10 especially)
+	// queue the replacement against that machine if it is requested
+	// immediately, and the queue is what becomes a session-start timeout.
+	replacementDelay = 15 * time.Second
+
 	// sessionReplacements bounds how many times one job discards a session that
 	// accepted a navigation but never acted on it.
 	//
@@ -132,6 +140,10 @@ type options struct {
 	// maxConcurrency overrides how many sessions run at once.
 	maxConcurrency int
 
+	// concurrencyExplicit records that -concurrency was passed, so the account
+	// plan does not override an operator's choice.
+	concurrencyExplicit bool
+
 	// feature is the comma separated polyfill subset to test, derived from the
 	// change set rather than passed on the command line.
 	feature string
@@ -162,6 +174,7 @@ func parseArgs(args []string) options {
 
 			if n, err := strconv.Atoi(args[i]); err == nil && n > 0 {
 				o.maxConcurrency = n
+				o.concurrencyExplicit = true
 			}
 		case strings.HasPrefix(arg, "browser="):
 			value := strings.TrimPrefix(arg, "browser=")
@@ -480,7 +493,12 @@ func run(opts options) error {
 	}
 
 	sessionName := fmt.Sprintf("Polyfill Library: %s", runID)
-	failed := execute(runnerCtx, client, credentials, jobs, sessionName, opts.maxConcurrency)
+
+	// The gate is the shared-account rations: it admits each session start
+	// against the account's current free capacity, and the local concurrency
+	// limit only bounds this process.
+	gate := newCapacityGate(client)
+	failed := execute(runnerCtx, client, credentials, jobs, sessionName, gate, concurrencyFor(runnerCtx, gate, opts))
 
 	if err := writeResults(repo, opts, jobs); err != nil {
 		log.Println("writing results:", err)
@@ -648,6 +666,11 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 				sharded.shard = shard
 				sharded.trace = nextTrace(runID, fmt.Sprintf("%s#%d", entry, shard))
 				sharded.url = testURL(baseURL, opts, shard, false, sharded.trace)
+				// Each shard is a separate session and needs its own progress,
+				// results and error. Sharing base.state let the two shards
+				// overwrite each other, so a failing shard could be hidden by a
+				// passing one (and both rows reported the same state).
+				sharded.state = newJobState()
 				jobs = append(jobs, &sharded)
 			}
 
@@ -754,9 +777,37 @@ func alwaysFor(m mode) string {
 	return "no"
 }
 
+// concurrencyFor decides how many sessions may run at once.
+//
+// The account plan's parallel allowance is the real ceiling, and this process
+// is not necessarily its only user: a CI run, another developer or a leftover
+// session all draw from the same allowance. Leaving one slot free turns the
+// most common cause of a queued session start into spare capacity instead of a
+// timeout. An explicit -concurrency is respected as-is.
+func concurrencyFor(ctx context.Context, gate *capacityGate, opts options) int {
+	if opts.concurrencyExplicit {
+		return opts.maxConcurrency
+	}
+
+	allowance := gate.maxAllowance(ctx)
+	if allowance == 0 {
+		log.Printf("could not read the account plan, using concurrency %d", opts.maxConcurrency)
+
+		return opts.maxConcurrency
+	}
+
+	if opts.maxConcurrency <= allowance {
+		return opts.maxConcurrency
+	}
+
+	log.Printf("account allows %d parallel sessions, capping concurrency at %d", allowance+gate.headroom, allowance)
+
+	return allowance
+}
+
 // execute runs every job, at most concurrency at a time, and never runs two
 // sessions for the same browser at once.
-func execute(ctx context.Context, client *browserstack.Client, credentials browserstack.Credentials, jobs []*job, sessionName string, maxConcurrency int) int {
+func execute(ctx context.Context, client *browserstack.Client, credentials browserstack.Credentials, jobs []*job, sessionName string, gate *capacityGate, maxConcurrency int) int {
 	if maxConcurrency < 1 {
 		maxConcurrency = 1
 	}
@@ -804,7 +855,7 @@ func execute(ctx context.Context, client *browserstack.Client, credentials brows
 			slots.acquire(ctx, j.name)
 			defer slots.release(j.name)
 
-			runJob(ctx, client, credentials, j, sessionName)
+			runJob(ctx, client, credentials, j, sessionName, gate)
 		}(j)
 	}
 
@@ -884,7 +935,10 @@ const (
 // Separated from runJob so the policy can be tested without a network.
 func nextAction(err error, replacements int) action {
 	switch {
-	case errors.Is(err, ErrNoBrowserRequest):
+	case errors.Is(err, ErrNoBrowserRequest), errors.Is(err, browserstack.ErrCommandTimeout):
+		// Both mean the session's browser is not usable: it never navigated, or
+		// it stopped answering. A fresh session is the recovery, and it works
+		// often enough to be worth the replacements budget.
 		if replacements >= sessionReplacements {
 			return actionFail
 		}
@@ -898,7 +952,7 @@ func nextAction(err error, replacements int) action {
 }
 
 // runJob drives one browser to completion.
-func runJob(ctx context.Context, client *browserstack.Client, credentials browserstack.Credentials, j *job, batchName string) {
+func runJob(ctx context.Context, client *browserstack.Client, credentials browserstack.Credentials, j *job, batchName string, gate *capacityGate) {
 	var lastErr error
 
 	replacements := 0
@@ -918,7 +972,7 @@ func runJob(ctx context.Context, client *browserstack.Client, credentials browse
 			}
 		}
 
-		lastErr = runJobOnce(ctx, client, credentials, j, batchName)
+		lastErr = runJobOnce(ctx, client, credentials, j, batchName, gate)
 		if lastErr == nil {
 			return
 		}
@@ -940,9 +994,19 @@ func runJob(ctx context.Context, client *browserstack.Client, credentials browse
 			replacements++
 
 			j.state.setReplacementCount(replacements)
-			j.state.setState("browser never requested the page, replacing the session")
+			j.state.setState("session unusable, replacing it")
 
 			log.Printf("%s: %v (replacing the session)", j.name, lastErr)
+
+			// Give BrowserStack a moment to release the machine the discarded
+			// session used. Browsers with a small pool (IE 10 especially) queue
+			// the replacement against the not-yet-released machine, and the
+			// queue is what turns into a start timeout.
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(replacementDelay):
+			}
 
 			// A replacement does not consume an attempt: it is the same job,
 			// not a third of three goes at the problem.
@@ -953,7 +1017,16 @@ func runJob(ctx context.Context, client *browserstack.Client, credentials browse
 	j.state.setError(lastErr)
 }
 
-func runJobOnce(ctx context.Context, client *browserstack.Client, credentials browserstack.Credentials, j *job, batchName string) error {
+func runJobOnce(ctx context.Context, client *browserstack.Client, credentials browserstack.Credentials, j *job, batchName string, gate *capacityGate) error {
+	j.state.setState("waiting for account capacity")
+
+	// Hold the session back while the account has no free parallel slot, rather
+	// than requesting one that will queue and time out. This is what lets the
+	// run use whatever capacity is free right now.
+	if err := gate.wait(ctx); err != nil {
+		return err
+	}
+
 	j.state.setState("connecting to browser")
 
 	sessionCtx, cancelSession := context.WithTimeout(ctx, sessionStartTimeout)
@@ -972,10 +1045,15 @@ func runJobOnce(ctx context.Context, client *browserstack.Client, credentials br
 	cancelSession()
 
 	if err != nil {
-		return err
+		gate.release()
+
+		// Tagged so the retry policy knows this is a session start, however it
+		// failed, rather than a broken page or suite.
+		return fmt.Errorf("%w: %w", browserstack.ErrSessionStart, err)
 	}
 
-	// Always release the BrowserStack session, even when a later step fails.
+	// Always release the BrowserStack session, even when a later step fails,
+	// and free the reserved capacity once it is gone.
 	defer func() {
 		deleteCtx, cancelDelete := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
 		defer cancelDelete()
@@ -983,6 +1061,8 @@ func runJobOnce(ctx context.Context, client *browserstack.Client, credentials br
 		if err := session.Delete(deleteCtx); err != nil {
 			log.Printf("%s: deleting session: %v", j.name, err)
 		}
+
+		gate.release()
 	}()
 
 	j.state.setState("initializing browser")

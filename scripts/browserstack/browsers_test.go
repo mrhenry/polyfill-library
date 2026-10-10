@@ -63,6 +63,33 @@ func TestBrowserListRoundTrip(t *testing.T) {
 	}
 }
 
+// TestPreferredPlatformIsApplied pins the IE 10 workaround: when the same
+// browser version is offered on several platforms, the one that provisions
+// reliably is chosen, and if it is withdrawn the first offered is used.
+func TestPreferredPlatformIsApplied(t *testing.T) {
+	index := NewIndex([]Browser{
+		{Browser: "ie", BrowserVersion: "10.0", OS: "Windows", OSVersion: "8"},
+		{Browser: "ie", BrowserVersion: "10.0", OS: "Windows", OSVersion: "7"},
+	})
+
+	got, ok := index.Lookup("ie/10.0")
+	if !ok {
+		t.Fatal("ie/10.0 did not resolve")
+	}
+
+	if got.OSVersion != "7" {
+		t.Errorf("ie/10.0 resolved to Windows %s, want the preferred Windows 7", got.OSVersion)
+	}
+
+	fallback := NewIndex([]Browser{
+		{Browser: "ie", BrowserVersion: "10.0", OS: "Windows", OSVersion: "8"},
+	})
+
+	if got, ok := fallback.Lookup("ie/10.0"); !ok || got.OSVersion != "8" {
+		t.Errorf("ie/10.0 with only Windows 8 offered resolved to %+v, want Windows 8", got)
+	}
+}
+
 // TestCapabilitiesAreW3COnly is the guard against the JSON Wire Protocol
 // removal: the serialised capabilities must never contain desiredCapabilities.
 func TestCapabilitiesAreW3COnly(t *testing.T) {
