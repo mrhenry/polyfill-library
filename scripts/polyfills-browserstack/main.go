@@ -1065,7 +1065,7 @@ func runJobOnce(ctx context.Context, client *browserstack.Client, credentials br
 
 	// Establish that the browser actually asked for something before spending
 	// the page load budget waiting for a page that was never requested.
-	stats, arrived, err := waitForFirstRequest(ctx, testServerURL(), j.trace, arrivalGrace)
+	stats, arrived, err := waitForFirstRequest(ctx, testServerURL, j.trace, arrivalGrace)
 	if err != nil {
 		return fmt.Errorf("%s: asking the test server what this job requested: %w", j.name, err)
 	}
@@ -1300,11 +1300,9 @@ func waitForFirstRequest(ctx context.Context, baseURL, trace string, budget time
 	}
 }
 
-// testServerURL addresses the test server on this machine directly.
-// bs-local.com only resolves while the tunnel is running.
-func testServerURL() string {
-	return fmt.Sprintf("http://127.0.0.1:%d", serverPort)
-}
+// bs-local.com only resolves while the tunnel is running, so the harness
+// reaches the test server on this machine directly.
+const testServerURL = "http://127.0.0.1:9876"
 
 // fetchTraceStats asks the test server what a trace requested. It is the only
 // witness to whether a navigation arrived at all.
@@ -1344,7 +1342,7 @@ func fetchTraceStats(ctx context.Context, baseURL, trace string) (traceStats, er
 // page that was fetched but never ran: a page or asset problem rather than a
 // session one. Listing what arrived makes the difference diagnosable.
 func (j *job) pageLoadFailure(last pageState, expected string) error {
-	return pageLoadFailure(j.name, j.trace, last, expected, fmt.Sprintf("http://127.0.0.1:%d", serverPort))
+	return pageLoadFailure(j.name, j.trace, last, expected, testServerURL)
 }
 
 func pageLoadFailure(name, trace string, last pageState, expected, baseURL string) error {
@@ -1362,21 +1360,6 @@ func pageLoadFailure(name, trace string, last pageState, expected, baseURL strin
 
 	return fmt.Errorf("%s (%s; the page was fetched but never started, and the browser only ever asked for %s)",
 		described, trace, summarisePaths(stats.Paths))
-}
-
-func (p pageState) String() string {
-	suite := "n/a"
-	if p.SuiteSize != nil {
-		suite = fmt.Sprint(*p.SuiteSize)
-	}
-
-	runs := "n/a"
-	if p.ExpectedRuns != nil {
-		runs = fmt.Sprint(*p.ExpectedRuns)
-	}
-
-	return fmt.Sprintf("page %q ready (suite size %s, expected runs %s, assets %s)",
-		p.Page, suite, runs, describeAssets(p.Assets))
 }
 
 // describeAssets renders the page's own diagnostics, so a failure names the
@@ -1755,7 +1738,7 @@ func ensureTestServer(ctx context.Context, repo string) error {
 		return fmt.Errorf("cannot find test/polyfills/server.js - run from the repository root: %w", err)
 	}
 
-	target := fmt.Sprintf("http://127.0.0.1:%d/test?includePolyfills=yes&always=no", serverPort)
+	target := testServerURL + "/test?includePolyfills=yes&always=no"
 
 	deadline := time.Now().Add(testServerStartTimeout)
 

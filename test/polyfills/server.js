@@ -264,8 +264,6 @@ app.get(
 	}
 );
 
-app.listen(port, () => console.log(`Test server listening on port ${port}!`));
-
 const testablePolyfillsCache = {};
 
 // Every polyfill's metadata and test file is read once rather than once per
@@ -496,3 +494,9 @@ function createEndpoint(template) {
 		);
 	};
 }
+
+if (require.main === module) {
+	app.listen(port, () => console.log(`Test server listening on port ${port}!`));
+}
+
+module.exports = { app, port };

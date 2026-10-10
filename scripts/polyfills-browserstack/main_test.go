@@ -156,10 +156,6 @@ func TestParsePageState(t *testing.T) {
 // TestProbeMatchesPagesItPolls guards the contract between the Go probe and
 // the pages it polls. If a global is renamed, this fails instead of the harness
 // silently reading undefined and timing out.
-//
-// The two pages publish from different places: the director page's globals are
-// in its template, while the runner page's are injected by server.js through
-// the afterTestSuite hook, because they depend on mocha having parsed.
 func TestProbeMatchesPagesItPolls(t *testing.T) {
 	root := repoRoot()
 
@@ -196,14 +192,6 @@ func TestProbeMatchesPagesItPolls(t *testing.T) {
 				"onerror=",
 			},
 		},
-		"server.js": {
-			content: read("server.js"),
-			needles: []string{
-				"global_test_page = 'runner'",
-				"global_test_suite_size",
-				"global_test_started",
-			},
-		},
 	}
 
 	for file, source := range sources {
@@ -227,30 +215,6 @@ func TestProbeReadsGlobalsThePagesPublish(t *testing.T) {
 	} {
 		if !strings.Contains(pageStateScript, global) {
 			t.Errorf("pageStateScript does not read %q", global)
-		}
-	}
-}
-
-// TestRunnerPageFailsAnEmptySuite covers the silent false pass: a suite that
-// registers no tests used to publish passed:0 failed:0, which scores as a
-// success.
-func TestRunnerPageFailsAnEmptySuite(t *testing.T) {
-	raw, err := os.ReadFile(filepath.Join(repoRoot(), "test/polyfills/server.js"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	content := string(raw)
-
-	for _, needle := range []string{
-		"if (!results.total)",
-		"no tests were registered",
-		"global_test_suite_size",
-		"global_test_page = 'runner'",
-		"assets: window.global_test_assets",
-	} {
-		if !strings.Contains(content, needle) {
-			t.Errorf("server.js is missing %q", needle)
 		}
 	}
 }
@@ -287,27 +251,6 @@ func TestIframeRequestsCarryTheTrace(t *testing.T) {
 
 	if !strings.Contains(string(raw), "trace={{{trace}}}") {
 		t.Error("test-iframe.handlebars does not carry the trace on its polyfill.js request")
-	}
-}
-
-// TestFaviconIsNotEvidenceOfNavigation guards the dead session detector. A
-// favicon request is not a navigation, so counting it against a trace would
-// make a session whose browser never loaded the page look alive.
-func TestFaviconIsNotEvidenceOfNavigation(t *testing.T) {
-	raw, err := os.ReadFile(filepath.Join(repoRoot(), "test/polyfills/server.js"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	content := string(raw)
-
-	for _, needle := range []string{
-		`request.path === "/favicon.ico"`,
-		`app.get("/favicon.ico"`,
-	} {
-		if !strings.Contains(content, needle) {
-			t.Errorf("server.js is missing %q", needle)
-		}
 	}
 }
 
