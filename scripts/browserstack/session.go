@@ -293,6 +293,7 @@ func IsSessionStartFailure(err error) bool {
 
 	return strings.Contains(message, "All parallel tests are currently in use") ||
 		strings.Contains(message, "Could not start Mobile Browser") ||
+		strings.Contains(message, "Could not start Browser") ||
 		strings.Contains(message, "There was an error. Please try again.") ||
 		strings.Contains(message, "Failed to create session") ||
 		strings.Contains(message, "unknown command") ||

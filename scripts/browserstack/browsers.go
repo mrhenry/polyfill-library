@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"github.com/mrhenry/polyfill-library/scripts/browserua"
 )
 
 // Browser is one entry of the generated browserstackBrowsers.toml, and one
@@ -145,10 +144,13 @@ func (c Capabilities) MarshalJSON() ([]byte, error) {
 
 // CapabilitiesFor builds the W3C capabilities for a BrowserStack browser.
 //
-// Mobile sessions target Appium 2, which requires the "appium:" prefix on
-// vendor capabilities. appiumVersion is pinned explicitly rather than
-// inheriting whatever BrowserStack defaults to, so behaviour does not change
-// when BrowserStack moves its default from Appium 1.x to 2.19.0.
+// Desktop browsers use the standard W3C browserName/browserVersion pair.
+// Real devices are keyed by os/os_version: the device fixes the OS, and on a
+// real device the browser version follows the OS, so the OS version is what
+// pins the browser version. No Appium capability is sent at all; BrowserStack
+// selects the Appium version and driver compatible with the requested device,
+// which is what lets the full iOS range (including 13 and 14) keep working.
+//
 // localIdentifier binds sessions to a specific tunnel. It is only sent when
 // non-empty: with a single tunnel per process BrowserStack routes on
 // `local: true` alone, and sending an identifier the tunnel never registered
@@ -191,37 +193,40 @@ func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string
 	}
 
 	// Real devices are keyed by os/os_version.
+	//
+	// browserName is a standard W3C capability, so it goes in Standard rather
+	// than in bstack:options, and its value has to be a browser ("safari") not
+	// a device alias ("iphone").
+	//
+	// The device and its OS are BrowserStack vendor capabilities. No Appium
+	// capability is sent: measured sessions show BrowserStack selects the
+	// device and driver from bstack:options alone, so appium:deviceName,
+	// appium:platformVersion and appium:automationName are redundant and have
+	// no W3C standard equivalent.
+	caps.Standard["browserName"] = mobileBrowserName(b)
 	caps.Standard["platformName"] = strings.ToLower(b.OS)
-	caps.Standard["appium:automationName"] = "UiAutomator2"
-	if strings.EqualFold(b.OS, "ios") {
-		caps.Standard["appium:automationName"] = "XCUITest"
-	}
-
-	caps.Standard["appium:deviceName"] = b.Device
-	caps.Standard["appium:platformVersion"] = b.OSVersion
-	caps.Standard["appium:appiumVersion"] = AppiumVersion
 	caps.BStack["deviceName"] = b.Device
 	caps.BStack["osVersion"] = b.OSVersion
 	caps.BStack["realMobile"] = true
 
-	if b.Browser != "" {
-		caps.BStack["browserName"] = b.Browser
-	}
-
 	return caps
 }
 
-// AppiumVersion pins Appium 2 for mobile sessions.
+// mobileBrowserName maps a browser-list device entry onto the browser
+// BrowserStack actually runs on that device.
 //
-// BrowserStack moves its default from Appium 1.x to 2.19.0 on 22 December
-// 2026. Pinning means the matrix behaves the same before and after that
-// switch. Appium 2 requires the "appium:" capability prefix used above.
-const AppiumVersion = "2.19.0"
-
-// familyOf returns the browser family used for polyfill browser targets.
-//
-// iOS entries are rewritten from "ios" to "ios_saf" because polyfill configs
-// key iOS targets under ios_saf.
-func familyOf(entry string) string {
-	return browserua.New(browserua.FromBrowserEntry(entry)).Family()
+// The BrowserStack REST browser list reports "iphone", "ipad" and "android" in
+// its browser field, meaning "the default browser on that device". Those are
+// device aliases, not W3C browser names: the standard capability wants "safari"
+// on iOS and "chrome" on Android. Sending the alias, as the old harness did,
+// could never select a non-default browser.
+func mobileBrowserName(b Browser) string {
+	switch strings.ToLower(b.Browser) {
+	case "iphone", "ipad", "ios":
+		return "safari"
+	case "android":
+		return "chrome"
+	default:
+		return b.Browser
+	}
 }

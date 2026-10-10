@@ -1,8 +1,10 @@
 package browserstack
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/mrhenry/polyfill-library/scripts/browserua"
@@ -93,36 +95,113 @@ func TestCapabilitiesAreW3COnly(t *testing.T) {
 	}
 }
 
-// TestMobileCapabilitiesAreAppium2 proves real device sessions use Appium 2
-// with the vendor prefix Appium 2 requires.
-func TestMobileCapabilitiesAreAppium2(t *testing.T) {
-	caps := CapabilitiesFor(
-		Browser{OS: "ios", OSVersion: "13", Browser: "iphone", Device: "iPhone 11", RealMobile: true},
-		"session", "polyfill-library", "tunnel-id",
-	)
+// alwaysMatch parses the capabilities body and returns the W3C alwaysMatch
+// object, so tests can assert on capability placement rather than on substrings.
+func alwaysMatch(t *testing.T, caps Capabilities) map[string]any {
+	t.Helper()
 
 	encoded, err := caps.MarshalJSON()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	got := string(encoded)
-	t.Log(got)
+	var body struct {
+		Capabilities struct {
+			AlwaysMatch map[string]any `json:"alwaysMatch"`
+		} `json:"capabilities"`
+	}
 
-	// Appium 2 rejects unprefixed vendor capabilities.
-	for _, required := range []string{
-		`"appium:deviceName"`,
-		`"appium:platformVersion"`,
-		`"appium:appiumVersion"`,
-		`"platformName"`,
-	} {
-		if !contains(got, required) {
-			t.Errorf("mobile capabilities missing %s", required)
+	if err := json.Unmarshal(encoded, &body); err != nil {
+		t.Fatal(err)
+	}
+
+	return body.Capabilities.AlwaysMatch
+}
+
+// TestMobileCapabilities proves real device sessions are expressed with W3C
+// standard capabilities plus BrowserStack vendor capabilities only, and carry
+// no Appium capabilities at all.
+func TestMobileCapabilities(t *testing.T) {
+	caps := CapabilitiesFor(
+		Browser{OS: "ios", OSVersion: "13", Browser: "iphone", Device: "iPhone 11", RealMobile: true},
+		"session", "polyfill-library", "tunnel-id",
+	)
+
+	match := alwaysMatch(t, caps)
+
+	// The browser name must be a browser, at the W3C top level, not a device
+	// alias hidden inside bstack:options.
+	if got := match["browserName"]; got != "safari" {
+		t.Errorf("browserName = %v, want safari at the W3C top level", got)
+	}
+
+	if got := match["platformName"]; got != "ios" {
+		t.Errorf("platformName = %v, want ios", got)
+	}
+
+	// W3C standard capabilities may live at the top level; nothing may carry an
+	// Appium prefix.
+	for key := range match {
+		if strings.HasPrefix(key, "appium:") {
+			t.Errorf("capabilities should not contain Appium key %q", key)
 		}
 	}
 
-	if contains(got, `"appiumVersion": "1.8.0"`) {
-		t.Error("mobile capabilities still pin Appium 1.8.0")
+	bstack, _ := match["bstack:options"].(map[string]any)
+	if bstack == nil {
+		t.Fatal("bstack:options missing")
+	}
+
+	if _, ok := bstack["browserName"]; ok {
+		t.Error("browserName must not be nested in bstack:options")
+	}
+
+	for _, key := range []string{"deviceName", "osVersion"} {
+		if _, ok := bstack[key]; !ok {
+			t.Errorf("bstack:options missing %q", key)
+		}
+	}
+
+	if bstack["realMobile"] != true || bstack["deviceName"] != "iPhone 11" || bstack["osVersion"] != "13" {
+		t.Errorf("bstack:options = %v, want the device selection fields", bstack)
+	}
+}
+
+// TestMobileBrowserNameMapping covers the device-alias translation: the REST
+// browser list uses device aliases, the W3C capability wants a browser.
+func TestMobileBrowserNameMapping(t *testing.T) {
+	cases := map[string]string{
+		"iphone":  "safari",
+		"iPad":    "safari",
+		"ios":     "safari",
+		"android": "chrome",
+		"safari":  "safari",
+		"chrome":  "chrome",
+	}
+
+	for browser, want := range cases {
+		if got := mobileBrowserName(Browser{Browser: browser}); got != want {
+			t.Errorf("mobileBrowserName(%q) = %q, want %q", browser, got, want)
+		}
+	}
+}
+
+// TestMobileCapabilitiesForAndroid proves Android devices request Chrome, the
+// default browser the alias stands for.
+func TestMobileCapabilitiesForAndroid(t *testing.T) {
+	caps := CapabilitiesFor(
+		Browser{OS: "android", OSVersion: "13.0", Browser: "android", Device: "Google Pixel 7", RealMobile: true},
+		"session", "polyfill-library", "",
+	)
+
+	match := alwaysMatch(t, caps)
+
+	if got := match["browserName"]; got != "chrome" {
+		t.Errorf("browserName = %v, want chrome", got)
+	}
+
+	if got := match["platformName"]; got != "android" {
+		t.Errorf("platformName = %v, want android", got)
 	}
 }
 
