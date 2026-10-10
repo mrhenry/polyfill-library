@@ -110,8 +110,8 @@ func run(browsersPath, stackPath string) error {
 	return nil
 }
 
-// browserLess reproduces the sort in the JavaScript script it replaced:
-// desktop browser versions ascend, and Windows/OS X platform versions descend.
+// browserLess orders desktop browser versions ascending, and Windows/OS X
+// platform versions descending.
 func browserLess(a, b browserstack.Browser) bool {
 	if a.Browser != b.Browser {
 		return localeLess(a.Browser, b.Browser)

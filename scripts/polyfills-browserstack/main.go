@@ -82,7 +82,7 @@ const (
 	testServerProbeInterval = 250 * time.Millisecond
 )
 
-// mode is a test configuration, matching the JavaScript harness' mode flags.
+// mode is a test configuration, selected by a positional flag.
 type mode string
 
 const (
@@ -91,8 +91,6 @@ const (
 	modeTargeted mode = "targeted"
 )
 
-// options mirrors the JavaScript harness' argv contract so the CI workflow
-// needs as little change as possible.
 type options struct {
 	browserFilter            string
 	versionRanges            string
@@ -119,8 +117,8 @@ type options struct {
 	testEverything bool
 }
 
-// parseArgs reads the same positional flags the JavaScript harness accepted,
-// plus -list for a dry run and -concurrency to change the session limit.
+// parseArgs reads the positional flags the CI workflows pass, plus -list for a
+// dry run and -concurrency to change the session limit.
 func parseArgs(args []string) options {
 	o := options{testMode: modeAll, testEverything: true, maxConcurrency: concurrency}
 
@@ -371,15 +369,19 @@ func run(opts options) error {
 	runnerCtx, stopSignals := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stopSignals()
 
-	if err := ensureTestServer(runnerCtx, repo); err != nil && !opts.list {
-		return err
+	// A dry run only lists browsers, so it needs neither a test server nor
+	// credentials, and must not spend the startup budget waiting for them.
+	if !opts.list {
+		if err := ensureTestServer(runnerCtx, repo); err != nil {
+			return err
+		}
 	}
 
 	credentials := browserstack.Credentials{
 		UserName:  os.Getenv("BROWSERSTACK_USERNAME"),
 		AccessKey: os.Getenv("BROWSERSTACK_ACCESS_KEY"),
 	}
-	if !credentials.Valid() {
+	if !opts.list && !credentials.Valid() {
 		return errors.New("BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY must be set in the environment to run tests on BrowserStack")
 	}
 
@@ -444,12 +446,11 @@ func run(opts options) error {
 	client := browserstack.New(browserstack.Config{Credentials: credentials})
 
 	closeTunnel, err := client.OpenTunnel(runnerCtx)
-
-	defer closeTunnel()
-
 	if err != nil {
 		return err
 	}
+
+	defer closeTunnel()
 
 	log.Println("tunnel ready")
 
@@ -504,8 +505,7 @@ func affectedBrowsers(metas *polyfillmeta.Collection, opts options) []*polyfillm
 	return out
 }
 
-// selectBrowsers applies the browser filter and the polyfill gating, in the
-// same order as the JavaScript harness.
+// selectBrowsers applies the browser filter and the polyfill gating.
 func selectBrowsers(all []string, opts options, affected []*polyfillmeta.Meta) []string {
 	var out []string
 
@@ -652,9 +652,8 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 				sharded.shard = shard
 				sharded.trace = nextTrace(runID, fmt.Sprintf("%s#%d", entry, shard))
 				sharded.url = testURL(baseURL, opts, shard, false, sharded.trace)
-				// Each shard is a separate session and needs its own progress,
-				// results and error; sharing base.state let them overwrite each
-				// other, hiding a failing shard behind a passing one.
+				// Sharing base.state let the shards overwrite each other,
+				// hiding a failing shard behind a passing one.
 				sharded.state = newJobState()
 				jobs = append(jobs, &sharded)
 			}
@@ -710,7 +709,7 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 
 // needsShard reports whether an entry is sharded during a full run.
 func needsShard(entry string) bool {
-	return entry == "ie/8.0" || entry == "ie/9.0" || entry == "ie/10.0" || strings.HasPrefix(entry, "ios/11")
+	return entry == "ie/9.0" || entry == "ie/10.0" || strings.HasPrefix(entry, "ios/11")
 }
 
 // browserFor returns the platform for a session. The pinned platform is only
@@ -1041,8 +1040,8 @@ func runJobOnce(ctx context.Context, client *browserstack.Client, credentials br
 		return fmt.Errorf("%w: %w", browserstack.ErrSessionStart, err)
 	}
 
-	// Always release the BrowserStack session, even when a later step fails,
-	// and free the reserved capacity once it is gone.
+	// Runs even when a later step fails, so a dead job cannot hold a parallel
+	// slot.
 	defer func() {
 		deleteCtx, cancelDelete := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
 		defer cancelDelete()
@@ -1075,10 +1074,7 @@ func runJobOnce(ctx context.Context, client *browserstack.Client, credentials br
 		return &noBrowserRequestError{trace: j.trace, stats: stats, navigateFor: navigateFor}
 	}
 
-	// Fail fast when the page never arrives, or is not the page requested.
-	// Polling for results alone cannot tell "still running" from "never
-	// loaded", and sniffing for globals cannot tell the director page from the
-	// runner page because the director keeps mocha inside an iframe.
+	// Polling for results alone cannot tell "still running" from "never loaded".
 	if err := waitForPageLoad(ctx, session, j, j.expectedPage); err != nil {
 		return err
 	}
@@ -1526,6 +1522,10 @@ func pollForResults(ctx context.Context, session *browserstack.Session, j *job) 
 	}
 }
 
+// lastProgress is the last block printed, so a run of several hundred jobs
+// polling every second does not reprint an unchanged screenful.
+var lastProgress string
+
 func printProgress(jobs []*job) {
 	lines := []string{strings.Repeat("-", 80)}
 
@@ -1573,10 +1573,17 @@ func printProgress(jobs []*job) {
 		lines = append(lines, fmt.Sprintf(" + %d job(s) queued", queued))
 	}
 
-	fmt.Print(strings.Join(lines, "\n") + "\n")
+	out := strings.Join(lines, "\n") + "\n"
+	if out == lastProgress {
+		return
+	}
+
+	lastProgress = out
+
+	fmt.Print(out)
 }
 
-// writeResults records results in the same shape the JavaScript harness wrote.
+// writeResults records results in the shape test/polyfills/compat.js reads.
 func writeResults(repo string, opts options, jobs []*job) error {
 	results := map[string]map[string]map[string]*testSummary{}
 
@@ -1676,9 +1683,7 @@ func mergeSummaries(a, b *testSummary) *testSummary {
 
 // reportFailures lists everything that failed, with a URL to reproduce it.
 func reportFailures(jobs []*job, opts options) {
-	// These URLs are printed for someone about to paste them into a browser, so
-	// they have to work. Appending to a URL that already had a query produced a
-	// second "?" and duplicated the parameters.
+	// bs-local.com only resolves while the tunnel is running, which it is here.
 	baseURL := fmt.Sprintf("http://bs-local.com:%d/test", serverPort)
 
 	log.Println("\nFailures:")

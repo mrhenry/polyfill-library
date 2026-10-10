@@ -268,11 +268,9 @@ app.listen(port, () => console.log(`Test server listening on port ${port}!`));
 
 const testablePolyfillsCache = {};
 
-// Every polyfill's metadata and test file is read once, not once per browser.
-//
-// describePolyfill() re-reads meta.json from disk on every call, and
-// testablePolyfills() calls it for all ~3400 polyfills once per distinct user
-// agent, which is enough metadata reads to stall the pages being served.
+// Every polyfill's metadata and test file is read once rather than once per
+// browser: describePolyfill() re-reads meta.json from disk on every call, and
+// testablePolyfills() calls it for ~3400 polyfills per distinct user agent.
 const polyfillSourcesPromise = (async () => {
 	const polyfills = await polyfillio.listAllPolyfills();
 
@@ -409,12 +407,12 @@ function createEndpoint(template) {
 				always: always,
 				trace: request.trace || "",
 				afterTestSuite: `
-				// Declare the page identity before running anything, so the
-				// driver does not have to infer it from which globals exist.
+				// Declared before anything runs, so the driver reads the page's
+				// own identity rather than inferring it from which globals exist.
 				window.global_test_page = 'runner';
 
-				// The test script is loaded and parsed by the time this inline
-				// script runs, so the suite size says whether it arrived intact.
+				// mocha has parsed the suite by now, so its size says whether
+				// the test script arrived intact.
 				window.global_test_suite_size = (typeof mocha !== 'undefined' && mocha.suite) ? mocha.suite.total() : 0;
 				window.global_test_started = true;
 
@@ -466,11 +464,10 @@ function createEndpoint(template) {
 						results.testedSuites.push(getFirstLevelSuite(suite));
 					});
 					runner.on('end', function() {
-						// A suite that registered no tests would report
-						// passed:0 failed:0, which scores as a success. That
-						// happens when polyfill.test.js fails to load or throws
-						// before calling describe, so record it as a failure and
-						// name the asset that broke.
+						// A suite that registered no tests scores as a success
+						// with passed:0 failed:0. That happens when
+						// polyfill.test.js fails to load or throws before calling
+						// describe, so record it and name the asset that broke.
 						if (!results.total) {
 							results.failed = 1;
 							results.total = 1;

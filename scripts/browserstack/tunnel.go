@@ -26,9 +26,7 @@ const cacheDir = ".browserstack"
 // downloadBaseURL serves the tunnel binary per platform and architecture.
 const downloadBaseURL = "https://www.browserstack.com/browserstack-local/BrowserStackLocal"
 
-// platformSuffix maps GOOS/GOARCH onto BrowserStack's naming. Unlike the older
-// ports, darwin/arm64 prefers the native arm64 build and falls back to x64 when
-// BrowserStack has not published one.
+// platformSuffix maps GOOS/GOARCH onto BrowserStack's naming.
 func platformSuffix(goos, goarch string) string {
 	if goos == "windows" {
 		return "win32.zip"
@@ -51,8 +49,20 @@ func platformSuffix(goos, goarch string) string {
 	}
 }
 
-func hostSupportsNative(goarch string) bool {
-	return goarch == runtime.GOARCH
+// hostSupportsNative reports whether a build runs natively on goarch, rather
+// than under Rosetta or emulation. BrowserStack names architectures
+// differently, so the suffix is mapped back onto GOARCH before comparing.
+func hostSupportsNative(suffix, goarch string) bool {
+	arch := archOf(suffix)
+
+	switch arch {
+	case "x64", "win32":
+		arch = "amd64"
+	case "ia32":
+		arch = "386"
+	}
+
+	return arch == goarch
 }
 
 // localBinaryPath resolves the tunnel binary, downloading it when absent.
@@ -124,8 +134,6 @@ func fileExists(path string) bool {
 func downloadLocalBinary(ctx context.Context, dest string) error {
 	candidates := []string{platformSuffix(runtime.GOOS, runtime.GOARCH)}
 
-	// darwin/arm64 and other hosts without a published native build fall back
-	// to x64.
 	if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
 		candidates = append(candidates, "-darwin-x64.zip")
 	}
@@ -137,7 +145,7 @@ func downloadLocalBinary(ctx context.Context, dest string) error {
 			continue
 		}
 
-		if !hostSupportsNative(archOf(candidate)) {
+		if !hostSupportsNative(candidate, runtime.GOARCH) {
 			log.Printf("[tunnel] : %s is not native to %s/%s, Rosetta or emulation is required",
 				candidate, runtime.GOOS, runtime.GOARCH)
 		}

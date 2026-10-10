@@ -157,6 +157,12 @@ Visit : http://bs-local.com:9876/test?includePolyfills=yes&always=no&feature=<Yo
 Test server listening on port 9876!
 ```
 
+The tests themselves run in real browsers on BrowserStack. With `BROWSERSTACK_USERNAME` and `BROWSERSTACK_ACCESS_KEY` set, you can drive them yourself :
+
+`$ npm run test-browserstack -- test-modified-only targeted director browser=chrome`
+
+That is a Go program, so it needs [Go](https://go.dev/dl/) installed. Add `-list` to see which browsers a run would select, without creating any BrowserStack session.
+
 ### Running Tests in Github Actions on your fork.
 
 If you have appropriate credentials for Browserstack you can configure your fork to run tests.
@@ -187,11 +193,9 @@ To update those files with the latest set of browsers that BrowserStack support,
 
 `$ npm run update-browserstack-list`
 
-If the command is successful then your terminal will respond:
+This runs a Go program, so it needs [Go](https://go.dev/dl/) installed. If the command is successful then your terminal will report how many browsers BrowserStack offers and how many entries are under test.
 
-```
-Updated the browser list for automated testing via BrowserStack.
-```
+Entries you have commented out in `browsers.toml` stay commented out, so curating the list survives a regeneration.
 
 ## Submitting a Pull Request
 

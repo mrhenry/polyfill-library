@@ -90,8 +90,7 @@ func NewIndex(browsers []Browser) *Index {
 	}
 
 	for _, b := range browsers {
-		// Prefer a device match over an OS match, mirroring the JavaScript
-		// harness, which tested os/os_version first.
+		// Indexed separately, and looked up first, so a device match wins.
 		if b.OS != "" && b.OSVersion != "" {
 			key := b.OS + "/" + b.OSVersion
 			if _, exists := idx.byOS[key]; !exists {
@@ -122,7 +121,7 @@ func NewIndex(browsers []Browser) *Index {
 // Lookup resolves a browsers.toml entry to a BrowserStack browser.
 //
 // The os/os_version form is checked first because iOS entries are keyed by
-// operating system rather than by browser, as the JavaScript harness did.
+// operating system rather than by browser.
 func (idx *Index) Lookup(entry string) (Browser, bool) {
 	family, version, _ := strings.Cut(entry, "/")
 

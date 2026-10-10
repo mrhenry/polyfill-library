@@ -126,10 +126,10 @@ func (c *Collection) PolyfillsWithTests() map[string]*Meta {
 // ModifiedPolyfillsWithTests resolves a change set into the set of polyfills
 // whose tests must run.
 //
-// It mirrors modifiedPolyfillsWithTests: anything outside polyfills/, any
-// change to a file directly in polyfills/, an unknown polyfill, more than 20
-// changed polyfills, no resulting polyfills with tests, or more than 50
-// resolved polyfills all fall back to testing everything.
+// Anything outside polyfills/, a change to a file directly in polyfills/, an
+// unknown polyfill, more than 20 changed polyfills, no resulting polyfills with
+// tests, or more than 50 resolved polyfills all fall back to testing
+// everything.
 func (c *Collection) ModifiedPolyfillsWithTests(modifiedFiles []string) *Modified {
 	if len(modifiedFiles) == 0 {
 		return &Modified{
@@ -143,7 +143,6 @@ func (c *Collection) ModifiedPolyfillsWithTests(modifiedFiles []string) *Modifie
 	for _, modifiedFile := range modifiedFiles {
 		modifiedFile = filepath.ToSlash(modifiedFile)
 
-		// 1.a. Not a polyfill change.
 		if !strings.HasPrefix(modifiedFile, "polyfills/") {
 			modified.HasOtherChanges = true
 			modified.TestEverything = true
@@ -151,7 +150,7 @@ func (c *Collection) ModifiedPolyfillsWithTests(modifiedFiles []string) *Modifie
 			continue
 		}
 
-		// 1.b.I. A file directly in the polyfills directory.
+		// A file directly in the polyfills directory, e.g. ".eslintrc".
 		polyfillPath := filepath.ToSlash(filepath.Dir(modifiedFile))
 		if polyfillPath == "polyfills" {
 			modified.HasOtherChanges = true
@@ -163,7 +162,6 @@ func (c *Collection) ModifiedPolyfillsWithTests(modifiedFiles []string) *Modifie
 		relative := strings.TrimPrefix(polyfillPath, "polyfills/")
 		name := strings.ReplaceAll(relative, "/", ".")
 
-		// 1.b.II. Unknown polyfill.
 		meta, ok := c.Meta(name)
 		if !ok {
 			modified.HasOtherChanges = true
@@ -172,16 +170,15 @@ func (c *Collection) ModifiedPolyfillsWithTests(modifiedFiles []string) *Modifie
 			continue
 		}
 
-		// 1.b.III. A known polyfill.
 		modified.Polyfills[name] = meta
 	}
 
-	// 2. Unrelated changes already force a full run.
+	// Unrelated changes already force a full run.
 	if modified.TestEverything {
 		return modified
 	}
 
-	// 3. Too many polyfill changes.
+	// Too many polyfill changes.
 	if len(modified.Polyfills) > 20 {
 		modified.HasManyPolyfillChanges = true
 		modified.TestEverything = true
@@ -189,7 +186,7 @@ func (c *Collection) ModifiedPolyfillsWithTests(modifiedFiles []string) *Modifie
 		return modified
 	}
 
-	// 4. Seed the changed set with the polyfills and their aliases.
+	// Aliases count as changed: other polyfills may declare an alias name.
 	changed := map[string]bool{}
 	for name := range modified.Polyfills {
 		changed[name] = true
@@ -199,7 +196,7 @@ func (c *Collection) ModifiedPolyfillsWithTests(modifiedFiles []string) *Modifie
 		}
 	}
 
-	// 5. Walk the dependency graph until nothing new turns up.
+	// Walk the dependency graph until nothing new turns up.
 	dependents := c.dependents()
 	for foundMore := true; foundMore; {
 		foundMore = false
@@ -214,7 +211,7 @@ func (c *Collection) ModifiedPolyfillsWithTests(modifiedFiles []string) *Modifie
 		}
 	}
 
-	// 6. Keep only polyfills that actually have tests.
+	// Keep only polyfills the browser suite can exercise.
 	affected := map[string]*Meta{}
 	for name := range changed {
 		if meta, ok := c.Meta(name); ok && hasTestsOnly(meta) {
@@ -224,14 +221,14 @@ func (c *Collection) ModifiedPolyfillsWithTests(modifiedFiles []string) *Modifie
 
 	modified.AffectedPolyfills = affected
 
-	// 7. Nothing testable changed, so test everything to be safe.
+	// Nothing testable changed, so test everything to be safe.
 	if len(modified.AffectedPolyfills) == 0 {
 		modified.TestEverything = true
 
 		return modified
 	}
 
-	// 8. The resolved dependency list grew too large.
+	// The resolved dependency list grew too large.
 	if len(modified.AffectedPolyfills) > 50 {
 		modified.HasManyPolyfillChanges = true
 		modified.TestEverything = true

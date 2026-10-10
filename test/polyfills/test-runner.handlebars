@@ -10,14 +10,11 @@
 
 	<script>
 	// Declared before any other script so every tag below can report into it.
+	// A script that never arrives fires onerror, one that arrives and throws
+	// fires onload plus a window error, and recording both lets the runner name
+	// the asset that broke instead of only reporting a suite that never started.
 	//
-	// A script that never arrives (a dropped tunnel, a 404) fires onerror, and
-	// one that arrives and throws fires onload plus a window error. Recording
-	// both lets the runner name the asset that broke instead of only reporting
-	// that the suite never started.
-	//
-	// Inline handlers are used because the oldest browser in the matrix is IE 9,
-	// which has no addEventListener on script elements.
+	// Inline handlers, because IE 9 has no addEventListener on script elements.
 	window.global_test_assets = { loaded: [], failed: [], errors: [] };
 	window.__assetLoaded = function (name) {
 		window.global_test_assets.loaded.push(name);
@@ -32,7 +29,7 @@
 				' @ ' + String(url).slice(0, 200) + ':' + line
 			);
 		}
-		// Reported already; keep it out of the console.
+		// Already reported to the driver; keep it out of the console.
 		return true;
 	};
 	</script>
