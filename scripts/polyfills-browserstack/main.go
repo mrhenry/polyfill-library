@@ -243,7 +243,7 @@ type jobState struct {
 	mu       sync.Mutex
 	state    string
 	results  *testSummary
-	failure  *pageResults
+	progress *pageResults
 	err      error
 	duration time.Duration
 
@@ -312,7 +312,7 @@ func (s *jobState) recordProgress(progress *pageResults) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.failure = progress
+	s.progress = progress
 	s.state = "running"
 }
 
@@ -325,11 +325,11 @@ func (s *jobState) complete(results *testSummary, duration time.Duration) {
 	s.state = "complete"
 }
 
-func (s *jobState) snapshot() (state string, results *testSummary, failure *pageResults, err error, duration time.Duration, replacements int) {
+func (s *jobState) snapshot() (state string, results *testSummary, progress *pageResults, err error, duration time.Duration, replacements int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	return s.state, s.results, s.failure, s.err, s.duration, s.replacements
+	return s.state, s.results, s.progress, s.err, s.duration, s.replacements
 }
 
 func (s *jobState) failed() bool {
@@ -1501,7 +1501,7 @@ func printProgress(jobs []*job) {
 	queued := 0
 
 	for _, j := range jobs {
-		state, results, failure, err, duration, replacements := j.state.snapshot()
+		state, results, progress, err, duration, replacements := j.state.snapshot()
 
 		message := ""
 
@@ -1525,8 +1525,8 @@ func printProgress(jobs []*job) {
 		case "ready":
 			queued++
 		case "running":
-			if failure != nil {
-				message = fmt.Sprintf("%d/%d", failure.RunnerCompletedCount, failure.RunnerCount)
+			if progress != nil {
+				message = fmt.Sprintf("%d/%d", progress.RunnerCompletedCount, progress.RunnerCount)
 			}
 		default:
 			message = state

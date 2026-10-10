@@ -110,13 +110,13 @@ func TestCapabilitiesAreW3COnly(t *testing.T) {
 	t.Log(got)
 
 	for _, forbidden := range []string{"desiredCapabilities", "requiredCapabilities"} {
-		if contains(got, forbidden) {
+		if strings.Contains(got, forbidden) {
 			t.Errorf("capabilities contain %q, which BrowserStack retires in December 2026", forbidden)
 		}
 	}
 
 	for _, required := range []string{`"capabilities"`, `"alwaysMatch"`, `"firstMatch"`} {
-		if !contains(got, required) {
+		if !strings.Contains(got, required) {
 			t.Errorf("capabilities are missing %s", required)
 		}
 	}
@@ -269,18 +269,4 @@ func TestMobileCapabilitiesForAndroid(t *testing.T) {
 	if got := match["platformName"]; got != "android" {
 		t.Errorf("platformName = %v, want android", got)
 	}
-}
-
-func contains(haystack, needle string) bool {
-	return len(haystack) >= len(needle) && indexOf(haystack, needle) >= 0
-}
-
-func indexOf(haystack, needle string) int {
-	for i := 0; i+len(needle) <= len(haystack); i++ {
-		if haystack[i:i+len(needle)] == needle {
-			return i
-		}
-	}
-
-	return -1
 }

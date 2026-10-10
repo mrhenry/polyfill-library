@@ -121,7 +121,7 @@ func TestJobStateTracksOneJob(t *testing.T) {
 	progress := &pageResults{State: "running", RunnerCompletedCount: 3, RunnerCount: 10}
 	state.recordProgress(progress)
 
-	if state.failure != progress {
+	if state.progress != progress {
 		t.Error("recordProgress did not keep the progress it was given")
 	}
 

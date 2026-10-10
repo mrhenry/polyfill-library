@@ -12,8 +12,8 @@ import (
 	"time"
 )
 
-// ErrSessionStart marks an error raised while creating a WebDriver session.
-// Session starts are retried, so every NewSession failure is wrapped in this.
+// ErrSessionStart marks a failure to create a WebDriver session, which the
+// runner retries. Callers wrap their NewSession errors in it.
 var ErrSessionStart = errors.New("creating webdriver session")
 
 // ErrCommandTimeout marks a command against an established session that did

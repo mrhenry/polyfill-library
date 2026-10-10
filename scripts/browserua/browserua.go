@@ -187,15 +187,7 @@ func (u *UA) meetsBaseline() bool {
 		return true
 	}
 
-	version := u.Version()
-
-	// "android" baselines use a two segment range (4.3), so pad to match the
-	// three segment versions this package produces.
-	if len(strings.Split(version, ".")) < len(strings.Split(baseline, ".")) {
-		version += ".0"
-	}
-
-	parsed, err := semver.NewVersion(version)
+	parsed, err := semver.NewVersion(u.Version())
 	if err != nil {
 		return true
 	}
