@@ -386,6 +386,32 @@ func TestEverySelectedBrowserResolves(t *testing.T) {
 	}
 }
 
+// TestEveryEnabledBrowserFamilyIsKnown guards against a newly offered
+// BrowserStack family silently disappearing from the run. A family the library
+// does not target must be mapped in scripts/browserua or commented out, not
+// skipped without a trace.
+//
+// Below-baseline versions of a known family are intentionally skipped and are
+// not flagged here.
+func TestEveryEnabledBrowserFamilyIsKnown(t *testing.T) {
+	root := repoRoot()
+
+	list, err := browserstack.LoadBrowserList(filepath.Join(root, "test/polyfills/browsers.toml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, entry := range list.Browsers {
+		if browserua.KnownEntry(entry) {
+			continue
+		}
+
+		t.Errorf(
+			"enabled browsers.toml entry %q uses browser family %q, which the polyfill library does not target; map it in scripts/browserua or comment the entry out",
+			entry, browserua.FamilyOf(entry))
+	}
+}
+
 // TestTracesAreUniqueAndUrlSafe covers the correlation id. The test server
 // rejects anything longer than 80 characters or containing anything but
 // [A-Za-z0-9._-], and a rejected id would silently disable correlation.

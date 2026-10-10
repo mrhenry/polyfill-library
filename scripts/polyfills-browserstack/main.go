@@ -514,9 +514,17 @@ func selectBrowsers(all []string, opts options, affected []*polyfillmeta.Meta) [
 			continue
 		}
 
+		// A family the library does not target is a new BrowserStack family
+		// that needs mapping or exclusion, not a version to skip silently.
+		if !browserua.KnownEntry(entry) {
+			log.Printf("skipping %s : browser family %q is not targeted by the polyfill library", entry, browserua.FamilyOf(entry))
+
+			continue
+		}
+
 		ua := browserua.New(browserua.FromBrowserEntry(entry))
 
-		// Unrecognised or below baseline browsers cannot be tested.
+		// Below-baseline versions cannot be tested.
 		if ua.IsUnknown() {
 			continue
 		}

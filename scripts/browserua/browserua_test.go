@@ -84,6 +84,38 @@ func TestFromBrowserEntry(t *testing.T) {
 	}
 }
 
+func TestFamilyOf(t *testing.T) {
+	cases := map[string]string{
+		"ios/13":                 "ios_saf",
+		"chrome/32.0":            "chrome",
+		"chromeForTesting/141.0": "chromefortesting",
+	}
+
+	for entry, want := range cases {
+		if got := FamilyOf(entry); got != want {
+			t.Errorf("FamilyOf(%q) = %q, want %q", entry, got, want)
+		}
+	}
+}
+
+// TestKnownEntry covers the guard against a new BrowserStack family being
+// skipped silently: a known family is accepted even when below baseline, while
+// an unmapped family is not.
+func TestKnownEntry(t *testing.T) {
+	cases := map[string]bool{
+		"chrome/32.0":            true,
+		"ios/13":                 true,
+		"firefox/3.6":            true,
+		"chromeForTesting/141.0": false,
+	}
+
+	for entry, want := range cases {
+		if got := KnownEntry(entry); got != want {
+			t.Errorf("KnownEntry(%q) = %t, want %t", entry, got, want)
+		}
+	}
+}
+
 func TestNormalize(t *testing.T) {
 	if got := Normalize("ios_saf/13"); got != "ios_saf/13.0.0" {
 		t.Errorf("Normalize = %q, want ios_saf/13.0.0", got)

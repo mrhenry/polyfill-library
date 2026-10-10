@@ -28,6 +28,8 @@ jobs:
           cache-dependency-path: go.sum
       - run: go test ./scripts/...
       - run: npm ci
+      - name: Check browserua tables are current
+        run: npm run generate-browserua-tables && git diff --exit-code -- scripts/browserua/tables.json
       - run: npm run build
 
       - run: npm run test-older-node

@@ -1,7 +1,8 @@
 // Package browserua reimplements the parts of
 // @financial-times/polyfill-useragent-normaliser that the BrowserStack harness
 // depends on. It only accepts the short "family/version" form used by
-// test/polyfills/browsers.toml, never a real User-Agent header.
+// test/polyfills/browsers.toml, never a real User-Agent header. The baselines
+// and Opera remap are generated from that package, not hand-maintained.
 //
 // Normalisation matters because polyfill browser targets are keyed by the
 // normalised family: a browser below the family's baseline normalises to
@@ -9,6 +10,8 @@
 package browserua
 
 import (
+	_ "embed"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -24,40 +27,53 @@ const Unknown = "other/0.0.0"
 // package's /^(\w+)\/(\d+)(?:\.(\d+)(?:\.(\d+))?)?$/i.
 var shortForm = regexp.MustCompile(`(?i)^(\w+)/(\d+)(?:\.(\d+)(?:\.(\d+))?)?$`)
 
-// baselines is UA.getBaselines() from the original package. A browser below its
-// family's baseline is not recognised.
-var baselines = map[string]string{
-	"edge":        "*",
-	"edge_mob":    "*",
-	"ie":          "9",
-	"ie_mob":      "11",
-	"chrome":      "29",
-	"safari":      "9",
-	"ios_saf":     "9",
-	"ios_chr":     "9",
-	"firefox":     "38",
-	"firefox_mob": "38",
-	"android":     "4.3",
-	"opera":       "33",
-	"op_mob":      "10",
-	"op_mini":     "5",
-	"bb":          "6",
-	"samsung_mob": "4",
+// tables.json is generated from @financial-times/polyfill-useragent-normaliser
+// by `npm run generate-browserua-tables`, so the baselines and the Opera remap
+// have one source of truth rather than a copy that drifts.
+//
+//go:embed tables.json
+var tablesJSON []byte
+
+// browserTables mirrors the generated tables.json.
+type browserTables struct {
+	Baselines     map[string]string `json:"baselines"`
+	OperaToChrome map[string]struct {
+		Major int `json:"major"`
+		Minor int `json:"minor"`
+	} `json:"operaToChrome"`
 }
 
+// baselines is UA.getBaselines(). A browser below its family's baseline is not
+// recognised.
+var baselines map[string]string
+
 // operaToChrome remaps Chromium-based Opera releases onto the Chrome versions
-// they are equivalent to, matching the original package.
-var operaToChrome = map[int][2]int{
-	20: {33, 0}, 21: {34, 0}, 22: {35, 0}, 23: {36, 0}, 24: {37, 0},
-	25: {38, 0}, 26: {39, 0}, 27: {40, 0}, 28: {41, 0}, 29: {42, 0},
-	30: {43, 0}, 31: {44, 0}, 32: {45, 0}, 33: {46, 0}, 34: {47, 0},
-	35: {48, 0}, 36: {49, 0}, 37: {50, 0}, 38: {51, 0}, 39: {52, 0},
-	40: {53, 0}, 41: {54, 0}, 42: {55, 0}, 43: {56, 0}, 44: {57, 0},
-	45: {58, 0}, 46: {59, 0}, 47: {60, 0}, 48: {61, 0}, 49: {62, 0},
-	50: {63, 0}, 51: {64, 0}, 52: {65, 0}, 53: {66, 0}, 54: {67, 0},
-	55: {68, 0}, 56: {69, 0}, 57: {70, 0}, 58: {71, 0}, 59: {72, 0},
-	60: {73, 0}, 61: {74, 0}, 62: {75, 0}, 63: {76, 0}, 64: {77, 0},
-	65: {78, 0}, 66: {79, 0}, 67: {80, 0},
+// they are equivalent to.
+var operaToChrome map[int][2]int
+
+func init() {
+	var tables browserTables
+	if err := json.Unmarshal(tablesJSON, &tables); err != nil {
+		panic("browserua: parsing tables.json: " + err.Error())
+	}
+
+	baselines = tables.Baselines
+	operaToChrome = make(map[int][2]int, len(tables.OperaToChrome))
+
+	for major, chrome := range tables.OperaToChrome {
+		n, err := strconv.Atoi(major)
+		if err != nil {
+			continue
+		}
+
+		operaToChrome[n] = [2]int{chrome.Major, chrome.Minor}
+	}
+}
+
+// entryFamilyAliases maps a BrowserStack browser-list family onto the family the
+// polyfill library uses. Only names that differ need an entry.
+var entryFamilyAliases = map[string]string{
+	"ios": "ios_saf",
 }
 
 // UA is a normalised browser identity.
@@ -193,10 +209,52 @@ func Normalize(s string) string {
 }
 
 // FromBrowserEntry converts a browsers.toml entry such as "ios/13" into the
-// "ios_saf/13" form the polyfill browser targets use. Entries that are not
-// iOS are returned unchanged.
+// family form the polyfill browser targets use. Entries whose family already
+// matches are returned unchanged.
 func FromBrowserEntry(entry string) string {
-	return strings.Replace(entry, "ios", "ios_saf", 1)
+	family, version, hasVersion := strings.Cut(entry, "/")
+
+	family = libraryFamily(family)
+
+	if !hasVersion {
+		return family
+	}
+
+	return family + "/" + version
+}
+
+// libraryFamily maps a browser-list family onto the polyfill library's name.
+func libraryFamily(family string) string {
+	family = strings.ToLower(family)
+
+	if alias, ok := entryFamilyAliases[family]; ok {
+		return alias
+	}
+
+	return family
+}
+
+// FamilyOf returns the library family a browsers.toml entry names.
+func FamilyOf(entry string) string {
+	family, _, _ := strings.Cut(entry, "/")
+
+	return libraryFamily(family)
+}
+
+// FamilyKnown reports whether the library targets a family at all, ignoring the
+// version baseline. It separates a genuinely new browser family, which needs an
+// explicit mapping or exclusion, from a below-baseline version, which is skipped
+// by design.
+func FamilyKnown(family string) bool {
+	_, ok := baselines[strings.ToLower(family)]
+
+	return ok
+}
+
+// KnownEntry reports whether a browsers.toml entry names a family the library
+// targets, ignoring the version baseline.
+func KnownEntry(entry string) bool {
+	return FamilyKnown(FamilyOf(entry))
 }
 
 func atoiOrZero(s string) int {
