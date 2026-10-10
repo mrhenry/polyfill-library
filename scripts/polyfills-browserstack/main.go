@@ -926,19 +926,23 @@ const (
 //
 // A session whose browser never issued its navigation is not retried: that
 // session never recovers, and re-navigating it returns in about a tenth of a
-// second without issuing anything. A replacement session is, and it needs no
-// pause because the tunnel is demonstrably working, which is why a replacement
-// does not consume an attempt and so never trips the pause in runJob. A session
-// that could not start is usually a tunnel still registering, and is worth
-// waiting out.
+// second without issuing anything. A session whose renderer crashed is in the
+// same position: the browser process is gone and no command against it can
+// succeed. A replacement session is, and it needs no pause because the tunnel
+// is demonstrably working, which is why a replacement does not consume an
+// attempt and so never trips the pause in runJob. A session that could not
+// start is usually a tunnel still registering, and is worth waiting out.
 //
 // Separated from runJob so the policy can be tested without a network.
 func nextAction(err error, replacements int) action {
 	switch {
-	case errors.Is(err, ErrNoBrowserRequest), errors.Is(err, browserstack.ErrCommandTimeout):
-		// Both mean the session's browser is not usable: it never navigated, or
-		// it stopped answering. A fresh session is the recovery, and it works
-		// often enough to be worth the replacements budget.
+	case errors.Is(err, ErrNoBrowserRequest),
+		errors.Is(err, browserstack.ErrPageCrash),
+		errors.Is(err, browserstack.ErrCommandTimeout):
+		// All three mean the session's browser is not usable: it never
+		// navigated, its renderer crashed, or it stopped answering. A fresh
+		// session is the recovery, and it works often enough to be worth the
+		// replacements budget.
 		if replacements >= sessionReplacements {
 			return actionFail
 		}
@@ -1468,7 +1472,6 @@ const pageStateScript = `
 		assets: window.global_test_assets || null
 	};`
 
-// combinationName labels individual versus combined runs.
 // sessionLabel names a BrowserStack session so it can be matched to a line in
 // the test server log. The trace is last: it is the field that ties the two
 // together, and it is more precise than a clock time because it does not depend
@@ -1479,6 +1482,7 @@ func sessionLabel(batchName string, j *job) string {
 		j.trace)
 }
 
+// combinationName labels individual versus combined runs.
 func combinationName(combined bool) string {
 	if combined {
 		return "interop"
@@ -1641,7 +1645,12 @@ func writeResults(repo string, opts options, jobs []*job) error {
 			results[family][version] = map[string]*testSummary{}
 		}
 
-		results[family][version][string(j.testMode)] = jobResults
+		mode := string(j.testMode)
+
+		// A sharded browser reports both shards under one family/version/mode,
+		// so they are merged rather than overwritten; otherwise the first
+		// shard's suites would be lost from the results file.
+		results[family][version][mode] = mergeSummaries(results[family][version][mode], jobResults)
 	}
 
 	for _, j := range jobs {
@@ -1661,6 +1670,52 @@ func writeResults(repo string, opts options, jobs []*job) error {
 	}
 
 	return os.WriteFile(path, encoded, 0o644)
+}
+
+// mergeSummaries folds two summaries recorded under the same browser and mode
+// together, which is what a sharded browser produces: two sessions, one entry.
+//
+// The result is a new summary, so neither input is mutated, and the suite lists
+// are unions so a suite exercised by both shards is only reported once.
+func mergeSummaries(a, b *testSummary) *testSummary {
+	if a == nil {
+		return b
+	}
+
+	if b == nil {
+		return a
+	}
+
+	failingSuites := map[string]bool{}
+	for _, suite := range a.FailingSuites {
+		failingSuites[suite] = true
+	}
+
+	for _, suite := range b.FailingSuites {
+		failingSuites[suite] = true
+	}
+
+	suites := make([]string, 0, len(failingSuites))
+	for suite := range failingSuites {
+		suites = append(suites, suite)
+	}
+
+	sort.Strings(suites)
+
+	assets := b.Assets
+	if assets == nil {
+		assets = a.Assets
+	}
+
+	return &testSummary{
+		Passed:              a.Passed + b.Passed,
+		Failed:              a.Failed + b.Failed,
+		FailingTests:        append(append([]failingTest{}, a.FailingTests...), b.FailingTests...),
+		FailingSuites:       suites,
+		TestedSuites:        append(append([]string{}, a.TestedSuites...), b.TestedSuites...),
+		Assets:              assets,
+		SessionReplacements: a.SessionReplacements + b.SessionReplacements,
+	}
 }
 
 // reportFailures lists everything that failed, with a URL to reproduce it.

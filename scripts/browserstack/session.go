@@ -25,6 +25,11 @@ var ErrSessionStart = errors.New("creating webdriver session")
 // caller replaces the session instead of retrying the command.
 var ErrCommandTimeout = errors.New("webdriver command timed out")
 
+// ErrPageCrash marks a session whose remote renderer has crashed. The session
+// cannot be recovered, so the caller replaces it rather than retrying a command
+// against a browser that is already gone.
+var ErrPageCrash = errors.New("remote browser renderer crashed")
+
 const (
 	// commandTimeout bounds an execute command. A live browser answers in
 	// milliseconds, so this only fires when the session has wedged.
@@ -293,6 +298,20 @@ type protocolError struct {
 }
 
 func newProtocolError(statusCode int, body []byte) error {
+	text := protocolErrorMessage(statusCode, body)
+
+	// A crashed renderer is reported as an ordinary protocol error, but the
+	// session is not usable again, so it is tagged for the caller to replace.
+	if isPageCrash(text) {
+		return fmt.Errorf("%w: %s", ErrPageCrash, text)
+	}
+
+	return errors.New(text)
+}
+
+// protocolErrorMessage renders a WebDriver error response as a single line,
+// accepting both the W3C and the legacy JSON Wire Protocol envelopes.
+func protocolErrorMessage(statusCode int, body []byte) string {
 	var envelope struct {
 		Value struct {
 			Error   string `json:"error"`
@@ -314,11 +333,32 @@ func newProtocolError(statusCode int, body []byte) error {
 		}
 
 		if code != "" || message != "" {
-			return fmt.Errorf("webdriver error (%d): %s: %s", statusCode, code, message)
+			return fmt.Sprintf("webdriver error (%d): %s: %s", statusCode, code, message)
 		}
 	}
 
-	return fmt.Errorf("webdriver error (%d): %s", statusCode, strings.TrimSpace(string(body)))
+	return fmt.Sprintf("webdriver error (%d): %s", statusCode, strings.TrimSpace(string(body)))
+}
+
+// pageCrashMarkers are the substrings Chromedriver and BrowserStack use when
+// the remote renderer has crashed. None of them can be recovered in place.
+var pageCrashMarkers = []string{
+	"session deleted because of page crash",
+	"tab crashed",
+	"page crashed",
+}
+
+// isPageCrash reports whether an error message describes a crashed renderer.
+func isPageCrash(text string) bool {
+	lower := strings.ToLower(text)
+
+	for _, marker := range pageCrashMarkers {
+		if strings.Contains(lower, marker) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // IsSessionStartFailure reports whether an error came from creating a

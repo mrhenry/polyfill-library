@@ -76,3 +76,32 @@ func TestCommandTimeoutError(t *testing.T) {
 		t.Error("commandTimeoutError must pass through non-deadline errors unchanged")
 	}
 }
+
+// TestPageCrashIsClassified covers the classification that lets the runner
+// replace a session whose renderer has crashed. BrowserStack reports it as an
+// ordinary protocol error, but the browser process is gone.
+func TestPageCrashIsClassified(t *testing.T) {
+	crashes := []string{
+		`{"value":{"error":"unknown error","message":"unknown error: session deleted because of page crash\nfrom tab crashed"}}`,
+		`{"value":{"error":"unknown error","message":"tab crashed"}}`,
+		`{"value":{"error":"unknown error","message":"page crashed"}}`,
+	}
+
+	for _, body := range crashes {
+		err := newProtocolError(500, []byte(body))
+		if !errors.Is(err, ErrPageCrash) {
+			t.Errorf("newProtocolError(%q) = %v, want it to unwrap to ErrPageCrash", body, err)
+		}
+	}
+
+	ordinary := []string{
+		`{"value":{"error":"no such element","message":"no such element"}}`,
+		`{"value":{"error":"javascript error","message":"Cannot read property 'x' of undefined"}}`,
+	}
+
+	for _, body := range ordinary {
+		if err := newProtocolError(500, []byte(body)); errors.Is(err, ErrPageCrash) {
+			t.Errorf("newProtocolError(%q) = %v, must not be a page crash", body, err)
+		}
+	}
+}

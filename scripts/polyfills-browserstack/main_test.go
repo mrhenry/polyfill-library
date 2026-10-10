@@ -276,6 +276,20 @@ func TestDirectorPassesAssetsThrough(t *testing.T) {
 	}
 }
 
+// TestIframeRequestsCarryTheTrace guards the correlation id on the iframe's
+// polyfill.js request, which would otherwise be unattributable in the test
+// server log once sessions overlap.
+func TestIframeRequestsCarryTheTrace(t *testing.T) {
+	raw, err := os.ReadFile(filepath.Join(repoRoot(), "test/polyfills/test-iframe.handlebars"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !strings.Contains(string(raw), "trace={{{trace}}}") {
+		t.Error("test-iframe.handlebars does not carry the trace on its polyfill.js request")
+	}
+}
+
 // TestMatrixSelectionIsStable locks in the browser matrix the runner tests.
 //
 // This replaces comparing against the JavaScript harness, which has been
@@ -652,6 +666,7 @@ func TestNextAction(t *testing.T) {
 	started := errors.New("browserstack refused to create the session: Failed to create session")
 	timedOutStart := fmt.Errorf("%w: context deadline exceeded", browserstack.ErrSessionStart)
 	commandTimeout := fmt.Errorf("%w: context deadline exceeded", browserstack.ErrCommandTimeout)
+	pageCrash := fmt.Errorf("%w: webdriver error (500): unknown error: session deleted because of page crash", browserstack.ErrPageCrash)
 	testFailure := errors.New("2 tests failed")
 
 	if got := nextAction(dead, 0); got != actionReplaceSession {
@@ -679,6 +694,15 @@ func TestNextAction(t *testing.T) {
 
 	if got := nextAction(commandTimeout, sessionReplacements); got != actionFail {
 		t.Errorf("command-timeout replacements must be bounded, got %v", got)
+	}
+
+	// A crashed renderer is gone, so the session is replaced, not failed.
+	if got := nextAction(pageCrash, 0); got != actionReplaceSession {
+		t.Errorf("a page crash should replace the session, got %v", got)
+	}
+
+	if got := nextAction(pageCrash, sessionReplacements); got != actionFail {
+		t.Errorf("page-crash replacements must be bounded, got %v", got)
 	}
 
 	// A real test failure must never be retried: that is the case where a retry
@@ -731,5 +755,62 @@ func TestShardsHaveIndependentState(t *testing.T) {
 
 	if shards == 0 {
 		t.Fatal("no sharded jobs were built")
+	}
+}
+
+// TestWriteResultsMergesShards covers the results file for a sharded browser:
+// both shards run as separate sessions but share one family/version/mode entry,
+// so they must be merged rather than have the second overwrite the first.
+func TestWriteResultsMergesShards(t *testing.T) {
+	repo := t.TempDir()
+
+	if err := os.MkdirAll(filepath.Join(repo, "test/polyfills"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	shard1 := &job{name: "ie/10.0", testMode: modeTargeted, state: newJobState()}
+	shard2 := &job{name: "ie/10.0", testMode: modeTargeted, state: newJobState()}
+
+	shard1.state.complete(&testSummary{
+		Passed:        100,
+		Failed:        1,
+		FailingSuites: []string{"suite.a"},
+		TestedSuites:  []string{"a", "b"},
+	}, 0)
+	shard2.state.complete(&testSummary{
+		Passed:        200,
+		FailingSuites: []string{"suite.b"},
+		TestedSuites:  []string{"c"},
+	}, 0)
+
+	if err := writeResults(repo, options{testMode: modeTargeted, browserFilter: "ie"}, []*job{shard1, shard2}); err != nil {
+		t.Fatal(err)
+	}
+
+	raw, err := os.ReadFile(filepath.Join(repo, "test/polyfills/results-targeted-ie.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var results map[string]map[string]map[string]*testSummary
+	if err := json.Unmarshal(raw, &results); err != nil {
+		t.Fatal(err)
+	}
+
+	summary := results["ie"]["10.0.0"]["targeted"]
+	if summary == nil {
+		t.Fatal("no merged summary for ie/10.0.0")
+	}
+
+	if summary.Passed != 300 || summary.Failed != 1 {
+		t.Errorf("merged passed/failed = %d/%d, want 300/1", summary.Passed, summary.Failed)
+	}
+
+	if len(summary.FailingSuites) != 2 {
+		t.Errorf("merged failing suites = %v, want both shards' suites", summary.FailingSuites)
+	}
+
+	if len(summary.TestedSuites) != 3 {
+		t.Errorf("merged tested suites = %v, want all three suites", summary.TestedSuites)
 	}
 }
