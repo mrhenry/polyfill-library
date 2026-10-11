@@ -72,7 +72,7 @@ func TestCommandTimeoutError(t *testing.T) {
 	}
 
 	other := errors.New("connection reset")
-	if commandTimeoutError(other) != other {
+	if got := commandTimeoutError(other); !errors.Is(got, other) {
 		t.Error("commandTimeoutError must pass through non-deadline errors unchanged")
 	}
 }

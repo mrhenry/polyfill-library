@@ -35,15 +35,15 @@ func newCapacityGate(client *browserstack.Client) *capacityGate {
 }
 
 // refresh re-reads the plan when the cached reading is stale, or when forced.
+//
+// The request is made without holding the lock, so a slow plan endpoint cannot
+// block release for a session that has already finished.
 func (g *capacityGate) refresh(ctx context.Context, force bool) {
 	g.mu.Lock()
-	defer g.mu.Unlock()
+	stale := force || g.checked.IsZero() || time.Since(g.checked) >= g.interval
+	g.mu.Unlock()
 
-	g.refreshLocked(ctx, force)
-}
-
-func (g *capacityGate) refreshLocked(ctx context.Context, force bool) {
-	if !force && !g.checked.IsZero() && time.Since(g.checked) < g.interval {
+	if !stale {
 		return
 	}
 
@@ -53,6 +53,9 @@ func (g *capacityGate) refreshLocked(ctx context.Context, force bool) {
 		// run, and the retry policy still covers a session that queues.
 		return
 	}
+
+	g.mu.Lock()
+	defer g.mu.Unlock()
 
 	g.max = plan.ParallelSessionsMaxAllowed
 
@@ -81,8 +84,9 @@ func (g *capacityGate) maxAllowance(ctx context.Context) int {
 // reservation is freed with release.
 func (g *capacityGate) wait(ctx context.Context) error {
 	for {
+		g.refresh(ctx, false)
+
 		g.mu.Lock()
-		g.refreshLocked(ctx, false)
 
 		// A max of zero means the plan has not been read, so admit and let the
 		// retry policy cover it.

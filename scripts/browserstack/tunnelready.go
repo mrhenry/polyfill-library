@@ -3,7 +3,7 @@ package browserstack
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 )
 
@@ -58,10 +58,11 @@ func (c *Client) WaitForTunnel(ctx context.Context) error {
 			cancelDelete()
 
 			if deleteErr != nil {
-				log.Printf("[tunnel] : deleting probe session: %v", deleteErr)
+				slog.Warn("deleting tunnel probe session", "error", deleteErr)
 			}
 
-			log.Printf("[tunnel] : routable after %s (%d attempt(s))", time.Since(started).Round(time.Second), attempt)
+			slog.Info("tunnel routable",
+				"after", time.Since(started).Round(time.Second), "attempts", attempt)
 
 			return nil
 
@@ -73,7 +74,8 @@ func (c *Client) WaitForTunnel(ctx context.Context) error {
 			return fmt.Errorf("probing the tunnel: %w", err)
 		}
 
-		log.Printf("[tunnel] : not routable yet (%s): %v", time.Since(started).Round(time.Second), err)
+		slog.Info("tunnel not routable yet",
+			"after", time.Since(started).Round(time.Second), "error", err)
 
 		select {
 		case <-ctx.Done():

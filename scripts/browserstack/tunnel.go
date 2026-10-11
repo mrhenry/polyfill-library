@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -146,8 +146,8 @@ func downloadLocalBinary(ctx context.Context, dest string) error {
 		}
 
 		if !hostSupportsNative(candidate, runtime.GOARCH) {
-			log.Printf("[tunnel] : %s is not native to %s/%s, Rosetta or emulation is required",
-				candidate, runtime.GOOS, runtime.GOARCH)
+			slog.Warn("tunnel binary is not native; Rosetta or emulation is required",
+				"binary", candidate, "os", runtime.GOOS, "arch", runtime.GOARCH)
 		}
 
 		err := fetchAndUnpack(ctx, downloadBaseURL+candidate, dest)
@@ -255,9 +255,9 @@ func (c *Client) OpenTunnel(ctx context.Context) (func() error, error) {
 			}
 
 			if isError {
-				log.Println("[tunnel] : error -", text)
+				slog.Warn("tunnel", "line", text)
 			} else {
-				log.Println("[tunnel] :", text)
+				slog.Info("tunnel", "line", text)
 			}
 		}
 	}
@@ -302,7 +302,7 @@ func (c *Client) OpenTunnel(ctx context.Context) (func() error, error) {
 
 	select {
 	case <-readyChan:
-		log.Println("[tunnel] : ready")
+		slog.Info("tunnel ready")
 	case err := <-errChan:
 		return closer, fmt.Errorf("tunnel exited during startup: %w", err)
 	case <-startCtx.Done():

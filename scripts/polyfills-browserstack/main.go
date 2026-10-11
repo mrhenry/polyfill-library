@@ -12,7 +12,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -325,11 +325,11 @@ func (s *jobState) complete(results *testSummary, duration time.Duration) {
 	s.state = "complete"
 }
 
-func (s *jobState) snapshot() (state string, results *testSummary, progress *pageResults, err error, duration time.Duration, replacements int) {
+func (s *jobState) snapshot() (state string, results *testSummary, progress *pageResults, duration time.Duration, replacements int, err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	return s.state, s.results, s.progress, s.err, s.duration, s.replacements
+	return s.state, s.results, s.progress, s.duration, s.replacements, s.err
 }
 
 func (s *jobState) failed() bool {
@@ -356,7 +356,7 @@ func (j *job) configForLog() string {
 
 func main() {
 	if err := run(parseArgs(os.Args[1:])); err != nil {
-		log.Println("error:", err)
+		slog.Error("run failed", "error", err)
 		os.Exit(1)
 	}
 }
@@ -397,17 +397,18 @@ func run(opts options) error {
 		opts.testEverything = modified.TestEverything
 
 		if !modified.TestEverything {
-			names := make([]string, 0, len(modified.AffectedPolyfills))
+			affectedNames := make([]string, 0, len(modified.AffectedPolyfills))
 			for name := range modified.AffectedPolyfills {
-				names = append(names, name)
+				affectedNames = append(affectedNames, name)
 			}
 
-			sort.Strings(names)
+			sort.Strings(affectedNames)
 
-			opts.feature = strings.Join(names, ",")
+			opts.feature = strings.Join(affectedNames, ",")
 		}
 
-		log.Printf("polyfills under test : %d (testEverything=%t)", len(names(opts.feature)), opts.testEverything)
+		slog.Info("polyfills under test",
+			"count", len(names(opts.feature)), "testEverything", opts.testEverything)
 	}
 
 	browserList, err := browserstack.LoadBrowserList(filepath.Join(repo, "test/polyfills/browsers.toml"))
@@ -424,22 +425,23 @@ func run(opts options) error {
 
 	entries := selectBrowsers(browserList.Browsers, opts, affected)
 	if len(entries) == 0 {
-		log.Println("nothing to test")
+		slog.Info("nothing to test")
 		return nil
 	}
 
-	log.Printf("browsers (%d): %s", len(entries), strings.Join(entries, ", "))
+	slog.Info("browsers selected", "count", len(entries), "browsers", strings.Join(entries, ", "))
 
 	if opts.list {
 		return nil
 	}
 
 	runID := newRunID()
-	log.Printf("run id : %s (appears as trace=<run><seq>-<browser> in the test server log)", runID)
+	slog.Info("run id",
+		"id", runID, "hint", "appears as trace=<run><seq>-<browser> in the test server log")
 
 	jobs := buildJobs(entries, browserstack.NewIndex(stackList.Browsers), opts, runID)
 	if len(jobs) == 0 {
-		log.Println("nothing to test")
+		slog.Info("nothing to test")
 		return nil
 	}
 
@@ -450,9 +452,13 @@ func run(opts options) error {
 		return err
 	}
 
-	defer closeTunnel()
+	defer func() {
+		if err := closeTunnel(); err != nil {
+			slog.Warn("closing the tunnel", "error", err)
+		}
+	}()
 
-	log.Println("tunnel ready")
+	slog.Info("tunnel ready")
 
 	// The tunnel binary reports itself ready seconds before BrowserStack will
 	// route a session through it, so wait for it to actually be usable.
@@ -468,7 +474,7 @@ func run(opts options) error {
 	failed := execute(runnerCtx, client, credentials, jobs, sessionName, gate, concurrencyFor(runnerCtx, gate, opts))
 
 	if err := writeResults(repo, opts, jobs); err != nil {
-		log.Println("writing results:", err)
+		slog.Error("writing results", "error", err)
 	}
 
 	if failed > 0 {
@@ -507,7 +513,7 @@ func affectedBrowsers(metas *polyfillmeta.Collection, opts options) []*polyfillm
 
 // selectBrowsers applies the browser filter and the polyfill gating.
 func selectBrowsers(all []string, opts options, affected []*polyfillmeta.Meta) []string {
-	var out []string
+	out := make([]string, 0, len(all))
 
 	for _, entry := range all {
 		if !matchesBrowserFilter(entry, opts) {
@@ -517,7 +523,8 @@ func selectBrowsers(all []string, opts options, affected []*polyfillmeta.Meta) [
 		// A family the library does not target is a new BrowserStack family
 		// that needs mapping or exclusion, not a version to skip silently.
 		if !browserua.KnownEntry(entry) {
-			log.Printf("skipping %s : browser family %q is not targeted by the polyfill library", entry, browserua.FamilyOf(entry))
+			slog.Warn("skipping browser: family is not targeted by the polyfill library",
+				"browser", entry, "family", browserua.FamilyOf(entry))
 
 			continue
 		}
@@ -639,12 +646,13 @@ func neededForAny(ua *browserua.UA, affected []*polyfillmeta.Meta) bool {
 func buildJobs(entries []string, index *browserstack.Index, opts options, runID string) []*job {
 	baseURL := fmt.Sprintf("http://bs-local.com:%d", serverPort)
 
-	var jobs []*job
+	jobs := make([]*job, 0, len(entries))
 
 	for _, entry := range entries {
 		browser, ok := index.Lookup(entry)
 		if !ok {
-			log.Printf("skipping %s : not found in browserstackBrowsers.toml", entry)
+			slog.Warn("skipping browser: not found in browserstackBrowsers.toml", "browser", entry)
+
 			continue
 		}
 
@@ -809,7 +817,8 @@ func concurrencyFor(ctx context.Context, gate *capacityGate, opts options) int {
 		return allowance
 	}
 
-	log.Printf("could not read the account plan, using concurrency %d", opts.maxConcurrency)
+	slog.Warn("could not read the account plan, using the default concurrency",
+		"concurrency", opts.maxConcurrency)
 
 	return opts.maxConcurrency
 }
@@ -861,7 +870,12 @@ func execute(ctx context.Context, client *browserstack.Client, credentials brows
 				return
 			}
 
-			slots.acquire(ctx, j.name)
+			// Only release a slot that was actually claimed, so a cancelled
+			// acquire cannot unlock another job's session.
+			if !slots.acquire(ctx, j.name) {
+				return
+			}
+
 			defer slots.release(j.name)
 
 			runJob(ctx, client, credentials, j, sessionName, gate)
@@ -893,20 +907,23 @@ type browserSlots struct {
 	inflight map[string]bool
 }
 
-func (s *browserSlots) acquire(ctx context.Context, name string) {
+// acquire claims the slot for name, blocking until it is free. It reports
+// whether the slot was claimed: a cancelled context returns false so the
+// caller does not release a slot it never held.
+func (s *browserSlots) acquire(ctx context.Context, name string) bool {
 	for {
 		s.mu.Lock()
 		if !s.inflight[name] {
 			s.inflight[name] = true
 			s.mu.Unlock()
 
-			return
+			return true
 		}
 		s.mu.Unlock()
 
 		select {
 		case <-ctx.Done():
-			return
+			return false
 		case <-time.After(time.Second):
 		}
 	}
@@ -985,7 +1002,7 @@ func runJob(ctx context.Context, client *browserstack.Client, credentials browse
 		switch nextAction(lastErr, replacements) {
 		case actionFail:
 			if browserstack.IsSessionStartFailure(lastErr) {
-				log.Printf("%s: %v", j.name, lastErr)
+				slog.Error("job failed", "browser", j.name, "error", lastErr)
 			}
 
 			j.state.setError(lastErr)
@@ -993,7 +1010,7 @@ func runJob(ctx context.Context, client *browserstack.Client, credentials browse
 			return
 
 		case actionRetryStart:
-			log.Printf("%s: %v", j.name, lastErr)
+			slog.Warn("retrying session start", "browser", j.name, "error", lastErr)
 
 		case actionReplaceSession:
 			replacements++
@@ -1001,7 +1018,7 @@ func runJob(ctx context.Context, client *browserstack.Client, credentials browse
 			j.state.setReplacementCount(replacements)
 			j.state.setState("session unusable, replacing it")
 
-			log.Printf("%s: %v (replacing the session)", j.name, lastErr)
+			slog.Warn("replacing unusable session", "browser", j.name, "error", lastErr)
 
 			// Give BrowserStack a moment to release the discarded machine;
 			// otherwise browsers with a small pool queue the replacement and
@@ -1063,7 +1080,7 @@ func runJobOnce(ctx context.Context, client *browserstack.Client, credentials br
 		defer cancelDelete()
 
 		if err := session.Delete(deleteCtx); err != nil {
-			log.Printf("%s: deleting session: %v", j.name, err)
+			slog.Warn("deleting session", "browser", j.name, "error", err)
 		}
 
 		gate.release()
@@ -1368,7 +1385,7 @@ func pageLoadFailure(name, trace string, last pageState, expected, baseURL strin
 	if err != nil {
 		// Not being able to tell the two cases apart must not hide the
 		// original failure, so the browser's own description is kept.
-		return fmt.Errorf("%s (%s; the test server could not be asked what this job requested: %v)", described, trace, err)
+		return fmt.Errorf("%s (%s; the test server could not be asked what this job requested: %w)", described, trace, err)
 	}
 
 	return fmt.Errorf("%s (%s; the page was fetched but never started, and the browser only ever asked for %s)",
@@ -1528,7 +1545,7 @@ func printProgress(jobs []*job) {
 	queued := 0
 
 	for _, j := range jobs {
-		state, results, progress, err, duration, replacements := j.state.snapshot()
+		state, results, progress, duration, replacements, err := j.state.snapshot()
 
 		message := ""
 
@@ -1584,7 +1601,7 @@ func writeResults(repo string, opts options, jobs []*job) error {
 	results := map[string]map[string]map[string]*testSummary{}
 
 	record := func(j *job) {
-		_, jobResults, _, _, _, replacements := j.state.snapshot()
+		_, jobResults, _, _, replacements, _ := j.state.snapshot()
 		if jobResults == nil {
 			return
 		}
@@ -1681,20 +1698,20 @@ func mergeSummaries(a, b *testSummary) *testSummary {
 func reportFailures(jobs []*job, opts options) {
 	baseURL := fmt.Sprintf("http://bs-local.com:%d/test", serverPort)
 
-	log.Println("\nFailures:")
+	fmt.Println("\nFailures:")
 
 	for _, j := range jobs {
-		state, results, _, err, _, _ := j.state.snapshot()
+		state, results, _, _, _, err := j.state.snapshot()
 
 		if results == nil || results.Failed == 0 {
 			if err != nil || state != "complete" {
-				log.Printf(" • %s (%s): %v", j.name, j.testMode, firstNonNil(err, "no results"))
+				fmt.Printf(" • %s (%s): %v\n", j.name, j.testMode, firstNonNil(err, "no results"))
 			}
 
 			continue
 		}
 
-		log.Printf(" - %s:", j.name)
+		fmt.Printf(" - %s:\n", j.name)
 
 		for _, test := range results.FailingTests {
 			values := url.Values{}
@@ -1702,9 +1719,9 @@ func reportFailures(jobs []*job, opts options) {
 			values.Set("always", alwaysFor(opts.testMode))
 			values.Set("feature", test.FailingSuite)
 
-			log.Printf("    -> %s", test.Name)
-			log.Printf("       %s?%s", baseURL, values.Encode())
-			log.Printf("       %s", test.Message)
+			fmt.Printf("    -> %s\n", test.Name)
+			fmt.Printf("       %s?%s\n", baseURL, values.Encode())
+			fmt.Printf("       %s\n", test.Message)
 		}
 	}
 }
@@ -1809,7 +1826,7 @@ func modifiedFiles() []string {
 	if path := os.Getenv("MODIFIED_FILES_FILE"); path != "" {
 		raw, err := os.ReadFile(path)
 		if err != nil {
-			log.Printf("warning: reading MODIFIED_FILES_FILE: %v, testing everything", err)
+			slog.Warn("could not read MODIFIED_FILES_FILE, testing everything", "error", err)
 
 			return nil
 		}
@@ -1831,7 +1848,7 @@ func modifiedFiles() []string {
 
 	diff := runGit("diff", "--name-only", mergeBase)
 	if diff == "" {
-		log.Printf("warning: could not diff against %s, testing everything", mergeBase)
+		slog.Warn("could not diff against the base branch, testing everything", "base", mergeBase)
 	}
 
 	return splitLines(diff)

@@ -133,7 +133,7 @@ func TestJobStateTracksOneJob(t *testing.T) {
 
 	state.complete(&testSummary{Passed: 7}, 12*time.Second)
 
-	gotState, results, _, _, duration, replacements := state.snapshot()
+	gotState, results, _, duration, replacements, _ := state.snapshot()
 
 	if gotState != "complete" || results == nil || results.Passed != 7 {
 		t.Errorf("snapshot() = (%q, %+v), want a completed summary of 7 passes", gotState, results)
@@ -156,7 +156,7 @@ func TestJobStateTracksOneJob(t *testing.T) {
 	boom := errors.New("boom")
 	state.setError(boom)
 
-	gotState, _, _, gotErr, _, _ := state.snapshot()
+	gotState, _, _, _, _, gotErr := state.snapshot()
 
 	if gotState != "error" || !errors.Is(gotErr, boom) {
 		t.Errorf("snapshot() = (%q, %v), want the error that was set", gotState, gotErr)
@@ -531,7 +531,7 @@ func TestJobsRunOldestBrowserFirst(t *testing.T) {
 		index, options{testEverything: true}, "run1",
 	)
 
-	var names []string
+	names := make([]string, 0, len(jobs))
 	for _, j := range jobs {
 		names = append(names, j.name)
 	}

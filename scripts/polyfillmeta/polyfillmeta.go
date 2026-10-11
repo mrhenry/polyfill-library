@@ -8,6 +8,7 @@ package polyfillmeta
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"sort"
@@ -64,8 +65,14 @@ func Load(repoRoot string) (*Collection, error) {
 
 	for name, meta := range index {
 		// The per-polyfill file carries hasTests, isTestable, isPublic and
-		// baseDir, which the index does not.
-		if perFeature, err := os.ReadFile(filepath.Join(dist, name, "meta.json")); err == nil {
+		// baseDir, which the index does not. Without it the polyfill would be
+		// silently excluded from testing, so a read failure is reported.
+		perFeature, err := os.ReadFile(filepath.Join(dist, name, "meta.json"))
+		switch {
+		case err != nil:
+			slog.Warn("could not read per-polyfill metadata; the polyfill may be skipped",
+				"polyfill", name, "error", err)
+		default:
 			if err := json.Unmarshal(perFeature, meta); err != nil {
 				return nil, fmt.Errorf("parsing %s/%s/meta.json: %w", distPath, name, err)
 			}

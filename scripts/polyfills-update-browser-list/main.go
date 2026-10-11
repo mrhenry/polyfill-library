@@ -11,7 +11,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"sort"
 	"strings"
@@ -34,7 +34,7 @@ func main() {
 	flag.Parse()
 
 	if err := run(browsersPath, stackPath); err != nil {
-		log.Println("error:", err)
+		slog.Error("run failed", "error", err)
 		os.Exit(1)
 	}
 }
@@ -77,7 +77,7 @@ func run(browsersPath, stackPath string) error {
 		return err
 	}
 
-	log.Printf("wrote %s (%d browsers)", stackPath, len(browsers))
+	slog.Info("wrote browserstack list", "path", stackPath, "browsers", len(browsers))
 
 	entries := uniqueEntries(browsers)
 	sort.SliceStable(entries, func(i, j int) bool {
@@ -105,7 +105,8 @@ func run(browsersPath, stackPath string) error {
 		enabled++
 	}
 
-	log.Printf("wrote %s (%d entries: %d under test, %d commented out)", browsersPath, len(entries), enabled, skipped)
+	slog.Info("wrote curated browser list",
+		"path", browsersPath, "entries", len(entries), "underTest", enabled, "commentedOut", skipped)
 
 	return nil
 }
@@ -221,7 +222,7 @@ func localeLess(a, b string) bool {
 func uniqueEntries(browsers []browserstack.Browser) []string {
 	seen := map[string]bool{}
 
-	var out []string
+	out := make([]string, 0, len(browsers))
 
 	for _, b := range browsers {
 		var entry string

@@ -289,9 +289,9 @@ func TestMatrixSelectionIsStable(t *testing.T) {
 
 		// A matrix entry is "family" or "family/version ranges", and is split
 		// exactly as parseArgs splits the browser= argument.
-		if i := strings.Index(filter, "/"); i != -1 {
-			opts.browserFilter = filter[:i]
-			opts.versionRanges = filter[i+1:]
+		if family, ranges, ok := strings.Cut(filter, "/"); ok {
+			opts.browserFilter = family
+			opts.versionRanges = ranges
 		}
 
 		got := selectBrowsers(list.Browsers, opts, nil)
@@ -614,7 +614,7 @@ func TestPageLoadFailureNamesTheCause(t *testing.T) {
 		Paths:    []string{"HEAD /", "GET /", "GET /test", "GET /mocha.js", "GET /mocha.css"},
 	}
 
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_ = json.NewEncoder(w).Encode(stats)
 	}))
 	defer server.Close()
@@ -649,7 +649,7 @@ func TestWaitForFirstRequestIgnoresTheProbe(t *testing.T) {
 		{name: "the browser asked", stats: traceStats{Requests: 2, Gets: 1, Paths: []string{"HEAD /", "GET /"}}, wantArrived: true},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 				_ = json.NewEncoder(w).Encode(tt.stats)
 			}))
 			defer server.Close()
@@ -849,6 +849,7 @@ func TestWriteResultsMergesShards(t *testing.T) {
 	summary := results["ie"]["10.0.0"]["targeted"]
 	if summary == nil {
 		t.Fatal("no merged summary for ie/10.0.0")
+		return
 	}
 
 	if summary.Passed != 300 || summary.Failed != 1 {

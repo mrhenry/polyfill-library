@@ -195,7 +195,7 @@ func TestAliasesPullInDependents(t *testing.T) {
 // and 50 resolved polyfill thresholds.
 func TestManyPolyfillChangesFallBackToEverything(t *testing.T) {
 	metas := map[string]*Meta{}
-	var files []string
+	files := make([]string, 0, 21)
 
 	for _, name := range manyNames(21) {
 		dir := strings.ReplaceAll(name, ".", "/")

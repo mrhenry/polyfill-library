@@ -8,6 +8,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
+	"runtime"
 	"time"
 )
 
@@ -45,29 +47,54 @@ func fetchAndUnpack(ctx context.Context, target, dest string) error {
 		return err
 	}
 
-	for _, file := range reader.File {
+	entry := chooseBinaryEntry(reader.File)
+	if entry == nil {
+		return fmt.Errorf("no executable found in %s", target)
+	}
+
+	rc, err := entry.Open()
+	if err != nil {
+		return err
+	}
+
+	payload, err := io.ReadAll(rc)
+	rc.Close()
+
+	if err != nil {
+		return err
+	}
+
+	if err := os.WriteFile(dest, payload, 0o700); err != nil { //nolint:gosec // the tunnel must be executable
+		return err
+	}
+
+	return os.Chmod(dest, 0o700)
+}
+
+// chooseBinaryEntry picks the tunnel executable out of a BrowserStack archive,
+// preferring the entry named like the binary and falling back to the first
+// file, so an archive that carries anything else still yields a binary.
+func chooseBinaryEntry(files []*zip.File) *zip.File {
+	expected := localBinaryName
+	if runtime.GOOS == "windows" {
+		expected += ".exe"
+	}
+
+	var first *zip.File
+
+	for _, file := range files {
 		if file.FileInfo().IsDir() {
 			continue
 		}
 
-		rc, err := file.Open()
-		if err != nil {
-			return err
+		if first == nil {
+			first = file
 		}
 
-		payload, err := io.ReadAll(rc)
-		rc.Close()
-
-		if err != nil {
-			return err
+		if path.Base(file.Name) == expected {
+			return file
 		}
-
-		if err := os.WriteFile(dest, payload, 0o700); err != nil { //nolint:gosec // the tunnel must be executable
-			return err
-		}
-
-		return os.Chmod(dest, 0o700)
 	}
 
-	return fmt.Errorf("no executable found in %s", target)
+	return first
 }

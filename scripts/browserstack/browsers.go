@@ -24,8 +24,8 @@ type BrowserList struct {
 	Browsers []string `toml:"browsers"`
 }
 
-// BrowserStackList is the parsed browserstackBrowsers.toml.
-type BrowserStackList struct {
+// StackList is the parsed browserstackBrowsers.toml.
+type StackList struct {
 	Browsers []Browser `toml:"browsers"`
 }
 
@@ -42,8 +42,8 @@ func LoadBrowserList(path string) (*BrowserList, error) {
 
 // LoadBrowserStackList reads the generated browserstackBrowsers.toml, which
 // maps a browser family and version onto an available BrowserStack platform.
-func LoadBrowserStackList(path string) (*BrowserStackList, error) {
-	var list BrowserStackList
+func LoadBrowserStackList(path string) (*StackList, error) {
+	var list StackList
 	if _, err := toml.DecodeFile(path, &list); err != nil {
 		return nil, fmt.Errorf("reading %s: %w", path, err)
 	}

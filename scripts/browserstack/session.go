@@ -69,12 +69,12 @@ type sessionResponse struct {
 	LegacyCap map[string]any `json:"capabilities"`
 }
 
-// newSessionRejected carries BrowserStack's reason for refusing a session.
-type newSessionRejected struct {
+// sessionRejectedError carries BrowserStack's reason for refusing a session.
+type sessionRejectedError struct {
 	message string
 }
 
-func (e *newSessionRejected) Error() string {
+func (e *sessionRejectedError) Error() string {
 	return "browserstack refused to create the session: " + e.message
 }
 
@@ -85,7 +85,7 @@ const tunnelNotConnectedMessage = "local testing through BrowserStack is not con
 // ErrTunnelNotConnected reports whether BrowserStack refused the session
 // because the tunnel is not yet usable.
 func ErrTunnelNotConnected(err error) bool {
-	var rejected *newSessionRejected
+	var rejected *sessionRejectedError
 	if errors.As(err, &rejected) {
 		return strings.Contains(rejected.message, tunnelNotConnectedMessage)
 	}
@@ -143,7 +143,7 @@ func NewSession(ctx context.Context, httpClient *http.Client, hubURL string, cap
 		// BrowserStack answers HTTP 200 with the reason in value.message, for
 		// example when the tunnel has not finished registering.
 		if parsed.Value.Message != "" {
-			return nil, &newSessionRejected{message: parsed.Value.Message}
+			return nil, &sessionRejectedError{message: parsed.Value.Message}
 		}
 
 		return nil, fmt.Errorf("new session response contained no sessionId: %s", strings.TrimSpace(string(raw)))
@@ -271,12 +271,8 @@ func do(ctx context.Context, client *http.Client, creds Credentials, method, tar
 	return client.Do(req)
 }
 
-// protocolError is a W3C error response.
-type protocolError struct {
-	StatusCode int
-	Body       string
-}
-
+// newProtocolError builds an error from a W3C or legacy WebDriver error
+// response, tagging a crashed renderer so the caller replaces the session.
 func newProtocolError(statusCode int, body []byte) error {
 	text := protocolErrorMessage(statusCode, body)
 
