@@ -260,7 +260,8 @@ module.exports = class Polyfill {
 
 			const minified = uglify.minify(source, {
 				compress: {
-					keep_fnames: true
+					keep_fnames: true,
+					arrows: false
 				},
 				mangle: {},
 				output: {
@@ -301,6 +302,7 @@ module.exports = class Polyfill {
 					expression: true,
 					keep_fnames: true,
 					inline: false,
+					arrows: false,
 				},
 				mangle: {},
 				output: {
