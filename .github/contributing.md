@@ -153,7 +153,7 @@ After a file change you will see :
 Building : <Your Polyfill>
 Waiting for files to be written to disk...
 Built : <Your Polyfill> in 3s
-Visit : http://bs-local.com:9876/test?includePolyfills=yes&always=no&feature=<Your Polyfill>
+Visit : http://localhost:9876/test?includePolyfills=yes&always=no&feature=<Your Polyfill>
 Test server listening on port 9876!
 ```
 

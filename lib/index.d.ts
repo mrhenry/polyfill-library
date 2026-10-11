@@ -149,6 +149,7 @@ export function getPolyfillString(options_: {
  * @param {false | string} [options_.callback=false] - Name of the JavaScript function to call after the polyfill bundle is loaded.
  * @param {Array<string>} [options_.excludes=[]] - Which features should be excluded from the returned object.
  * @param {UaParser} [options_.ua={}] - The user-agent object to check each feature against.
+ * @param {Record<string, Feature>} [options_.polyfills] - A precomputed set of targeted features to use instead of resolving them from `features` and `ua` again.
  * @returns {AsyncGenerator<string>}
  */
 export function generatePolyfillString(options_: {
@@ -158,6 +159,7 @@ export function generatePolyfillString(options_: {
     callback?: string | false | undefined;
     excludes?: string[] | undefined;
     ua?: UaParser | undefined;
+    polyfills?: Record<string, Feature> | undefined;
 }): AsyncGenerator<string>;
 import sources = require("./sources");
 import stream = require("stream");

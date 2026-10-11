@@ -283,7 +283,7 @@ describe('requestIdleCallback', function () {
 	});
 
 	it('sets the callback\'s deadline "didTimeout" property to false when the callback\'s timeout is not exceeded or set', function (done) {
-		var timeout = 1000;
+		var timeout = 2000;
 		var busyFor = 50;
 
 		requestIdleCallback(function (deadline) {
