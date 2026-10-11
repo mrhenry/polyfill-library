@@ -9,6 +9,7 @@ import (
 
 	"github.com/mrhenry/polyfill-library/scripts/browserstack"
 	"github.com/mrhenry/polyfill-library/scripts/pagecontract"
+	"github.com/mrhenry/polyfill-library/scripts/testserver"
 )
 
 // driver is the slice of a WebDriver session the runner needs: the seam between
@@ -28,10 +29,10 @@ type dialFunc func(ctx context.Context, browser browserstack.Browser, sessionNam
 // is injected so the retry and replacement policy can be exercised without a
 // real browser.
 type runner struct {
-	dial           dialFunc
-	traceStatsBase string
-	gate           *capacityGate
-	batchName      string
+	dial       dialFunc
+	testServer *testserver.Client
+	gate       *capacityGate
+	batchName  string
 
 	// arrivalGrace bounds how long a navigation is given to produce its first
 	// request before the session is treated as dead.
@@ -44,10 +45,10 @@ type runner struct {
 }
 
 // newRunner builds the production runner, with the measured timing defaults.
-func newRunner(dial dialFunc, traceStatsBase string, gate *capacityGate, batchName string) *runner {
+func newRunner(dial dialFunc, testServer *testserver.Client, gate *capacityGate, batchName string) *runner {
 	return &runner{
 		dial:             dial,
-		traceStatsBase:   traceStatsBase,
+		testServer:       testServer,
 		gate:             gate,
 		batchName:        batchName,
 		arrivalGrace:     arrivalGrace,
@@ -231,7 +232,7 @@ func (r *runner) runJobOnce(ctx context.Context, j *job, sessionIndex int) error
 
 	// Establish that the browser actually asked for something before spending
 	// the page load budget waiting for a page that was never requested.
-	stats, arrived, err := waitForFirstRequest(ctx, r.traceStatsBase, j.trace, r.arrivalGrace)
+	stats, arrived, err := r.testServer.WaitForArrival(ctx, j.trace, r.arrivalGrace)
 	if err != nil {
 		return fmt.Errorf("%s: asking the test server what this job requested: %w", j.name, err)
 	}
@@ -277,7 +278,7 @@ func (r *runner) waitForPageLoad(ctx context.Context, session driver, j *job, ex
 		}
 
 		if time.Now().After(deadline) {
-			return r.pageLoadFailure(j, last, expected)
+			return r.pageLoadFailure(ctx, j, last, expected)
 		}
 
 		select {
@@ -290,8 +291,8 @@ func (r *runner) waitForPageLoad(ctx context.Context, session driver, j *job, ex
 
 // pageLoadFailure reports why the page never started. The browser's request did
 // arrive, so this is a page or asset problem, not a session one.
-func (r *runner) pageLoadFailure(j *job, last pagecontract.State, expected string) error {
-	return pageLoadFailure(j.name, j.trace, last, expected, r.traceStatsBase)
+func (r *runner) pageLoadFailure(ctx context.Context, j *job, last pagecontract.State, expected string) error {
+	return pageLoadFailure(ctx, r.testServer, j.name, j.trace, last, expected)
 }
 
 func (r *runner) pollForResults(ctx context.Context, session driver, j *job) error {

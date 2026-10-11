@@ -21,7 +21,7 @@ type job struct {
 	preferred    browserstack.Browser
 	hasPreferred bool
 
-	testMode             mode
+	testMode             pagecontract.Mode
 	url                  string
 	expectedPage         string
 	trace                string

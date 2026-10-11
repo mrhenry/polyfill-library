@@ -18,6 +18,7 @@ import (
 	"github.com/mrhenry/polyfill-library/scripts/browserstack"
 	"github.com/mrhenry/polyfill-library/scripts/browserua"
 	"github.com/mrhenry/polyfill-library/scripts/pagecontract"
+	"github.com/mrhenry/polyfill-library/scripts/testserver"
 )
 
 // TestIframeRequestsCarryTheTrace guards the trace on the iframe's polyfill.js
@@ -454,7 +455,7 @@ func TestPageLoadFailureNamesTheCause(t *testing.T) {
 		Href:       "about:blank",
 	}
 
-	stats := &traceStats{
+	stats := testserver.Stats{
 		Requests: 5,
 		Gets:     4,
 		Paths:    []string{"HEAD /", "GET /", "GET /test", "GET /mocha.js", "GET /mocha.css"},
@@ -466,7 +467,7 @@ func TestPageLoadFailureNamesTheCause(t *testing.T) {
 	defer server.Close()
 
 	trace := "r1a2-008-chrome-41.0"
-	message := pageLoadFailure("chrome/41.0", trace, last, "director", server.URL).Error()
+	message := pageLoadFailure(context.Background(), testserver.New(server.URL), "chrome/41.0", trace, last, "director").Error()
 
 	// Arrival was established, so the message must describe a page that was
 	// fetched and never ran.
@@ -481,17 +482,17 @@ func TestPageLoadFailureNamesTheCause(t *testing.T) {
 	}
 }
 
-// TestWaitForFirstRequestIgnoresTheProbe covers the detection the fast retry
+// TestWaitForArrivalIgnoresTheProbe covers the detection the fast retry
 // depends on: BrowserStack's HEAD probe is not the browser's request.
-func TestWaitForFirstRequestIgnoresTheProbe(t *testing.T) {
+func TestWaitForArrivalIgnoresTheProbe(t *testing.T) {
 	for _, tt := range []struct {
 		name        string
-		stats       traceStats
+		stats       testserver.Stats
 		wantArrived bool
 	}{
-		{name: "only BrowserStack's probe arrived", stats: traceStats{Requests: 1, Paths: []string{"HEAD /"}}},
-		{name: "nothing at all", stats: traceStats{}},
-		{name: "the browser asked", stats: traceStats{Requests: 2, Gets: 1, Paths: []string{"HEAD /", "GET /"}}, wantArrived: true},
+		{name: "only BrowserStack's probe arrived", stats: testserver.Stats{Requests: 1, Paths: []string{"HEAD /"}}},
+		{name: "nothing at all", stats: testserver.Stats{}},
+		{name: "the browser asked", stats: testserver.Stats{Requests: 2, Gets: 1, Paths: []string{"HEAD /", "GET /"}}, wantArrived: true},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -499,7 +500,7 @@ func TestWaitForFirstRequestIgnoresTheProbe(t *testing.T) {
 			}))
 			defer server.Close()
 
-			_, arrived, err := waitForFirstRequest(context.Background(), server.URL, "r1a2-008", 50*time.Millisecond)
+			_, arrived, err := testserver.New(server.URL).WaitForArrival(context.Background(), "r1a2-008", 50*time.Millisecond)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -511,15 +512,15 @@ func TestWaitForFirstRequestIgnoresTheProbe(t *testing.T) {
 	}
 }
 
-// TestProbeTestServer covers the reachability check the retry loop depends on.
-func TestProbeTestServer(t *testing.T) {
+// TestEnsureReachable covers the reachability check the retry loop depends on.
+func TestEnsureReachable(t *testing.T) {
 	healthy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer healthy.Close()
 
-	if err := probeTestServer(context.Background(), healthy.URL); err != nil {
-		t.Errorf("probing a healthy server returned %v", err)
+	if err := testserver.New(healthy.URL).EnsureReachable(context.Background(), time.Second, 10*time.Millisecond); err != nil {
+		t.Errorf("a healthy server should be reachable: %v", err)
 	}
 
 	unready := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -527,21 +528,21 @@ func TestProbeTestServer(t *testing.T) {
 	}))
 	defer unready.Close()
 
-	if err := probeTestServer(context.Background(), unready.URL); err == nil {
-		t.Error("probing a server that is not ready should return an error")
+	if err := testserver.New(unready.URL).EnsureReachable(context.Background(), 30*time.Millisecond, 5*time.Millisecond); err == nil {
+		t.Error("a server that is not ready should not be reachable")
 	}
 
 	cancelled, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	if err := probeTestServer(cancelled, healthy.URL); err == nil {
-		t.Error("probing with a cancelled context should return an error")
+	if err := testserver.New(healthy.URL).EnsureReachable(cancelled, time.Second, 10*time.Millisecond); err == nil {
+		t.Error("a cancelled context should not be reachable")
 	}
 }
 
 // TestDeadSessionIsClassifiedForReplacement pins the property runJob branches on.
 func TestDeadSessionIsClassifiedForReplacement(t *testing.T) {
-	dead := &noBrowserRequestError{trace: "r1a2-008", stats: traceStats{Requests: 1, Paths: []string{"HEAD /"}}}
+	dead := &noBrowserRequestError{trace: "r1a2-008", stats: testserver.Stats{Requests: 1, Paths: []string{"HEAD /"}}}
 
 	if !errors.Is(dead, ErrNoBrowserRequest) {
 		t.Error("a dead session error does not unwrap to ErrNoBrowserRequest")
@@ -657,8 +658,8 @@ func TestWriteResultsMergesShards(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	shard1 := &job{name: "ie/10.0", testMode: modeTargeted, state: newJobState()}
-	shard2 := &job{name: "ie/10.0", testMode: modeTargeted, state: newJobState()}
+	shard1 := &job{name: "ie/10.0", testMode: pagecontract.ModeTargeted, state: newJobState()}
+	shard2 := &job{name: "ie/10.0", testMode: pagecontract.ModeTargeted, state: newJobState()}
 
 	shard1.state.complete(&pagecontract.Summary{
 		Passed:        100,
@@ -672,7 +673,7 @@ func TestWriteResultsMergesShards(t *testing.T) {
 		TestedSuites:  []string{"c"},
 	}, 0)
 
-	if err := writeResults(repo, options{testMode: modeTargeted, browserFilter: "ie"}, []*job{shard1, shard2}); err != nil {
+	if err := writeResults(repo, options{testMode: pagecontract.ModeTargeted, browserFilter: "ie"}, []*job{shard1, shard2}); err != nil {
 		t.Fatal(err)
 	}
 

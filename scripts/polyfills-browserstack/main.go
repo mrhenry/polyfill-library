@@ -13,8 +13,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"net/http"
-	"net/url"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -31,6 +29,7 @@ import (
 	"github.com/mrhenry/polyfill-library/scripts/browserua"
 	"github.com/mrhenry/polyfill-library/scripts/pagecontract"
 	"github.com/mrhenry/polyfill-library/scripts/polyfillmeta"
+	"github.com/mrhenry/polyfill-library/scripts/testserver"
 )
 
 const (
@@ -88,20 +87,11 @@ const (
 	testServerProbeInterval = 250 * time.Millisecond
 )
 
-// mode is a test configuration, selected by a positional flag.
-type mode string
-
-const (
-	modeAll      mode = "all"
-	modeControl  mode = "control"
-	modeTargeted mode = "targeted"
-)
-
 type options struct {
 	browserFilter            string
 	versionRanges            string
 	modifiedOnly             bool
-	testMode                 mode
+	testMode                 pagecontract.Mode
 	director                 bool
 	testPolyfillCombinations bool
 
@@ -126,7 +116,7 @@ type options struct {
 // parseArgs reads the positional flags the CI workflows pass, plus -list for a
 // dry run and -concurrency to change the session limit.
 func parseArgs(args []string) options {
-	o := options{testMode: modeAll, testEverything: true, maxConcurrency: concurrency}
+	o := options{testMode: pagecontract.ModeAll, testEverything: true, maxConcurrency: concurrency}
 
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
@@ -150,32 +140,12 @@ func parseArgs(args []string) options {
 		case strings.HasPrefix(arg, "browser="):
 			value := strings.TrimPrefix(arg, "browser=")
 			o.browserFilter, o.versionRanges, _ = strings.Cut(value, "/")
-		case arg == string(modeAll), arg == string(modeControl), arg == string(modeTargeted):
-			o.testMode = mode(arg)
+		case arg == string(pagecontract.ModeAll), arg == string(pagecontract.ModeControl), arg == string(pagecontract.ModeTargeted):
+			o.testMode = pagecontract.Mode(arg)
 		}
 	}
 
 	return o
-}
-
-// summarisePaths renders the requests a job made, in order and deduplicated.
-func summarisePaths(paths []string) string {
-	if len(paths) == 0 {
-		return "nothing"
-	}
-
-	unique := map[string]bool{}
-	order := make([]string, 0, len(paths))
-
-	for _, path := range paths {
-		if !unique[path] {
-			unique[path] = true
-
-			order = append(order, path)
-		}
-	}
-
-	return strings.Join(order, ", ")
 }
 
 func main() {
@@ -195,8 +165,10 @@ func run(opts options) error {
 
 	// A dry run only lists browsers, so it needs neither a test server nor
 	// credentials, and must not spend the startup budget waiting for them.
+	testServer := testserver.New(testServerURL)
+
 	if !opts.list {
-		if err := ensureTestServer(runnerCtx, repo); err != nil {
+		if err := ensureTestServer(runnerCtx, repo, testServer); err != nil {
 			return err
 		}
 	}
@@ -296,7 +268,7 @@ func run(opts options) error {
 	// concurrency limit only bounds this process.
 	gate := newCapacityGate(client)
 
-	r := newRunner(browserstackDial(client, credentials), testServerURL, gate, sessionName)
+	r := newRunner(browserstackDial(client, credentials), testServer, gate, sessionName)
 
 	s := newScheduler(r, concurrencyFor(runnerCtx, gate, opts))
 
@@ -417,6 +389,7 @@ func neededForAny(ua *browserua.UA, affected []*polyfillmeta.Meta) bool {
 
 func buildJobs(entries []string, index *browserstack.Index, opts options, runID string) []*job {
 	baseURL := fmt.Sprintf("http://bs-local.com:%d", serverPort)
+	baseRequest := opts.request()
 
 	jobs := make([]*job, 0, len(entries))
 
@@ -432,7 +405,7 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			name:         entry,
 			browser:      browser,
 			testMode:     opts.testMode,
-			expectedPage: opts.expectedPage(),
+			expectedPage: baseRequest.ExpectedPage(),
 			trace:        nextTrace(runID, entry),
 			state:        newJobState(),
 		}
@@ -456,7 +429,12 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 				sharded := base
 				sharded.shard = shard
 				sharded.trace = nextTrace(runID, fmt.Sprintf("%s#%d", entry, shard))
-				sharded.url = testURL(baseURL, opts, shard, false, sharded.trace)
+
+				request := baseRequest
+				request.Shard = shard
+				request.Trace = sharded.trace
+
+				sharded.url = request.URL(baseURL)
 				// A shared state let shards overwrite each other, hiding a
 				// failing shard behind a passing one.
 				sharded.state = newJobState()
@@ -466,7 +444,9 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			continue
 		}
 
-		base.url = testURL(baseURL, opts, 0, false, base.trace)
+		request := baseRequest
+		request.Trace = base.trace
+		base.url = request.URL(baseURL)
 		jobs = append(jobs, &base)
 	}
 
@@ -476,7 +456,13 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			combined := *j
 			combined.polyfillCombinations = true
 			combined.trace = nextTrace(runID, j.name+"#combined")
-			combined.url = testURL(baseURL, opts, j.shard, true, combined.trace)
+
+			request := baseRequest
+			request.Shard = j.shard
+			request.PolyfillCombinations = true
+			request.Trace = combined.trace
+
+			combined.url = request.URL(baseURL)
 			combined.state = newJobState()
 
 			expanded = append(expanded, j, &combined)
@@ -505,57 +491,19 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 	return jobs
 }
 
+// request is the base page request every job of this run shares. A job refines
+// it with its shard, combination and trace.
+func (o options) request() pagecontract.Request {
+	return pagecontract.Request{
+		Mode:     o.testMode,
+		Director: o.director,
+		Feature:  o.feature,
+	}
+}
+
 // needsShard reports whether an entry is sharded during a full run.
 func needsShard(entry string) bool {
 	return entry == "ie/9.0" || entry == "ie/10.0" || strings.HasPrefix(entry, "ios/11")
-}
-
-// testURL builds the URL a browser loads.
-func testURL(baseURL string, opts options, shard int, polyfillCombinations bool, trace string) string {
-	path := "/test"
-	if opts.director {
-		path = "/"
-	}
-
-	values := url.Values{}
-	values.Set("includePolyfills", includePolyfillsFor(opts.testMode))
-	values.Set("always", alwaysFor(opts.testMode))
-
-	if opts.feature != "" {
-		values.Set("feature", opts.feature)
-	}
-
-	if polyfillCombinations {
-		values.Set("polyfillCombinations", "yes")
-	}
-
-	if shard > 0 {
-		values.Set("shard", fmt.Sprint(shard))
-	}
-
-	// Carried on every sub-resource, so each test server request is attributed
-	// to this job.
-	if trace != "" {
-		values.Set("trace", trace)
-	}
-
-	return baseURL + path + "?" + values.Encode()
-}
-
-func includePolyfillsFor(m mode) string {
-	if m == modeControl {
-		return "no"
-	}
-
-	return "yes"
-}
-
-func alwaysFor(m mode) string {
-	if m == modeAll || m == modeControl {
-		return "yes"
-	}
-
-	return "no"
 }
 
 // concurrencyFor decides how many sessions may run at once. The account plan is
@@ -576,45 +524,15 @@ func concurrencyFor(ctx context.Context, gate *capacityGate, opts options) int {
 	return opts.maxConcurrency
 }
 
-// expectedPage names the page identity the harness asked for.
-func (o options) expectedPage() string {
-	if o.director {
-		return "director"
-	}
-
-	return "runner"
-}
-
 // pageLoadTimeout bounds how long the test page has to start once its request
 // has arrived. Reaching it means the page was fetched and never ran, so it is
 // waiting on assets rather than on the tunnel.
 const pageLoadTimeout = 90 * time.Second
 
-// traceStatsTimeout bounds the question asked of the test server, a local
-// process that either answers immediately or is gone.
-const traceStatsTimeout = 5 * time.Second
-
 // arrivalGrace bounds how long a navigation is given to produce its first
 // request before the session is treated as dead. Healthy navigations block for
 // 1 to 24 seconds; dead ones return in under a second without issuing any.
 const arrivalGrace = 8 * time.Second
-
-// serverClient talks to the test server running on this machine.
-var serverClient = &http.Client{Timeout: traceStatsTimeout}
-
-// traceStats is what the test server recorded for one job.
-type traceStats struct {
-	Requests int `json:"requests"`
-	// Gets counts only the browser's own requests; BrowserStack probes the
-	// session URL with a HEAD carrying the same trace.
-	Gets  int      `json:"gets"`
-	Paths []string `json:"paths"`
-}
-
-// inspectTraceParam is how the harness asks the test server about a trace. It
-// differs from the parameter browsers send, so a poll is not counted as a
-// measured request.
-const inspectTraceParam = "inspect-trace"
 
 // ErrNoBrowserRequest marks a session that accepted a navigation but whose
 // browser never issued one. The same session never recovers, so it is replaced.
@@ -624,7 +542,7 @@ var ErrNoBrowserRequest = errors.New("the browser never issued its navigation")
 // only BrowserStack's own probe of the session URL.
 type noBrowserRequestError struct {
 	trace string
-	stats traceStats
+	stats testserver.Stats
 
 	// navigateFor is how long Navigate took to return: dead sessions return in
 	// under a second, healthy ones take at least 1.7.
@@ -644,79 +562,20 @@ func (e *noBrowserRequestError) Unwrap() error {
 	return ErrNoBrowserRequest
 }
 
-// waitForFirstRequest reports whether the browser's own request reached the
-// test server.
-//
-// Only the browser's GETs come from a navigation, so a GET is awaited rather
-// than any request; BrowserStack's own probe is a HEAD.
-func waitForFirstRequest(ctx context.Context, baseURL, trace string, budget time.Duration) (traceStats, bool, error) {
-	deadline := time.Now().Add(budget)
-
-	for {
-		stats, err := fetchTraceStats(ctx, baseURL, trace)
-		if err != nil {
-			return stats, false, err
-		}
-
-		if stats.Gets > 0 {
-			return stats, true, nil
-		}
-
-		if time.Now().After(deadline) {
-			return stats, false, nil
-		}
-
-		select {
-		case <-ctx.Done():
-			return stats, false, ctx.Err()
-		case <-time.After(200 * time.Millisecond):
-		}
-	}
-}
-
 // bs-local.com only resolves while the tunnel is running, so the harness
 // reaches the test server on this machine directly.
 const testServerURL = "http://127.0.0.1:9876"
 
-// fetchTraceStats asks the test server what a trace requested.
-func fetchTraceStats(ctx context.Context, baseURL, trace string) (traceStats, error) {
-	var stats traceStats
-
-	target := fmt.Sprintf("%s/__trace-stats?%s=%s",
-		baseURL, inspectTraceParam, url.QueryEscape(trace))
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, target, nil)
-	if err != nil {
-		return stats, err
-	}
-
-	res, err := serverClient.Do(req)
-	if err != nil {
-		return stats, err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		return stats, fmt.Errorf("trace stats returned %d", res.StatusCode)
-	}
-
-	if err := json.NewDecoder(res.Body).Decode(&stats); err != nil {
-		return stats, err
-	}
-
-	return stats, nil
-}
-
 // pageLoadFailure reports why the page never started. The browser's request did
 // arrive, so this is a page or asset problem, not a session one; listing what
 // arrived makes the difference diagnosable.
-func pageLoadFailure(name, trace string, last pagecontract.State, expected, baseURL string) error {
+func pageLoadFailure(ctx context.Context, client *testserver.Client, name, trace string, last pagecontract.State, expected string) error {
 	described := fmt.Sprintf("%s: %s", name, last.Describe(expected))
 
-	ctx, cancel := context.WithTimeout(context.Background(), traceStatsTimeout)
+	statsCtx, cancel := context.WithTimeout(ctx, testserver.StatsTimeout)
 	defer cancel()
 
-	stats, err := fetchTraceStats(ctx, baseURL, trace)
+	stats, err := client.Stats(statsCtx, trace)
 	if err != nil {
 		// Keeping the browser's own description must not be skipped just
 		// because the two cases cannot be told apart.
@@ -724,7 +583,7 @@ func pageLoadFailure(name, trace string, last pagecontract.State, expected, base
 	}
 
 	return fmt.Errorf("%s (%s; the page was fetched but never started, and the browser only ever asked for %s)",
-		described, trace, summarisePaths(stats.Paths))
+		described, trace, stats.PathsSummary())
 }
 
 // sessionLabel names a BrowserStack session so it can be matched to a test
@@ -857,7 +716,7 @@ func mergeSummaries(a, b *pagecontract.Summary) *pagecontract.Summary {
 
 // reportFailures lists everything that failed, with a URL to reproduce it.
 func reportFailures(jobs []*job, opts options) {
-	baseURL := fmt.Sprintf("http://bs-local.com:%d/test", serverPort)
+	origin := fmt.Sprintf("http://bs-local.com:%d", serverPort)
 
 	fmt.Println("\nFailures:")
 
@@ -876,13 +735,17 @@ func reportFailures(jobs []*job, opts options) {
 		fmt.Printf(" - %s:\n", j.name)
 
 		for _, test := range results.FailingTests {
-			values := url.Values{}
-			values.Set("includePolyfills", includePolyfillsFor(opts.testMode))
-			values.Set("always", alwaysFor(opts.testMode))
-			values.Set("feature", test.FailingSuite)
+			request := pagecontract.Request{
+				Mode:                 opts.testMode,
+				Director:             opts.director,
+				Feature:              opts.feature,
+				Shard:                j.shard,
+				PolyfillCombinations: j.polyfillCombinations,
+				Trace:                j.trace,
+			}
 
 			fmt.Printf("    -> %s\n", test.Name)
-			fmt.Printf("       %s?%s\n", baseURL, values.Encode())
+			fmt.Printf("       %s\n", request.ReproduceURL(origin, test.FailingSuite))
 			fmt.Printf("       %s\n", test.Message)
 		}
 	}
@@ -923,54 +786,13 @@ func repoRoot() string {
 // ensureTestServer waits for the JavaScript test server to become reachable. It
 // polls because CI launches the server beside this process, so a single probe
 // can lose the race.
-func ensureTestServer(ctx context.Context, repo string) error {
+func ensureTestServer(ctx context.Context, repo string, client *testserver.Client) error {
 	if _, err := os.Stat(filepath.Join(repo, "test/polyfills/server.js")); err != nil {
 		return fmt.Errorf("cannot find test/polyfills/server.js - run from the repository root: %w", err)
 	}
 
-	target := testServerURL + "/test?includePolyfills=yes&always=no"
-
-	deadline := time.Now().Add(testServerStartTimeout)
-
-	var lastErr error
-
-	for {
-		probeCtx, cancel := context.WithTimeout(ctx, testServerProbeTimeout)
-		lastErr = probeTestServer(probeCtx, target)
-		cancel()
-
-		if lastErr == nil {
-			return nil
-		}
-
-		if time.Now().After(deadline) {
-			return fmt.Errorf("test server is not reachable on port %d - start it with `node ./test/polyfills/server.js &`: %w", serverPort, lastErr)
-		}
-
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(testServerProbeInterval):
-		}
-	}
-}
-
-// probeTestServer makes one reachability request against the test server.
-func probeTestServer(ctx context.Context, target string) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, target, nil)
-	if err != nil {
-		return err
-	}
-
-	res, err := serverClient.Do(req)
-	if err != nil {
-		return err
-	}
-
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("test server returned %d for %s", res.StatusCode, target)
+	if err := client.EnsureReachable(ctx, testServerStartTimeout, testServerProbeInterval); err != nil {
+		return fmt.Errorf("test server is not reachable on port %d - start it with `node ./test/polyfills/server.js &`: %w", serverPort, err)
 	}
 
 	return nil

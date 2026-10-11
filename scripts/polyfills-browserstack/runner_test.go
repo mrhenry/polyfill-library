@@ -20,6 +20,7 @@ import (
 	"github.com/mrhenry/polyfill-library/scripts/browserua"
 	"github.com/mrhenry/polyfill-library/scripts/pagecontract"
 	"github.com/mrhenry/polyfill-library/scripts/polyfillmeta"
+	"github.com/mrhenry/polyfill-library/scripts/testserver"
 )
 
 // TestParseArgs pins the argv contract the CI workflows depend on.
@@ -32,14 +33,14 @@ func TestParseArgs(t *testing.T) {
 		{
 			name: "no arguments",
 			args: nil,
-			want: options{testMode: modeAll, testEverything: true, maxConcurrency: concurrency},
+			want: options{testMode: pagecontract.ModeAll, testEverything: true, maxConcurrency: concurrency},
 		},
 		{
 			name: "the workflow invocation",
 			args: []string{"test-modified-only", "targeted", "director", "browser=chrome/1 - 50"},
 			want: options{
 				browserFilter: "chrome", versionRanges: "1 - 50",
-				modifiedOnly: true, testMode: modeTargeted, director: true,
+				modifiedOnly: true, testMode: pagecontract.ModeTargeted, director: true,
 				testEverything: true, maxConcurrency: concurrency,
 			},
 		},
@@ -47,7 +48,7 @@ func TestParseArgs(t *testing.T) {
 			name: "polyfill combinations over a family with no range",
 			args: []string{"all", "test-polyfill-combinations", "browser=ios"},
 			want: options{
-				browserFilter: "ios", testMode: modeAll, testPolyfillCombinations: true,
+				browserFilter: "ios", testMode: pagecontract.ModeAll, testPolyfillCombinations: true,
 				testEverything: true, maxConcurrency: concurrency,
 			},
 		},
@@ -55,42 +56,42 @@ func TestParseArgs(t *testing.T) {
 			name: "control mode",
 			args: []string{"control", "browser=ie"},
 			want: options{
-				browserFilter: "ie", testMode: modeControl,
+				browserFilter: "ie", testMode: pagecontract.ModeControl,
 				testEverything: true, maxConcurrency: concurrency,
 			},
 		},
 		{
 			name: "list",
 			args: []string{"-list"},
-			want: options{testMode: modeAll, list: true, testEverything: true, maxConcurrency: concurrency},
+			want: options{testMode: pagecontract.ModeAll, list: true, testEverything: true, maxConcurrency: concurrency},
 		},
 		{
 			name: "concurrency",
 			args: []string{"-concurrency", "2"},
 			want: options{
-				testMode: modeAll, maxConcurrency: 2, concurrencyExplicit: true,
+				testMode: pagecontract.ModeAll, maxConcurrency: 2, concurrencyExplicit: true,
 				testEverything: true,
 			},
 		},
 		{
 			name: "a rejected concurrency leaves the default in place",
 			args: []string{"-concurrency", "0"},
-			want: options{testMode: modeAll, testEverything: true, maxConcurrency: concurrency},
+			want: options{testMode: pagecontract.ModeAll, testEverything: true, maxConcurrency: concurrency},
 		},
 		{
 			name: "a non-numeric concurrency leaves the default in place",
 			args: []string{"-concurrency", "lots"},
-			want: options{testMode: modeAll, testEverything: true, maxConcurrency: concurrency},
+			want: options{testMode: pagecontract.ModeAll, testEverything: true, maxConcurrency: concurrency},
 		},
 		{
 			name: "a trailing concurrency with no value",
 			args: []string{"-concurrency"},
-			want: options{testMode: modeAll, testEverything: true, maxConcurrency: concurrency},
+			want: options{testMode: pagecontract.ModeAll, testEverything: true, maxConcurrency: concurrency},
 		},
 		{
 			name: "unknown arguments are ignored",
 			args: []string{"--not-a-flag", "director"},
-			want: options{testMode: modeAll, director: true, testEverything: true, maxConcurrency: concurrency},
+			want: options{testMode: pagecontract.ModeAll, director: true, testEverything: true, maxConcurrency: concurrency},
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -555,8 +556,8 @@ func TestConcurrencyForFollowsTheAccountPlan(t *testing.T) {
 // TestPrintProgressOnlyPrintsChanges covers the output a CI log is made of.
 func TestPrintProgressOnlyPrintsChanges(t *testing.T) {
 	jobs := []*job{
-		{name: "chrome/32.0", testMode: modeAll, trace: "r1a2-001-chrome-32.0", state: newJobState()},
-		{name: "ie/9.0", testMode: modeTargeted, shard: 2, trace: "r1a2-007-ie-9.0", state: newJobState()},
+		{name: "chrome/32.0", testMode: pagecontract.ModeAll, trace: "r1a2-001-chrome-32.0", state: newJobState()},
+		{name: "ie/9.0", testMode: pagecontract.ModeTargeted, shard: 2, trace: "r1a2-007-ie-9.0", state: newJobState()},
 	}
 
 	jobs[0].state.setState("polling for results")
@@ -611,13 +612,13 @@ func captureProgress(t *testing.T, printer *progressPrinter, jobs []*job) string
 // TestReportingHelpers covers the small renderers a failure report is built
 // from.
 func TestReportingHelpers(t *testing.T) {
-	if got := summarisePaths(nil); got != "nothing" {
-		t.Errorf("summarisePaths(nil) = %q, want %q", got, "nothing")
+	if got := (testserver.Stats{}).PathsSummary(); got != "nothing" {
+		t.Errorf("PathsSummary() = %q, want %q", got, "nothing")
 	}
 
-	got := summarisePaths([]string{"GET /", "GET /mocha.js", "GET /", "GET /mocha.js"})
+	got := testserver.Stats{Paths: []string{"GET /", "GET /mocha.js", "GET /", "GET /mocha.js"}}.PathsSummary()
 	if got != "GET /, GET /mocha.js" {
-		t.Errorf("summarisePaths = %q, want each request once, in the order it arrived", got)
+		t.Errorf("PathsSummary() = %q, want each request once, in the order it arrived", got)
 	}
 
 	// plural(1) must stay empty so a replacement reads as "1 session replaced".
@@ -637,25 +638,27 @@ func TestReportingHelpers(t *testing.T) {
 		t.Errorf("firstNonNil(err) = %q, want the error", got)
 	}
 
-	combined := (&job{testMode: modeTargeted, polyfillCombinations: true}).configForLog()
+	combined := (&job{testMode: pagecontract.ModeTargeted, polyfillCombinations: true}).configForLog()
 	if !strings.Contains(combined, "targeted") || !strings.Contains(combined, "combined") {
 		t.Errorf("configForLog = %q, want the mode and the combination", combined)
 	}
 
-	plain := (&job{testMode: modeAll}).configForLog()
+	plain := (&job{testMode: pagecontract.ModeAll}).configForLog()
 	if strings.Contains(plain, "combined") || strings.Contains(plain, "shard") {
 		t.Errorf("configForLog = %q, want no combination or shard for a plain job", plain)
 	}
 }
 
-// TestTestURLMatchesTheMode covers the query string the browser is sent.
-func TestTestURLMatchesTheMode(t *testing.T) {
-	individual := testURL("http://bs-local.com:9876", options{testMode: modeAll, feature: "Promise"}, 0, false, "r1a2-001")
-	all := testURL("http://bs-local.com:9876", options{testMode: modeAll}, 0, false, "")
-	control := testURL("http://bs-local.com:9876", options{testMode: modeControl}, 0, false, "")
-	targeted := testURL("http://bs-local.com:9876", options{testMode: modeTargeted}, 0, false, "")
-	combined := testURL("http://bs-local.com:9876", options{testMode: modeAll}, 1, true, "r1a2-002")
-	directed := testURL("http://bs-local.com:9876", options{testMode: modeAll, director: true}, 0, false, "")
+// TestRequestURLMatchesTheMode covers the query string the browser is sent.
+func TestRequestURLMatchesTheMode(t *testing.T) {
+	origin := "http://bs-local.com:9876"
+
+	individual := pagecontract.Request{Mode: pagecontract.ModeAll, Feature: "Promise", Trace: "r1a2-001"}.URL(origin)
+	all := pagecontract.Request{Mode: pagecontract.ModeAll}.URL(origin)
+	control := pagecontract.Request{Mode: pagecontract.ModeControl}.URL(origin)
+	targeted := pagecontract.Request{Mode: pagecontract.ModeTargeted}.URL(origin)
+	combined := pagecontract.Request{Mode: pagecontract.ModeAll, Shard: 1, PolyfillCombinations: true, Trace: "r1a2-002"}.URL(origin)
+	directed := pagecontract.Request{Mode: pagecontract.ModeAll, Director: true}.URL(origin)
 
 	for _, tt := range []struct {
 		url  string
@@ -779,7 +782,7 @@ func traceServer(t *testing.T, gets int) *httptest.Server {
 	t.Helper()
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		_ = json.NewEncoder(w).Encode(traceStats{Requests: gets, Gets: gets, Paths: []string{"GET /"}})
+		_ = json.NewEncoder(w).Encode(testserver.Stats{Requests: gets, Gets: gets, Paths: []string{"GET /"}})
 	}))
 	t.Cleanup(srv.Close)
 
@@ -787,12 +790,12 @@ func traceServer(t *testing.T, gets int) *httptest.Server {
 }
 
 // testRunner builds a runner whose pauses are zero.
-func testRunner(dial dialFunc, traceStatsBase string) *runner {
+func testRunner(dial dialFunc, testServer *testserver.Client) *runner {
 	return &runner{
-		dial:           dial,
-		traceStatsBase: traceStatsBase,
-		gate:           newTestGate(staticPlan(browserstack.Plan{ParallelSessionsMaxAllowed: 5}), time.Hour),
-		batchName:      "test-run",
+		dial:       dial,
+		testServer: testServer,
+		gate:       newTestGate(staticPlan(browserstack.Plan{ParallelSessionsMaxAllowed: 5}), time.Hour),
+		batchName:  "test-run",
 	}
 }
 
@@ -817,7 +820,7 @@ func TestRunnerCompletesAJobThroughTheSeam(t *testing.T) {
 
 	testRunner(func(context.Context, browserstack.Browser, string) (driver, error) {
 		return d, nil
-	}, stats.URL).runJob(context.Background(), j)
+	}, testserver.New(stats.URL)).runJob(context.Background(), j)
 
 	status := j.state.status()
 
@@ -858,7 +861,7 @@ func TestRunnerRetriesASessionThatFailsToStart(t *testing.T) {
 
 	j := testJob("chrome/32.0", "r1-002-chrome-32.0")
 
-	testRunner(dial, stats.URL).runJob(context.Background(), j)
+	testRunner(dial, testserver.New(stats.URL)).runJob(context.Background(), j)
 
 	status := j.state.status()
 
@@ -891,7 +894,7 @@ func TestRunnerReplacesADeadSession(t *testing.T) {
 		}
 		mu.Unlock()
 
-		_ = json.NewEncoder(w).Encode(traceStats{Requests: gets, Gets: gets, Paths: []string{"GET /"}})
+		_ = json.NewEncoder(w).Encode(testserver.Stats{Requests: gets, Gets: gets, Paths: []string{"GET /"}})
 	}))
 	defer stats.Close()
 
@@ -912,7 +915,7 @@ func TestRunnerReplacesADeadSession(t *testing.T) {
 
 	j := testJob("chrome/32.0", "r1-003-chrome-32.0")
 
-	testRunner(dial, stats.URL).runJob(context.Background(), j)
+	testRunner(dial, testserver.New(stats.URL)).runJob(context.Background(), j)
 
 	status := j.state.status()
 

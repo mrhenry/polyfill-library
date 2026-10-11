@@ -272,3 +272,77 @@ func TestResultsSummary(t *testing.T) {
 		t.Errorf("FailingSuites = %v, want an empty list", bare.FailingSuites)
 	}
 }
+
+// TestRequestURL covers the request side of the page contract: the query a job
+// loads, and the URL a failure reproduces, must come from one place.
+func TestRequestURL(t *testing.T) {
+	origin := "https://example.test"
+
+	cases := []struct {
+		name string
+		req  Request
+		want []string
+	}{
+		{
+			name: "targeted run with a feature and a trace",
+			req:  Request{Mode: ModeTargeted, Feature: "Promise", Trace: "r1-001"},
+			want: []string{"/test?", "includePolyfills=yes", "always=no", "feature=Promise", "trace=r1-001"},
+		},
+		{
+			name: "control run includes no polyfills",
+			req:  Request{Mode: ModeControl},
+			want: []string{"/test?", "includePolyfills=no", "always=yes"},
+		},
+		{
+			name: "director loads the root page",
+			req:  Request{Mode: ModeAll, Director: true},
+			want: []string{origin + "/?", "includePolyfills=yes", "always=yes"},
+		},
+		{
+			name: "shard and combinations",
+			req:  Request{Mode: ModeAll, Shard: 2, PolyfillCombinations: true},
+			want: []string{"shard=2", "polyfillCombinations=yes"},
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.req.URL(origin)
+
+			for _, want := range tt.want {
+				if !strings.Contains(got, want) {
+					t.Errorf("URL() = %q, does not contain %q", got, want)
+				}
+			}
+		})
+	}
+}
+
+// TestRequestReproduceURLNarrowsTheFeature proves a failure re-runs the same
+// page request with the feature set to the failing suite.
+func TestRequestReproduceURLNarrowsTheFeature(t *testing.T) {
+	req := Request{Mode: ModeAll, Feature: "Promise,fetch", Shard: 1, PolyfillCombinations: true, Trace: "r1-002"}
+
+	got := req.ReproduceURL("https://example.test", "Promise.basic")
+
+	for _, want := range []string{"feature=Promise.basic", "shard=1", "polyfillCombinations=yes", "trace=r1-002"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("ReproduceURL() = %q, does not contain %q", got, want)
+		}
+	}
+
+	if strings.Contains(got, "feature=Promise%2Cfetch") {
+		t.Errorf("ReproduceURL() = %q, kept the run's feature instead of the failing suite", got)
+	}
+}
+
+// TestRequestExpectedPage pins the page identity the request loads.
+func TestRequestExpectedPage(t *testing.T) {
+	if got := (Request{Mode: ModeAll}).ExpectedPage(); got != "runner" {
+		t.Errorf("ExpectedPage() = %q, want runner", got)
+	}
+
+	if got := (Request{Mode: ModeAll, Director: true}).ExpectedPage(); got != "director" {
+		t.Errorf("ExpectedPage() = %q, want director", got)
+	}
+}
