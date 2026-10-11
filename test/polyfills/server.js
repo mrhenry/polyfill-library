@@ -9,6 +9,8 @@ const readFile = promisify(fs.readFile);
 const path = require("node:path");
 const handlebars = require("handlebars");
 const ua_parser = require('./ua-parser');
+const zlib = require("node:zlib");
+const gzip = promisify(zlib.gzip);
 
 process.title = "polyfill-library-test-server";
 
@@ -28,6 +30,14 @@ const testIframeTemplate = handlebars.compile(
 	})
 );
 
+// Read once so these cached routes can also be stored in their compressed form.
+const staticResponses = new Map([
+	["/empty-document.html", { contentType: "text/html; charset=utf-8", body: fs.readFileSync(path.resolve(__dirname, "./empty-document.html")) }],
+	["/mocha.js", { contentType: "text/javascript; charset=utf-8", body: fs.readFileSync(path.resolve(__dirname, "./mocha/mocha.min.js")) }],
+	["/mocha.css", { contentType: "text/css; charset=utf-8", body: fs.readFileSync(path.resolve(__dirname, "./mocha/mocha.css")) }],
+	["/proclaim.js", { contentType: "text/javascript; charset=utf-8", body: fs.readFileSync(require.resolve("proclaim/lib/proclaim.js")) }],
+]);
+
 function createPolyfillLibraryConfigFor(features, always) {
 	const config = {};
 	const flags = new Set(always ? ["always", "gated"] : []);
@@ -38,11 +48,90 @@ function createPolyfillLibraryConfigFor(features, always) {
 	return config;
 }
 
+// Parsing a user agent is comparatively expensive and one browser sends the
+// same string on every request, so each distinct string is parsed once. The
+// parsed parser is stateless, so it is safe to reuse across requests.
+const uaCache = new Map();
+
+function parseUserAgent(ua) {
+	let entry = uaCache.get(ua);
+
+	if (!entry) {
+		const parser = ua_parser(ua);
+		entry = { parser: parser, normalized: parser.normalize() };
+
+		if (uaCache.size >= 2048) {
+			uaCache.clear();
+		}
+
+		uaCache.set(ua, entry);
+	}
+
+	return entry;
+}
+
+// Cached bodies are stored compressed, so the cache key has to name the
+// encoding: without it a gzip body could be replayed to a client that never
+// asked for one. Only the encodings this server emits are named, so the exact
+// wording of Accept-Encoding cannot multiply cache entries.
+function acceptedEncoding(request) {
+	const header = request.headers["accept-encoding"];
+
+	if (!header) {
+		return "identity";
+	}
+
+	let quality = 0;
+
+	for (const part of header.split(",")) {
+		const [name, ...parameters] = part.trim().split(";");
+
+		if (name.trim().toLowerCase() !== "gzip") {
+			continue;
+		}
+
+		let q = 1;
+
+		for (const parameter of parameters) {
+			const match = /^\s*q\s*=\s*([0-9.]+)\s*$/i.exec(parameter);
+
+			if (match) {
+				q = Number(match[1]);
+			}
+		}
+
+		quality = q;
+	}
+
+	return quality > 0 ? "gzip" : "identity";
+}
+
+// Compress here rather than in the global compression middleware so that
+// apicache stores the compressed bytes. A cache hit then replays them instead
+// of re-gzipping the whole bundle on every request.
+async function sendCompressed(request, response, contentType, body) {
+	const encoding = acceptedEncoding(request);
+	const buffer = Buffer.isBuffer(body) ? body : Buffer.from(body);
+
+	response.set("Content-Type", contentType);
+	response.set("Vary", "Accept-Encoding");
+
+	if (encoding === "gzip") {
+		response.set("Content-Encoding", "gzip");
+		response.send(await gzip(buffer));
+		return;
+	}
+
+	response.send(buffer);
+}
+
 const compression = require('compression');
 const express = require("express");
 
 const app = express();
-app.use(compression());
+// Responses are deterministic and already carry explicit cache headers, so the
+// MD5 Express computes for an ETag on every response is pure overhead.
+app.set("etag", false);
 
 {
 	// The driver appends `trace=<run>-<job>` to the test page URL, and the page
@@ -152,36 +241,31 @@ const cacheFor1Day = cache("1 day", () => true, {
 		let key =
 			request.query.feature +
 			request.query.includePolyfills +
-			request.query.always;
+			request.query.always +
+			"$$enc=" +
+			acceptedEncoding(request);
 		if (request.query.always === "no") {
 			const ua = request.get("User-Agent");
-			key += ua_parser(ua).normalize();
+			key += parseUserAgent(ua).normalized;
 		}
 		return key;
 	}
 });
 
-app.get(["/test"], createEndpoint(runnerTemplate));
-app.get(["/iframe.html"], createEndpoint(testIframeTemplate));
+app.get(["/test"], compression(), createEndpoint(runnerTemplate));
+app.get(["/iframe.html"], compression(), createEndpoint(testIframeTemplate));
 
 app.get("/favicon.ico", (request, response) => {
 	response.set("cache-control", "public, max-age=86400");
 	response.status(204).end();
 });
 
-app.get(["/empty-document.html"], cacheFor1Day, (request, response) => {
-	response.sendFile(path.resolve(__dirname, "./empty-document.html"));
-});
-app.get(["/"], createEndpoint(directorTemplate));
-app.get("/mocha.js", cacheFor1Day,(request, response) => {
-	response.sendFile(path.resolve(__dirname, "./mocha/mocha.min.js"));
-});
-app.get("/mocha.css", cacheFor1Day, (request, response) => {
-	response.sendFile(path.resolve(__dirname, "./mocha/mocha.css"));
-});
-app.get("/proclaim.js", cacheFor1Day, (request, response) => {
-	response.sendFile(require.resolve("proclaim/lib/proclaim.js"));
-});
+for (const [route, file] of staticResponses) {
+	app.get(route, cacheFor1Day, (request, response) => {
+		return sendCompressed(request, response, file.contentType, file.body);
+	});
+}
+app.get(["/"], compression(), createEndpoint(directorTemplate));
 
 app.get(
 	"/polyfill.js",
@@ -192,11 +276,7 @@ app.get(
 		const includePolyfills = request.query.includePolyfills || "no";
 		const always = request.query.always || "no";
 
-		const headers = {
-			"Content-Type": "text/javascript; charset=utf-8"
-		};
 		response.status(200);
-		response.set(headers);
 
 		if (includePolyfills === "yes") {
 			const polyfillsWithTests = await testablePolyfills();
@@ -218,13 +298,13 @@ app.get(
 				),
 				minify: false,
 				stream: false,
-				ua: ua_parser(always === "yes" ? "other/0.0.0" : request.get("user-agent"))
+				ua: parseUserAgent(always === "yes" ? "other/0.0.0" : request.get("user-agent")).parser
 			};
 
 			const bundle = await polyfillio.getPolyfillString(parameters);
-			response.send(bundle);
+			await sendCompressed(request, response, "text/javascript; charset=utf-8", bundle);
 		} else {
-			response.send("");
+			await sendCompressed(request, response, "text/javascript; charset=utf-8", "");
 		}
 	}
 );
@@ -236,11 +316,7 @@ app.get(
 		const feature = request.query.feature;
 		const requestedFeature = request.query.feature !== undefined;
 
-		const headers = {
-			"Content-Type": "text/javascript; charset=utf-8"
-		};
 		response.status(200);
-		response.set(headers);
 
 		const polyfills = await testablePolyfills();
 
@@ -249,7 +325,7 @@ app.get(
 			? polyfills.filter(polyfill => feature && feature.split(',').includes(polyfill.feature))
 			: polyfills;
 
-		response.send(features.map(feature => feature.testSuite).join("\n"));
+		await sendCompressed(request, response, "text/javascript; charset=utf-8", features.map(feature => feature.testSuite).join("\n"));
 	}
 );
 
@@ -367,7 +443,7 @@ function createEndpoint(template) {
 		}
 		let polyfills;
 		if (includePolyfills === 'yes' && always === 'no') {
-			polyfills = await testablePolyfills(ua_parser(ua).normalize());
+			polyfills = await testablePolyfills(parseUserAgent(ua).normalized);
 		} else {
 			polyfills = await testablePolyfills();
 		}

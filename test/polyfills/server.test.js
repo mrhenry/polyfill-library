@@ -142,22 +142,23 @@ describe('trace correlation', () => {
 	// would otherwise give every job its own cache entry. That turns one cached
 	// polyfill bundle into one per browser.
 	it('is stripped before the cache sees the URL', async () => {
-		const key = '/empty-document.html$$appendKey=NaN';
-
 		await get('/empty-document.html?trace=cache-1');
 		await get('/empty-document.html?trace=cache-2');
 		await get('/empty-document.html?trace=cache-3');
 
-		assert.deepEqual(
-			apicache.getIndex().all.filter(entry => entry.startsWith('/empty-document.html')),
-			[key],
-			'three jobs, one cache entry'
-		);
+		const entries = apicache.getIndex().all.filter(entry => entry.startsWith('/empty-document.html'));
+
+		assert.equal(entries.length, 1, 'three jobs, one cache entry');
+
+		// The key names the representation so a compressed body is never replayed
+		// to a client that did not ask for one, but the header's wording must not
+		// multiply entries: only the encodings this server emits may appear.
+		assert.match(entries[0], /\$\$enc=(gzip|identity)$/);
 
 		// This is the only cached route any test touches, and its entry is
 		// dropped by name rather than by emptying the index, which would
 		// orphan the timers belonging to everything else.
-		apicache.clear(key);
+		apicache.clear(entries[0]);
 	});
 });
 
