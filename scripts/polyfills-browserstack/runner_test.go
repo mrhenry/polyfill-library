@@ -515,3 +515,30 @@ func TestTestURLMatchesTheMode(t *testing.T) {
 		}
 	}
 }
+
+// TestJobsRunOldestBrowserFirst pins the run order: versions are compared
+// numerically, so "9.0" runs before "100.0", and families stay grouped.
+func TestJobsRunOldestBrowserFirst(t *testing.T) {
+	index := browserstack.NewIndex([]browserstack.Browser{
+		{Browser: "chrome", BrowserVersion: "100.0"},
+		{Browser: "chrome", BrowserVersion: "9.0"},
+		{Browser: "chrome", BrowserVersion: "29.0"},
+		{Browser: "firefox", BrowserVersion: "38.0"},
+	})
+
+	jobs := buildJobs(
+		[]string{"chrome/100.0", "chrome/9.0", "chrome/29.0", "firefox/38.0"},
+		index, options{testEverything: true}, "run1",
+	)
+
+	var names []string
+	for _, j := range jobs {
+		names = append(names, j.name)
+	}
+
+	want := []string{"chrome/9.0", "chrome/29.0", "chrome/100.0", "firefox/38.0"}
+
+	if !reflect.DeepEqual(names, want) {
+		t.Errorf("job order = %v, want %v", names, want)
+	}
+}

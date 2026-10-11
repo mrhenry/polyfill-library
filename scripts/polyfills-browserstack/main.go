@@ -598,6 +598,32 @@ func leadingDigits(s string) string {
 	return s[:end]
 }
 
+// entryLess orders "family/version" entries by family, then oldest version
+// first.
+func entryLess(a, b string) bool {
+	aFamily, aVersion, _ := strings.Cut(a, "/")
+	bFamily, bVersion, _ := strings.Cut(b, "/")
+
+	if aFamily != bFamily {
+		return aFamily < bFamily
+	}
+
+	return versionLess(aVersion, bVersion)
+}
+
+// versionLess compares browser versions numerically rather than as strings, so
+// "9.0" sorts before "100.0".
+func versionLess(a, b string) bool {
+	ca, errA := semver.NewVersion(coerce(a))
+	cb, errB := semver.NewVersion(coerce(b))
+
+	if errA == nil && errB == nil {
+		return ca.LessThan(cb)
+	}
+
+	return a < b
+}
+
 // neededForAny reports whether any polyfill under test targets this browser.
 func neededForAny(ua *browserua.UA, affected []*polyfillmeta.Meta) bool {
 	for _, meta := range affected {
@@ -679,7 +705,8 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 		jobs = expanded
 	}
 
-	// Individual runs before combined ones, then by shard, then by name.
+	// Individual runs before combined ones, then by shard, then oldest browser
+	// first.
 	sort.SliceStable(jobs, func(i, k int) bool {
 		a, b := jobs[i], jobs[k]
 
@@ -700,7 +727,7 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			return as < bs
 		}
 
-		return a.name < b.name
+		return entryLess(a.name, b.name)
 	})
 
 	return jobs
