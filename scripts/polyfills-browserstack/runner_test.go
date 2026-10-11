@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -108,8 +109,8 @@ func TestParseArgs(t *testing.T) {
 func TestJobStateTracksOneJob(t *testing.T) {
 	state := newJobState()
 
-	if state.state != "ready" {
-		t.Errorf("a new job starts as %q, want ready", state.state)
+	if got := state.status().state; got != "ready" {
+		t.Errorf("a new job starts as %q, want ready", got)
 	}
 
 	// Nothing has run yet, so the job counts as failed.
@@ -119,33 +120,33 @@ func TestJobStateTracksOneJob(t *testing.T) {
 
 	state.setState("connecting to browser")
 
-	if state.state != "connecting to browser" {
-		t.Errorf("state = %q, want the state that was set", state.state)
+	if got := state.status().state; got != "connecting to browser" {
+		t.Errorf("state = %q, want the state that was set", got)
 	}
 
 	progress := &pagecontract.Results{State: "running", RunnerCompletedCount: 3, RunnerCount: 10}
 	state.recordProgress(progress)
 
-	if state.progress != progress {
+	if got := state.status().progress; got != progress {
 		t.Error("recordProgress did not keep the progress it was given")
 	}
 
 	state.setReplacementCount(2)
 
-	if state.replacements != 2 {
-		t.Errorf("replacements = %d, want 2", state.replacements)
+	if got := state.status().replacements; got != 2 {
+		t.Errorf("replacements = %d, want 2", got)
 	}
 
 	state.complete(&pagecontract.Summary{Passed: 7}, 12*time.Second)
 
-	gotState, results, _, duration, replacements, _ := state.snapshot()
+	status := state.status()
 
-	if gotState != "complete" || results == nil || results.Passed != 7 {
-		t.Errorf("snapshot() = (%q, %+v), want a completed summary of 7 passes", gotState, results)
+	if status.state != "complete" || status.results == nil || status.results.Passed != 7 {
+		t.Errorf("status() = (%q, %+v), want a completed summary of 7 passes", status.state, status.results)
 	}
 
-	if duration != 12*time.Second || replacements != 2 {
-		t.Errorf("duration/replacements = %s/%d, want 12s/2", duration, replacements)
+	if status.duration != 12*time.Second || status.replacements != 2 {
+		t.Errorf("duration/replacements = %s/%d, want 12s/2", status.duration, status.replacements)
 	}
 
 	if state.failed() {
@@ -161,10 +162,10 @@ func TestJobStateTracksOneJob(t *testing.T) {
 	boom := errors.New("boom")
 	state.setError(boom)
 
-	gotState, _, _, _, _, gotErr := state.snapshot()
+	status = state.status()
 
-	if gotState != "error" || !errors.Is(gotErr, boom) {
-		t.Errorf("snapshot() = (%q, %v), want the error that was set", gotState, gotErr)
+	if status.state != "error" || !errors.Is(status.err, boom) {
+		t.Errorf("status() = (%q, %v), want the error that was set", status.state, status.err)
 	}
 }
 
@@ -249,37 +250,94 @@ func TestModifiedFilesFromTheEnvironmentFile(t *testing.T) {
 	}
 }
 
-// TestBrowserSlotsSerialiseOneBrowser covers the rule that one browser is never
+// jobRunnerFunc adapts a function to the jobRunner seam, so the scheduler can
+// be driven without a real runner.
+type jobRunnerFunc func(ctx context.Context, j *job)
+
+func (f jobRunnerFunc) runJob(ctx context.Context, j *job) { f(ctx, j) }
+
+// TestSchedulerSerialisesOneBrowser covers the rule that one browser is never
 // driven by two sessions at once. Without it, two shards of the same browser
-// race for the same remote machine and report each other's failures.
-func TestBrowserSlotsSerialiseOneBrowser(t *testing.T) {
-	slots := &browserSlots{inflight: map[string]bool{}}
+// race for the same remote machine and report each other's failures. The test
+// crosses the scheduler's interface rather than poking browserSlots.
+func TestSchedulerSerialisesOneBrowser(t *testing.T) {
+	var (
+		mu       sync.Mutex
+		active   = map[string]int{}
+		overbook = map[string]bool{}
+	)
 
-	slots.acquire(context.Background(), "chrome/32.0")
+	started := make(chan string, 8)
+	release := make(chan struct{})
 
-	taken := make(chan string, 1)
+	runner := jobRunnerFunc(func(_ context.Context, j *job) {
+		mu.Lock()
+		active[j.name]++
+		if active[j.name] > 1 {
+			overbook[j.name] = true
+		}
+		mu.Unlock()
 
-	go func() {
-		slots.acquire(context.Background(), "chrome/32.0")
-		taken <- "chrome/32.0"
-	}()
+		started <- j.name
 
-	select {
-	case <-taken:
-		t.Fatal("a second session for chrome/32.0 started while the first was running")
-	case <-time.After(100 * time.Millisecond):
+		<-release
+
+		mu.Lock()
+		active[j.name]--
+		mu.Unlock()
+	})
+
+	s := newScheduler(runner, 4)
+	s.printer = newProgressPrinter(io.Discard)
+
+	jobs := []*job{
+		{name: "chrome/32.0", state: newJobState()},
+		{name: "chrome/32.0", state: newJobState()},
+		{name: "chrome/33.0", state: newJobState()},
 	}
 
-	// A different browser is unaffected.
-	slots.acquire(context.Background(), "chrome/33.0")
-	slots.release("chrome/33.0")
+	done := make(chan int, 1)
 
-	slots.release("chrome/32.0")
+	go func() { done <- s.run(context.Background(), jobs) }()
+
+	// Only one session per browser may start: chrome/32.0 and chrome/33.0. The
+	// second chrome/32.0 waits for the first to finish.
+	seen := map[string]int{}
+
+	for i := 0; i < 2; i++ {
+		select {
+		case name := <-started:
+			seen[name]++
+		case <-time.After(2 * time.Second):
+			t.Fatal("timed out waiting for the first sessions to start")
+		}
+	}
+
+	if seen["chrome/32.0"] != 1 || seen["chrome/33.0"] != 1 {
+		t.Fatalf("started sessions = %v, want one chrome/32.0 and one chrome/33.0", seen)
+	}
+
+	// A different browser was unaffected; the second chrome/32.0 must not start.
+	select {
+	case name := <-started:
+		t.Fatalf("a second session for %s started while the first was running", name)
+	case <-time.After(150 * time.Millisecond):
+	}
+
+	close(release)
 
 	select {
-	case <-taken:
+	case <-done:
 	case <-time.After(2 * time.Second):
-		t.Fatal("releasing chrome/32.0 did not let the waiting session start")
+		t.Fatal("the run did not finish after the sessions were released")
+	}
+
+	mu.Lock()
+	bad := overbook["chrome/32.0"]
+	mu.Unlock()
+
+	if bad {
+		t.Error("chrome/32.0 was driven by two sessions at once")
 	}
 }
 
@@ -331,7 +389,7 @@ func TestPrintProgressOnlyPrintsChanges(t *testing.T) {
 
 	jobs[0].state.setState("polling for results")
 
-	printer := &progressPrinter{}
+	printer := newProgressPrinter(io.Discard)
 
 	first := captureProgress(t, printer, jobs)
 
@@ -370,28 +428,12 @@ func TestPrintProgressOnlyPrintsChanges(t *testing.T) {
 func captureProgress(t *testing.T, printer *progressPrinter, jobs []*job) string {
 	t.Helper()
 
-	read, write, err := os.Pipe()
-	if err != nil {
-		t.Fatal(err)
-	}
+	var buf bytes.Buffer
 
-	original := os.Stdout
-	os.Stdout = write
-
+	printer.w = &buf
 	printer.print(jobs)
 
-	os.Stdout = original
-
-	if err := write.Close(); err != nil {
-		t.Fatal(err)
-	}
-
-	out, err := io.ReadAll(read)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return string(out)
+	return buf.String()
 }
 
 // TestReportingHelpers covers the small renderers a failure report is built
@@ -612,14 +654,14 @@ func TestRunnerCompletesAJobThroughTheSeam(t *testing.T) {
 		return d, nil
 	}, stats.URL).runJob(context.Background(), j)
 
-	state, results, _, _, _, err := j.state.snapshot()
+	status := j.state.status()
 
-	if err != nil {
-		t.Fatalf("runJob recorded %v, want success", err)
+	if status.err != nil {
+		t.Fatalf("runJob recorded %v, want success", status.err)
 	}
 
-	if state != "complete" || results == nil || results.Passed != 7 {
-		t.Errorf("state/results = %q/%+v, want complete with 7 passes", state, results)
+	if status.state != "complete" || status.results == nil || status.results.Passed != 7 {
+		t.Errorf("state/results = %q/%+v, want complete with 7 passes", status.state, status.results)
 	}
 
 	if !d.navigated {
@@ -654,10 +696,10 @@ func TestRunnerRetriesASessionThatFailsToStart(t *testing.T) {
 
 	testRunner(dial, stats.URL).runJob(context.Background(), j)
 
-	state, results, _, _, _, err := j.state.snapshot()
+	status := j.state.status()
 
-	if err != nil || state != "complete" || results == nil {
-		t.Fatalf("runJob = (%q, %v, %+v), want a retried success", state, err, results)
+	if status.err != nil || status.state != "complete" || status.results == nil {
+		t.Fatalf("runJob = (%q, %v, %+v), want a retried success", status.state, status.err, status.results)
 	}
 
 	if calls != 2 {
@@ -708,14 +750,14 @@ func TestRunnerReplacesADeadSession(t *testing.T) {
 
 	testRunner(dial, stats.URL).runJob(context.Background(), j)
 
-	state, results, _, _, replacements, err := j.state.snapshot()
+	status := j.state.status()
 
-	if err != nil || state != "complete" || results == nil {
-		t.Fatalf("runJob = (%q, %v, %+v), want a replaced success", state, err, results)
+	if status.err != nil || status.state != "complete" || status.results == nil {
+		t.Fatalf("runJob = (%q, %v, %+v), want a replaced success", status.state, status.err, status.results)
 	}
 
-	if replacements != 1 {
-		t.Errorf("replacements = %d, want 1", replacements)
+	if status.replacements != 1 {
+		t.Errorf("replacements = %d, want 1", status.replacements)
 	}
 
 	if !dead.deleted {

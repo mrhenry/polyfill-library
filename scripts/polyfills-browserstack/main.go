@@ -22,7 +22,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"syscall"
 	"time"
 
@@ -154,55 +153,6 @@ func parseArgs(args []string) options {
 	return o
 }
 
-// job is one browser session. The value is immutable once built; progress is
-// held behind a pointer so jobs can be copied cheaply when polyfill
-// combinations expand the matrix.
-type job struct {
-	name    string
-	browser browserstack.Browser
-
-	// preferred is the platform requested on the first session, when the
-	// browser has one. Later sessions omit it so BrowserStack can pick any
-	// platform, which is what makes a retry relax the preference.
-	preferred    browserstack.Browser
-	hasPreferred bool
-
-	testMode             mode
-	url                  string
-	expectedPage         string
-	trace                string
-	shard                int
-	polyfillCombinations bool
-
-	state *jobState
-}
-
-// jobState is the mutable, concurrently accessed progress of one job.
-type jobState struct {
-	mu       sync.Mutex
-	state    string
-	results  *pagecontract.Summary
-	progress *pagecontract.Results
-	err      error
-	duration time.Duration
-
-	// replacements counts sessions discarded because their browser never issued
-	// its navigation. Reported rather than dropped so the run's health stays
-	// visible.
-	replacements int
-}
-
-func newJobState() *jobState {
-	return &jobState{state: "ready"}
-}
-
-func (s *jobState) setState(state string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	s.state = state
-}
-
 // summarisePaths renders the requests a job made, which is usually enough to
 // show that a script never arrived.
 func summarisePaths(paths []string) string {
@@ -222,75 +172,6 @@ func summarisePaths(paths []string) string {
 	}
 
 	return strings.Join(order, ", ")
-}
-
-func plural(n int) string {
-	if n == 1 {
-		return ""
-	}
-
-	return "s"
-}
-
-func (s *jobState) setReplacementCount(n int) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	s.replacements = n
-}
-
-func (s *jobState) setError(err error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	s.err = err
-	s.state = "error"
-}
-
-func (s *jobState) recordProgress(progress *pagecontract.Results) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	s.progress = progress
-	s.state = "running"
-}
-
-func (s *jobState) complete(results *pagecontract.Summary, duration time.Duration) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	s.results = results
-	s.duration = duration
-	s.state = "complete"
-}
-
-func (s *jobState) snapshot() (state string, results *pagecontract.Summary, progress *pagecontract.Results, duration time.Duration, replacements int, err error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	return s.state, s.results, s.progress, s.duration, s.replacements, s.err
-}
-
-func (s *jobState) failed() bool {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	return s.err != nil || s.results == nil || s.results.Failed > 0
-}
-
-// configForLog is the test configuration column in the progress output.
-func (j *job) configForLog() string {
-	combined := "        "
-	if j.polyfillCombinations {
-		combined = "combined"
-	}
-
-	shard := ""
-	if j.shard > 0 {
-		shard = fmt.Sprintf(" / shard %d", j.shard)
-	}
-
-	return fmt.Sprintf("%-8s / %s%s", string(j.testMode), combined, shard)
 }
 
 func main() {
@@ -413,7 +294,9 @@ func run(opts options) error {
 
 	r := newRunner(browserstackDial(client, credentials), testServerURL, gate, sessionName)
 
-	failed := execute(runnerCtx, r, jobs, concurrencyFor(runnerCtx, gate, opts))
+	s := newScheduler(r, concurrencyFor(runnerCtx, gate, opts))
+
+	failed := s.run(runnerCtx, jobs)
 
 	if err := writeResults(repo, opts, jobs); err != nil {
 		slog.Error("writing results", "error", err)
@@ -631,16 +514,6 @@ func needsShard(entry string) bool {
 	return entry == "ie/9.0" || entry == "ie/10.0" || strings.HasPrefix(entry, "ios/11")
 }
 
-// browserFor returns the platform for a session, relaxing the pinned one after
-// the first attempt so a retry can land on any platform.
-func (j *job) browserFor(sessionIndex int) browserstack.Browser {
-	if sessionIndex == 0 && j.hasPreferred {
-		return j.preferred
-	}
-
-	return j.browser
-}
-
 // testURL builds the URL a browser loads.
 func testURL(baseURL string, opts options, shard int, polyfillCombinations bool, trace string) string {
 	path := "/test"
@@ -706,121 +579,6 @@ func concurrencyFor(ctx context.Context, gate *capacityGate, opts options) int {
 		"concurrency", opts.maxConcurrency)
 
 	return opts.maxConcurrency
-}
-
-// execute runs every job, at most concurrency at a time, and never runs two
-// sessions for the same browser at once.
-func execute(ctx context.Context, r *runner, jobs []*job, maxConcurrency int) int {
-	if maxConcurrency < 1 {
-		maxConcurrency = 1
-	}
-
-	ticker := time.NewTicker(pollTick)
-
-	stopProgress := make(chan struct{})
-	progressDone := make(chan struct{})
-
-	printer := &progressPrinter{}
-
-	go func() {
-		defer close(progressDone)
-
-		for {
-			select {
-			case <-ticker.C:
-				printer.print(jobs)
-			case <-stopProgress:
-				return
-			case <-ctx.Done():
-				return
-			}
-		}
-	}()
-
-	var (
-		sem    = make(chan struct{}, maxConcurrency)
-		slots  = &browserSlots{inflight: map[string]bool{}}
-		wg     sync.WaitGroup
-		failed int
-	)
-
-	for _, j := range jobs {
-		wg.Add(1)
-
-		go func(j *job) {
-			defer wg.Done()
-
-			// Claim the per-browser slot before the concurrency slot, so a job
-			// waiting behind another session of the same browser does not hold a
-			// global slot that a different browser could be using.
-			if !slots.acquire(ctx, j.name) {
-				return
-			}
-
-			defer slots.release(j.name)
-
-			select {
-			case sem <- struct{}{}:
-				defer func() { <-sem }()
-			case <-ctx.Done():
-				return
-			}
-
-			r.runJob(ctx, j)
-		}(j)
-	}
-
-	wg.Wait()
-
-	ticker.Stop()
-	close(stopProgress)
-
-	<-progressDone
-
-	printer.print(jobs)
-
-	for _, j := range jobs {
-		if j.state.failed() {
-			failed++
-		}
-	}
-
-	return failed
-}
-
-// browserSlots serialises work per browser so a single browser is never
-// driven by two sessions at once.
-type browserSlots struct {
-	mu       sync.Mutex
-	inflight map[string]bool
-}
-
-// acquire claims the slot for name, blocking until it is free. It reports
-// whether the slot was claimed: a cancelled context returns false so the
-// caller does not release a slot it never held.
-func (s *browserSlots) acquire(ctx context.Context, name string) bool {
-	for {
-		s.mu.Lock()
-		if !s.inflight[name] {
-			s.inflight[name] = true
-			s.mu.Unlock()
-
-			return true
-		}
-		s.mu.Unlock()
-
-		select {
-		case <-ctx.Done():
-			return false
-		case <-time.After(time.Second):
-		}
-	}
-}
-
-func (s *browserSlots) release(name string) {
-	s.mu.Lock()
-	delete(s.inflight, name)
-	s.mu.Unlock()
 }
 
 // expectedPage names the page identity the harness asked for.
@@ -1015,76 +773,13 @@ func shardName(shard int) string {
 	return "1"
 }
 
-// progressPrinter renders the job board, remembering the last block printed so
-// a run of several hundred jobs polling every second does not reprint an
-// unchanged screenful.
-type progressPrinter struct {
-	last string
-}
-
-func (p *progressPrinter) print(jobs []*job) {
-	lines := []string{strings.Repeat("-", 80)}
-
-	queued := 0
-
-	for _, j := range jobs {
-		state, results, progress, duration, replacements, err := j.state.snapshot()
-
-		message := ""
-
-		switch state {
-		case "complete":
-			if results != nil && results.Failed > 0 {
-				message = fmt.Sprintf("✘ %d tests, %d failures", results.Passed+results.Failed, results.Failed)
-			} else if results != nil {
-				message = fmt.Sprintf("✓ %d tests", results.Passed)
-			}
-
-			if duration > 0 {
-				message += fmt.Sprintf("  %d seconds to complete", int(duration.Seconds()))
-			}
-
-			if replacements > 0 {
-				message += fmt.Sprintf("  (%d session%s replaced)", replacements, plural(replacements))
-			}
-		case "error":
-			message = fmt.Sprintf("⚠️  %v [trace %s]", err, j.trace)
-		case "ready":
-			queued++
-		case "running":
-			if progress != nil {
-				message = fmt.Sprintf("%d/%d", progress.RunnerCompletedCount, progress.RunnerCount)
-			}
-		default:
-			message = state
-		}
-
-		if message != "" {
-			lines = append(lines, fmt.Sprintf(" • Browser: %-15s Test config: %-32s %s",
-				j.name, j.configForLog(), message))
-		}
-	}
-
-	if queued > 0 {
-		lines = append(lines, fmt.Sprintf(" + %d job(s) queued", queued))
-	}
-
-	out := strings.Join(lines, "\n") + "\n"
-	if out == p.last {
-		return
-	}
-
-	p.last = out
-
-	fmt.Print(out)
-}
-
 // writeResults records results in the shape test/polyfills/compat.js reads.
 func writeResults(repo string, opts options, jobs []*job) error {
 	results := map[string]map[string]map[string]*pagecontract.Summary{}
 
 	record := func(j *job) {
-		_, jobResults, _, _, replacements, _ := j.state.snapshot()
+		status := j.state.status()
+		jobResults, replacements := status.results, status.replacements
 		if jobResults == nil {
 			return
 		}
@@ -1184,10 +879,11 @@ func reportFailures(jobs []*job, opts options) {
 	fmt.Println("\nFailures:")
 
 	for _, j := range jobs {
-		state, results, _, _, _, err := j.state.snapshot()
+		status := j.state.status()
+		results, err := status.results, status.err
 
 		if results == nil || results.Failed == 0 {
-			if err != nil || state != "complete" {
+			if err != nil || status.state != "complete" {
 				fmt.Printf(" • %s (%s): %v\n", j.name, j.testMode, firstNonNil(err, "no results"))
 			}
 

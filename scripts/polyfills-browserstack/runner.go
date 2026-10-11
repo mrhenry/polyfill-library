@@ -340,7 +340,7 @@ func (r *runner) pollForResults(ctx context.Context, session driver, j *job) err
 		// Only a run that stops making progress counts as a timeout, so a slow
 		// but progressing browser is not killed.
 		if time.Since(lastUpdatedAt) > testBrowserTimeout {
-			current, _, _, _, _, _ := j.state.snapshot()
+			current := j.state.status().state
 			timedOut := fmt.Errorf("timed out at %q on %q", current, j.name)
 			j.state.setError(timedOut)
 
