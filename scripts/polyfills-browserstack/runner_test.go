@@ -333,6 +333,190 @@ func TestSchedulerSerialisesOneBrowser(t *testing.T) {
 	}
 }
 
+// TestSchedulerRunsCombinationsBeforeIndividuals covers the two-pass order:
+// every combination job runs before any individual job, with a pause between
+// the passes.
+func TestSchedulerRunsCombinationsBeforeIndividuals(t *testing.T) {
+	var (
+		mu    sync.Mutex
+		order []bool
+	)
+
+	runner := jobRunnerFunc(func(_ context.Context, j *job) {
+		mu.Lock()
+		order = append(order, j.polyfillCombinations)
+		mu.Unlock()
+
+		j.state.complete(&pagecontract.Summary{}, 0)
+	})
+
+	s := newScheduler(runner, 1)
+	s.printer = newProgressPrinter(io.Discard)
+	s.passPause = 100 * time.Millisecond
+
+	jobs := []*job{
+		{name: "chrome/1.0", polyfillCombinations: true, state: newJobState()},
+		{name: "chrome/1.0", state: newJobState()},
+		{name: "edge/1.0", polyfillCombinations: true, state: newJobState()},
+		{name: "edge/1.0", state: newJobState()},
+	}
+
+	start := time.Now()
+
+	if failed := s.run(context.Background(), jobs); failed != 0 {
+		t.Fatalf("run reported %d failures, want 0", failed)
+	}
+
+	elapsed := time.Since(start)
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	if len(order) != 4 {
+		t.Fatalf("ran %d jobs, want 4", len(order))
+	}
+
+	for i, combined := range order {
+		if i < 2 && !combined {
+			t.Errorf("job %d was individual; the combination pass must run first", i)
+		}
+
+		if i >= 2 && combined {
+			t.Errorf("job %d was a combination; the individual pass must run second", i)
+		}
+	}
+
+	if elapsed < s.passPause {
+		t.Errorf("run took %s, want at least the %s pass delay", elapsed, s.passPause)
+	}
+}
+
+// TestSchedulerRunsEachBrowserInOrder covers ordered dispatch: a browser's
+// jobs run one at a time in list order, and browsers start in list order.
+func TestSchedulerRunsEachBrowserInOrder(t *testing.T) {
+	var (
+		mu    sync.Mutex
+		order []string
+	)
+
+	runner := jobRunnerFunc(func(_ context.Context, j *job) {
+		mu.Lock()
+		order = append(order, j.trace)
+		mu.Unlock()
+
+		j.state.complete(&pagecontract.Summary{}, 0)
+	})
+
+	s := newScheduler(runner, 1)
+	s.printer = newProgressPrinter(io.Discard)
+
+	jobs := []*job{
+		{name: "ie/9.0", shard: 1, trace: "a", state: newJobState()},
+		{name: "ie/9.0", shard: 2, trace: "b", state: newJobState()},
+		{name: "ie/10.0", shard: 1, trace: "c", state: newJobState()},
+		{name: "ie/10.0", shard: 2, trace: "d", state: newJobState()},
+	}
+
+	s.run(context.Background(), jobs)
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	want := []string{"a", "b", "c", "d"}
+	if !reflect.DeepEqual(order, want) {
+		t.Errorf("run order = %v, want %v", order, want)
+	}
+}
+
+// TestGroupByBrowserGroupsAllJobsForABrowser covers the invariant that one
+// browser is one group even when its jobs are not adjacent, in first-appearance
+// order.
+func TestGroupByBrowserGroupsAllJobsForABrowser(t *testing.T) {
+	jobs := []*job{
+		{name: "a"},
+		{name: "b"},
+		{name: "a"},
+		{name: "c"},
+		{name: "b"},
+	}
+
+	want := [][]string{{"a", "a"}, {"b", "b"}, {"c"}}
+
+	got := groupByBrowser(jobs)
+
+	if len(got) != len(want) {
+		t.Fatalf("grouped into %d groups, want %d", len(got), len(want))
+	}
+
+	for i, group := range got {
+		var names []string
+		for _, j := range group {
+			names = append(names, j.name)
+		}
+
+		if !reflect.DeepEqual(names, want[i]) {
+			t.Errorf("group %d = %v, want %v", i, names, want[i])
+		}
+	}
+}
+
+// TestSchedulerDoesNotLetAHungBrowserHoldOthersBack proves a browser whose
+// session never starts holds only its own group back, not a later browser.
+func TestSchedulerDoesNotLetAHungBrowserHoldOthersBack(t *testing.T) {
+	hung := make(chan struct{})
+	started := make(chan string, 2)
+
+	runner := jobRunnerFunc(func(_ context.Context, j *job) {
+		started <- j.name
+
+		if j.name == "ie/9.0" {
+			<-hung
+
+			return
+		}
+
+		j.state.complete(&pagecontract.Summary{}, 0)
+	})
+
+	s := newScheduler(runner, 2)
+	s.printer = newProgressPrinter(io.Discard)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	jobs := []*job{
+		{name: "ie/9.0", state: newJobState()},
+		{name: "ie/10.0", state: newJobState()},
+	}
+
+	done := make(chan int, 1)
+
+	go func() { done <- s.run(ctx, jobs) }()
+
+	seen := map[string]bool{}
+
+	for i := 0; i < 2; i++ {
+		select {
+		case name := <-started:
+			seen[name] = true
+		case <-time.After(2 * time.Second):
+			t.Fatal("a later browser did not start while an earlier one hung")
+		}
+	}
+
+	if !seen["ie/9.0"] || !seen["ie/10.0"] {
+		t.Fatalf("started = %v, want both browsers", seen)
+	}
+
+	close(hung)
+
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("the run did not finish after the hung session was released")
+	}
+}
+
 // TestConcurrencyForFollowsTheAccountPlan covers the local session limit.
 func TestConcurrencyForFollowsTheAccountPlan(t *testing.T) {
 	gateWith := func(plan browserstack.Plan, err error) *capacityGate {

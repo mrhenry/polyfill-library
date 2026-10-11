@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -278,6 +279,79 @@ func TestCombinedJobsGetTheirOwnTrace(t *testing.T) {
 
 	if len(jobs) != combined*2 {
 		t.Errorf("built %d jobs for %d combinations, expected twice as many", len(jobs), combined)
+	}
+}
+
+// TestBuildJobsOrdersCombinationsFirstAndOldestFirst guards the two-pass
+// ordering the scheduler relies on: every combination job comes before every
+// individual job, and within a group older browser versions come first.
+func TestBuildJobsOrdersCombinationsFirstAndOldestFirst(t *testing.T) {
+	index := browserstack.NewIndex([]browserstack.Browser{
+		{Browser: "edge", BrowserVersion: "15.0"},
+		{Browser: "edge", BrowserVersion: "16.0"},
+		{Browser: "chrome", BrowserVersion: "32.0"},
+		{Browser: "chrome", BrowserVersion: "33.0"},
+	})
+
+	jobs := buildJobs(
+		[]string{"chrome/33.0", "edge/16.0", "chrome/32.0", "edge/15.0"},
+		index,
+		options{testEverything: true, testPolyfillCombinations: true},
+		"run1",
+	)
+
+	var (
+		sawIndividual bool
+		combinations  []string
+	)
+
+	for _, j := range jobs {
+		if !j.polyfillCombinations {
+			sawIndividual = true
+
+			continue
+		}
+
+		if sawIndividual {
+			t.Fatalf("combination job %s runs after an individual job", j.trace)
+		}
+
+		combinations = append(combinations, j.name)
+	}
+
+	want := []string{"chrome/32.0", "chrome/33.0", "edge/15.0", "edge/16.0"}
+	if !slices.Equal(combinations, want) {
+		t.Errorf("combination order = %v, want oldest version first %v", combinations, want)
+	}
+}
+
+// TestBuildJobsKeepsShardsWithTheirBrowser guards the browser-first order: a
+// sharded browser's jobs stay together, oldest browser first, instead of all
+// first shards then all second shards.
+func TestBuildJobsKeepsShardsWithTheirBrowser(t *testing.T) {
+	index := browserstack.NewIndex([]browserstack.Browser{
+		{Browser: "ie", BrowserVersion: "11.0"},
+		{Browser: "ie", BrowserVersion: "10.0"},
+		{Browser: "ie", BrowserVersion: "9.0"},
+	})
+
+	jobs := buildJobs(
+		[]string{"ie/11.0", "ie/10.0", "ie/9.0"},
+		index,
+		options{testEverything: true},
+		"run1",
+	)
+
+	want := []string{"ie/9.0", "ie/9.0", "ie/10.0", "ie/10.0", "ie/11.0"}
+
+	if len(jobs) != len(want) {
+		t.Fatalf("built %d jobs, want %d", len(jobs), len(want))
+	}
+
+	for i, j := range jobs {
+		if j.name != want[i] {
+			t.Errorf("job %d = %s, want %s", i, j.name, want[i])
+		}
 	}
 }
 

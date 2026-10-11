@@ -70,6 +70,12 @@ const (
 	// navigation was accepted but never acted on.
 	sessionReplacements = 3
 
+	// passDelay is the pause between the combination pass and the individual
+	// pass. The two jobs for one browser+version otherwise claim the same
+	// machine back to back, and a machine a job has just released is not
+	// ready for the next request immediately.
+	passDelay = 30 * time.Second
+
 	// testServerStartTimeout bounds how long to wait for the JavaScript test
 	// server to accept connections. CI starts it beside this process, so the
 	// two race.
@@ -479,28 +485,21 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 		jobs = expanded
 	}
 
-	// Individual runs before combined, then by shard, then oldest browser first.
+	// Combination runs before individual, then oldest browser first, then
+	// shard. The scheduler runs the combination group as its own pass and
+	// drives each browser's jobs in order, one session at a time.
 	sort.SliceStable(jobs, func(i, k int) bool {
 		a, b := jobs[i], jobs[k]
 
 		if a.polyfillCombinations != b.polyfillCombinations {
-			return !a.polyfillCombinations
+			return a.polyfillCombinations
 		}
 
-		as, bs := a.shard, b.shard
-		if as == 0 {
-			as = 1
+		if a.name != b.name {
+			return browsercmp.EntryLess(a.name, b.name)
 		}
 
-		if bs == 0 {
-			bs = 1
-		}
-
-		if as != bs {
-			return as < bs
-		}
-
-		return browsercmp.EntryLess(a.name, b.name)
+		return a.shard < b.shard
 	})
 
 	return jobs

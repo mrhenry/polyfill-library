@@ -27,6 +27,9 @@ type scheduler struct {
 
 	// tick is how often the job board is reprinted.
 	tick time.Duration
+
+	// passPause is the pause between one pass and the next.
+	passPause time.Duration
 }
 
 // newScheduler builds the production scheduler.
@@ -36,6 +39,7 @@ func newScheduler(runner jobRunner, maxConcurrency int) *scheduler {
 		printer:        newProgressPrinter(os.Stdout),
 		maxConcurrency: maxConcurrency,
 		tick:           pollTick,
+		passPause:      passDelay,
 	}
 }
 
@@ -65,40 +69,25 @@ func (s *scheduler) run(ctx context.Context, jobs []*job) int {
 		}
 	}()
 
-	var (
-		sem    = make(chan struct{}, s.maxConcurrency)
-		slots  = &browserSlots{inflight: map[string]bool{}}
-		wg     sync.WaitGroup
-		failed int
-	)
+	var sem = make(chan struct{}, s.maxConcurrency)
 
-	for _, j := range jobs {
-		wg.Add(1)
-
-		go func(j *job) {
-			defer wg.Done()
-
-			// Claim the per-browser slot before the concurrency slot, so a job
-			// waiting behind another session of the same browser does not hold a
-			// global slot that a different browser could be using.
-			if !slots.acquire(ctx, j.name) {
-				return
-			}
-
-			defer slots.release(j.name)
-
+	// Passes run one after another, so a browser is never asked for a
+	// combination job's machine and an individual job's machine at once. The
+	// job board keeps ticking across the pause.
+	for i, p := range passes(jobs) {
+		if i > 0 {
 			select {
-			case sem <- struct{}{}:
-				defer func() { <-sem }()
 			case <-ctx.Done():
-				return
+			case <-time.After(s.passPause):
 			}
+		}
 
-			s.runner.runJob(ctx, j)
-		}(j)
+		if ctx.Err() != nil {
+			break
+		}
+
+		s.runPass(ctx, p.jobs, sem)
 	}
-
-	wg.Wait()
 
 	ticker.Stop()
 	close(stopProgress)
@@ -106,6 +95,8 @@ func (s *scheduler) run(ctx context.Context, jobs []*job) int {
 	<-progressDone
 
 	s.printer.print(jobs)
+
+	failed := 0
 
 	for _, j := range jobs {
 		if j.state.failed() {
@@ -116,39 +107,92 @@ func (s *scheduler) run(ctx context.Context, jobs []*job) int {
 	return failed
 }
 
-// browserSlots serialises work per browser so a single browser is never
-// driven by two sessions at once.
-type browserSlots struct {
-	mu       sync.Mutex
-	inflight map[string]bool
+// pass is one group of jobs run to completion before the next. When a run
+// tests polyfill combinations the combination jobs form the first pass and
+// the individual jobs the second, so the two jobs for one browser+version do
+// not contend for the same machine.
+type pass struct {
+	jobs []*job
 }
 
-// acquire claims the slot for name, blocking until it is free. It reports
-// whether the slot was claimed: a cancelled context returns false so the
-// caller does not release a slot it never held.
-func (s *browserSlots) acquire(ctx context.Context, name string) bool {
-	for {
-		s.mu.Lock()
-		if !s.inflight[name] {
-			s.inflight[name] = true
-			s.mu.Unlock()
+// passes splits jobs into the order they run. Without combinations every job
+// runs in a single pass; with them the combination jobs run first.
+func passes(jobs []*job) []pass {
+	var combinations, individual []*job
 
-			return true
+	for _, j := range jobs {
+		if j.polyfillCombinations {
+			combinations = append(combinations, j)
+		} else {
+			individual = append(individual, j)
 		}
-		s.mu.Unlock()
+	}
 
-		select {
-		case <-ctx.Done():
-			return false
-		case <-time.After(time.Second):
-		}
+	if len(combinations) == 0 {
+		return []pass{{jobs: individual}}
+	}
+
+	return []pass{
+		{jobs: combinations},
+		{jobs: individual},
 	}
 }
 
-func (s *browserSlots) release(name string) {
-	s.mu.Lock()
-	delete(s.inflight, name)
-	s.mu.Unlock()
+// runPass drives every job in one pass to completion before returning. Jobs
+// are admitted in order: each browser is a group run on one session at a time,
+// and groups start oldest browser first. A browser whose session hangs holds
+// only its own group back, never a later browser's.
+func (s *scheduler) runPass(ctx context.Context, jobs []*job, sem chan struct{}) {
+	var wg sync.WaitGroup
+
+	for _, group := range groupByBrowser(jobs) {
+		select {
+		case sem <- struct{}{}:
+		case <-ctx.Done():
+			wg.Wait()
+
+			return
+		}
+
+		wg.Add(1)
+
+		go func(group []*job) {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			for _, j := range group {
+				if ctx.Err() != nil {
+					return
+				}
+
+				s.runner.runJob(ctx, j)
+			}
+		}(group)
+	}
+
+	wg.Wait()
+}
+
+// groupByBrowser collects jobs that share a browser, so each browser is driven
+// by one session at a time regardless of how the caller ordered the jobs.
+// Groups keep the order of first appearance, so a sorted job list drives
+// browsers oldest first.
+func groupByBrowser(jobs []*job) [][]*job {
+	groups := make([][]*job, 0, len(jobs))
+	at := make(map[string]int, len(jobs))
+
+	for _, j := range jobs {
+		if i, ok := at[j.name]; ok {
+			groups[i] = append(groups[i], j)
+
+			continue
+		}
+
+		at[j.name] = len(groups)
+		groups = append(groups, []*job{j})
+	}
+
+	return groups
 }
 
 // progressPrinter renders the job board, remembering the last block printed so
