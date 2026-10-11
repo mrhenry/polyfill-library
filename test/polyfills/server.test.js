@@ -28,7 +28,7 @@ after(() => {
 	server.close();
 });
 
-const get = path => fetch(`${origin}${path}`);
+const get = (path, options) => fetch(`${origin}${path}`, options);
 
 const body = async path => (await get(path)).text();
 
@@ -153,12 +153,59 @@ describe('trace correlation', () => {
 		// The key names the representation so a compressed body is never replayed
 		// to a client that did not ask for one, but the header's wording must not
 		// multiply entries: only the encodings this server emits may appear.
-		assert.match(entries[0], /\$\$enc=(gzip|identity)$/);
+		assert.match(entries[0], /\$\$enc=(br|gzip|identity)$/);
 
 		// This is the only cached route any test touches, and its entry is
 		// dropped by name rather than by emptying the index, which would
 		// orphan the timers belonging to everything else.
 		apicache.clear(entries[0]);
+	});
+});
+
+describe('bundle caching', () => {
+	const MODERN_CHROME = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+	const MODERN_FIREFOX = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0';
+	const IE9 = 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)';
+	const bundleUrl = '/polyfill.js?includePolyfills=yes&always=no&feature=Promise';
+
+	const bundleFor = async (ua, headers = {}) => {
+		const response = await get(bundleUrl, { headers: { 'user-agent': ua, ...headers } });
+
+		return { response, body: await response.text() };
+	};
+
+	const bundleEntries = () => apicache.getIndex().all.filter(entry => entry.startsWith('/polyfill.js'));
+
+	// The cache key is the set of polyfills the user agent actually targets, not
+	// the user agent string, so agents that need the same bundle share an entry.
+	it('shares one entry between user agents that need the same bundle', async () => {
+		await bundleFor(MODERN_CHROME);
+		await bundleFor(MODERN_FIREFOX);
+		await bundleFor(IE9);
+
+		const entries = bundleEntries();
+
+		// Chrome and Firefox both support Promise, so neither needs a polyfill and
+		// they must share; IE 9 needs one and must not.
+		assert.equal(entries.length, 2, 'modern agents share, IE gets its own');
+
+		for (const entry of entries) apicache.clear(entry);
+	});
+
+	it('negotiates brotli, gzip and identity for the same bundle', async () => {
+		const bodies = [];
+
+		for (const encoding of ['br', 'gzip', 'identity']) {
+			const { response, body } = await bundleFor(IE9, { 'accept-encoding': encoding });
+
+			assert.equal(response.headers.get('content-encoding') || 'identity', encoding);
+			bodies.push(body);
+		}
+
+		assert.equal(bodies[0], bodies[1]);
+		assert.equal(bodies[1], bodies[2]);
+
+		for (const entry of bundleEntries()) apicache.clear(entry);
 	});
 });
 

@@ -10,7 +10,9 @@ const path = require("node:path");
 const handlebars = require("handlebars");
 const ua_parser = require('./ua-parser');
 const zlib = require("node:zlib");
+const crypto = require("node:crypto");
 const gzip = promisify(zlib.gzip);
+const brotliCompress = promisify(zlib.brotliCompress);
 
 process.title = "polyfill-library-test-server";
 
@@ -71,9 +73,9 @@ function parseUserAgent(ua) {
 }
 
 // Cached bodies are stored compressed, so the cache key has to name the
-// encoding: without it a gzip body could be replayed to a client that never
-// asked for one. Only the encodings this server emits are named, so the exact
-// wording of Accept-Encoding cannot multiply cache entries.
+// encoding: without it a compressed body could be replayed to a client that
+// never asked for one. Only the encodings this server emits are named, so the
+// exact wording of Accept-Encoding cannot multiply cache entries.
 function acceptedEncoding(request) {
 	const header = request.headers["accept-encoding"];
 
@@ -81,15 +83,10 @@ function acceptedEncoding(request) {
 		return "identity";
 	}
 
-	let quality = 0;
+	const qualities = new Map();
 
 	for (const part of header.split(",")) {
 		const [name, ...parameters] = part.trim().split(";");
-
-		if (name.trim().toLowerCase() !== "gzip") {
-			continue;
-		}
-
 		let q = 1;
 
 		for (const parameter of parameters) {
@@ -100,29 +97,167 @@ function acceptedEncoding(request) {
 			}
 		}
 
-		quality = q;
+		qualities.set(name.trim().toLowerCase(), q);
 	}
 
-	return quality > 0 ? "gzip" : "identity";
+	const wildcard = qualities.has("*") ? qualities.get("*") : 0;
+	const qualityOf = name => qualities.has(name) ? qualities.get(name) : wildcard;
+
+	// Brotli is both smaller and faster than gzip for the bundles this server
+	// builds, so it is preferred when the client advertises it.
+	if (qualityOf("br") > 0) {
+		return "br";
+	}
+
+	if (qualityOf("gzip") > 0) {
+		return "gzip";
+	}
+
+	return "identity";
+}
+
+function createCompressor(encoding) {
+	if (encoding === "br") {
+		// Node's brotli default quality is 11, which is far too slow for a whole
+		// bundle; 4 is the value the compression middleware uses too.
+		return zlib.createBrotliCompress({
+			params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 4 }
+		});
+	}
+
+	return zlib.createGzip();
 }
 
 // Compress here rather than in the global compression middleware so that
 // apicache stores the compressed bytes. A cache hit then replays them instead
-// of re-gzipping the whole bundle on every request.
-async function sendCompressed(request, response, contentType, body) {
-	const encoding = acceptedEncoding(request);
+// of re-compressing the whole bundle on every request.
+function compressBuffer(body, encoding) {
 	const buffer = Buffer.isBuffer(body) ? body : Buffer.from(body);
 
+	if (encoding === "br") {
+		return brotliCompress(buffer, {
+			params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 4 }
+		});
+	}
+
+	if (encoding === "gzip") {
+		return gzip(buffer);
+	}
+
+	return Promise.resolve(buffer);
+}
+
+// Compress a generated bundle as it is produced, so the whole uncompressed
+// bundle is never held as a string and copied into a Buffer first.
+function compressStream(source, encoding) {
+	if (encoding === "identity") {
+		return new Promise((resolve, reject) => {
+			const chunks = [];
+			source.on("data", chunk => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+			source.on("end", () => resolve(Buffer.concat(chunks)));
+			source.on("error", reject);
+		});
+	}
+
+	const compressor = createCompressor(encoding);
+
+	return new Promise((resolve, reject) => {
+		const chunks = [];
+		source.pipe(compressor);
+		compressor.on("data", chunk => chunks.push(chunk));
+		compressor.on("end", () => resolve(Buffer.concat(chunks)));
+		compressor.on("error", reject);
+		source.on("error", reject);
+	});
+}
+
+function sendEncoded(response, contentType, encoding, body) {
 	response.set("Content-Type", contentType);
 	response.set("Vary", "Accept-Encoding");
 
-	if (encoding === "gzip") {
-		response.set("Content-Encoding", "gzip");
-		response.send(await gzip(buffer));
-		return;
+	if (encoding !== "identity") {
+		response.set("Content-Encoding", encoding);
 	}
 
-	response.send(buffer);
+	response.send(body);
+}
+
+async function sendCompressed(request, response, contentType, body) {
+	const encoding = acceptedEncoding(request);
+
+	sendEncoded(response, contentType, encoding, await compressBuffer(body, encoding));
+}
+
+// The bundle is a pure function of the requested features (which are in the URL)
+// and the set of features the user agent actually targets. Two different user
+// agent strings that resolve to the same targeted set produce identical bytes,
+// so the cache is keyed on that set rather than on the user agent string.
+function bundleSignature(targeted) {
+	const canonical = Object.keys(targeted).sort().map(name => {
+		const feature = targeted[name];
+
+		return [
+			name,
+			[...(feature.flags || [])].sort(),
+			[...(feature.aliasOf || [])].sort(),
+			[...(feature.dependencyOf || [])].sort()
+		];
+	});
+
+	return crypto.createHash("sha1").update(JSON.stringify(canonical)).digest("hex");
+}
+
+async function bundleParameters(request) {
+	const includePolyfills = request.query.includePolyfills || "no";
+
+	if (includePolyfills !== "yes") {
+		return null;
+	}
+
+	const polyfillCombinations = (request.query.polyfillCombinations || "no") === "yes";
+	const feature = request.query.feature || "";
+	const always = request.query.always || "no";
+	const polyfillsWithTests = await testablePolyfills();
+	let features = polyfillsWithTests.map(polyfill => polyfill.feature);
+
+	// Exclude polyfills which must not be loaded together
+	if (polyfillCombinations) {
+		// "timeZone.golden" and "timeZone.all" overlap.
+		// Including both is a user error.
+		features = features.filter((x) => {
+			return x !== 'Intl.DateTimeFormat.~timeZone.golden';
+		})
+	}
+
+	return {
+		features: createPolyfillLibraryConfigFor(
+			(feature && !polyfillCombinations) ? feature : features.join(","),
+			always === "yes"
+		),
+		minify: false,
+		stream: false,
+		ua: parseUserAgent(always === "yes" ? "other/0.0.0" : request.get("user-agent")).parser
+	};
+}
+
+// Runs before the cache middleware so appendKey() can see the signature. It
+// resolves the same targeted set the handler will generate from, which lets
+// different user agents that need the same polyfills share one cache entry.
+async function bundleSignatureMiddleware(request, response, next) {
+	try {
+		const parameters = await bundleParameters(request);
+
+		if (parameters) {
+			const targeted = await polyfillio.getPolyfills(parameters);
+
+			request.bundleParameters = parameters;
+			request.bundleSignature = bundleSignature(targeted);
+		}
+
+		next();
+	} catch (error) {
+		next(error);
+	}
 }
 
 const compression = require('compression');
@@ -238,17 +373,18 @@ const cache = apicache.middleware;
 
 const cacheFor1Day = cache("1 day", () => true, {
 	appendKey: request => {
-		let key =
-			request.query.feature +
+		const encoding = "$$enc=" + acceptedEncoding(request);
+
+		// Bundle routes resolve their own key from the targeted feature set (see
+		// bundleSignatureMiddleware); everything else is identified by its URL.
+		if (request.bundleSignature) {
+			return request.bundleSignature + encoding;
+		}
+
+		return request.query.feature +
 			request.query.includePolyfills +
 			request.query.always +
-			"$$enc=" +
-			acceptedEncoding(request);
-		if (request.query.always === "no") {
-			const ua = request.get("User-Agent");
-			key += parseUserAgent(ua).normalized;
-		}
-		return key;
+			encoding;
 	}
 });
 
@@ -269,40 +405,25 @@ app.get(["/"], compression(), createEndpoint(directorTemplate));
 
 app.get(
 	"/polyfill.js",
+	bundleSignatureMiddleware,
 	cacheFor1Day,
 	async (request, response) => {
-		const polyfillCombinations = (request.query.polyfillCombinations || "no") === "yes";
-		const feature = request.query.feature || "";
 		const includePolyfills = request.query.includePolyfills || "no";
-		const always = request.query.always || "no";
 
 		response.status(200);
 
 		if (includePolyfills === "yes") {
-			const polyfillsWithTests = await testablePolyfills();
-			let features = polyfillsWithTests.map(polyfill => polyfill.feature);
+			const parameters = request.bundleParameters || await bundleParameters(request);
+			const encoding = acceptedEncoding(request);
 
-			// Exclude polyfills which must not be loaded together
-			if (polyfillCombinations) {
-				// "timeZone.golden" and "timeZone.all" overlap.
-				// Including both is a user error.
-				features = features.filter((x) => {
-					return x !== 'Intl.DateTimeFormat.~timeZone.golden';
-				})
-			}
+			// Generate straight into the compressor: the whole uncompressed
+			// bundle never has to exist as a string and then a second Buffer.
+			const body = await compressStream(
+				polyfillio.getPolyfillString({ ...parameters, stream: true }),
+				encoding
+			);
 
-			const parameters = {
-				features: createPolyfillLibraryConfigFor(
-					(feature && !polyfillCombinations) ? feature : features.join(","),
-					always === "yes"
-				),
-				minify: false,
-				stream: false,
-				ua: parseUserAgent(always === "yes" ? "other/0.0.0" : request.get("user-agent")).parser
-			};
-
-			const bundle = await polyfillio.getPolyfillString(parameters);
-			await sendCompressed(request, response, "text/javascript; charset=utf-8", bundle);
+			sendEncoded(response, "text/javascript; charset=utf-8", encoding, body);
 		} else {
 			await sendCompressed(request, response, "text/javascript; charset=utf-8", "");
 		}
