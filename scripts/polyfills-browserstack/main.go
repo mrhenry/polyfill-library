@@ -29,6 +29,7 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/mrhenry/polyfill-library/scripts/browserstack"
 	"github.com/mrhenry/polyfill-library/scripts/browserua"
+	"github.com/mrhenry/polyfill-library/scripts/pagecontract"
 	"github.com/mrhenry/polyfill-library/scripts/polyfillmeta"
 )
 
@@ -152,69 +153,6 @@ func parseArgs(args []string) options {
 	return o
 }
 
-// pageResults mirrors the object the test page writes to
-// window.global_test_results and window.global_test_progress.
-type pageResults struct {
-	State                string          `json:"state"`
-	Passed               int             `json:"passed"`
-	Failed               int             `json:"failed"`
-	Total                int             `json:"total"`
-	Tests                []failingTest   `json:"tests"`
-	FailingSuites        map[string]bool `json:"failingSuites"`
-	TestedSuites         []string        `json:"testedSuites"`
-	RunnerCompletedCount int             `json:"runnerCompletedCount"`
-	RunnerCount          int             `json:"runnerCount"`
-
-	// Assets is the page's record of which scripts loaded or failed.
-	Assets map[string]any `json:"assets"`
-}
-
-type failingTest struct {
-	Name         string `json:"name"`
-	Result       bool   `json:"result"`
-	Message      string `json:"message"`
-	Stack        string `json:"stack"`
-	FailingSuite string `json:"failingSuite"`
-}
-
-// testSummary is the shape written to the results file.
-type testSummary struct {
-	Passed        int           `json:"passed"`
-	Failed        int           `json:"failed"`
-	FailingTests  []failingTest `json:"failingTests"`
-	FailingSuites []string      `json:"failingSuites"`
-	TestedSuites  []string      `json:"testedSuites"`
-
-	// Assets is the page's own record of which scripts loaded or failed.
-	Assets map[string]any `json:"assets,omitempty"`
-
-	// SessionReplacements counts sessions this job discarded because their
-	// browser never issued its navigation. Omitted when zero.
-	SessionReplacements int `json:"sessionReplacements,omitempty"`
-}
-
-func (r *pageResults) summary() *testSummary {
-	failingSuites := make([]string, 0, len(r.FailingSuites))
-	for suite := range r.FailingSuites {
-		failingSuites = append(failingSuites, suite)
-	}
-
-	sort.Strings(failingSuites)
-
-	if r.Tests == nil {
-		r.Tests = []failingTest{}
-	}
-
-	return &testSummary{
-		Passed:        r.Passed,
-		Failed:        r.Failed,
-		FailingTests:  r.Tests,
-		FailingSuites: failingSuites,
-		TestedSuites:  r.TestedSuites,
-		Assets:        r.Assets,
-	}
-}
-
 // job is one browser session. The value is immutable once built; progress is
 // held behind a pointer so jobs can be copied cheaply when polyfill
 // combinations expand the matrix.
@@ -242,8 +180,8 @@ type job struct {
 type jobState struct {
 	mu       sync.Mutex
 	state    string
-	results  *testSummary
-	progress *pageResults
+	results  *pagecontract.Summary
+	progress *pagecontract.Results
 	err      error
 	duration time.Duration
 
@@ -308,7 +246,7 @@ func (s *jobState) setError(err error) {
 	s.state = "error"
 }
 
-func (s *jobState) recordProgress(progress *pageResults) {
+func (s *jobState) recordProgress(progress *pagecontract.Results) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -316,7 +254,7 @@ func (s *jobState) recordProgress(progress *pageResults) {
 	s.state = "running"
 }
 
-func (s *jobState) complete(results *testSummary, duration time.Duration) {
+func (s *jobState) complete(results *pagecontract.Summary, duration time.Duration) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -325,7 +263,7 @@ func (s *jobState) complete(results *testSummary, duration time.Duration) {
 	s.state = "complete"
 }
 
-func (s *jobState) snapshot() (state string, results *testSummary, progress *pageResults, duration time.Duration, replacements int, err error) {
+func (s *jobState) snapshot() (state string, results *pagecontract.Summary, progress *pagecontract.Results, duration time.Duration, replacements int, err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -471,7 +409,10 @@ func run(opts options) error {
 	// The gate admits each session start against the account's current free
 	// capacity; the local concurrency limit only bounds this process.
 	gate := newCapacityGate(client)
-	failed := execute(runnerCtx, client, credentials, jobs, sessionName, gate, concurrencyFor(runnerCtx, gate, opts))
+
+	r := newRunner(browserstackDial(client, credentials), testServerURL, gate, sessionName)
+
+	failed := execute(runnerCtx, r, jobs, concurrencyFor(runnerCtx, gate, opts))
 
 	if err := writeResults(repo, opts, jobs); err != nil {
 		slog.Error("writing results", "error", err)
@@ -825,7 +766,7 @@ func concurrencyFor(ctx context.Context, gate *capacityGate, opts options) int {
 
 // execute runs every job, at most concurrency at a time, and never runs two
 // sessions for the same browser at once.
-func execute(ctx context.Context, client *browserstack.Client, credentials browserstack.Credentials, jobs []*job, sessionName string, gate *capacityGate, maxConcurrency int) int {
+func execute(ctx context.Context, r *runner, jobs []*job, maxConcurrency int) int {
 	if maxConcurrency < 1 {
 		maxConcurrency = 1
 	}
@@ -878,7 +819,7 @@ func execute(ctx context.Context, client *browserstack.Client, credentials brows
 
 			defer slots.release(j.name)
 
-			runJob(ctx, client, credentials, j, sessionName, gate)
+			r.runJob(ctx, j)
 		}(j)
 	}
 
@@ -935,188 +876,6 @@ func (s *browserSlots) release(name string) {
 	s.mu.Unlock()
 }
 
-// action is what runJob should do after an attempt fails.
-type action int
-
-const (
-	// actionFail gives up and records the error.
-	actionFail action = iota
-	// actionRetryStart retries the whole attempt after a pause.
-	actionRetryStart
-	// actionReplaceSession discards the session and starts again immediately.
-	actionReplaceSession
-)
-
-// nextAction decides how to recover from a failed attempt.
-//
-// A session whose browser never issued its navigation, whose renderer crashed,
-// or that stopped answering is not usable again, so it is replaced rather than
-// retried. A session that could not start is usually a tunnel still
-// registering, and is worth waiting out.
-func nextAction(err error, replacements int) action {
-	switch {
-	case errors.Is(err, ErrNoBrowserRequest),
-		errors.Is(err, browserstack.ErrPageCrash),
-		errors.Is(err, browserstack.ErrCommandTimeout):
-		if replacements >= sessionReplacements {
-			return actionFail
-		}
-
-		return actionReplaceSession
-	case browserstack.IsSessionStartFailure(err):
-		return actionRetryStart
-	default:
-		return actionFail
-	}
-}
-
-// runJob drives one browser to completion.
-func runJob(ctx context.Context, client *browserstack.Client, credentials browserstack.Credentials, j *job, batchName string, gate *capacityGate) {
-	var lastErr error
-
-	replacements := 0
-	sessions := 0
-
-	for attempt := 1; attempt <= maxAttempts; attempt++ {
-		if ctx.Err() != nil {
-			return
-		}
-
-		if attempt > 1 {
-			j.state.setState(fmt.Sprintf("retrying browser -- attempt %d", attempt))
-
-			select {
-			case <-ctx.Done():
-				return
-			case <-time.After(retryDelay):
-			}
-		}
-
-		lastErr = runJobOnce(ctx, client, credentials, j, batchName, gate, sessions)
-		sessions++
-
-		if lastErr == nil {
-			return
-		}
-
-		switch nextAction(lastErr, replacements) {
-		case actionFail:
-			if browserstack.IsSessionStartFailure(lastErr) {
-				slog.Error("job failed", "browser", j.name, "error", lastErr)
-			}
-
-			j.state.setError(lastErr)
-
-			return
-
-		case actionRetryStart:
-			slog.Warn("retrying session start", "browser", j.name, "error", lastErr)
-
-		case actionReplaceSession:
-			replacements++
-
-			j.state.setReplacementCount(replacements)
-			j.state.setState("session unusable, replacing it")
-
-			slog.Warn("replacing unusable session", "browser", j.name, "error", lastErr)
-
-			// Give BrowserStack a moment to release the discarded machine;
-			// otherwise browsers with a small pool queue the replacement and
-			// that queue becomes a start timeout.
-			select {
-			case <-ctx.Done():
-				return
-			case <-time.After(replacementDelay):
-			}
-
-			// A replacement is the same job, not one of three goes at it.
-			attempt--
-		}
-	}
-
-	j.state.setError(lastErr)
-}
-
-func runJobOnce(ctx context.Context, client *browserstack.Client, credentials browserstack.Credentials, j *job, batchName string, gate *capacityGate, sessionIndex int) error {
-	j.state.setState("waiting for account capacity")
-
-	// Hold the session back while the account has no free parallel slot, rather
-	// than requesting one that will queue and time out.
-	if err := gate.wait(ctx); err != nil {
-		return err
-	}
-
-	j.state.setState("connecting to browser")
-
-	sessionCtx, cancelSession := context.WithTimeout(ctx, sessionStartTimeout)
-
-	browser := j.browserFor(sessionIndex)
-
-	sessionName := sessionLabel(batchName, j, browser)
-
-	caps := browserstack.CapabilitiesFor(
-		browser,
-		sessionName,
-		projectName,
-		// One tunnel per process, so no local identifier is needed.
-		"",
-	)
-
-	session, err := browserstack.NewSession(sessionCtx, client.HTTPClient(), browserstack.Hub(), caps, credentials)
-	cancelSession()
-
-	if err != nil {
-		gate.release()
-
-		// Tagged so the retry policy knows this is a session start, however it
-		// failed, rather than a broken page or suite.
-		return fmt.Errorf("%w: %w", browserstack.ErrSessionStart, err)
-	}
-
-	// Runs even when a later step fails, so a dead job cannot hold a parallel
-	// slot.
-	defer func() {
-		deleteCtx, cancelDelete := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
-		defer cancelDelete()
-
-		if err := session.Delete(deleteCtx); err != nil {
-			slog.Warn("deleting session", "browser", j.name, "error", err)
-		}
-
-		gate.release()
-	}()
-
-	j.state.setState("initializing browser")
-
-	navigatedAt := time.Now()
-
-	if err := session.Navigate(ctx, j.url); err != nil {
-		return err
-	}
-
-	navigateFor := time.Since(navigatedAt)
-
-	// Establish that the browser actually asked for something before spending
-	// the page load budget waiting for a page that was never requested.
-	stats, arrived, err := waitForFirstRequest(ctx, testServerURL, j.trace, arrivalGrace)
-	if err != nil {
-		return fmt.Errorf("%s: asking the test server what this job requested: %w", j.name, err)
-	}
-
-	if !arrived {
-		return &noBrowserRequestError{trace: j.trace, stats: stats, navigateFor: navigateFor}
-	}
-
-	// Polling for results alone cannot tell "still running" from "never loaded".
-	if err := waitForPageLoad(ctx, session, j, j.expectedPage); err != nil {
-		return err
-	}
-
-	j.state.setState("polling for results")
-
-	return pollForResults(ctx, session, j)
-}
-
 // expectedPage names the page identity the harness asked for.
 func (o options) expectedPage() string {
 	if o.director {
@@ -1146,116 +905,6 @@ const arrivalGrace = 8 * time.Second
 
 // serverClient talks to the test server running on this machine.
 var serverClient = &http.Client{Timeout: traceStatsTimeout}
-
-// pageState is the readiness contract the test pages publish, as read back
-// over the WebDriver execute command.
-type pageState struct {
-	// Page is the identity the page declares: "director" or "runner".
-	Page string
-	// Started is true once the page has begun its work.
-	Started bool
-
-	ReadyState   string
-	Href         string
-	Title        string
-	SuiteSize    *int
-	ExpectedRuns *int
-
-	// Assets is the page's own record of which scripts loaded, failed to load,
-	// and threw while evaluating.
-	Assets map[string]any
-}
-
-// check decides whether the page has started, and reports a mismatch between
-// the page served and the page requested.
-//
-// The pages declare their own identity because the director page keeps mocha
-// inside an iframe, so `typeof mocha` is always "undefined" there.
-func (p pageState) check(expected string) (bool, error) {
-	// A page that declares itself as something else means the harness is
-	// driving the wrong page, so fail rather than waiting out the timeout.
-	if p.Page != "" && p.Page != expected {
-		return false, fmt.Errorf(
-			"loaded the %q page but the %q page was requested : harness and test page disagree",
-			p.Page, expected)
-	}
-
-	return p.Page == expected && p.Started, nil
-}
-
-// describe renders the state for an error message, including the page's own
-// asset diagnostics so a failure names what broke.
-func (p pageState) describe(expected string) string {
-	return fmt.Sprintf(
-		"the %q page never started (readyState=%q, page=%q, started=%t, url=%q, title=%q)%s",
-		expected, p.ReadyState, p.Page, p.Started, p.Href, p.Title, describeAssets(p.Assets))
-}
-
-func parsePageState(value any) pageState {
-	fields, _ := value.(map[string]any)
-
-	state := pageState{}
-
-	state.Page, _ = fields["page"].(string)
-	state.Started, _ = fields["started"].(bool)
-	state.ReadyState, _ = fields["readyState"].(string)
-	state.Href, _ = fields["href"].(string)
-	state.Title, _ = fields["title"].(string)
-
-	if n, ok := fields["suiteSize"].(float64); ok {
-		size := int(n)
-		state.SuiteSize = &size
-	}
-
-	if n, ok := fields["expectedRuns"].(float64); ok {
-		runs := int(n)
-		state.ExpectedRuns = &runs
-	}
-
-	if a, ok := fields["assets"].(map[string]any); ok {
-		state.Assets = a
-	}
-
-	return state
-}
-
-// waitForPageLoad polls until the test page has declared its identity and
-// started.
-func waitForPageLoad(ctx context.Context, session *browserstack.Session, j *job, expected string) error {
-	deadline := time.Now().Add(pageLoadTimeout)
-
-	var last pageState
-
-	for {
-		value, err := session.ExecuteScript(ctx, pageStateScript, nil)
-		if err != nil {
-			return err
-		}
-
-		last = parsePageState(value)
-
-		ready, err := last.check(expected)
-		if err != nil {
-			return fmt.Errorf("%s: %w", j.name, err)
-		}
-
-		if ready {
-			j.state.setState("page loaded")
-
-			return nil
-		}
-
-		if time.Now().After(deadline) {
-			return j.pageLoadFailure(last, expected)
-		}
-
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(pollTick):
-		}
-	}
-}
 
 // traceStats is what the test server recorded for one job.
 type traceStats struct {
@@ -1371,12 +1020,8 @@ func fetchTraceStats(ctx context.Context, baseURL, trace string) (traceStats, er
 // Reaching here means the browser's request did arrive, so this is always a
 // page that was fetched but never ran: a page or asset problem rather than a
 // session one. Listing what arrived makes the difference diagnosable.
-func (j *job) pageLoadFailure(last pageState, expected string) error {
-	return pageLoadFailure(j.name, j.trace, last, expected, testServerURL)
-}
-
-func pageLoadFailure(name, trace string, last pageState, expected, baseURL string) error {
-	described := fmt.Sprintf("%s: %s", name, last.describe(expected))
+func pageLoadFailure(name, trace string, last pagecontract.State, expected, baseURL string) error {
+	described := fmt.Sprintf("%s: %s", name, last.Describe(expected))
 
 	ctx, cancel := context.WithTimeout(context.Background(), traceStatsTimeout)
 	defer cancel()
@@ -1391,58 +1036,6 @@ func pageLoadFailure(name, trace string, last pageState, expected, baseURL strin
 	return fmt.Errorf("%s (%s; the page was fetched but never started, and the browser only ever asked for %s)",
 		described, trace, summarisePaths(stats.Paths))
 }
-
-// describeAssets renders the page's own diagnostics, so a failure names the
-// asset that broke instead of only saying the page stalled.
-func describeAssets(assets map[string]any) string {
-	if assets == nil {
-		return ""
-	}
-
-	parts := []string{}
-
-	if failed, ok := assets["failed"].([]any); ok && len(failed) > 0 {
-		parts = append(parts, "assets that failed to load: "+joinAny(failed))
-	}
-
-	if errs, ok := assets["errors"].([]any); ok && len(errs) > 0 {
-		parts = append(parts, "script errors: "+joinAny(errs))
-	}
-
-	if loaded, ok := assets["loaded"].([]any); ok && len(loaded) > 0 {
-		parts = append(parts, "assets that loaded: "+joinAny(loaded))
-	}
-
-	if len(parts) == 0 {
-		return ""
-	}
-
-	return " ; " + strings.Join(parts, " ; ")
-}
-
-func joinAny(values []any) string {
-	out := make([]string, 0, len(values))
-	for _, v := range values {
-		out = append(out, fmt.Sprint(v))
-	}
-
-	return strings.Join(out, ", ")
-}
-
-// pageStateScript reads the contract the test pages publish. Every field it
-// touches is written by test-runner.handlebars or test-director.handlebars, so
-// a rename there fails here rather than silently reading undefined.
-const pageStateScript = `
-	return {
-		page: typeof window.global_test_page === 'string' ? window.global_test_page : null,
-		started: window.global_test_started === true,
-		suiteSize: typeof window.global_test_suite_size === 'number' ? window.global_test_suite_size : null,
-		expectedRuns: typeof window.global_test_expected_runs === 'number' ? window.global_test_expected_runs : null,
-		readyState: document.readyState,
-		href: String(document.location ? document.location.href : ''),
-		title: String(document.title || ''),
-		assets: window.global_test_assets || null
-	};`
 
 // sessionLabel names a BrowserStack session so it can be matched to a line in
 // the test server log. The trace ties the two together without depending on the
@@ -1473,66 +1066,6 @@ func shardName(shard int) string {
 	}
 
 	return "1"
-}
-
-// pollProgressScript reads whichever result object the page has published.
-const pollProgressScript = `return window.global_test_results || window.global_test_progress;`
-
-func pollForResults(ctx context.Context, session *browserstack.Session, j *job) error {
-	startedAt := time.Now()
-	lastUpdatedAt := startedAt
-
-	var lastSeen int
-
-	for {
-		value, err := session.ExecuteScript(ctx, pollProgressScript, nil)
-		if err != nil {
-			return err
-		}
-
-		if value != nil {
-			raw, err := json.Marshal(value)
-			if err != nil {
-				return err
-			}
-
-			progress := &pageResults{}
-			if err := json.Unmarshal(raw, progress); err != nil {
-				return fmt.Errorf("parsing page results: %w", err)
-			}
-
-			switch progress.State {
-			case "complete":
-				j.state.complete(progress.summary(), time.Since(startedAt))
-
-				return nil
-
-			case "running":
-				if progress.RunnerCompletedCount != lastSeen {
-					lastSeen = progress.RunnerCompletedCount
-					lastUpdatedAt = time.Now()
-
-					j.state.recordProgress(progress)
-				}
-			}
-		}
-
-		// Only a run that stops making progress counts as a timeout, so a slow
-		// but progressing browser is not killed.
-		if time.Since(lastUpdatedAt) > testBrowserTimeout {
-			current, _, _, _, _, _ := j.state.snapshot()
-			timedOut := fmt.Errorf("timed out at %q on %q", current, j.name)
-			j.state.setError(timedOut)
-
-			return timedOut
-		}
-
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(pollTick):
-		}
-	}
 }
 
 // lastProgress is the last block printed, so a run of several hundred jobs
@@ -1598,7 +1131,7 @@ func printProgress(jobs []*job) {
 
 // writeResults records results in the shape test/polyfills/compat.js reads.
 func writeResults(repo string, opts options, jobs []*job) error {
-	results := map[string]map[string]map[string]*testSummary{}
+	results := map[string]map[string]map[string]*pagecontract.Summary{}
 
 	record := func(j *job) {
 		_, jobResults, _, _, replacements, _ := j.state.snapshot()
@@ -1615,11 +1148,11 @@ func writeResults(repo string, opts options, jobs []*job) error {
 		family, version, _ := strings.Cut(key, "/")
 
 		if results[family] == nil {
-			results[family] = map[string]map[string]*testSummary{}
+			results[family] = map[string]map[string]*pagecontract.Summary{}
 		}
 
 		if results[family][version] == nil {
-			results[family][version] = map[string]*testSummary{}
+			results[family][version] = map[string]*pagecontract.Summary{}
 		}
 
 		mode := string(j.testMode)
@@ -1653,7 +1186,7 @@ func writeResults(repo string, opts options, jobs []*job) error {
 // together, which is what a sharded browser produces: two sessions, one entry.
 //
 // The result is a new summary, and the suite lists are unions.
-func mergeSummaries(a, b *testSummary) *testSummary {
+func mergeSummaries(a, b *pagecontract.Summary) *pagecontract.Summary {
 	if a == nil {
 		return b
 	}
@@ -1683,10 +1216,10 @@ func mergeSummaries(a, b *testSummary) *testSummary {
 		assets = a.Assets
 	}
 
-	return &testSummary{
+	return &pagecontract.Summary{
 		Passed:              a.Passed + b.Passed,
 		Failed:              a.Failed + b.Failed,
-		FailingTests:        append(append([]failingTest{}, a.FailingTests...), b.FailingTests...),
+		FailingTests:        append(append([]pagecontract.FailingTest{}, a.FailingTests...), b.FailingTests...),
 		FailingSuites:       suites,
 		TestedSuites:        append(append([]string{}, a.TestedSuites...), b.TestedSuites...),
 		Assets:              assets,

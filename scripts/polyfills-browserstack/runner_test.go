@@ -2,17 +2,22 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/mrhenry/polyfill-library/scripts/browserstack"
 	"github.com/mrhenry/polyfill-library/scripts/browserua"
+	"github.com/mrhenry/polyfill-library/scripts/pagecontract"
 	"github.com/mrhenry/polyfill-library/scripts/polyfillmeta"
 )
 
@@ -118,7 +123,7 @@ func TestJobStateTracksOneJob(t *testing.T) {
 		t.Errorf("state = %q, want the state that was set", state.state)
 	}
 
-	progress := &pageResults{State: "running", RunnerCompletedCount: 3, RunnerCount: 10}
+	progress := &pagecontract.Results{State: "running", RunnerCompletedCount: 3, RunnerCount: 10}
 	state.recordProgress(progress)
 
 	if state.progress != progress {
@@ -131,7 +136,7 @@ func TestJobStateTracksOneJob(t *testing.T) {
 		t.Errorf("replacements = %d, want 2", state.replacements)
 	}
 
-	state.complete(&testSummary{Passed: 7}, 12*time.Second)
+	state.complete(&pagecontract.Summary{Passed: 7}, 12*time.Second)
 
 	gotState, results, _, duration, replacements, _ := state.snapshot()
 
@@ -147,7 +152,7 @@ func TestJobStateTracksOneJob(t *testing.T) {
 		t.Error("a completed job with no failures must not read as failed")
 	}
 
-	state.complete(&testSummary{Passed: 7, Failed: 1}, time.Second)
+	state.complete(&pagecontract.Summary{Passed: 7, Failed: 1}, time.Second)
 
 	if !state.failed() {
 		t.Error("a completed job with a failing test must read as failed")
@@ -160,46 +165,6 @@ func TestJobStateTracksOneJob(t *testing.T) {
 
 	if gotState != "error" || !errors.Is(gotErr, boom) {
 		t.Errorf("snapshot() = (%q, %v), want the error that was set", gotState, gotErr)
-	}
-}
-
-// TestPageResultsSummary covers the shape test/polyfills/compat.js reads. The
-// page only sets failingSuites when a suite fails, and the consumer maps over
-// it, so a missing object has to become an empty list rather than null.
-func TestPageResultsSummary(t *testing.T) {
-	summary := (&pageResults{
-		State:  "complete",
-		Passed: 3,
-		Failed: 1,
-		Tests:  []failingTest{{Name: "a", FailingSuite: "one"}},
-		FailingSuites: map[string]bool{
-			"two": true,
-			"one": true,
-		},
-		TestedSuites: []string{"one", "two"},
-		Assets:       map[string]any{"failed": []any{"polyfill.test.js"}},
-	}).summary()
-
-	if !reflect.DeepEqual(summary.FailingSuites, []string{"one", "two"}) {
-		t.Errorf("FailingSuites = %v, want them sorted so the results file is stable", summary.FailingSuites)
-	}
-
-	if summary.FailingTests == nil {
-		t.Error("FailingTests = nil, want an empty list rather than null")
-	}
-
-	if len(summary.FailingTests) != 1 || summary.FailingTests[0].FailingSuite != "one" {
-		t.Errorf("FailingTests = %+v, want the failing test the page reported", summary.FailingTests)
-	}
-
-	if summary.Assets == nil {
-		t.Error("Assets = nil, want the page's own diagnostics")
-	}
-
-	bare := (&pageResults{Passed: 1}).summary()
-
-	if bare.FailingSuites == nil || len(bare.FailingSuites) != 0 {
-		t.Errorf("FailingSuites = %v, want an empty list", bare.FailingSuites)
 	}
 }
 
@@ -383,7 +348,7 @@ func TestPrintProgressOnlyPrintsChanges(t *testing.T) {
 		t.Errorf("an unchanged run printed again:\n%s", again)
 	}
 
-	jobs[0].state.complete(&testSummary{Passed: 12}, 30*time.Second)
+	jobs[0].state.complete(&pagecontract.Summary{Passed: 12}, 30*time.Second)
 
 	after := captureProgress(t, jobs)
 
@@ -540,5 +505,220 @@ func TestJobsRunOldestBrowserFirst(t *testing.T) {
 
 	if !reflect.DeepEqual(names, want) {
 		t.Errorf("job order = %v, want %v", names, want)
+	}
+}
+
+// fakeDriver is an in-memory adapter at the driver seam. Each ExecuteScript
+// call is answered from a queue, so a test scripts the page's readiness and
+// results without a browser.
+type fakeDriver struct {
+	mu        sync.Mutex
+	scripts   []any
+	navigated bool
+	deleted   bool
+}
+
+func (f *fakeDriver) Navigate(context.Context, string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.navigated = true
+
+	return nil
+}
+
+func (f *fakeDriver) ExecuteScript(_ context.Context, _ string, _ []any) (any, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	if len(f.scripts) == 0 {
+		return nil, nil
+	}
+
+	next := f.scripts[0]
+	f.scripts = f.scripts[1:]
+
+	if err, ok := next.(error); ok {
+		return nil, err
+	}
+
+	return next, nil
+}
+
+func (f *fakeDriver) Delete(context.Context) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.deleted = true
+
+	return nil
+}
+
+// readyPage is the readiness contract the runner polls for.
+func readyPage() map[string]any {
+	return map[string]any{"page": "runner", "started": true, "readyState": "complete"}
+}
+
+// completeResults is a finished page result set.
+func completeResults() map[string]any {
+	return map[string]any{"state": "complete", "passed": 7, "total": 7}
+}
+
+// traceServer answers the runner's trace-stats questions. gets is how many
+// browser GETs the server reports, which is what "the navigation arrived" means.
+func traceServer(t *testing.T, gets int) *httptest.Server {
+	t.Helper()
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_ = json.NewEncoder(w).Encode(traceStats{Requests: gets, Gets: gets, Paths: []string{"GET /"}})
+	}))
+	t.Cleanup(srv.Close)
+
+	return srv
+}
+
+// testRunner builds a runner whose pauses are zero, so the retry and replacement
+// branches run without the measured delays.
+func testRunner(dial dialFunc, traceStatsBase string) *runner {
+	return &runner{
+		dial:           dial,
+		traceStatsBase: traceStatsBase,
+		gate:           newTestGate(staticPlan(browserstack.Plan{ParallelSessionsMaxAllowed: 5}), time.Hour),
+		batchName:      "test-run",
+	}
+}
+
+func testJob(name, trace string) *job {
+	return &job{
+		name:         name,
+		url:          "http://bs-local.com:9876/test",
+		expectedPage: "runner",
+		trace:        trace,
+		state:        newJobState(),
+	}
+}
+
+// TestRunnerCompletesAJobThroughTheSeam drives the whole attempt — dial,
+// navigate, arrival, page load, results — with a fake driver, which the old
+// runner could not do because it created its own session.
+func TestRunnerCompletesAJobThroughTheSeam(t *testing.T) {
+	stats := traceServer(t, 1)
+
+	d := &fakeDriver{scripts: []any{readyPage(), completeResults()}}
+
+	j := testJob("chrome/32.0", "r1-001-chrome-32.0")
+
+	testRunner(func(context.Context, browserstack.Browser, string) (driver, error) {
+		return d, nil
+	}, stats.URL).runJob(context.Background(), j)
+
+	state, results, _, _, _, err := j.state.snapshot()
+
+	if err != nil {
+		t.Fatalf("runJob recorded %v, want success", err)
+	}
+
+	if state != "complete" || results == nil || results.Passed != 7 {
+		t.Errorf("state/results = %q/%+v, want complete with 7 passes", state, results)
+	}
+
+	if !d.navigated {
+		t.Error("the driver was never navigated")
+	}
+
+	if !d.deleted {
+		t.Error("the session was not deleted")
+	}
+}
+
+// TestRunnerRetriesASessionThatFailsToStart covers the retry branch: a transient
+// start failure gets a second attempt, and the same fake then completes.
+func TestRunnerRetriesASessionThatFailsToStart(t *testing.T) {
+	stats := traceServer(t, 1)
+
+	d := &fakeDriver{scripts: []any{readyPage(), completeResults()}}
+
+	var calls int
+
+	dial := func(context.Context, browserstack.Browser, string) (driver, error) {
+		calls++
+
+		if calls == 1 {
+			return nil, errors.New("Failed to create session")
+		}
+
+		return d, nil
+	}
+
+	j := testJob("chrome/32.0", "r1-002-chrome-32.0")
+
+	testRunner(dial, stats.URL).runJob(context.Background(), j)
+
+	state, results, _, _, _, err := j.state.snapshot()
+
+	if err != nil || state != "complete" || results == nil {
+		t.Fatalf("runJob = (%q, %v, %+v), want a retried success", state, err, results)
+	}
+
+	if calls != 2 {
+		t.Errorf("dial calls = %d, want 2 (one failure, one retry)", calls)
+	}
+}
+
+// TestRunnerReplacesADeadSession covers the replacement branch: a session whose
+// browser never issued a request is discarded and the job retried on a fresh
+// one, with the replacement counted.
+func TestRunnerReplacesADeadSession(t *testing.T) {
+	var (
+		mu       sync.Mutex
+		requests int
+	)
+
+	stats := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		mu.Lock()
+		requests++
+
+		// The dead session never arrives; the replacement does.
+		gets := 0
+		if requests > 1 {
+			gets = 1
+		}
+		mu.Unlock()
+
+		_ = json.NewEncoder(w).Encode(traceStats{Requests: gets, Gets: gets, Paths: []string{"GET /"}})
+	}))
+	defer stats.Close()
+
+	dead := &fakeDriver{}
+	live := &fakeDriver{scripts: []any{readyPage(), completeResults()}}
+
+	var calls int
+
+	dial := func(context.Context, browserstack.Browser, string) (driver, error) {
+		calls++
+
+		if calls == 1 {
+			return dead, nil
+		}
+
+		return live, nil
+	}
+
+	j := testJob("chrome/32.0", "r1-003-chrome-32.0")
+
+	testRunner(dial, stats.URL).runJob(context.Background(), j)
+
+	state, results, _, _, replacements, err := j.state.snapshot()
+
+	if err != nil || state != "complete" || results == nil {
+		t.Fatalf("runJob = (%q, %v, %+v), want a replaced success", state, err, results)
+	}
+
+	if replacements != 1 {
+		t.Errorf("replacements = %d, want 1", replacements)
+	}
+
+	if !dead.deleted {
+		t.Error("the dead session was not deleted")
 	}
 }
