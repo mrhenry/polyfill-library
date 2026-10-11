@@ -9,10 +9,8 @@ const readFile = promisify(fs.readFile);
 const path = require("node:path");
 const handlebars = require("handlebars");
 const ua_parser = require('./ua-parser');
-const zlib = require("node:zlib");
 const crypto = require("node:crypto");
-const gzip = promisify(zlib.gzip);
-const brotliCompress = promisify(zlib.brotliCompress);
+const { pipeline } = require("node:stream/promises");
 
 process.title = "polyfill-library-test-server";
 
@@ -116,76 +114,23 @@ function acceptedEncoding(request) {
 	return "identity";
 }
 
-function createCompressor(encoding) {
-	if (encoding === "br") {
-		// Node's brotli default quality is 11, which is far too slow for a whole
-		// bundle; 4 is the value the compression middleware uses too.
-		return zlib.createBrotliCompress({
-			params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 4 }
-		});
-	}
-
-	return zlib.createGzip();
-}
-
-// Compress here rather than in the global compression middleware so that
-// apicache stores the compressed bytes. A cache hit then replays them instead
-// of re-compressing the whole bundle on every request.
-function compressBuffer(body, encoding) {
-	const buffer = Buffer.isBuffer(body) ? body : Buffer.from(body);
-
-	if (encoding === "br") {
-		return brotliCompress(buffer, {
-			params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 4 }
-		});
-	}
-
-	if (encoding === "gzip") {
-		return gzip(buffer);
-	}
-
-	return Promise.resolve(buffer);
-}
-
-// Compress a generated bundle as it is produced, so the whole uncompressed
-// bundle is never held as a string and copied into a Buffer first.
-function compressStream(source, encoding) {
-	if (encoding === "identity") {
-		return new Promise((resolve, reject) => {
-			const chunks = [];
-			source.on("data", chunk => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
-			source.on("end", () => resolve(Buffer.concat(chunks)));
-			source.on("error", reject);
-		});
-	}
-
-	const compressor = createCompressor(encoding);
-
-	return new Promise((resolve, reject) => {
-		const chunks = [];
-		source.pipe(compressor);
-		compressor.on("data", chunk => chunks.push(chunk));
-		compressor.on("end", () => resolve(Buffer.concat(chunks)));
-		compressor.on("error", reject);
-		source.on("error", reject);
-	});
-}
-
-function sendEncoded(response, contentType, encoding, body) {
-	response.set("Content-Type", contentType);
-	response.set("Vary", "Accept-Encoding");
-
-	if (encoding !== "identity") {
-		response.set("Content-Encoding", encoding);
-	}
-
-	response.send(body);
-}
-
-async function sendCompressed(request, response, contentType, body) {
+// The compression middleware negotiates the encoding itself. Pinning the request
+// to the single encoding chosen here, before the middleware runs, keeps the
+// cache key in step with whatever the middleware will actually emit: a body can
+// never be cached under one encoding and replayed under another, and the
+// middleware itself stays stock.
+function normalizeEncoding(request, _response, next) {
 	const encoding = acceptedEncoding(request);
 
-	sendEncoded(response, contentType, encoding, await compressBuffer(body, encoding));
+	request.encoding = encoding;
+
+	if (encoding === "identity") {
+		delete request.headers["accept-encoding"];
+	} else {
+		request.headers["accept-encoding"] = encoding;
+	}
+
+	next();
 }
 
 // The bundle is a pure function of the requested features (which are in the URL)
@@ -240,6 +185,12 @@ async function bundleParameters(request) {
 	};
 }
 
+// Resolving the targeted set is what the cache key is built from, and it is the
+// same set the handler generates from. Memoizing it per (URL, user agent) means
+// a cache hit does not have to resolve it again.
+const bundleCache = new Map();
+const maxBundleCache = 4096;
+
 // Runs before the cache middleware so appendKey() can see the signature. It
 // resolves the same targeted set the handler will generate from, which lets
 // different user agents that need the same polyfills share one cache entry.
@@ -248,10 +199,24 @@ async function bundleSignatureMiddleware(request, response, next) {
 		const parameters = await bundleParameters(request);
 
 		if (parameters) {
-			const targeted = await polyfillio.getPolyfills(parameters);
+			const memoKey = (request.get("user-agent") || "") + "|" + request.originalUrl;
+			let entry = bundleCache.get(memoKey);
+
+			if (!entry) {
+				const targeted = await polyfillio.getPolyfills(parameters);
+
+				entry = { signature: bundleSignature(targeted), targeted: targeted };
+
+				if (bundleCache.size >= maxBundleCache) {
+					bundleCache.clear();
+				}
+
+				bundleCache.set(memoKey, entry);
+			}
 
 			request.bundleParameters = parameters;
-			request.bundleSignature = bundleSignature(targeted);
+			request.bundleSignature = entry.signature;
+			request.bundleTargeted = entry.targeted;
 		}
 
 		next();
@@ -367,13 +332,17 @@ app.set("etag", false);
 	});
 }
 
+// Pin the negotiated encoding before anything reads or writes it, so the cache
+// key and the compression middleware always agree.
+app.use(normalizeEncoding);
+
 const port = 9876;
 const apicache = require('apicache');
 const cache = apicache.middleware;
 
 const cacheFor1Day = cache("1 day", () => true, {
 	appendKey: request => {
-		const encoding = "$$enc=" + acceptedEncoding(request);
+		const encoding = "$$enc=" + request.encoding;
 
 		// Bundle routes resolve their own key from the targeted feature set (see
 		// bundleSignatureMiddleware); everything else is identified by its URL.
@@ -396,9 +365,12 @@ app.get("/favicon.ico", (request, response) => {
 	response.status(204).end();
 });
 
+// compression() runs after the cache, so apicache stores the compressed bytes
+// and a cache hit replays them instead of re-compressing on every request.
 for (const [route, file] of staticResponses) {
-	app.get(route, cacheFor1Day, (request, response) => {
-		return sendCompressed(request, response, file.contentType, file.body);
+	app.get(route, cacheFor1Day, compression(), (request, response) => {
+		response.set("Content-Type", file.contentType);
+		response.send(file.body);
 	});
 }
 app.get(["/"], compression(), createEndpoint(directorTemplate));
@@ -407,25 +379,27 @@ app.get(
 	"/polyfill.js",
 	bundleSignatureMiddleware,
 	cacheFor1Day,
+	compression(),
 	async (request, response) => {
 		const includePolyfills = request.query.includePolyfills || "no";
 
 		response.status(200);
+		response.set("Content-Type", "text/javascript; charset=utf-8");
 
 		if (includePolyfills === "yes") {
 			const parameters = request.bundleParameters || await bundleParameters(request);
-			const encoding = acceptedEncoding(request);
 
-			// Generate straight into the compressor: the whole uncompressed
-			// bundle never has to exist as a string and then a second Buffer.
-			const body = await compressStream(
-				polyfillio.getPolyfillString({ ...parameters, stream: true }),
-				encoding
-			);
+			// Stream the bundle through the compression middleware so the whole
+			// uncompressed bundle never has to exist as a string and a Buffer.
+			const source = polyfillio.getPolyfillString({
+				...parameters,
+				stream: true,
+				polyfills: request.bundleTargeted
+			});
 
-			sendEncoded(response, "text/javascript; charset=utf-8", encoding, body);
+			await pipeline(source, response);
 		} else {
-			await sendCompressed(request, response, "text/javascript; charset=utf-8", "");
+			response.end();
 		}
 	}
 );
@@ -433,11 +407,13 @@ app.get(
 app.get(
 	"/polyfill.test.js",
 	cacheFor1Day,
+	compression(),
 	async (request, response) => {
 		const feature = request.query.feature;
 		const requestedFeature = request.query.feature !== undefined;
 
 		response.status(200);
+		response.set("Content-Type", "text/javascript; charset=utf-8");
 
 		const polyfills = await testablePolyfills();
 
@@ -446,7 +422,7 @@ app.get(
 			? polyfills.filter(polyfill => feature && feature.split(',').includes(polyfill.feature))
 			: polyfills;
 
-		await sendCompressed(request, response, "text/javascript; charset=utf-8", features.map(feature => feature.testSuite).join("\n"));
+		response.send(features.map(feature => feature.testSuite).join("\n"));
 	}
 );
 
