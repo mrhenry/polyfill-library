@@ -193,7 +193,7 @@ To update those files with the latest set of browsers that BrowserStack support,
 
 `$ npm run update-browserstack-list`
 
-This runs a Go program, so it needs [Go](https://go.dev/dl/) installed. If the command is successful then your terminal will report how many browsers BrowserStack offers and how many entries are under test.
+This runs a Go program, so it needs [Go](https://go.dev/doc/install) installed. If the command is successful then your terminal will report how many browsers BrowserStack offers and how many entries are under test.
 
 Entries you have commented out in `browsers.toml` stay commented out, so curating the list survives a regeneration.
 

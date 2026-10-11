@@ -2,9 +2,13 @@ package browserstack
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
+
+	"github.com/mrhenry/polyfill-library/scripts/browsercmp"
 )
 
 // tunnelReadyTimeout bounds how long to wait for a fresh tunnel to become
@@ -12,19 +16,27 @@ import (
 // reported ready, so the window is comfortably longer.
 const tunnelReadyTimeout = 3 * time.Minute
 
-// tunnelProbeInterval is how often to re-probe while waiting. Each probe is a
-// real session that has to be created and torn down.
+// tunnelProbeInterval is the first pause between probes; each pause doubles up
+// to tunnelProbeMaxInterval. A refused probe creates no session, so the pauses
+// only bound latency.
 const tunnelProbeInterval = 5 * time.Second
 
+// tunnelProbeMaxInterval caps the backoff between probes.
+const tunnelProbeMaxInterval = 30 * time.Second
+
 // WaitForTunnel blocks until BrowserStack will actually route a local session
-// through the tunnel.
+// through the tunnel. It probes with the latest Chrome in the browser matrix.
 //
 // BrowserStackLocal reports ready within seconds, but for roughly the next
 // fifty seconds every local session is refused with "local testing through
 // BrowserStack is not connected". Nothing in the tunnel output marks the moment
 // it becomes usable, so only a successful session proves it.
-func (c *Client) WaitForTunnel(ctx context.Context) error {
-	// The cheapest browser that still exercises the same tunnel path.
+func (c *Client) WaitForTunnel(ctx context.Context, browsers []Browser) error {
+	chrome, ok := latestChrome(browsers)
+	if !ok {
+		return errors.New("no chrome browser in the matrix to probe the tunnel with")
+	}
+
 	probe := Capabilities{
 		BStack: map[string]any{
 			"sessionName": "polyfill-library tunnel readiness probe",
@@ -34,7 +46,7 @@ func (c *Client) WaitForTunnel(ctx context.Context) error {
 		},
 		Standard: map[string]any{
 			"browserName":    "chrome",
-			"browserVersion": "51.0",
+			"browserVersion": chrome.BrowserVersion,
 		},
 	}
 
@@ -42,6 +54,7 @@ func (c *Client) WaitForTunnel(ctx context.Context) error {
 	defer cancel()
 
 	started := time.Now()
+	wait := tunnelProbeInterval
 
 	for attempt := 1; ; attempt++ {
 		session, err := NewSession(ctx, c.http, Hub(), probe, c.credentials)
@@ -78,7 +91,40 @@ func (c *Client) WaitForTunnel(ctx context.Context) error {
 		select {
 		case <-ctx.Done():
 			return fmt.Errorf("tunnel was not usable within %s: %w", tunnelReadyTimeout, ctx.Err())
-		case <-time.After(tunnelProbeInterval):
+		case <-time.After(wait):
+		}
+
+		wait = nextProbeWait(wait)
+	}
+}
+
+// nextProbeWait doubles the pause between tunnel probes, capped at
+// tunnelProbeMaxInterval.
+func nextProbeWait(current time.Duration) time.Duration {
+	return min(current*2, tunnelProbeMaxInterval)
+}
+
+// latestChrome returns the newest non-beta Chrome in the matrix.
+func latestChrome(browsers []Browser) (Browser, bool) {
+	var (
+		latest Browser
+		found  bool
+	)
+
+	for _, b := range browsers {
+		if !strings.EqualFold(b.Browser, "chrome") || b.BrowserVersion == "" {
+			continue
+		}
+
+		if strings.Contains(strings.ToLower(b.BrowserVersion), "beta") {
+			continue
+		}
+
+		if !found || browsercmp.VersionLess(latest.BrowserVersion, b.BrowserVersion) {
+			latest = b
+			found = true
 		}
 	}
+
+	return latest, found
 }

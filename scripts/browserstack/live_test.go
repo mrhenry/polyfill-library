@@ -89,7 +89,7 @@ func TestLiveBrowserSelection(t *testing.T) {
 	}
 	defer closeTunnel()
 
-	if err := client.WaitForTunnel(ctx); err != nil {
+	if err := client.WaitForTunnel(ctx, stackList.Browsers); err != nil {
 		t.Fatalf("waiting for the tunnel: %v", err)
 	}
 

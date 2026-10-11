@@ -3,6 +3,7 @@ package browserstack
 import (
 	"runtime"
 	"testing"
+	"time"
 )
 
 func TestPlatformSuffix(t *testing.T) {
@@ -63,5 +64,45 @@ func TestHostSupportsNativeThisMachine(t *testing.T) {
 
 	if !hostSupportsNative(suffix, runtime.GOARCH) {
 		t.Errorf("%s/%s reports its own %q build as non-native", runtime.GOOS, runtime.GOARCH, suffix)
+	}
+}
+
+// TestLatestChrome covers the tunnel probe's browser selection.
+func TestLatestChrome(t *testing.T) {
+	browsers := []Browser{
+		{Browser: "firefox", BrowserVersion: "151.0"},
+		{Browser: "chrome", BrowserVersion: "100.0"},
+		{Browser: "chrome", BrowserVersion: "151.0 beta"},
+		{Browser: "chrome", BrowserVersion: "9.0"},
+		{Browser: "chrome", BrowserVersion: "151.0"},
+	}
+
+	got, ok := latestChrome(browsers)
+	if !ok {
+		t.Fatal("latestChrome found no chrome")
+	}
+
+	if got.BrowserVersion != "151.0" {
+		t.Errorf("latestChrome() = %q, want the newest non-beta chrome 151.0", got.BrowserVersion)
+	}
+
+	if _, ok := latestChrome([]Browser{{Browser: "firefox", BrowserVersion: "151.0"}}); ok {
+		t.Error("latestChrome must report no chrome when none is present")
+	}
+}
+
+// TestNextProbeWait covers the tunnel probe backoff.
+func TestNextProbeWait(t *testing.T) {
+	cases := map[time.Duration]time.Duration{
+		5 * time.Second:  10 * time.Second,
+		10 * time.Second: 20 * time.Second,
+		20 * time.Second: 30 * time.Second,
+		30 * time.Second: 30 * time.Second,
+	}
+
+	for in, want := range cases {
+		if got := nextProbeWait(in); got != want {
+			t.Errorf("nextProbeWait(%s) = %s, want %s", in, got, want)
+		}
 	}
 }

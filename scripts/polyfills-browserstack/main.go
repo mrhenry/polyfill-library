@@ -251,7 +251,7 @@ func run(opts options) error {
 
 	// The binary reports ready before BrowserStack routes local sessions, so
 	// wait for it to actually be usable.
-	if err := client.WaitForTunnel(runnerCtx); err != nil {
+	if err := client.WaitForTunnel(runnerCtx, stackList.Browsers); err != nil {
 		return err
 	}
 
