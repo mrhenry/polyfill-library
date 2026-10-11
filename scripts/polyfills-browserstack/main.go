@@ -70,11 +70,11 @@ const (
 	// navigation was accepted but never acted on.
 	sessionReplacements = 3
 
-	// passDelay is the pause between the combination pass and the individual
+	// passPause is the pause between the combination pass and the individual
 	// pass. The two jobs for one browser+version otherwise claim the same
 	// machine back to back, and a machine a job has just released is not
 	// ready for the next request immediately.
-	passDelay = 30 * time.Second
+	passPause = 5 * time.Second
 
 	// testServerStartTimeout bounds how long to wait for the JavaScript test
 	// server to accept connections. CI starts it beside this process, so the

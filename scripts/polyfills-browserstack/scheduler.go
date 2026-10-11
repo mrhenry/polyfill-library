@@ -39,7 +39,7 @@ func newScheduler(runner jobRunner, maxConcurrency int) *scheduler {
 		printer:        newProgressPrinter(os.Stdout),
 		maxConcurrency: maxConcurrency,
 		tick:           pollTick,
-		passPause:      passDelay,
+		passPause:      passPause,
 	}
 }
 

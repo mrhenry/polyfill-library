@@ -123,7 +123,7 @@ func (s *jobState) failed() bool {
 // browserFor returns the platform for a session, relaxing the pinned one after
 // the first attempt so a retry can land on any platform.
 func (j *job) browserFor(sessionIndex int) browserstack.Browser {
-	if sessionIndex == 0 && j.hasPreferred {
+	if sessionIndex < 2 && j.hasPreferred {
 		return j.preferred
 	}
 

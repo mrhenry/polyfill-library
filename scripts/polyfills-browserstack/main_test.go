@@ -420,7 +420,11 @@ func TestPreferredPlatformOnlyOnFirstSession(t *testing.T) {
 				t.Errorf("%s first session platform = %s %s, want Windows 8", j.name, got.OS, got.OSVersion)
 			}
 
-			if got := j.browserFor(1); got.OS != "" || got.OSVersion != "" {
+			if got := j.browserFor(1); got.OS != "Windows" || got.OSVersion != "8" {
+				t.Errorf("%s first session platform = %s %s, want Windows 8", j.name, got.OS, got.OSVersion)
+			}
+
+			if got := j.browserFor(2); got.OS != "" || got.OSVersion != "" {
 				t.Errorf("%s later session platform = %s %s, want none", j.name, got.OS, got.OSVersion)
 			}
 
