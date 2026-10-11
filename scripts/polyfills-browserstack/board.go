@@ -16,8 +16,8 @@ type job struct {
 	name    string
 	browser browserstack.Browser
 
-	// preferred is the platform requested on the first session. Later sessions
-	// omit it, which is what lets a retry land on any platform.
+	// preferred is the platform requested on the first two sessions. Later
+	// sessions omit it, which is what lets a retry land on any platform.
 	preferred    browserstack.Browser
 	hasPreferred bool
 
@@ -98,7 +98,6 @@ func (s *jobState) complete(results *pagecontract.Summary, duration time.Duratio
 	s.state = "complete"
 }
 
-// status returns one coherent view of the job's progress.
 func (s *jobState) status() jobStatus {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -120,8 +119,8 @@ func (s *jobState) failed() bool {
 	return s.err != nil || s.results == nil || s.results.Failed > 0
 }
 
-// browserFor returns the platform for a session, relaxing the pinned one after
-// the first attempt so a retry can land on any platform.
+// browserFor returns the platform for a session, relaxing the pinned one from
+// the third session so a retry can land on any platform.
 func (j *job) browserFor(sessionIndex int) browserstack.Browser {
 	if sessionIndex < 2 && j.hasPreferred {
 		return j.preferred

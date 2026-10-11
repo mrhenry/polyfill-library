@@ -71,9 +71,8 @@ func (s *scheduler) run(ctx context.Context, jobs []*job) int {
 
 	var sem = make(chan struct{}, s.maxConcurrency)
 
-	// Passes run one after another, so a browser is never asked for a
-	// combination job's machine and an individual job's machine at once. The
-	// job board keeps ticking across the pause.
+	// Passes run one after another, so a browser is never asked for two
+	// machines at once; the job board keeps ticking across the pause.
 	for i, p := range passes(jobs) {
 		if i > 0 {
 			select {
@@ -107,10 +106,8 @@ func (s *scheduler) run(ctx context.Context, jobs []*job) int {
 	return failed
 }
 
-// pass is one group of jobs run to completion before the next. When a run
-// tests polyfill combinations the combination jobs form the first pass and
-// the individual jobs the second, so the two jobs for one browser+version do
-// not contend for the same machine.
+// pass is one group of jobs run to completion before the next: with polyfill
+// combinations the combination jobs run first, the individual jobs second.
 type pass struct {
 	jobs []*job
 }
@@ -138,10 +135,9 @@ func passes(jobs []*job) []pass {
 	}
 }
 
-// runPass drives every job in one pass to completion before returning. Jobs
-// are admitted in order: each browser is a group run on one session at a time,
-// and groups start oldest browser first. A browser whose session hangs holds
-// only its own group back, never a later browser's.
+// runPass drives every job in one pass to completion before returning. Each
+// browser is a group run one session at a time; a browser whose session hangs
+// holds only its own group back.
 func (s *scheduler) runPass(ctx context.Context, jobs []*job, sem chan struct{}) {
 	var wg sync.WaitGroup
 
@@ -174,9 +170,8 @@ func (s *scheduler) runPass(ctx context.Context, jobs []*job, sem chan struct{})
 }
 
 // groupByBrowser collects jobs that share a browser, so each browser is driven
-// by one session at a time regardless of how the caller ordered the jobs.
-// Groups keep the order of first appearance, so a sorted job list drives
-// browsers oldest first.
+// by one session at a time. Groups keep the order of first appearance, so a
+// sorted job list drives browsers oldest first.
 func groupByBrowser(jobs []*job) [][]*job {
 	groups := make([][]*job, 0, len(jobs))
 	at := make(map[string]int, len(jobs))

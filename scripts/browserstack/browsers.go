@@ -58,9 +58,9 @@ type Index struct {
 }
 
 // preferredPlatform pins a version to the platform that provisions most
-// reliably when BrowserStack offers it on several. IE 10 starts on Windows 8
-// but not Windows 7; the generated list puts the newest Windows first, so the
-// preference is explicit. A withdrawn platform falls back to the first offered.
+// reliably when several are offered. IE 10 starts on Windows 8 but not Windows
+// 7, and the generated list puts the newest Windows first. A withdrawn platform
+// falls back to the first offered.
 var preferredPlatform = map[string]struct{ OS, OSVersion string }{
 	"ie/10.0": {OS: "Windows", OSVersion: "8"},
 }

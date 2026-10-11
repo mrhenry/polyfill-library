@@ -41,10 +41,9 @@ const distPath = "polyfills/__dist"
 func Load(repoRoot string) (*Collection, error) {
 	dist := filepath.Join(repoRoot, distPath)
 
-	// polyfills/__dist/meta.json is the authoritative feature list, exactly as
-	// lib/sources.js listPolyfills() uses it. Directory names are not a
-	// reliable substitute: polyfill names contain dots alongside non-polyfill
-	// siblings (meta.json, aliases.json).
+	// polyfills/__dist/meta.json is the authoritative feature list, as
+	// lib/sources.js listPolyfills() uses it. Directory names are not reliable:
+	// polyfill names contain dots alongside non-polyfill siblings.
 	index := map[string]*Meta{}
 	raw, err := os.ReadFile(filepath.Join(dist, "meta.json"))
 	if err != nil {

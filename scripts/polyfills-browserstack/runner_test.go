@@ -334,9 +334,7 @@ func TestSchedulerSerialisesOneBrowser(t *testing.T) {
 	}
 }
 
-// TestSchedulerRunsCombinationsBeforeIndividuals covers the two-pass order:
-// every combination job runs before any individual job, with a pause between
-// the passes.
+// TestSchedulerRunsCombinationsBeforeIndividuals covers the two-pass order.
 func TestSchedulerRunsCombinationsBeforeIndividuals(t *testing.T) {
 	var (
 		mu    sync.Mutex
@@ -429,9 +427,8 @@ func TestSchedulerRunsEachBrowserInOrder(t *testing.T) {
 	}
 }
 
-// TestGroupByBrowserGroupsAllJobsForABrowser covers the invariant that one
-// browser is one group even when its jobs are not adjacent, in first-appearance
-// order.
+// TestGroupByBrowserGroupsAllJobsForABrowser covers grouping non-adjacent jobs
+// by browser, in first-appearance order.
 func TestGroupByBrowserGroupsAllJobsForABrowser(t *testing.T) {
 	jobs := []*job{
 		{name: "a"},
@@ -875,8 +872,7 @@ func TestRunnerRetriesASessionThatFailsToStart(t *testing.T) {
 }
 
 // TestRunnerReplacesADeadSession covers the replacement branch: a session whose
-// browser never issued a request is discarded and the job retried on a fresh
-// one.
+// browser never issued a request is discarded and the job retried.
 func TestRunnerReplacesADeadSession(t *testing.T) {
 	var (
 		mu       sync.Mutex

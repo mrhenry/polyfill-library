@@ -284,8 +284,7 @@ func TestCombinedJobsGetTheirOwnTrace(t *testing.T) {
 }
 
 // TestBuildJobsOrdersCombinationsFirstAndOldestFirst guards the two-pass
-// ordering the scheduler relies on: every combination job comes before every
-// individual job, and within a group older browser versions come first.
+// ordering the scheduler relies on.
 func TestBuildJobsOrdersCombinationsFirstAndOldestFirst(t *testing.T) {
 	index := browserstack.NewIndex([]browserstack.Browser{
 		{Browser: "edge", BrowserVersion: "15.0"},
@@ -327,8 +326,7 @@ func TestBuildJobsOrdersCombinationsFirstAndOldestFirst(t *testing.T) {
 }
 
 // TestBuildJobsKeepsShardsWithTheirBrowser guards the browser-first order: a
-// sharded browser's jobs stay together, oldest browser first, instead of all
-// first shards then all second shards.
+// sharded browser's jobs stay together, oldest browser first.
 func TestBuildJobsKeepsShardsWithTheirBrowser(t *testing.T) {
 	index := browserstack.NewIndex([]browserstack.Browser{
 		{Browser: "ie", BrowserVersion: "11.0"},
@@ -385,9 +383,9 @@ func TestSessionLabelCarriesTheTrace(t *testing.T) {
 	}
 }
 
-// TestPreferredPlatformOnlyOnFirstSession covers the relaxation: the pinned
-// platform is requested on the first session and omitted afterwards.
-func TestPreferredPlatformOnlyOnFirstSession(t *testing.T) {
+// TestPreferredPlatformRelaxedAfterTwoSessions covers the relaxation: the
+// pinned platform is requested on the first two sessions and omitted afterwards.
+func TestPreferredPlatformRelaxedAfterTwoSessions(t *testing.T) {
 	root := repoRoot()
 
 	list, err := browserstack.LoadBrowserList(filepath.Join(root, "test/polyfills/browsers.toml"))

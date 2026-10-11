@@ -13,8 +13,7 @@ import (
 )
 
 // driver is the slice of a WebDriver session the runner needs: the seam between
-// the runner and a browser. The production adapter wraps browserstack.Session;
-// tests supply an in-memory fake.
+// the runner and a browser. Production wraps browserstack.Session; tests fake it.
 type driver interface {
 	Navigate(ctx context.Context, target string) error
 	ExecuteScript(ctx context.Context, script string, args []any) (any, error)
@@ -44,7 +43,7 @@ type runner struct {
 	replacementPause time.Duration
 }
 
-// newRunner builds the production runner, with the measured timing defaults.
+// newRunner builds the production runner with the measured timing defaults.
 func newRunner(dial dialFunc, testServer *testserver.Client, gate *capacityGate, batchName string) *runner {
 	return &runner{
 		dial:             dial,
@@ -289,8 +288,7 @@ func (r *runner) waitForPageLoad(ctx context.Context, session driver, j *job, ex
 	}
 }
 
-// pageLoadFailure reports why the page never started. The browser's request did
-// arrive, so this is a page or asset problem, not a session one.
+// pageLoadFailure delegates to the package-level reporter.
 func (r *runner) pageLoadFailure(ctx context.Context, j *job, last pagecontract.State, expected string) error {
 	return pageLoadFailure(ctx, r.testServer, j.name, j.trace, last, expected)
 }

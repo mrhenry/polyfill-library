@@ -44,8 +44,8 @@ func commandTimeoutError(err error) error {
 
 // Session is a W3C WebDriver session.
 //
-// Only create, navigate, execute script and delete are used, so the whole
-// pinned browser matrix works without per-browser capability workarounds.
+// Only create, navigate, execute script and delete are used, so the pinned
+// browser matrix works without per-browser capability workarounds.
 type Session struct {
 	client    *http.Client
 	baseURL   string
@@ -57,8 +57,7 @@ type Session struct {
 // sessionResponse is the W3C New Session response.
 //
 // BrowserStack answers with the legacy JSON Wire Protocol shape when the
-// requested capabilities were ignored; both are accepted so the reason is
-// visible in the error.
+// requested capabilities were ignored; both are accepted so the reason shows.
 type sessionResponse struct {
 	Value struct {
 		SessionID string `json:"sessionId"`

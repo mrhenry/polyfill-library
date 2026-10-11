@@ -1,12 +1,11 @@
 // Package browserua reimplements the parts of
-// @financial-times/polyfill-useragent-normaliser that the BrowserStack harness
-// depends on. It only accepts the short "family/version" form used by
-// test/polyfills/browsers.toml, never a real User-Agent header. The baselines
+// @financial-times/polyfill-useragent-normaliser the BrowserStack harness needs.
+// It only accepts the short "family/version" form used by
+// test/polyfills/browsers.toml, never a real User-Agent header; the baselines
 // and Opera remap are generated from that package.
 //
-// Normalisation matters because polyfill browser targets are keyed by the
-// normalised family: a browser below the family's baseline normalises to
-// "other/0.0.0" and is skipped by the harness.
+// Polyfill browser targets are keyed by the normalised family, so a browser
+// below its family's baseline normalises to "other/0.0.0" and is skipped.
 package browserua
 
 import (

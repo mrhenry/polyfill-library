@@ -1,10 +1,7 @@
 // Command polyfills-browserstack runs the polyfill-library browser test suite
-// on BrowserStack, replacing the WebdriverIO harness in remotetest.js. The test
+// on BrowserStack, replacing the WebdriverIO harness in remotetest.js. Test
 // pages are still served by test/polyfills/server.js; this command only drives
-// browsers.
-//
-// Only the W3C WebDriver protocol is used: capabilities go out as alwaysMatch
-// and commands use the W3C routes, with no JSON Wire Protocol fallback.
+// browsers, over the W3C WebDriver protocol with no JSON Wire Protocol fallback.
 package main
 
 import (
@@ -42,15 +39,13 @@ const (
 	// account plan cannot be read.
 	concurrency = 4
 
-	// testBrowserTimeout is how long one browser may run without making
-	// progress. Measured runs finish well under two minutes.
+	// testBrowserTimeout is how long a browser may run without making progress.
 	testBrowserTimeout = 10 * time.Minute
 
 	// pollTick is how often test progress is read from the page.
 	pollTick = time.Second
 
-	// sessionStartTimeout bounds a single New Session call. Measured session
-	// creation took 6 to 32 seconds.
+	// sessionStartTimeout bounds a single New Session call.
 	sessionStartTimeout = 2 * time.Minute
 
 	// maxAttempts is how many times a browser whose session could not start is
@@ -61,23 +56,21 @@ const (
 	retryDelay = 30 * time.Second
 
 	// replacementDelay is the pause before requesting a replacement session, so
-	// BrowserStack can release the discarded machine. Browsers with a small pool
-	// (IE 10 especially) queue the replacement otherwise.
+	// BrowserStack can release the discarded machine; a small pool (IE 10
+	// especially) queues the replacement otherwise.
 	replacementDelay = 15 * time.Second
 
 	// sessionReplacements bounds how many sessions one job may discard after a
 	// navigation was accepted but never acted on.
 	sessionReplacements = 3
 
-	// passPause is the pause between the combination pass and the individual
-	// pass. The two jobs for one browser+version otherwise claim the same
-	// machine back to back, and a machine a job has just released is not
-	// ready for the next request immediately.
+	// passPause is the pause between the combination and individual passes. The
+	// two jobs for one browser+version otherwise claim the same machine back to
+	// back, before it is ready for the next request.
 	passPause = 5 * time.Second
 
 	// testServerStartTimeout bounds how long to wait for the JavaScript test
-	// server to accept connections. CI starts it beside this process, so the
-	// two race.
+	// server to accept connections; CI starts it beside this process.
 	testServerStartTimeout = 20 * time.Second
 
 	testServerProbeTimeout = 500 * time.Millisecond
@@ -164,7 +157,7 @@ func run(opts options) error {
 	defer stopSignals()
 
 	// A dry run only lists browsers, so it needs neither a test server nor
-	// credentials, and must not spend the startup budget waiting for them.
+	// credentials.
 	testServer := testserver.New(testServerURL)
 
 	if !opts.list {
@@ -472,8 +465,7 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 	}
 
 	// Combination runs before individual, then oldest browser first, then
-	// shard. The scheduler runs the combination group as its own pass and
-	// drives each browser's jobs in order, one session at a time.
+	// shard; the scheduler drives each browser's jobs one session at a time.
 	sort.SliceStable(jobs, func(i, k int) bool {
 		a, b := jobs[i], jobs[k]
 
@@ -525,13 +517,12 @@ func concurrencyFor(ctx context.Context, gate *capacityGate, opts options) int {
 }
 
 // pageLoadTimeout bounds how long the test page has to start once its request
-// has arrived. Reaching it means the page was fetched and never ran, so it is
-// waiting on assets rather than on the tunnel.
+// has arrived; reaching it means the page was fetched and never ran.
 const pageLoadTimeout = 90 * time.Second
 
 // arrivalGrace bounds how long a navigation is given to produce its first
-// request before the session is treated as dead. Healthy navigations block for
-// 1 to 24 seconds; dead ones return in under a second without issuing any.
+// request before the session is treated as dead: healthy navigations block for
+// 1 to 24 seconds, dead ones return in under a second.
 const arrivalGrace = 8 * time.Second
 
 // ErrNoBrowserRequest marks a session that accepted a navigation but whose
@@ -566,9 +557,8 @@ func (e *noBrowserRequestError) Unwrap() error {
 // reaches the test server on this machine directly.
 const testServerURL = "http://127.0.0.1:9876"
 
-// pageLoadFailure reports why the page never started. The browser's request did
-// arrive, so this is a page or asset problem, not a session one; listing what
-// arrived makes the difference diagnosable.
+// pageLoadFailure reports why the page never started: the browser's request did
+// arrive, so this is a page or asset problem, not a session one.
 func pageLoadFailure(ctx context.Context, client *testserver.Client, name, trace string, last pagecontract.State, expected string) error {
 	described := fmt.Sprintf("%s: %s", name, last.Describe(expected))
 
@@ -587,8 +577,7 @@ func pageLoadFailure(ctx context.Context, client *testserver.Client, name, trace
 }
 
 // sessionLabel names a BrowserStack session so it can be matched to a test
-// server log line. The trace ties the two together without the clocks having to
-// agree.
+// server log line; the trace ties the two together without the clocks agreeing.
 func sessionLabel(batchName string, j *job, browser browserstack.Browser) string {
 	platform := ""
 	if browser.OS != "" {
@@ -670,9 +659,8 @@ func writeResults(repo string, opts options, jobs []*job) error {
 	return os.WriteFile(path, encoded, 0o644)
 }
 
-// mergeSummaries folds two summaries recorded under the same browser and mode
-// together, which is what a sharded browser produces: two sessions, one entry.
-// The suite lists are unions, and the result is a new summary.
+// mergeSummaries folds the two summaries a sharded browser produces (two
+// sessions, one entry) into one; suite lists are unions.
 func mergeSummaries(a, b *pagecontract.Summary) *pagecontract.Summary {
 	if a == nil {
 		return b
@@ -784,8 +772,7 @@ func repoRoot() string {
 }
 
 // ensureTestServer waits for the JavaScript test server to become reachable. It
-// polls because CI launches the server beside this process, so a single probe
-// can lose the race.
+// polls because CI launches the server beside this process.
 func ensureTestServer(ctx context.Context, repo string, client *testserver.Client) error {
 	if _, err := os.Stat(filepath.Join(repo, "test/polyfills/server.js")); err != nil {
 		return fmt.Errorf("cannot find test/polyfills/server.js - run from the repository root: %w", err)
@@ -799,8 +786,8 @@ func ensureTestServer(ctx context.Context, repo string, client *testserver.Clien
 }
 
 // modifiedFiles resolves which files changed. MODIFIED_FILES_FILE takes
-// precedence, so a privileged workflow can hand the list over. A git failure is
-// reported as "no changes", which tests everything; testing more is safe.
+// precedence, so a privileged workflow can hand the list over; a git failure is
+// reported as "no changes", which tests everything.
 func modifiedFiles() []string {
 	if path := os.Getenv("MODIFIED_FILES_FILE"); path != "" {
 		raw, err := os.ReadFile(path)
