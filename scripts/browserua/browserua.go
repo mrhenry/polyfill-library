@@ -2,7 +2,7 @@
 // @financial-times/polyfill-useragent-normaliser that the BrowserStack harness
 // depends on. It only accepts the short "family/version" form used by
 // test/polyfills/browsers.toml, never a real User-Agent header. The baselines
-// and Opera remap are generated from that package, not hand-maintained.
+// and Opera remap are generated from that package.
 //
 // Normalisation matters because polyfill browser targets are keyed by the
 // normalised family: a browser below the family's baseline normalises to
@@ -28,8 +28,8 @@ const Unknown = "other/0.0.0"
 var shortForm = regexp.MustCompile(`(?i)^(\w+)/(\d+)(?:\.(\d+)(?:\.(\d+))?)?$`)
 
 // tables.json is generated from @financial-times/polyfill-useragent-normaliser
-// by `npm run generate-browserua-tables`, so the baselines and the Opera remap
-// have one source of truth rather than a copy that drifts.
+// by `npm run generate-browserua-tables`, so the baselines and Opera remap have
+// one source of truth.
 //
 //go:embed tables.json
 var tablesJSON []byte
@@ -234,9 +234,8 @@ func FamilyOf(entry string) string {
 }
 
 // FamilyKnown reports whether the library targets a family at all, ignoring the
-// version baseline. It separates a genuinely new browser family, which needs an
-// explicit mapping or exclusion, from a below-baseline version, which is skipped
-// by design.
+// version baseline. It separates a new browser family, which needs an explicit
+// mapping or exclusion, from a below-baseline version, which is skipped.
 func FamilyKnown(family string) bool {
 	_, ok := baselines[strings.ToLower(family)]
 

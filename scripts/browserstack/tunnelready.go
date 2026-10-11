@@ -9,7 +9,7 @@ import (
 
 // tunnelReadyTimeout bounds how long to wait for a fresh tunnel to become
 // usable. Sessions were rejected for roughly 55 seconds after the binary
-// reported ready, so the window is comfortably longer than that.
+// reported ready, so the window is comfortably longer.
 const tunnelReadyTimeout = 3 * time.Minute
 
 // tunnelProbeInterval is how often to re-probe while waiting. Each probe is a
@@ -19,12 +19,10 @@ const tunnelProbeInterval = 5 * time.Second
 // WaitForTunnel blocks until BrowserStack will actually route a local session
 // through the tunnel.
 //
-// BrowserStackLocal prints "Press Ctrl-C to exit" and reports ready within
-// seconds of starting, but for roughly the next fifty seconds every local
-// session is refused with "local testing through BrowserStack is not
-// connected". Nothing in the tunnel's output marks the moment it becomes
-// usable, so the only authoritative signal is a session request succeeding.
-// Starting jobs into that window is what made runs fail at startup.
+// BrowserStackLocal reports ready within seconds, but for roughly the next
+// fifty seconds every local session is refused with "local testing through
+// BrowserStack is not connected". Nothing in the tunnel output marks the moment
+// it becomes usable, so only a successful session proves it.
 func (c *Client) WaitForTunnel(ctx context.Context) error {
 	// The cheapest browser that still exercises the same tunnel path.
 	probe := Capabilities{

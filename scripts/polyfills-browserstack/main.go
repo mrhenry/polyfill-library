@@ -61,14 +61,13 @@ const (
 	// retryDelay is the pause between attempts that failed to start a session.
 	retryDelay = 30 * time.Second
 
-	// replacementDelay is the pause before a replacement session is requested,
-	// giving BrowserStack a moment to release the discarded machine. Browsers
-	// with a small pool (IE 10 especially) queue the replacement otherwise.
+	// replacementDelay is the pause before requesting a replacement session, so
+	// BrowserStack can release the discarded machine. Browsers with a small pool
+	// (IE 10 especially) queue the replacement otherwise.
 	replacementDelay = 15 * time.Second
 
-	// sessionReplacements bounds how many times one job discards a session that
-	// accepted a navigation but never acted on it. Replacements are reported
-	// for every job, so a run that leans on them stays visible.
+	// sessionReplacements bounds how many sessions one job may discard after a
+	// navigation was accepted but never acted on.
 	sessionReplacements = 3
 
 	// testServerStartTimeout bounds how long to wait for the JavaScript test
@@ -153,8 +152,7 @@ func parseArgs(args []string) options {
 	return o
 }
 
-// summarisePaths renders the requests a job made, which is usually enough to
-// show that a script never arrived.
+// summarisePaths renders the requests a job made, in order and deduplicated.
 func summarisePaths(paths []string) string {
 	if len(paths) == 0 {
 		return "nothing"
@@ -280,16 +278,16 @@ func run(opts options) error {
 
 	slog.Info("tunnel ready")
 
-	// The tunnel binary reports itself ready seconds before BrowserStack will
-	// route a session through it, so wait for it to actually be usable.
+	// The binary reports ready before BrowserStack routes local sessions, so
+	// wait for it to actually be usable.
 	if err := client.WaitForTunnel(runnerCtx); err != nil {
 		return err
 	}
 
 	sessionName := fmt.Sprintf("Polyfill Library: %s", runID)
 
-	// The gate admits each session start against the account's current free
-	// capacity; the local concurrency limit only bounds this process.
+	// The gate admits each start against the account's free capacity; the local
+	// concurrency limit only bounds this process.
 	gate := newCapacityGate(client)
 
 	r := newRunner(browserstackDial(client, credentials), testServerURL, gate, sessionName)
@@ -345,8 +343,8 @@ func selectBrowsers(all []string, opts options, affected []*polyfillmeta.Meta) [
 			continue
 		}
 
-		// A family the library does not target is a new BrowserStack family
-		// that needs mapping or exclusion, not a version to skip silently.
+		// An unknown family is new and needs mapping or exclusion, not a
+		// silent skip.
 		if !browserua.KnownEntry(entry) {
 			slog.Warn("skipping browser: family is not targeted by the polyfill library",
 				"browser", entry, "family", browserua.FamilyOf(entry))
@@ -433,8 +431,8 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			state:        newJobState(),
 		}
 
-		// Real devices need their os/os_version on every session, so they are
-		// left untouched.
+		// Real devices need os/os_version on every session, so they are left
+		// untouched.
 		if browser.Device == "" {
 			if browserstack.HasPreference(entry) {
 				base.preferred = browser
@@ -445,16 +443,16 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			base.browser.OSVersion = ""
 		}
 
-		// Slow browsers are split in two when the whole suite runs, so a
-		// single browser cannot monopolise the run.
+		// Slow browsers are split in two during a full run, so one cannot
+		// monopolise it.
 		if needsShard(entry) && opts.testEverything {
 			for shard := 1; shard <= 2; shard++ {
 				sharded := base
 				sharded.shard = shard
 				sharded.trace = nextTrace(runID, fmt.Sprintf("%s#%d", entry, shard))
 				sharded.url = testURL(baseURL, opts, shard, false, sharded.trace)
-				// Sharing base.state let the shards overwrite each other,
-				// hiding a failing shard behind a passing one.
+				// A shared state let shards overwrite each other, hiding a
+				// failing shard behind a passing one.
 				sharded.state = newJobState()
 				jobs = append(jobs, &sharded)
 			}
@@ -481,8 +479,7 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 		jobs = expanded
 	}
 
-	// Individual runs before combined ones, then by shard, then oldest browser
-	// first.
+	// Individual runs before combined, then by shard, then oldest browser first.
 	sort.SliceStable(jobs, func(i, k int) bool {
 		a, b := jobs[i], jobs[k]
 
@@ -537,8 +534,8 @@ func testURL(baseURL string, opts options, shard int, polyfillCombinations bool,
 		values.Set("shard", fmt.Sprint(shard))
 	}
 
-	// Carried through to every sub-resource the page requests, so each request
-	// in the test server log can be attributed to this job.
+	// Carried on every sub-resource, so each test server request is attributed
+	// to this job.
 	if trace != "" {
 		values.Set("trace", trace)
 	}
@@ -562,10 +559,9 @@ func alwaysFor(m mode) string {
 	return "no"
 }
 
-// concurrencyFor decides how many sessions may run at once.
-//
-// The account plan's parallel allowance is the real ceiling, and this process is
-// not necessarily its only user, so -concurrency is the way to hold back.
+// concurrencyFor decides how many sessions may run at once. The account plan is
+// the real ceiling, and this process may not be its only user, so -concurrency
+// holds back.
 func concurrencyFor(ctx context.Context, gate *capacityGate, opts options) int {
 	if opts.concurrencyExplicit {
 		return opts.maxConcurrency
@@ -590,10 +586,9 @@ func (o options) expectedPage() string {
 	return "runner"
 }
 
-// pageLoadTimeout bounds how long the test page has to start, once its request
+// pageLoadTimeout bounds how long the test page has to start once its request
 // has arrived. Reaching it means the page was fetched and never ran, so it is
-// waiting on assets rather than on the tunnel. The oldest browsers load the
-// full suite slowly, so this stays generous.
+// waiting on assets rather than on the tunnel.
 const pageLoadTimeout = 90 * time.Second
 
 // traceStatsTimeout bounds the question asked of the test server, a local
@@ -601,11 +596,8 @@ const pageLoadTimeout = 90 * time.Second
 const traceStatsTimeout = 5 * time.Second
 
 // arrivalGrace bounds how long a navigation is given to produce its first
-// request before the session is treated as dead.
-//
-// Healthy navigations block for 1 to 24 seconds; dead ones return in under a
-// second without issuing any. Measured across 50 sessions, 8s misclassified
-// none of the 42 healthy ones.
+// request before the session is treated as dead. Healthy navigations block for
+// 1 to 24 seconds; dead ones return in under a second without issuing any.
 const arrivalGrace = 8 * time.Second
 
 // serverClient talks to the test server running on this machine.
@@ -614,16 +606,15 @@ var serverClient = &http.Client{Timeout: traceStatsTimeout}
 // traceStats is what the test server recorded for one job.
 type traceStats struct {
 	Requests int `json:"requests"`
-	// Gets counts only the browser's own requests. BrowserStack probes the
-	// session URL with a HEAD carrying the same trace, so Requests alone cannot
-	// distinguish "never navigated" from "navigated".
+	// Gets counts only the browser's own requests; BrowserStack probes the
+	// session URL with a HEAD carrying the same trace.
 	Gets  int      `json:"gets"`
 	Paths []string `json:"paths"`
 }
 
-// inspectTraceParam is how the harness asks the test server about a trace. It is
-// deliberately not the parameter browsers send, so a poll is never recorded as
-// one of the requests it is measuring.
+// inspectTraceParam is how the harness asks the test server about a trace. It
+// differs from the parameter browsers send, so a poll is not counted as a
+// measured request.
 const inspectTraceParam = "inspect-trace"
 
 // ErrNoBrowserRequest marks a session that accepted a navigation but whose
@@ -657,10 +648,8 @@ func (e *noBrowserRequestError) Unwrap() error {
 // waitForFirstRequest reports whether the browser's own request reached the
 // test server.
 //
-// A session can look healthy while its browser has issued nothing, and nothing
-// in the session can tell the difference. Only the browser's GETs carry a trace
-// that came from a navigation, which is why this waits for a GET rather than
-// any request.
+// Only the browser's GETs come from a navigation, so a GET is awaited rather
+// than any request; BrowserStack's own probe is a HEAD.
 func waitForFirstRequest(ctx context.Context, baseURL, trace string, budget time.Duration) (traceStats, bool, error) {
 	deadline := time.Now().Add(budget)
 
@@ -690,8 +679,7 @@ func waitForFirstRequest(ctx context.Context, baseURL, trace string, budget time
 // reaches the test server on this machine directly.
 const testServerURL = "http://127.0.0.1:9876"
 
-// fetchTraceStats asks the test server what a trace requested. It is the only
-// witness to whether a navigation arrived at all.
+// fetchTraceStats asks the test server what a trace requested.
 func fetchTraceStats(ctx context.Context, baseURL, trace string) (traceStats, error) {
 	var stats traceStats
 
@@ -720,11 +708,9 @@ func fetchTraceStats(ctx context.Context, baseURL, trace string) (traceStats, er
 	return stats, nil
 }
 
-// pageLoadFailure reports why the page never started.
-//
-// Reaching here means the browser's request did arrive, so this is always a
-// page that was fetched but never ran: a page or asset problem rather than a
-// session one. Listing what arrived makes the difference diagnosable.
+// pageLoadFailure reports why the page never started. The browser's request did
+// arrive, so this is a page or asset problem, not a session one; listing what
+// arrived makes the difference diagnosable.
 func pageLoadFailure(name, trace string, last pagecontract.State, expected, baseURL string) error {
 	described := fmt.Sprintf("%s: %s", name, last.Describe(expected))
 
@@ -733,8 +719,8 @@ func pageLoadFailure(name, trace string, last pagecontract.State, expected, base
 
 	stats, err := fetchTraceStats(ctx, baseURL, trace)
 	if err != nil {
-		// Not being able to tell the two cases apart must not hide the
-		// original failure, so the browser's own description is kept.
+		// Keeping the browser's own description must not be skipped just
+		// because the two cases cannot be told apart.
 		return fmt.Errorf("%s (%s; the test server could not be asked what this job requested: %w)", described, trace, err)
 	}
 
@@ -742,9 +728,9 @@ func pageLoadFailure(name, trace string, last pagecontract.State, expected, base
 		described, trace, summarisePaths(stats.Paths))
 }
 
-// sessionLabel names a BrowserStack session so it can be matched to a line in
-// the test server log. The trace ties the two together without depending on the
-// two clocks agreeing, and the platform is shown when one is requested.
+// sessionLabel names a BrowserStack session so it can be matched to a test
+// server log line. The trace ties the two together without the clocks having to
+// agree.
 func sessionLabel(batchName string, j *job, browser browserstack.Browser) string {
 	platform := ""
 	if browser.OS != "" {
@@ -802,9 +788,8 @@ func writeResults(repo string, opts options, jobs []*job) error {
 
 		mode := string(j.testMode)
 
-		// A sharded browser reports both shards under one family/version/mode,
-		// so they are merged rather than overwritten; otherwise the first
-		// shard's suites would be lost from the results file.
+		// A sharded browser reports both shards under one family/version/mode;
+		// merging keeps the first shard's suites rather than overwriting them.
 		results[family][version][mode] = mergeSummaries(results[family][version][mode], jobResults)
 	}
 
@@ -829,8 +814,7 @@ func writeResults(repo string, opts options, jobs []*job) error {
 
 // mergeSummaries folds two summaries recorded under the same browser and mode
 // together, which is what a sharded browser produces: two sessions, one entry.
-//
-// The result is a new summary, and the suite lists are unions.
+// The suite lists are unions, and the result is a new summary.
 func mergeSummaries(a, b *pagecontract.Summary) *pagecontract.Summary {
 	if a == nil {
 		return b
@@ -937,10 +921,9 @@ func repoRoot() string {
 	}
 }
 
-// ensureTestServer waits for the JavaScript test server to become reachable.
-//
-// It polls rather than probing once because CI launches the server in the
-// background beside this process, so a single probe can lose the race.
+// ensureTestServer waits for the JavaScript test server to become reachable. It
+// polls because CI launches the server beside this process, so a single probe
+// can lose the race.
 func ensureTestServer(ctx context.Context, repo string) error {
 	if _, err := os.Stat(filepath.Join(repo, "test/polyfills/server.js")); err != nil {
 		return fmt.Errorf("cannot find test/polyfills/server.js - run from the repository root: %w", err)
@@ -994,13 +977,9 @@ func probeTestServer(ctx context.Context, target string) error {
 	return nil
 }
 
-// modifiedFiles resolves which files changed.
-//
-// MODIFIED_FILES_FILE takes precedence, so a privileged workflow can hand the
-// list over from an unprivileged build job.
-//
-// A git failure is not fatal: the result is reported as "no changes", which
-// makes the run test everything. Testing more is safe.
+// modifiedFiles resolves which files changed. MODIFIED_FILES_FILE takes
+// precedence, so a privileged workflow can hand the list over. A git failure is
+// reported as "no changes", which tests everything; testing more is safe.
 func modifiedFiles() []string {
 	if path := os.Getenv("MODIFIED_FILES_FILE"); path != "" {
 		raw, err := os.ReadFile(path)
@@ -1018,8 +997,8 @@ func modifiedFiles() []string {
 		baseBranch = "upstream/main"
 	}
 
-	// The merge base has to be resolved first: exec.Command does not run a
-	// shell, so "$(git merge-base ...)" would be passed through literally.
+	// exec.Command does not run a shell, so the merge base is resolved first
+	// rather than passing "$(git merge-base ...)" literally.
 	mergeBase := strings.TrimSpace(runGit("merge-base", "--fork-point", baseBranch))
 	if mergeBase == "" {
 		mergeBase = baseBranch

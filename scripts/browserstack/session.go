@@ -56,17 +56,17 @@ type Session struct {
 
 // sessionResponse is the W3C New Session response.
 //
-// BrowserStack answers with the legacy JSON Wire Protocol shape when it did not
-// honour the requested capabilities. Both are accepted so the reason is visible
-// in the error rather than yielding a browser that is not the one requested.
+// BrowserStack answers with the legacy JSON Wire Protocol shape when the
+// requested capabilities were ignored; both are accepted so the reason is
+// visible in the error.
 type sessionResponse struct {
 	Value struct {
 		SessionID string `json:"sessionId"`
 		Message   string `json:"message"`
 	} `json:"value"`
-	Status    int            `json:"status"`
-	SessionID string         `json:"sessionId"`
-	LegacyCap map[string]any `json:"capabilities"`
+	Status             int            `json:"status"`
+	SessionID          string         `json:"sessionId"`
+	LegacyCapabilities map[string]any `json:"capabilities"`
 }
 
 // sessionRejectedError carries BrowserStack's reason for refusing a session.
@@ -136,7 +136,7 @@ func NewSession(ctx context.Context, httpClient *http.Client, hubURL string, cap
 		return nil, fmt.Errorf(
 			"browserstack ignored the requested capabilities and returned a legacy JSON Wire Protocol session "+
 				"(browserVersion=%v): the session will not be routed through the tunnel",
-			parsed.LegacyCap["browserVersion"])
+			parsed.LegacyCapabilities["browserVersion"])
 	}
 
 	if sessionID == "" {
@@ -370,9 +370,8 @@ func IsSessionStartFailure(err error) bool {
 
 	message := err.Error()
 
-	// The list is deliberately broad: these are the phrasings BrowserStack uses
-	// for a start that never produced a browser, and a false positive only costs
-	// one extra attempt. Anything already tagged above is handled before this.
+	// Deliberately broad: these are the phrasings BrowserStack uses for a start
+	// that never produced a browser, and a false positive only costs a retry.
 	return strings.Contains(message, "All parallel tests are currently in use") ||
 		strings.Contains(message, "Could not start Mobile Browser") ||
 		strings.Contains(message, "Could not start Browser") ||

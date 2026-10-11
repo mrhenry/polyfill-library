@@ -11,10 +11,9 @@ import (
 	"github.com/mrhenry/polyfill-library/scripts/pagecontract"
 )
 
-// driver is the slice of a WebDriver session the job runner needs. It is the
-// seam between the runner and a browser: the production adapter wraps
-// browserstack.Session, and tests supply an in-memory fake. Two adapters, so the
-// seam is real.
+// driver is the slice of a WebDriver session the runner needs: the seam between
+// the runner and a browser. The production adapter wraps browserstack.Session;
+// tests supply an in-memory fake.
 type driver interface {
 	Navigate(ctx context.Context, target string) error
 	ExecuteScript(ctx context.Context, script string, args []any) (any, error)
@@ -25,11 +24,9 @@ type driver interface {
 // capabilities and calls BrowserStack; tests return a fake driver.
 type dialFunc func(ctx context.Context, browser browserstack.Browser, sessionName string) (driver, error)
 
-// runner drives jobs to completion across the driver seam.
-//
-// Every collaborator is injected so the retry and replacement policy can be
-// exercised without a real browser: the dial adapter, the trace-stats server,
-// the capacity gate, and the pauses between attempts.
+// runner drives jobs to completion across the driver seam. Every collaborator
+// is injected so the retry and replacement policy can be exercised without a
+// real browser.
 type runner struct {
 	dial           dialFunc
 	traceStatsBase string
@@ -85,12 +82,9 @@ const (
 	actionReplaceSession
 )
 
-// nextAction decides how to recover from a failed attempt.
-//
-// A session whose browser never issued its navigation, whose renderer crashed,
-// or that stopped answering is not usable again, so it is replaced rather than
-// retried. A session that could not start is usually a tunnel still
-// registering, and is worth waiting out.
+// nextAction decides how to recover from a failed attempt. A session whose
+// browser never issued its navigation, whose renderer crashed, or that stopped
+// answering is replaced; a session that could not start is retried.
 func nextAction(err error, replacements int) action {
 	switch {
 	case errors.Is(err, ErrNoBrowserRequest),
@@ -294,11 +288,8 @@ func (r *runner) waitForPageLoad(ctx context.Context, session driver, j *job, ex
 	}
 }
 
-// pageLoadFailure reports why the page never started.
-//
-// Reaching here means the browser's request did arrive, so this is always a
-// page that was fetched but never ran: a page or asset problem rather than a
-// session one. Listing what arrived makes the difference diagnosable.
+// pageLoadFailure reports why the page never started. The browser's request did
+// arrive, so this is a page or asset problem, not a session one.
 func (r *runner) pageLoadFailure(j *job, last pagecontract.State, expected string) error {
 	return pageLoadFailure(j.name, j.trace, last, expected, r.traceStatsBase)
 }

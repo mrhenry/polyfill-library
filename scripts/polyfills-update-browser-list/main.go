@@ -3,8 +3,8 @@
 //
 // It writes browserstackBrowsers.toml (every browser BrowserStack offers) and
 // browsers.toml (the curated entries under test). Existing curation is kept:
-// entries a maintainer commented out stay commented out, and newly offered
-// browsers are added uncommented and ready for review.
+// commented-out entries stay commented out, and newly offered browsers are
+// added uncommented, ready for review.
 package main
 
 import (

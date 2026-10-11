@@ -3,9 +3,8 @@
 //
 // The pages publish readiness and results as globals (window.global_test_*);
 // this package holds the injected scripts that read them, the shapes they are
-// decoded into, and the translation into the harness summary written to the
-// results file. It is pure: it never talks to a browser, so a caller decodes the
-// WebDriver execute value and passes it in.
+// decoded into, and the translation into the harness summary. It is pure: a
+// caller decodes the WebDriver execute value and passes it in.
 package pagecontract
 
 import (
@@ -15,9 +14,9 @@ import (
 	"strings"
 )
 
-// ReadinessScript reads the contract the test pages publish. Every field it
-// touches is written by test-runner.handlebars or test-director.handlebars, so
-// a rename there fails a test rather than silently reading undefined.
+// ReadinessScript reads the contract the test pages publish. Every field is
+// written by test-runner.handlebars or test-director.handlebars, so a rename
+// there fails a test rather than silently reading undefined.
 const ReadinessScript = `
 	return {
 		page: typeof window.global_test_page === 'string' ? window.global_test_page : null,
@@ -55,11 +54,11 @@ type State struct {
 // Ready decides whether the page has started, and reports a mismatch between
 // the page served and the page requested.
 //
-// The pages declare their own identity because the director page keeps mocha
-// inside an iframe, so `typeof mocha` is always "undefined" there.
+// The pages declare their own identity because the director page keeps mocha in
+// an iframe, so `typeof mocha` is always "undefined" there.
 func (p State) Ready(expected string) (bool, error) {
 	// A page that declares itself as something else means the harness is
-	// driving the wrong page, so fail rather than waiting out the timeout.
+	// driving the wrong page.
 	if p.Page != "" && p.Page != expected {
 		return false, fmt.Errorf(
 			"loaded the %q page but the %q page was requested: harness and test page disagree",

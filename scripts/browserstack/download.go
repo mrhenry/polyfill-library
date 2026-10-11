@@ -77,7 +77,7 @@ func fetchAndUnpack(ctx context.Context, target, dest string) error {
 
 // chooseBinaryEntry picks the tunnel executable out of a BrowserStack archive,
 // preferring the entry named like the binary and falling back to the first
-// file, so an archive that carries anything else still yields a binary.
+// file.
 func chooseBinaryEntry(files []*zip.File) *zip.File {
 	expected := localBinaryName
 	if runtime.GOOS == "windows" {

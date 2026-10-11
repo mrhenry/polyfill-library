@@ -19,9 +19,8 @@ import (
 	"github.com/mrhenry/polyfill-library/scripts/pagecontract"
 )
 
-// TestIframeRequestsCarryTheTrace guards the correlation id on the iframe's
-// polyfill.js request, which would otherwise be unattributable in the test
-// server log once sessions overlap.
+// TestIframeRequestsCarryTheTrace guards the trace on the iframe's polyfill.js
+// request.
 func TestIframeRequestsCarryTheTrace(t *testing.T) {
 	raw, err := os.ReadFile(filepath.Join(repoRoot(), "test/polyfills/test-iframe.handlebars"))
 	if err != nil {
@@ -33,11 +32,7 @@ func TestIframeRequestsCarryTheTrace(t *testing.T) {
 	}
 }
 
-// TestMatrixSelectionIsStable locks in the browser matrix the runner tests.
-//
-// This replaces comparing against the JavaScript harness, which has been
-// removed. The counts are the ones that harness selected, verified entry by
-// entry, so a change here means the matrix moved rather than the test moving.
+// TestMatrixSelectionIsStable pins the browser matrix the runner tests select.
 func TestMatrixSelectionIsStable(t *testing.T) {
 	root := repoRoot()
 
@@ -87,7 +82,7 @@ func TestMatrixSelectionIsStable(t *testing.T) {
 	}
 }
 
-// TestEverySelectedBrowserResolves proves no curated browser silently loses its
+// TestEverySelectedBrowserResolves proves every curated browser has a
 // BrowserStack counterpart.
 func TestEverySelectedBrowserResolves(t *testing.T) {
 	root := repoRoot()
@@ -130,12 +125,7 @@ func TestEverySelectedBrowserResolves(t *testing.T) {
 }
 
 // TestEveryEnabledBrowserFamilyIsKnown guards against a newly offered
-// BrowserStack family silently disappearing from the run. A family the library
-// does not target must be mapped in scripts/browserua or commented out, not
-// skipped without a trace.
-//
-// Below-baseline versions of a known family are intentionally skipped and are
-// not flagged here.
+// BrowserStack family silently disappearing from the run.
 func TestEveryEnabledBrowserFamilyIsKnown(t *testing.T) {
 	root := repoRoot()
 
@@ -155,9 +145,8 @@ func TestEveryEnabledBrowserFamilyIsKnown(t *testing.T) {
 	}
 }
 
-// TestTracesAreUniqueAndUrlSafe covers the correlation id. The test server
-// rejects anything longer than 80 characters or containing anything but
-// [A-Za-z0-9._-], and a rejected id would silently disable correlation.
+// TestTracesAreUniqueAndUrlSafe covers the correlation id: the test server
+// rejects anything over 80 characters or outside [A-Za-z0-9._-].
 func TestTracesAreUniqueAndUrlSafe(t *testing.T) {
 	runID := newRunID()
 
@@ -192,8 +181,7 @@ func TestTracesAreUniqueAndUrlSafe(t *testing.T) {
 	}
 }
 
-// TestEveryJobCarriesATrace proves each job gets its own correlation id, so a
-// request can be attributed to exactly one job.
+// TestEveryJobCarriesATrace proves each job gets its own correlation id.
 func TestEveryJobCarriesATrace(t *testing.T) {
 	root := repoRoot()
 
@@ -234,9 +222,8 @@ func TestEveryJobCarriesATrace(t *testing.T) {
 	}
 }
 
-// TestCombinedJobsGetTheirOwnTrace covers multi-polyfill mode. Each combination
-// is a separate browser session, so a shared trace would make its requests
-// impossible to attribute.
+// TestCombinedJobsGetTheirOwnTrace covers multi-polyfill mode: each combination
+// is its own session, so it needs its own trace.
 func TestCombinedJobsGetTheirOwnTrace(t *testing.T) {
 	root := repoRoot()
 
@@ -273,7 +260,7 @@ func TestCombinedJobsGetTheirOwnTrace(t *testing.T) {
 		}
 
 		// Copying a job copies its state pointer, so the combination needs its
-		// own progress or both sessions would report through one counter.
+		// own progress.
 		if j.polyfillCombinations {
 			combined++
 
@@ -295,8 +282,7 @@ func TestCombinedJobsGetTheirOwnTrace(t *testing.T) {
 }
 
 // TestSessionLabelCarriesTheTrace guards the join from the BrowserStack
-// dashboard back to the test server log, which is how a failure gets attributed
-// to the requests it made.
+// dashboard back to the test server log.
 func TestSessionLabelCarriesTheTrace(t *testing.T) {
 	for _, tt := range []struct {
 		name    string
@@ -325,9 +311,7 @@ func TestSessionLabelCarriesTheTrace(t *testing.T) {
 }
 
 // TestPreferredPlatformOnlyOnFirstSession covers the relaxation: the pinned
-// platform is requested on the first session and omitted afterwards, so a retry
-// can run on any platform. Desktop browsers without a preference never request
-// one.
+// platform is requested on the first session and omitted afterwards.
 func TestPreferredPlatformOnlyOnFirstSession(t *testing.T) {
 	root := repoRoot()
 
@@ -383,9 +367,8 @@ func TestPreferredPlatformOnlyOnFirstSession(t *testing.T) {
 	}
 }
 
-// TestPageLoadFailureNamesTheCause is the distinction that makes a "director
-// page never started" report actionable: a browser that never navigated is a
-// tunnel or remote machine problem, and one that loaded something is not.
+// TestPageLoadFailureNamesTheCause distinguishes a browser that never navigated
+// from one that loaded something.
 func TestPageLoadFailureNamesTheCause(t *testing.T) {
 	last := pagecontract.State{
 		ReadyState: "loading",
@@ -407,8 +390,8 @@ func TestPageLoadFailureNamesTheCause(t *testing.T) {
 	trace := "r1a2-008-chrome-41.0"
 	message := pageLoadFailure("chrome/41.0", trace, last, "director", server.URL).Error()
 
-	// Arrival is established before this point, so the message must describe a
-	// page that was fetched and never ran, not one that was never requested.
+	// Arrival was established, so the message must describe a page that was
+	// fetched and never ran.
 	for _, want := range []string{
 		"fetched but never started",
 		"GET /mocha.css",
@@ -421,8 +404,7 @@ func TestPageLoadFailureNamesTheCause(t *testing.T) {
 }
 
 // TestWaitForFirstRequestIgnoresTheProbe covers the detection the fast retry
-// depends on. BrowserStack probes the session URL with a HEAD carrying the same
-// trace, so counting any request would make a dead session look alive.
+// depends on: BrowserStack's HEAD probe is not the browser's request.
 func TestWaitForFirstRequestIgnoresTheProbe(t *testing.T) {
 	for _, tt := range []struct {
 		name        string
@@ -451,9 +433,7 @@ func TestWaitForFirstRequestIgnoresTheProbe(t *testing.T) {
 	}
 }
 
-// TestProbeTestServer covers the reachability check the retry loop depends on:
-// a healthy server must pass, and anything else must fail so the loop keeps
-// waiting rather than running against a server that is not ready.
+// TestProbeTestServer covers the reachability check the retry loop depends on.
 func TestProbeTestServer(t *testing.T) {
 	healthy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -515,13 +495,13 @@ func TestNextAction(t *testing.T) {
 		t.Errorf("a session that could not start should be retried, got %v", got)
 	}
 
-	// A session start that times out is a busy account or a queued session, so
-	// it must be retried rather than failing the job.
+	// A session start timeout is a busy account or queued session, so it is
+	// retried.
 	if got := nextAction(timedOutStart, 0); got != actionRetryStart {
 		t.Errorf("a session start timeout should be retried, got %v", got)
 	}
 
-	// A command timeout means the established session wedged, so it is replaced.
+	// A command timeout means the session wedged, so it is replaced.
 	if got := nextAction(commandTimeout, 0); got != actionReplaceSession {
 		t.Errorf("a command timeout should replace the session, got %v", got)
 	}
@@ -530,7 +510,7 @@ func TestNextAction(t *testing.T) {
 		t.Errorf("command-timeout replacements must be bounded, got %v", got)
 	}
 
-	// A crashed renderer is gone, so the session is replaced, not failed.
+	// A crashed renderer is gone, so the session is replaced.
 	if got := nextAction(pageCrash, 0); got != actionReplaceSession {
 		t.Errorf("a page crash should replace the session, got %v", got)
 	}
@@ -539,16 +519,14 @@ func TestNextAction(t *testing.T) {
 		t.Errorf("page-crash replacements must be bounded, got %v", got)
 	}
 
-	// A real test failure must never be retried: that is the case where a retry
-	// would hide a regression.
+	// A real test failure must never be retried, which would hide a regression.
 	if got := nextAction(testFailure, 0); got != actionFail {
 		t.Errorf("a test failure must not be retried, got %v", got)
 	}
 }
 
-// TestShardsHaveIndependentState pins the fix for the IE regression: the two
-// shards of a slow browser are separate sessions, so sharing one jobState let
-// them overwrite each other's results and errors.
+// TestShardsHaveIndependentState pins the fix for the IE regression: shards
+// must not share a jobState.
 func TestShardsHaveIndependentState(t *testing.T) {
 	root := repoRoot()
 
@@ -593,8 +571,7 @@ func TestShardsHaveIndependentState(t *testing.T) {
 }
 
 // TestWriteResultsMergesShards covers the results file for a sharded browser:
-// both shards run as separate sessions but share one family/version/mode entry,
-// so they must be merged rather than have the second overwrite the first.
+// both shards merge into one family/version/mode entry.
 func TestWriteResultsMergesShards(t *testing.T) {
 	repo := t.TempDir()
 

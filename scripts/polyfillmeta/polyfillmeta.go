@@ -1,8 +1,7 @@
 // Package polyfillmeta reads the built polyfill metadata and works out which
-// polyfills a change set affects.
-//
-// This is a port of test/utils/modified-polyfills-with-tests.js. The build
-// writes everything needed into polyfills/__dist.
+// polyfills a change set affects. It is a port of
+// test/utils/modified-polyfills-with-tests.js; the build writes everything
+// needed into polyfills/__dist.
 package polyfillmeta
 
 import (
@@ -47,7 +46,6 @@ func Load(repoRoot string) (*Collection, error) {
 	// reliable substitute: polyfill names contain dots alongside non-polyfill
 	// siblings (meta.json, aliases.json).
 	index := map[string]*Meta{}
-
 	raw, err := os.ReadFile(filepath.Join(dist, "meta.json"))
 	if err != nil {
 		return nil, fmt.Errorf("reading %s/meta.json: %w (run `npm run build` first)", distPath, err)
@@ -65,8 +63,8 @@ func Load(repoRoot string) (*Collection, error) {
 
 	for name, meta := range index {
 		// The per-polyfill file carries hasTests, isTestable, isPublic and
-		// baseDir, which the index does not. Without it the polyfill would be
-		// silently excluded from testing, so a read failure is reported.
+		// baseDir, which the index does not, so a read failure would silently
+		// exclude the polyfill from testing.
 		perFeature, err := os.ReadFile(filepath.Join(dist, name, "meta.json"))
 		switch {
 		case err != nil:
@@ -133,10 +131,9 @@ func (c *Collection) PolyfillsWithTests() map[string]*Meta {
 // ModifiedPolyfillsWithTests resolves a change set into the set of polyfills
 // whose tests must run.
 //
-// Anything outside polyfills/, a change to a file directly in polyfills/, an
-// unknown polyfill, more than 20 changed polyfills, no resulting polyfills with
-// tests, or more than 50 resolved polyfills all fall back to testing
-// everything.
+// Anything outside polyfills/, a file directly in polyfills/, an unknown
+// polyfill, more than 20 changed polyfills, no resulting polyfills with tests,
+// or more than 50 resolved polyfills all fall back to testing everything.
 func (c *Collection) ModifiedPolyfillsWithTests(modifiedFiles []string) *Modified {
 	if len(modifiedFiles) == 0 {
 		return &Modified{

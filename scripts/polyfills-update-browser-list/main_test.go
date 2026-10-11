@@ -105,9 +105,8 @@ func TestParseEntry(t *testing.T) {
 	}
 }
 
-// TestReadEntryStatesPreservesCuration covers the whole point of the updater:
-// which entries a maintainer commented out and the notes beside them must be
-// read back so they can be re-rendered.
+// TestReadEntryStatesPreservesCuration covers the point of the updater: which
+// entries a maintainer commented out, and their notes, must be read back.
 func TestReadEntryStatesPreservesCuration(t *testing.T) {
 	raw := header +
 		"browsers = [\n" +
@@ -132,8 +131,7 @@ func TestReadEntryStatesPreservesCuration(t *testing.T) {
 }
 
 // TestRenderBrowsersTOMLRoundTrip proves a maintainer's curation survives a
-// rewrite, including a note beside a commented-out entry, and that re-reading
-// the rendered output yields the same state.
+// rewrite, including a note beside a commented-out entry.
 func TestRenderBrowsersTOMLRoundTrip(t *testing.T) {
 	raw := header +
 		"browsers = [\n" +
@@ -169,8 +167,7 @@ func TestRenderBrowsersTOMLRoundTrip(t *testing.T) {
 }
 
 // TestRenderBrowsersTOMLAddsNewEntriesUncommented covers newly offered browsers:
-// they have no recorded state, so they must be written enabled and ready for a
-// maintainer to review.
+// they have no recorded state, so they are written enabled.
 func TestRenderBrowsersTOMLAddsNewEntriesUncommented(t *testing.T) {
 	got := renderBrowsersTOML([]string{"chrome/152.0"}, map[string]entryState{})
 
@@ -247,7 +244,7 @@ func TestBrowserLessOrdersDesktopVersionsAscending(t *testing.T) {
 }
 
 // TestBrowserLessOrdersDesktopPlatformsDescending covers the newest-OS-first
-// rule for Windows and OS X, which keeps one platform per browser version.
+// rule for Windows and OS X.
 func TestBrowserLessOrdersDesktopPlatformsDescending(t *testing.T) {
 	for _, os := range []string{"Windows", "OS X"} {
 		newest := browserstack.Browser{Browser: "chrome", BrowserVersion: "100.0", OS: os, OSVersion: "11"}
@@ -292,9 +289,8 @@ func TestRenderBrowserStackTOML(t *testing.T) {
 	}
 }
 
-// TestRenderBrowserStackTOMLFieldOrder locks the field order to what the
-// committed browserstackBrowsers.toml uses, so regenerating it produces no
-// spurious diff.
+// TestRenderBrowserStackTOMLFieldOrder locks the field order to the committed
+// browserstackBrowsers.toml, so regenerating produces no spurious diff.
 func TestRenderBrowserStackTOMLFieldOrder(t *testing.T) {
 	out := renderBrowserStackTOML([]browserstack.Browser{
 		{OS: "ios", OSVersion: "13", Browser: "iphone", Device: "iPhone 11", RealMobile: true},

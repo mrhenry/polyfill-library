@@ -1,7 +1,6 @@
 // Package browserstack contains the BrowserStack integration: credentials, the
 // BrowserStackLocal tunnel and a W3C-only WebDriver session client. It never
-// sends "desiredCapabilities" or negotiates BiDi, so it does not depend on the
-// JSON Wire Protocol that BrowserStack retires in December 2026.
+// sends "desiredCapabilities" or negotiates BiDi.
 package browserstack
 
 import (
@@ -112,7 +111,7 @@ func (c *Client) Browsers(ctx context.Context) ([]Browser, error) {
 	return browsers, nil
 }
 
-// Plan is the account plan, of which the parallel session allowance is used.
+// Plan is the account plan; only the parallel session allowance is used.
 type Plan struct {
 	AutomatePlan               string `json:"automate_plan"`
 	ParallelSessionsMaxAllowed int    `json:"parallel_sessions_max_allowed"`

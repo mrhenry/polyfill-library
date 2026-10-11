@@ -50,8 +50,8 @@ func platformSuffix(goos, goarch string) string {
 }
 
 // hostSupportsNative reports whether a build runs natively on goarch, rather
-// than under Rosetta or emulation. BrowserStack names architectures
-// differently, so the suffix is mapped back onto GOARCH before comparing.
+// than under Rosetta or emulation. BrowserStack's architecture names are mapped
+// back onto GOARCH first.
 func hostSupportsNative(suffix, goarch string) bool {
 	arch := archOf(suffix)
 
@@ -247,9 +247,8 @@ func (c *Client) OpenTunnel(ctx context.Context) (func() error, error) {
 			text := scanner.Text()
 
 			// "Press Ctrl-C to exit" is the only reliable ready signal. The
-			// "[SUCCESS] You can now access your local server(s)" line is
-			// printed seconds before the WebSocket connection is established,
-			// and treating it as ready makes every navigation fail with
+			// "[SUCCESS] ..." line prints seconds before the WebSocket is
+			// established, and treating it as ready fails every navigation with
 			// net::ERR_CONNECTION_REFUSED.
 			if strings.Contains(text, "Press Ctrl-C to exit") {
 				select {
@@ -287,8 +286,7 @@ func (c *Client) OpenTunnel(ctx context.Context) (func() error, error) {
 		killProcessGroup(cmd)
 
 		// Killing the process is the expected way to stop the tunnel, so wait
-		// for it to actually go rather than returning while it is still
-		// registered with BrowserStack.
+		// for it to actually go rather than leave it registered.
 		select {
 		case err := <-errChan:
 			if err != nil && strings.Contains(err.Error(), "signal: killed") {

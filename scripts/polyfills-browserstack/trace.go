@@ -16,8 +16,7 @@ func newRunID() string {
 	var buf [3]byte
 
 	if _, err := rand.Read(buf[:]); err != nil {
-		// crypto/rand only fails on a broken system; the sequence keeps ids
-		// distinct within the run either way.
+		// crypto/rand only fails on a broken system.
 		return "r0"
 	}
 

@@ -36,10 +36,8 @@ func TestArchOf(t *testing.T) {
 	}
 }
 
-// TestHostSupportsNative guards the architecture comparison, which has to map
-// BrowserStack's naming back onto GOARCH. Comparing the two spellings directly
-// makes every x64 build look foreign, so an amd64 or arm64 host warns about
-// needing Rosetta on the machine that is actually native.
+// TestHostSupportsNative guards the architecture comparison, which maps
+// BrowserStack's naming back onto GOARCH.
 func TestHostSupportsNative(t *testing.T) {
 	for _, tt := range []struct {
 		suffix string
@@ -59,8 +57,7 @@ func TestHostSupportsNative(t *testing.T) {
 	}
 }
 
-// TestHostSupportsNativeThisMachine proves the host's own build is never
-// reported as needing emulation.
+// TestHostSupportsNativeThisMachine proves the host's own build is native.
 func TestHostSupportsNativeThisMachine(t *testing.T) {
 	suffix := platformSuffix(runtime.GOOS, runtime.GOARCH)
 

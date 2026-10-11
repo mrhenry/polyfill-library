@@ -1,7 +1,7 @@
 // Package browsercmp orders the "family/version" browser entries used by the
 // BrowserStack tooling. Both polyfills-browserstack and
-// polyfills-update-browser-list sort those entries, so the comparison lives here
-// rather than in a copy per command.
+// polyfills-update-browser-list sort those entries, so the comparison lives
+// here.
 package browsercmp
 
 import (

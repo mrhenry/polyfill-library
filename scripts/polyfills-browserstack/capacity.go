@@ -13,9 +13,8 @@ import (
 const capacityPollInterval = 3 * time.Second
 
 // capacityGate admits session starts against the account's parallel allowance.
-//
-// The allowance is shared with every other user of the account, so before each
-// session this reads how many are running and waits while there is no room.
+// The allowance is shared with every other account user, so before each session
+// it reads how many are running and waits while there is no room.
 type capacityGate struct {
 	plan     func(context.Context) (browserstack.Plan, error)
 	interval time.Duration

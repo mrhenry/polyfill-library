@@ -8,8 +8,8 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-// Browser is one entry of the generated browserstackBrowsers.toml, and one
-// entry of the live browsers.json. The JSON tags match the BrowserStack API.
+// Browser is one entry of browserstackBrowsers.toml or the live browsers.json.
+// The tags are the BrowserStack API field names.
 type Browser struct {
 	Browser        string `json:"browser" toml:"browser"`
 	BrowserVersion string `json:"browser_version" toml:"browser_version"`
@@ -24,13 +24,13 @@ type BrowserList struct {
 	Browsers []string `toml:"browsers"`
 }
 
-// StackList is the parsed browserstackBrowsers.toml.
-type StackList struct {
+// BrowserStackList is the parsed browserstackBrowsers.toml.
+type BrowserStackList struct {
 	Browsers []Browser `toml:"browsers"`
 }
 
-// LoadBrowserList reads the checked-in browsers.toml, the curated list of
-// "family/version" entries under test.
+// LoadBrowserList reads browsers.toml, the curated "family/version" entries
+// under test.
 func LoadBrowserList(path string) (*BrowserList, error) {
 	var list BrowserList
 	if _, err := toml.DecodeFile(path, &list); err != nil {
@@ -42,8 +42,8 @@ func LoadBrowserList(path string) (*BrowserList, error) {
 
 // LoadBrowserStackList reads the generated browserstackBrowsers.toml, which
 // maps a browser family and version onto an available BrowserStack platform.
-func LoadBrowserStackList(path string) (*StackList, error) {
-	var list StackList
+func LoadBrowserStackList(path string) (*BrowserStackList, error) {
+	var list BrowserStackList
 	if _, err := toml.DecodeFile(path, &list); err != nil {
 		return nil, fmt.Errorf("reading %s: %w", path, err)
 	}
@@ -57,13 +57,10 @@ type Index struct {
 	byBrowser map[string]Browser
 }
 
-// preferredPlatform pins a browser version to the platform that provisions most
-// reliably when BrowserStack offers the same version on several. IE 10 is
-// offered on Windows 7 and 8; measured against the account, Windows 7 fails to
-// start (BrowserStack reports start-error after the full session-start timeout)
-// while Windows 8 starts reliably and runs the same IE 10 build. The generated
-// list puts the newest Windows first, so the preference has to be explicit. If
-// the preferred platform is withdrawn, the first offered one is used instead.
+// preferredPlatform pins a version to the platform that provisions most
+// reliably when BrowserStack offers it on several. IE 10 starts on Windows 8
+// but not Windows 7; the generated list puts the newest Windows first, so the
+// preference is explicit. A withdrawn platform falls back to the first offered.
 var preferredPlatform = map[string]struct{ OS, OSVersion string }{
 	"ie/10.0": {OS: "Windows", OSVersion: "8"},
 }
@@ -90,7 +87,6 @@ func NewIndex(browsers []Browser) *Index {
 	}
 
 	for _, b := range browsers {
-		// Indexed separately, and looked up first, so a device match wins.
 		if b.OS != "" && b.OSVersion != "" {
 			key := b.OS + "/" + b.OSVersion
 			if _, exists := idx.byOS[key]; !exists {
@@ -167,15 +163,10 @@ func (c Capabilities) MarshalJSON() ([]byte, error) {
 
 // CapabilitiesFor builds the W3C capabilities for a BrowserStack browser.
 //
-// Desktop browsers use browserName/browserVersion, plus os/osVersion when the
-// caller set a platform; otherwise BrowserStack chooses one. Real devices are
-// keyed by os/os_version: the device fixes the OS, and the browser version
-// follows the OS. No Appium capability is sent; BrowserStack selects the
-// compatible Appium version and driver from the device, which keeps the full
-// iOS range working.
-//
-// localIdentifier binds sessions to a specific tunnel, and is only sent when
-// non-empty. With a single tunnel per process, `local: true` is enough.
+// Desktop browsers use browserName/browserVersion, plus os/osVersion when set.
+// Real devices are keyed by os/os_version: the device fixes the OS. No Appium
+// capability is sent, so BrowserStack picks a compatible version and driver.
+// localIdentifier is only sent when non-empty.
 func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string) Capabilities {
 	caps := Capabilities{
 		BStack: map[string]any{
@@ -186,9 +177,8 @@ func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string
 			"debug":       true,
 			"consoleLogs": "errors",
 			"networkLogs": true,
-			// Stops a session whose client has gone away after this many seconds
-			// without a command, so it cannot hold a parallel slot. Kept above
-			// navigateTimeout, the longest a live session goes without a command.
+			// Stops a session whose client has gone away from holding a
+			// parallel slot. Kept above navigateTimeout.
 			"idleTimeout": 300,
 		},
 		Standard: map[string]any{},
@@ -216,8 +206,8 @@ func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string
 			caps.BStack["osVersion"] = b.OSVersion
 		}
 
-		// BrowserStack otherwise selects a recent Edge build over the EdgeHTML
-		// builds the pinned legacy versions need.
+		// BrowserStack otherwise picks a recent Edge over the EdgeHTML builds
+		// the pinned legacy versions need.
 		if b.Browser == "edge" {
 			caps.BStack["seleniumVersion"] = "3.5.2"
 		}
@@ -225,8 +215,7 @@ func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string
 		return caps
 	}
 
-	// browserName is a W3C standard capability, and its value has to be a
-	// browser ("safari"), not a device alias ("iphone").
+	// browserName's value must be a browser ("safari"), not a device alias.
 	caps.Standard["browserName"] = mobileBrowserName(b)
 	caps.Standard["platformName"] = strings.ToLower(b.OS)
 	caps.BStack["deviceName"] = b.Device
@@ -236,11 +225,8 @@ func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string
 	return caps
 }
 
-// mobileBrowserName maps a device entry onto the browser BrowserStack runs on
-// that device.
-//
-// The REST list reports "iphone", "ipad" and "android", meaning "the default
-// browser on that device". Those are device aliases, not W3C browser names.
+// mobileBrowserName maps a device alias from the REST list ("iphone", "ipad",
+// "android") onto the W3C browser name BrowserStack runs on it.
 func mobileBrowserName(b Browser) string {
 	switch strings.ToLower(b.Browser) {
 	case "iphone", "ipad", "ios":

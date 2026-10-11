@@ -5,8 +5,7 @@ import (
 	"testing"
 )
 
-// testCollection builds a Collection from a fixed set of polyfills so the
-// change-set logic can be tested without the built polyfill tree.
+// testCollection builds a Collection from a fixed set of polyfills.
 func testCollection(metas map[string]*Meta) *Collection {
 	c := &Collection{Metas: metas, Root: "/repo"}
 
@@ -71,8 +70,8 @@ func TestModifiedPolyfillsWithTests(t *testing.T) {
 		{
 			name:  "changing a leaf polyfill selects only itself",
 			files: []string{"polyfills/leaf/polyfill/index.js"},
-			// a.polyfill depends on b.polyfill, so changing b pulls a in;
-			// changing an independent leaf does not.
+			// b.polyfill's dependents are pulled in; an independent leaf's are
+			// not.
 			wantAffected: []string{"leaf.polyfill"},
 		},
 		{
@@ -113,11 +112,7 @@ func TestModifiedPolyfillsWithTests(t *testing.T) {
 }
 
 // TestDependentsThroughUntestedPolyfills proves the dependency walk does not
-// stop at a polyfill without tests: changing a.polyfill still pulls in
-// c.polyfill, which depends on b.polyfill, which depends on a.polyfill.
-//
-// This is the case the removed JavaScript unit test called "include polyfill
-// dependents, even when the graph has gaps in tests".
+// stop at a polyfill without tests.
 func TestDependentsThroughUntestedPolyfills(t *testing.T) {
 	c := testCollection(map[string]*Meta{
 		"a.polyfill": {HasTests: true, IsPublic: true, IsTestable: true},
@@ -142,14 +137,8 @@ func TestDependentsThroughUntestedPolyfills(t *testing.T) {
 	}
 }
 
-// TestNonTestablePolyfillsAreExcluded pins a deliberate difference from the
-// JavaScript implementation this package replaces.
-//
-// The old code selected any polyfill with hasTests. This package additionally
-// requires isTestable, which excludes polyfills that opt out of CI with
-// `[test] ci = false` (console.profile, console.profileEnd and console.profiles
-// are the only ones). Selecting them would ask the test server for a suite it
-// refuses to serve, so excluding them is correct.
+// TestNonTestablePolyfillsAreExcluded pins a difference from the JavaScript
+// implementation: isTestable is required, not just hasTests.
 func TestNonTestablePolyfillsAreExcluded(t *testing.T) {
 	c := testCollection(map[string]*Meta{
 		"console.profile": {HasTests: true, IsPublic: true, IsTestable: false},
@@ -167,7 +156,7 @@ func TestNonTestablePolyfillsAreExcluded(t *testing.T) {
 }
 
 // TestAliasesPullInDependents proves an alias pulls in everything depending on
-// the alias name, which is why aliases are added to the changed set.
+// the alias name.
 func TestAliasesPullInDependents(t *testing.T) {
 	c := testCollection(map[string]*Meta{
 		"x.polyfill": {

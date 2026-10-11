@@ -20,7 +20,7 @@ func staticPlan(plan browserstack.Plan) func(context.Context) (browserstack.Plan
 	}
 }
 
-// TestCapacityGateFailsOpenWhenPlanUnavailable proves a plan endpoint that will
+// TestCapacityGateFailsOpenWhenPlanUnavailable proves a plan endpoint that does
 // not answer does not stall the run.
 func TestCapacityGateFailsOpenWhenPlanUnavailable(t *testing.T) {
 	g := newTestGate(func(context.Context) (browserstack.Plan, error) {
@@ -33,7 +33,7 @@ func TestCapacityGateFailsOpenWhenPlanUnavailable(t *testing.T) {
 }
 
 // TestCapacityGateRationsToTheAccountMax covers the ceiling: a five session
-// account admits five sessions and blocks the sixth.
+// account admits five and blocks the sixth.
 func TestCapacityGateRationsToTheAccountMax(t *testing.T) {
 	g := newTestGate(staticPlan(browserstack.Plan{ParallelSessionsMaxAllowed: 5}), time.Hour)
 
@@ -76,8 +76,7 @@ func TestCapacityGateBacksOffForExternalUsage(t *testing.T) {
 }
 
 // TestCapacityGateAdmitsOnAOneSessionPlan proves a known small allowance is not
-// mistaken for an unread plan. Zero means "could not read", so it has to admit
-// without blocking, while one means "exactly one slot" and admits exactly once.
+// mistaken for an unread plan: one means "exactly one slot" and admits once.
 func TestCapacityGateAdmitsOnAOneSessionPlan(t *testing.T) {
 	g := newTestGate(staticPlan(browserstack.Plan{ParallelSessionsMaxAllowed: 1}), time.Hour)
 
@@ -117,8 +116,7 @@ func TestCapacityGateReleaseFreesSlot(t *testing.T) {
 	}
 }
 
-// TestCapacityGatePicksUpFreedCapacity covers the "wait until capacity frees
-// up" behaviour: a blocked session proceeds once the account drains.
+// TestCapacityGatePicksUpFreedCapacity covers waiting until capacity frees up.
 func TestCapacityGatePicksUpFreedCapacity(t *testing.T) {
 	var mu sync.Mutex
 	running := 5

@@ -10,10 +10,8 @@ import (
 	"time"
 )
 
-// jobRunner drives one job to completion. The scheduler owns ordering and
-// concurrency; the runner owns one job's retry and replacement policy. Two
-// adapters satisfy it (the production runner and a test fake), so the seam is
-// real.
+// jobRunner drives one job to completion: the seam between the scheduler and
+// the runner. It has two adapters, the production runner and a test fake.
 type jobRunner interface {
 	runJob(ctx context.Context, j *job)
 }
@@ -21,9 +19,7 @@ type jobRunner interface {
 var _ jobRunner = (*runner)(nil)
 
 // scheduler runs every job, at most maxConcurrency at a time, and never runs
-// two sessions for the same browser at once. The per-browser slots, the local
-// concurrency limit and the progress ticker are internals: callers only start a
-// run and read how many jobs failed.
+// two sessions for the same browser at once.
 type scheduler struct {
 	runner         jobRunner
 	printer        *progressPrinter
@@ -156,8 +152,7 @@ func (s *browserSlots) release(name string) {
 }
 
 // progressPrinter renders the job board, remembering the last block printed so
-// a run of several hundred jobs polling every second does not reprint an
-// unchanged screenful.
+// an unchanged screenful is not reprinted.
 type progressPrinter struct {
 	w    io.Writer
 	last string

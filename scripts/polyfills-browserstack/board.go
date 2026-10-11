@@ -16,9 +16,8 @@ type job struct {
 	name    string
 	browser browserstack.Browser
 
-	// preferred is the platform requested on the first session, when the
-	// browser has one. Later sessions omit it so BrowserStack can pick any
-	// platform, which is what makes a retry relax the preference.
+	// preferred is the platform requested on the first session. Later sessions
+	// omit it, which is what lets a retry land on any platform.
 	preferred    browserstack.Browser
 	hasPreferred bool
 
@@ -42,14 +41,11 @@ type jobState struct {
 	duration time.Duration
 
 	// replacements counts sessions discarded because their browser never issued
-	// its navigation. Reported rather than dropped so the run's health stays
-	// visible.
+	// its navigation.
 	replacements int
 }
 
-// jobStatus is one coherent view of a job's progress. Callers read the fields
-// they need by name, rather than decoding a tuple as wide as the state it
-// guards.
+// jobStatus is one coherent view of a job's progress.
 type jobStatus struct {
 	state        string
 	results      *pagecontract.Summary

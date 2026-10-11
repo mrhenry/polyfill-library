@@ -23,7 +23,7 @@ func repoRoot(t *testing.T) string {
 }
 
 // TestBrowserListRoundTrip proves every curated browsers.toml entry resolves to
-// a BrowserStack browser, so the runner cannot silently lose coverage.
+// a BrowserStack browser.
 func TestBrowserListRoundTrip(t *testing.T) {
 	root := repoRoot(t)
 
@@ -63,9 +63,8 @@ func TestBrowserListRoundTrip(t *testing.T) {
 	}
 }
 
-// TestPreferredPlatformIsApplied pins the IE 10 workaround: when the same
-// browser version is offered on several platforms, the one that provisions
-// reliably is chosen, and if it is withdrawn the first offered is used.
+// TestPreferredPlatformIsApplied pins the IE 10 workaround: the reliable
+// platform is chosen when a version is offered on several, with a fallback.
 func TestPreferredPlatformIsApplied(t *testing.T) {
 	index := NewIndex([]Browser{
 		{Browser: "ie", BrowserVersion: "10.0", OS: "Windows", OSVersion: "7"},
@@ -90,8 +89,8 @@ func TestPreferredPlatformIsApplied(t *testing.T) {
 	}
 }
 
-// TestCapabilitiesAreW3COnly is the guard against the JSON Wire Protocol
-// removal: the serialised capabilities must never contain desiredCapabilities.
+// TestCapabilitiesAreW3COnly guards against the JSON Wire Protocol:
+// desiredCapabilities must never appear.
 func TestCapabilitiesAreW3COnly(t *testing.T) {
 	caps := Capabilities{
 		BStack: map[string]any{"sessionName": "test", "local": true},
@@ -122,9 +121,8 @@ func TestCapabilitiesAreW3COnly(t *testing.T) {
 	}
 }
 
-// TestCapabilitiesForDesktopPlatform proves a pinned desktop platform is sent in
-// bstack:options, and that no platform is sent when none is set, so
-// BrowserStack chooses.
+// TestCapabilitiesForDesktopPlatform proves a pinned platform is sent in
+// bstack:options, and none when unset.
 func TestCapabilitiesForDesktopPlatform(t *testing.T) {
 	pinned := alwaysMatch(t, CapabilitiesFor(
 		Browser{Browser: "ie", BrowserVersion: "10.0", OS: "Windows", OSVersion: "7"},
@@ -162,7 +160,7 @@ func TestHasPreference(t *testing.T) {
 }
 
 // alwaysMatch parses the capabilities body and returns the W3C alwaysMatch
-// object, so tests can assert on capability placement rather than on substrings.
+// object.
 func alwaysMatch(t *testing.T, caps Capabilities) map[string]any {
 	t.Helper()
 
@@ -184,9 +182,8 @@ func alwaysMatch(t *testing.T, caps Capabilities) map[string]any {
 	return body.Capabilities.AlwaysMatch
 }
 
-// TestMobileCapabilities proves real device sessions are expressed with W3C
-// standard capabilities plus BrowserStack vendor capabilities only, and carry
-// no Appium capabilities at all.
+// TestMobileCapabilities proves real device sessions use W3C standard and
+// BrowserStack vendor capabilities only, with no Appium capabilities.
 func TestMobileCapabilities(t *testing.T) {
 	caps := CapabilitiesFor(
 		Browser{OS: "ios", OSVersion: "13", Browser: "iphone", Device: "iPhone 11", RealMobile: true},
@@ -195,8 +192,8 @@ func TestMobileCapabilities(t *testing.T) {
 
 	match := alwaysMatch(t, caps)
 
-	// The browser name must be a browser, at the W3C top level, not a device
-	// alias hidden inside bstack:options.
+	// The browser name must be a browser at the W3C top level, not a device
+	// alias in bstack:options.
 	if got := match["browserName"]; got != "safari" {
 		t.Errorf("browserName = %v, want safari at the W3C top level", got)
 	}
@@ -205,7 +202,7 @@ func TestMobileCapabilities(t *testing.T) {
 		t.Errorf("platformName = %v, want ios", got)
 	}
 
-	// W3C standard capabilities may live at the top level; nothing may carry an
+	// W3C standard capabilities may sit at the top level; nothing may carry an
 	// Appium prefix.
 	for key := range match {
 		if strings.HasPrefix(key, "appium:") {
@@ -233,8 +230,7 @@ func TestMobileCapabilities(t *testing.T) {
 	}
 }
 
-// TestMobileBrowserNameMapping covers the device-alias translation: the REST
-// browser list uses device aliases, the W3C capability wants a browser.
+// TestMobileBrowserNameMapping covers the device-alias to browser translation.
 func TestMobileBrowserNameMapping(t *testing.T) {
 	cases := map[string]string{
 		"iphone":  "safari",

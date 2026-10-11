@@ -22,9 +22,7 @@ import (
 	"github.com/mrhenry/polyfill-library/scripts/polyfillmeta"
 )
 
-// TestParseArgs pins the argv contract the CI workflows depend on. A matrix
-// entry such as browser="chrome/1 - 50" carries a semver range containing
-// spaces, and splitting it wrongly would silently test the wrong browsers.
+// TestParseArgs pins the argv contract the CI workflows depend on.
 func TestParseArgs(t *testing.T) {
 	for _, tt := range []struct {
 		name string
@@ -104,8 +102,7 @@ func TestParseArgs(t *testing.T) {
 }
 
 // TestJobStateTracksOneJob covers the mutable progress the job goroutines and
-// the progress printer share. A job that never published results has to read as
-// failed, otherwise a lost session scores as a pass.
+// the progress printer share.
 func TestJobStateTracksOneJob(t *testing.T) {
 	state := newJobState()
 
@@ -169,9 +166,7 @@ func TestJobStateTracksOneJob(t *testing.T) {
 	}
 }
 
-// TestPolyfillGating covers which browsers a targeted run selects. Only the
-// browsers a polyfill under test actually targets may run, or a targeted run
-// would quietly widen into a full one.
+// TestPolyfillGating covers which browsers a targeted run selects.
 func TestPolyfillGating(t *testing.T) {
 	metas := &polyfillmeta.Collection{
 		Metas: map[string]*polyfillmeta.Meta{
@@ -182,7 +177,7 @@ func TestPolyfillGating(t *testing.T) {
 		All: []string{"Promise", "fetch", "Intl.DisplayNames"},
 	}
 
-	// "ios/13" normalises to the ios_saf family the polyfill targets use, and
+	// "ios/13" normalises to the ios_saf family the polyfill targets use;
 	// ie/12.0 and chrome/70.0 fall outside every range under test.
 	selected := selectBrowsers(
 		[]string{"ie/9.0", "ie/12.0", "chrome/55.0", "chrome/70.0", "ios/13", "ios/16"},
@@ -224,8 +219,8 @@ func TestPolyfillGating(t *testing.T) {
 	}
 }
 
-// TestModifiedFilesFromTheEnvironmentFile covers the handoff a privileged
-// workflow uses when the fork's git history is not available.
+// TestModifiedFilesFromTheEnvironmentFile covers the MODIFIED_FILES_FILE
+// handoff.
 func TestModifiedFilesFromTheEnvironmentFile(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "modified.txt")
@@ -250,16 +245,13 @@ func TestModifiedFilesFromTheEnvironmentFile(t *testing.T) {
 	}
 }
 
-// jobRunnerFunc adapts a function to the jobRunner seam, so the scheduler can
-// be driven without a real runner.
+// jobRunnerFunc adapts a function to the jobRunner seam.
 type jobRunnerFunc func(ctx context.Context, j *job)
 
 func (f jobRunnerFunc) runJob(ctx context.Context, j *job) { f(ctx, j) }
 
 // TestSchedulerSerialisesOneBrowser covers the rule that one browser is never
-// driven by two sessions at once. Without it, two shards of the same browser
-// race for the same remote machine and report each other's failures. The test
-// crosses the scheduler's interface rather than poking browserSlots.
+// driven by two sessions at once.
 func TestSchedulerSerialisesOneBrowser(t *testing.T) {
 	var (
 		mu       sync.Mutex
@@ -341,9 +333,7 @@ func TestSchedulerSerialisesOneBrowser(t *testing.T) {
 	}
 }
 
-// TestConcurrencyForFollowsTheAccountPlan covers the local session limit. The
-// account allowance is the real ceiling, so a run that exceeds it queues
-// sessions until they time out.
+// TestConcurrencyForFollowsTheAccountPlan covers the local session limit.
 func TestConcurrencyForFollowsTheAccountPlan(t *testing.T) {
 	gateWith := func(plan browserstack.Plan, err error) *capacityGate {
 		return &capacityGate{
@@ -378,9 +368,7 @@ func TestConcurrencyForFollowsTheAccountPlan(t *testing.T) {
 	}
 }
 
-// TestPrintProgressOnlyPrintsChanges covers the output a CI log is made of. The
-// screenful holds every job, so reprinting it every second would bury the log
-// a failure has to be found in.
+// TestPrintProgressOnlyPrintsChanges covers the output a CI log is made of.
 func TestPrintProgressOnlyPrintsChanges(t *testing.T) {
 	jobs := []*job{
 		{name: "chrome/32.0", testMode: modeAll, trace: "r1a2-001-chrome-32.0", state: newJobState()},
@@ -437,8 +425,7 @@ func captureProgress(t *testing.T, printer *progressPrinter, jobs []*job) string
 }
 
 // TestReportingHelpers covers the small renderers a failure report is built
-// from. Each has to stay readable, because they are what a maintainer reads to
-// work out what broke.
+// from.
 func TestReportingHelpers(t *testing.T) {
 	if got := summarisePaths(nil); got != "nothing" {
 		t.Errorf("summarisePaths(nil) = %q, want %q", got, "nothing")
@@ -449,8 +436,7 @@ func TestReportingHelpers(t *testing.T) {
 		t.Errorf("summarisePaths = %q, want each request once, in the order it arrived", got)
 	}
 
-	// Zero is never rendered in practice, but plural(1) must stay empty so a
-	// single replacement reads as "1 session replaced".
+	// plural(1) must stay empty so a replacement reads as "1 session replaced".
 	for n, want := range map[int]string{0: "s", 1: "", 2: "s"} {
 		if got := plural(n); got != want {
 			t.Errorf("plural(%d) = %q, want %q", n, got, want)
@@ -478,9 +464,7 @@ func TestReportingHelpers(t *testing.T) {
 	}
 }
 
-// TestTestURLMatchesTheMode covers the query string the browser is sent, since
-// the page's meaning changes with it: control runs without the polyfills, and
-// only a full run asks for the gated ones.
+// TestTestURLMatchesTheMode covers the query string the browser is sent.
 func TestTestURLMatchesTheMode(t *testing.T) {
 	individual := testURL("http://bs-local.com:9876", options{testMode: modeAll, feature: "Promise"}, 0, false, "r1a2-001")
 	all := testURL("http://bs-local.com:9876", options{testMode: modeAll}, 0, false, "")
@@ -523,7 +507,7 @@ func TestTestURLMatchesTheMode(t *testing.T) {
 	}
 }
 
-// TestJobsRunOldestBrowserFirst pins the run order: versions are compared
+// TestJobsRunOldestBrowserFirst pins the run order: versions compare
 // numerically, so "9.0" runs before "100.0", and families stay grouped.
 func TestJobsRunOldestBrowserFirst(t *testing.T) {
 	index := browserstack.NewIndex([]browserstack.Browser{
@@ -551,8 +535,7 @@ func TestJobsRunOldestBrowserFirst(t *testing.T) {
 }
 
 // fakeDriver is an in-memory adapter at the driver seam. Each ExecuteScript
-// call is answered from a queue, so a test scripts the page's readiness and
-// results without a browser.
+// call is answered from a queue.
 type fakeDriver struct {
 	mu        sync.Mutex
 	scripts   []any
@@ -607,7 +590,7 @@ func completeResults() map[string]any {
 }
 
 // traceServer answers the runner's trace-stats questions. gets is how many
-// browser GETs the server reports, which is what "the navigation arrived" means.
+// browser GETs the server reports.
 func traceServer(t *testing.T, gets int) *httptest.Server {
 	t.Helper()
 
@@ -619,8 +602,7 @@ func traceServer(t *testing.T, gets int) *httptest.Server {
 	return srv
 }
 
-// testRunner builds a runner whose pauses are zero, so the retry and replacement
-// branches run without the measured delays.
+// testRunner builds a runner whose pauses are zero.
 func testRunner(dial dialFunc, traceStatsBase string) *runner {
 	return &runner{
 		dial:           dial,
@@ -640,9 +622,8 @@ func testJob(name, trace string) *job {
 	}
 }
 
-// TestRunnerCompletesAJobThroughTheSeam drives the whole attempt — dial,
-// navigate, arrival, page load, results — with a fake driver, which the old
-// runner could not do because it created its own session.
+// TestRunnerCompletesAJobThroughTheSeam drives a whole attempt — dial,
+// navigate, arrival, page load, results — with a fake driver.
 func TestRunnerCompletesAJobThroughTheSeam(t *testing.T) {
 	stats := traceServer(t, 1)
 
@@ -673,8 +654,7 @@ func TestRunnerCompletesAJobThroughTheSeam(t *testing.T) {
 	}
 }
 
-// TestRunnerRetriesASessionThatFailsToStart covers the retry branch: a transient
-// start failure gets a second attempt, and the same fake then completes.
+// TestRunnerRetriesASessionThatFailsToStart covers the retry branch.
 func TestRunnerRetriesASessionThatFailsToStart(t *testing.T) {
 	stats := traceServer(t, 1)
 
@@ -709,7 +689,7 @@ func TestRunnerRetriesASessionThatFailsToStart(t *testing.T) {
 
 // TestRunnerReplacesADeadSession covers the replacement branch: a session whose
 // browser never issued a request is discarded and the job retried on a fresh
-// one, with the replacement counted.
+// one.
 func TestRunnerReplacesADeadSession(t *testing.T) {
 	var (
 		mu       sync.Mutex

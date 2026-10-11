@@ -8,8 +8,8 @@ import (
 )
 
 // configureProcessGroup puts the tunnel in its own process group so the whole
-// tree can be terminated at once. BrowserStackLocal forks helper processes,
-// and killing only the parent orphans them.
+// tree can be terminated at once. BrowserStackLocal forks helpers, and killing
+// only the parent orphans them.
 func configureProcessGroup(cmd *exec.Cmd) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 }

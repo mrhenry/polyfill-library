@@ -8,7 +8,7 @@ import (
 )
 
 // TestIsSessionStartFailure covers the classification the retry policy branches
-// on: transient session-start problems are retried, test failures are not.
+// on.
 func TestIsSessionStartFailure(t *testing.T) {
 	retryable := []string{
 		"All parallel tests are currently in use",
@@ -43,8 +43,7 @@ func TestIsSessionStartFailure(t *testing.T) {
 }
 
 // TestIsSessionStartFailureTagged covers the tag the runner adds to every
-// NewSession error, which is what makes a stalled or queued start retryable
-// even when its message matches nothing.
+// NewSession error, which makes a stalled or queued start retryable.
 func TestIsSessionStartFailureTagged(t *testing.T) {
 	if !IsSessionStartFailure(fmt.Errorf("%w: context deadline exceeded", ErrSessionStart)) {
 		t.Error("a tagged session-start timeout should be retryable")
@@ -78,8 +77,7 @@ func TestCommandTimeoutError(t *testing.T) {
 }
 
 // TestPageCrashIsClassified covers the classification that lets the runner
-// replace a session whose renderer has crashed. BrowserStack reports it as an
-// ordinary protocol error, but the browser process is gone.
+// replace a session whose renderer has crashed.
 func TestPageCrashIsClassified(t *testing.T) {
 	crashes := []string{
 		`{"value":{"error":"unknown error","message":"unknown error: session deleted because of page crash\nfrom tab crashed"}}`,

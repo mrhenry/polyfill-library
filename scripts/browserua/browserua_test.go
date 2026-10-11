@@ -99,8 +99,7 @@ func TestFamilyOf(t *testing.T) {
 }
 
 // TestKnownEntry covers the guard against a new BrowserStack family being
-// skipped silently: a known family is accepted even when below baseline, while
-// an unmapped family is not.
+// skipped silently.
 func TestKnownEntry(t *testing.T) {
 	cases := map[string]bool{
 		"chrome/32.0":            true,

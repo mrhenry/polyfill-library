@@ -21,10 +21,8 @@ func repoRoot(t *testing.T) string {
 	return filepath.Join(dir, "..", "..")
 }
 
-// TestStateReady covers the readiness decision, which is where a false failure
-// previously came from: the harness used to infer the page by sniffing for
-// `mocha`, which is always absent on the director page because it keeps mocha
-// inside an iframe.
+// TestStateReady covers the readiness decision, which the harness used to make
+// by sniffing for `mocha`, always absent on the director page.
 func TestStateReady(t *testing.T) {
 	cases := []struct {
 		name      string
@@ -88,8 +86,8 @@ func TestStateReady(t *testing.T) {
 	}
 }
 
-// TestDescribeAssetsNamesTheBrokenAsset proves a failure message says which
-// script broke, rather than only reporting that the page stalled.
+// TestDescribeAssetsNamesTheBrokenAsset proves a failure message names the
+// script that broke.
 func TestDescribeAssetsNamesTheBrokenAsset(t *testing.T) {
 	assets := map[string]any{
 		"loaded": []any{"mocha.js", "proclaim.js"},
@@ -150,9 +148,8 @@ func TestParseState(t *testing.T) {
 	}
 }
 
-// TestProbeMatchesPagesItPolls guards the contract between the Go probe and
-// the pages it polls. If a global is renamed, this fails instead of the harness
-// silently reading undefined and timing out.
+// TestProbeMatchesPagesItPolls guards the contract between the Go probe and the
+// pages it polls, so a renamed global fails here.
 func TestProbeMatchesPagesItPolls(t *testing.T) {
 	root := repoRoot(t)
 
@@ -217,7 +214,7 @@ func TestProbeReadsGlobalsThePagesPublish(t *testing.T) {
 }
 
 // TestDirectorPassesAssetsThrough covers surfacing iframe diagnostics to the
-// top window the driver actually polls.
+// top window the driver polls.
 func TestDirectorPassesAssetsThrough(t *testing.T) {
 	raw, err := os.ReadFile(filepath.Join(repoRoot(t), "test/polyfills/test-director.handlebars"))
 	if err != nil {
@@ -237,9 +234,8 @@ func TestDirectorPassesAssetsThrough(t *testing.T) {
 	}
 }
 
-// TestResultsSummary covers the shape test/polyfills/compat.js reads. The page
-// only sets failingSuites when a suite fails, and the consumer maps over it, so
-// a missing object has to become an empty list rather than null.
+// TestResultsSummary covers the shape test/polyfills/compat.js reads: a missing
+// failingSuites must become an empty list rather than null.
 func TestResultsSummary(t *testing.T) {
 	summary := (&Results{
 		State:  "complete",
