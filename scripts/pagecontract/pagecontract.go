@@ -62,7 +62,7 @@ func (p State) Ready(expected string) (bool, error) {
 	// driving the wrong page, so fail rather than waiting out the timeout.
 	if p.Page != "" && p.Page != expected {
 		return false, fmt.Errorf(
-			"loaded the %q page but the %q page was requested : harness and test page disagree",
+			"loaded the %q page but the %q page was requested: harness and test page disagree",
 			p.Page, expected)
 	}
 

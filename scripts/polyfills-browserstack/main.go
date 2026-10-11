@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/mrhenry/polyfill-library/scripts/browsercmp"
 	"github.com/mrhenry/polyfill-library/scripts/browserstack"
 	"github.com/mrhenry/polyfill-library/scripts/browserua"
 	"github.com/mrhenry/polyfill-library/scripts/pagecontract"
@@ -502,7 +503,7 @@ func matchesBrowserFilter(entry string, opts options) bool {
 		return true
 	}
 
-	coerced, err := semver.NewVersion(coerce(version))
+	coerced, err := semver.NewVersion(browsercmp.Coerce(version))
 	if err != nil {
 		return false
 	}
@@ -513,63 +514,6 @@ func matchesBrowserFilter(entry string, opts options) bool {
 	}
 
 	return constraint.Check(coerced)
-}
-
-// coerce turns "32.0" or "13" into a semver version, as semver.coerce does.
-func coerce(version string) string {
-	parts := strings.SplitN(version, ".", 3)
-
-	out := make([]string, 0, 3)
-
-	for _, part := range parts {
-		digits := leadingDigits(part)
-		if digits == "" {
-			break
-		}
-
-		out = append(out, digits)
-	}
-
-	for len(out) < 3 {
-		out = append(out, "0")
-	}
-
-	return strings.Join(out, ".")
-}
-
-func leadingDigits(s string) string {
-	end := 0
-	for end < len(s) && s[end] >= '0' && s[end] <= '9' {
-		end++
-	}
-
-	return s[:end]
-}
-
-// entryLess orders "family/version" entries by family, then oldest version
-// first.
-func entryLess(a, b string) bool {
-	aFamily, aVersion, _ := strings.Cut(a, "/")
-	bFamily, bVersion, _ := strings.Cut(b, "/")
-
-	if aFamily != bFamily {
-		return aFamily < bFamily
-	}
-
-	return versionLess(aVersion, bVersion)
-}
-
-// versionLess compares browser versions numerically rather than as strings, so
-// "9.0" sorts before "100.0".
-func versionLess(a, b string) bool {
-	ca, errA := semver.NewVersion(coerce(a))
-	cb, errB := semver.NewVersion(coerce(b))
-
-	if errA == nil && errB == nil {
-		return ca.LessThan(cb)
-	}
-
-	return a < b
 }
 
 // neededForAny reports whether any polyfill under test targets this browser.
@@ -676,7 +620,7 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			return as < bs
 		}
 
-		return entryLess(a.name, b.name)
+		return browsercmp.EntryLess(a.name, b.name)
 	})
 
 	return jobs
@@ -776,13 +720,15 @@ func execute(ctx context.Context, r *runner, jobs []*job, maxConcurrency int) in
 	stopProgress := make(chan struct{})
 	progressDone := make(chan struct{})
 
+	printer := &progressPrinter{}
+
 	go func() {
 		defer close(progressDone)
 
 		for {
 			select {
 			case <-ticker.C:
-				printProgress(jobs)
+				printer.print(jobs)
 			case <-stopProgress:
 				return
 			case <-ctx.Done():
@@ -804,20 +750,21 @@ func execute(ctx context.Context, r *runner, jobs []*job, maxConcurrency int) in
 		go func(j *job) {
 			defer wg.Done()
 
+			// Claim the per-browser slot before the concurrency slot, so a job
+			// waiting behind another session of the same browser does not hold a
+			// global slot that a different browser could be using.
+			if !slots.acquire(ctx, j.name) {
+				return
+			}
+
+			defer slots.release(j.name)
+
 			select {
 			case sem <- struct{}{}:
 				defer func() { <-sem }()
 			case <-ctx.Done():
 				return
 			}
-
-			// Only release a slot that was actually claimed, so a cancelled
-			// acquire cannot unlock another job's session.
-			if !slots.acquire(ctx, j.name) {
-				return
-			}
-
-			defer slots.release(j.name)
 
 			r.runJob(ctx, j)
 		}(j)
@@ -830,7 +777,7 @@ func execute(ctx context.Context, r *runner, jobs []*job, maxConcurrency int) in
 
 	<-progressDone
 
-	printProgress(jobs)
+	printer.print(jobs)
 
 	for _, j := range jobs {
 		if j.state.failed() {
@@ -1068,11 +1015,14 @@ func shardName(shard int) string {
 	return "1"
 }
 
-// lastProgress is the last block printed, so a run of several hundred jobs
-// polling every second does not reprint an unchanged screenful.
-var lastProgress string
+// progressPrinter renders the job board, remembering the last block printed so
+// a run of several hundred jobs polling every second does not reprint an
+// unchanged screenful.
+type progressPrinter struct {
+	last string
+}
 
-func printProgress(jobs []*job) {
+func (p *progressPrinter) print(jobs []*job) {
 	lines := []string{strings.Repeat("-", 80)}
 
 	queued := 0
@@ -1120,11 +1070,11 @@ func printProgress(jobs []*job) {
 	}
 
 	out := strings.Join(lines, "\n") + "\n"
-	if out == lastProgress {
+	if out == p.last {
 		return
 	}
 
-	lastProgress = out
+	p.last = out
 
 	fmt.Print(out)
 }

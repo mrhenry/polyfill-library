@@ -158,6 +158,10 @@ func downloadLocalBinary(ctx context.Context, dest string) error {
 		lastErr = err
 	}
 
+	if lastErr == nil {
+		return fmt.Errorf("no tunnel binary is published for %s/%s", runtime.GOOS, runtime.GOARCH)
+	}
+
 	return fmt.Errorf("downloading %s: %w", downloadBaseURL, lastErr)
 }
 

@@ -174,7 +174,11 @@ func (s *Session) Navigate(ctx context.Context, target string) error {
 	}
 	defer res.Body.Close()
 
-	raw, _ := io.ReadAll(res.Body)
+	raw, err := io.ReadAll(res.Body)
+	if err != nil {
+		return fmt.Errorf("reading navigate response: %w", err)
+	}
+
 	if res.StatusCode != http.StatusOK {
 		return newProtocolError(res.StatusCode, raw)
 	}
@@ -203,7 +207,11 @@ func (s *Session) ExecuteScript(ctx context.Context, script string, args []any) 
 	}
 	defer res.Body.Close()
 
-	raw, _ := io.ReadAll(res.Body)
+	raw, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading execute response: %w", err)
+	}
+
 	if res.StatusCode != http.StatusOK {
 		return nil, newProtocolError(res.StatusCode, raw)
 	}
@@ -240,7 +248,10 @@ func (s *Session) Delete(ctx context.Context) error {
 	}
 	defer res.Body.Close()
 
-	raw, _ := io.ReadAll(res.Body)
+	raw, err := io.ReadAll(res.Body)
+	if err != nil {
+		return fmt.Errorf("reading delete response: %w", err)
+	}
 
 	// A session that has already gone away is not worth reporting.
 	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusNotFound {
@@ -264,7 +275,10 @@ func do(ctx context.Context, client *http.Client, creds Credentials, method, tar
 		return nil, err
 	}
 
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	if len(body) > 0 {
+		req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	}
+
 	req.Header.Set("Accept", "application/json")
 	req.SetBasicAuth(creds.UserName, creds.AccessKey)
 
@@ -356,6 +370,9 @@ func IsSessionStartFailure(err error) bool {
 
 	message := err.Error()
 
+	// The list is deliberately broad: these are the phrasings BrowserStack uses
+	// for a start that never produced a browser, and a false positive only costs
+	// one extra attempt. Anything already tagged above is handled before this.
 	return strings.Contains(message, "All parallel tests are currently in use") ||
 		strings.Contains(message, "Could not start Mobile Browser") ||
 		strings.Contains(message, "Could not start Browser") ||

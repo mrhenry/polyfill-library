@@ -16,7 +16,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Masterminds/semver/v3"
+	"github.com/mrhenry/polyfill-library/scripts/browsercmp"
 	"github.com/mrhenry/polyfill-library/scripts/browserstack"
 )
 
@@ -81,7 +81,7 @@ func run(browsersPath, stackPath string) error {
 
 	entries := uniqueEntries(browsers)
 	sort.SliceStable(entries, func(i, j int) bool {
-		return entryLess(entries[i], entries[j])
+		return browsercmp.EntryLess(entries[i], entries[j])
 	})
 
 	// Preserve the curation a maintainer wrote by hand.
@@ -119,7 +119,7 @@ func browserLess(a, b browserstack.Browser) bool {
 	}
 
 	if a.BrowserVersion != "" && b.BrowserVersion != "" && a.BrowserVersion != b.BrowserVersion {
-		return versionLess(a.BrowserVersion, b.BrowserVersion)
+		return browsercmp.VersionLess(a.BrowserVersion, b.BrowserVersion)
 	}
 
 	if a.OS != b.OS {
@@ -130,85 +130,13 @@ func browserLess(a, b browserstack.Browser) bool {
 		descending := strings.EqualFold(a.OS, "windows") || strings.EqualFold(a.OS, "os x")
 
 		if descending {
-			return versionLess(b.OSVersion, a.OSVersion)
+			return browsercmp.VersionLess(b.OSVersion, a.OSVersion)
 		}
 
-		return versionLess(a.OSVersion, b.OSVersion)
+		return browsercmp.VersionLess(a.OSVersion, b.OSVersion)
 	}
 
 	return localeLess(a.Device, b.Device)
-}
-
-// entryLess sorts "family/version" entries by family, then ascending version.
-func entryLess(a, b string) bool {
-	aFamily, aVersion, _ := strings.Cut(a, "/")
-	bFamily, bVersion, _ := strings.Cut(b, "/")
-
-	if aFamily != bFamily {
-		return localeLess(aFamily, bFamily)
-	}
-
-	if aVersion != bVersion {
-		return versionLess(aVersion, bVersion)
-	}
-
-	return false
-}
-
-// versionLess compares the leading numeric part of two version strings,
-// falling back to a string comparison, matching semver.coerce plus compare.
-func versionLess(a, b string) bool {
-	ca, oka := coerceVersion(a)
-	cb, okb := coerceVersion(b)
-
-	if oka && okb {
-		return ca.LessThan(cb)
-	}
-
-	if oka != okb {
-		return oka
-	}
-
-	return localeLess(a, b)
-}
-
-func coerceVersion(v string) (*semver.Version, bool) {
-	parts := strings.SplitN(v, ".", 3)
-
-	out := make([]string, 0, 3)
-
-	for _, part := range parts {
-		digits := leadingDigits(part)
-		if digits == "" {
-			break
-		}
-
-		out = append(out, digits)
-	}
-
-	if len(out) == 0 {
-		return nil, false
-	}
-
-	for len(out) < 3 {
-		out = append(out, "0")
-	}
-
-	parsed, err := semver.NewVersion(strings.Join(out, "."))
-	if err != nil {
-		return nil, false
-	}
-
-	return parsed, true
-}
-
-func leadingDigits(s string) string {
-	end := 0
-	for end < len(s) && s[end] >= '0' && s[end] <= '9' {
-		end++
-	}
-
-	return s[:end]
 }
 
 // localeLess approximates String.prototype.localeCompare for the ASCII names
@@ -296,10 +224,17 @@ func parseEntry(line string) (entry string, comment string, ok bool) {
 	}
 
 	start := strings.Index(body, `"`)
-	end := strings.LastIndex(body, `"`)
-	if start == -1 || end <= start {
+	if start == -1 {
 		return "", "", false
 	}
+
+	// The closing quote is the next one after the opening, not the last on the
+	// line: a trailing comment may itself contain a quote.
+	close := strings.Index(body[start+1:], `"`)
+	if close == -1 {
+		return "", "", false
+	}
+	end := start + 1 + close
 
 	entry = body[start+1 : end]
 

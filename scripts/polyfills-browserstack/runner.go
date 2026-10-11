@@ -109,25 +109,21 @@ func nextAction(err error, replacements int) action {
 }
 
 // runJob drives one browser to completion.
+//
+// A session that cannot start consumes one of maxAttempts start attempts; a
+// session that started but is unusable is replaced without consuming one, up to
+// sessionReplacements times.
 func (r *runner) runJob(ctx context.Context, j *job) {
-	var lastErr error
+	var (
+		lastErr      error
+		replacements int
+		sessions     int
+		attempts     int
+	)
 
-	replacements := 0
-	sessions := 0
-
-	for attempt := 1; attempt <= maxAttempts; attempt++ {
+	for {
 		if ctx.Err() != nil {
 			return
-		}
-
-		if attempt > 1 {
-			j.state.setState(fmt.Sprintf("retrying browser -- attempt %d", attempt))
-
-			select {
-			case <-ctx.Done():
-				return
-			case <-time.After(r.retryPause):
-			}
 		}
 
 		lastErr = r.runJobOnce(ctx, j, sessions)
@@ -148,7 +144,23 @@ func (r *runner) runJob(ctx context.Context, j *job) {
 			return
 
 		case actionRetryStart:
+			attempts++
+
+			if attempts >= maxAttempts {
+				j.state.setError(lastErr)
+
+				return
+			}
+
+			j.state.setState(fmt.Sprintf("retrying browser -- attempt %d", attempts+1))
+
 			slog.Warn("retrying session start", "browser", j.name, "error", lastErr)
+
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(r.retryPause):
+			}
 
 		case actionReplaceSession:
 			replacements++
@@ -166,13 +178,8 @@ func (r *runner) runJob(ctx context.Context, j *job) {
 				return
 			case <-time.After(r.replacementPause):
 			}
-
-			// A replacement is the same job, not one of three goes at it.
-			attempt--
 		}
 	}
-
-	j.state.setError(lastErr)
 }
 
 // runJobOnce is a single attempt: dial, navigate, wait for the browser's first

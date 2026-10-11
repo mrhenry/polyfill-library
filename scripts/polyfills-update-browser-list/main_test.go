@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mrhenry/polyfill-library/scripts/browsercmp"
 	"github.com/mrhenry/polyfill-library/scripts/browserstack"
 )
 
@@ -55,6 +56,13 @@ func TestParseEntry(t *testing.T) {
 			line:    `  # "chrome/34.0", # flaky on CI`,
 			entry:   "chrome/34.0",
 			comment: "flaky on CI",
+			ok:      true,
+		},
+		{
+			name:    "comment containing a quote",
+			line:    `  "edge/80.0", # oldest "chromium" edge`,
+			entry:   "edge/80.0",
+			comment: `oldest "chromium" edge`,
 			ok:      true,
 		},
 		{
@@ -205,7 +213,7 @@ func TestEntryLessSortsByFamilyThenVersion(t *testing.T) {
 	}
 
 	sort.SliceStable(entries, func(i, j int) bool {
-		return entryLess(entries[i], entries[j])
+		return browsercmp.EntryLess(entries[i], entries[j])
 	})
 
 	want := []string{

@@ -59,23 +59,17 @@ type Config struct {
 	Credentials Credentials
 }
 
-// New builds a Client that authenticates every request with HTTP Basic auth.
+// New builds a Client. Credentials are applied per request by do, so the client
+// itself carries no auth state.
 func New(config Config) *Client {
-	transport := roundTripperFunc(func(req *http.Request) (*http.Response, error) {
-		req.SetBasicAuth(config.Credentials.UserName, config.Credentials.AccessKey)
-
-		return http.DefaultTransport.RoundTrip(req)
-	})
-
 	return &Client{
 		credentials: config.Credentials,
-		http: &http.Client{
-			Transport: transport,
-		},
+		http:        &http.Client{},
 	}
 }
 
-// HTTPClient is the authenticated HTTP client, used for WebDriver calls.
+// HTTPClient is the HTTP client used for WebDriver calls. Requests are
+// authenticated per call, not by the client.
 func (c *Client) HTTPClient() *http.Client {
 	return c.http
 }
@@ -90,12 +84,7 @@ func (c *Client) Browsers(ctx context.Context) ([]Browser, error) {
 	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, BrowsersAPIURL, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := c.http.Do(req)
+	res, err := do(ctx, c.http, c.credentials, http.MethodGet, BrowsersAPIURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -135,12 +124,7 @@ func (c *Client) Plan(ctx context.Context) (Plan, error) {
 	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, PlanAPIURL, nil)
-	if err != nil {
-		return Plan{}, err
-	}
-
-	res, err := c.http.Do(req)
+	res, err := do(ctx, c.http, c.credentials, http.MethodGet, PlanAPIURL, nil)
 	if err != nil {
 		return Plan{}, err
 	}
@@ -190,10 +174,4 @@ func decodeError(statusCode int, body []byte) error {
 	}
 
 	return fmt.Errorf("browserstack api error (%d): %s", statusCode, strings.TrimSpace(string(body)))
-}
-
-type roundTripperFunc func(*http.Request) (*http.Response, error)
-
-func (f roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-	return f(req)
 }

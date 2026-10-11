@@ -58,10 +58,14 @@ func fetchAndUnpack(ctx context.Context, target, dest string) error {
 	}
 
 	payload, err := io.ReadAll(rc)
-	rc.Close()
+	closeErr := rc.Close()
 
 	if err != nil {
 		return err
+	}
+
+	if closeErr != nil {
+		return closeErr
 	}
 
 	if err := os.WriteFile(dest, payload, 0o700); err != nil { //nolint:gosec // the tunnel must be executable

@@ -331,9 +331,9 @@ func TestPrintProgressOnlyPrintsChanges(t *testing.T) {
 
 	jobs[0].state.setState("polling for results")
 
-	lastProgress = ""
+	printer := &progressPrinter{}
 
-	first := captureProgress(t, jobs)
+	first := captureProgress(t, printer, jobs)
 
 	// A job that has not started yet is only counted, not described.
 	if !strings.Contains(first, "polling for results") || strings.Contains(first, "chrome-32.0]") {
@@ -344,13 +344,13 @@ func TestPrintProgressOnlyPrintsChanges(t *testing.T) {
 		t.Errorf("the job that has not started is not counted as queued:\n%s", first)
 	}
 
-	if again := captureProgress(t, jobs); again != "" {
+	if again := captureProgress(t, printer, jobs); again != "" {
 		t.Errorf("an unchanged run printed again:\n%s", again)
 	}
 
 	jobs[0].state.complete(&pagecontract.Summary{Passed: 12}, 30*time.Second)
 
-	after := captureProgress(t, jobs)
+	after := captureProgress(t, printer, jobs)
 
 	if !strings.Contains(after, "✓ 12 tests") || !strings.Contains(after, "30 seconds to complete") {
 		t.Errorf("a completed job is not reported:\n%s", after)
@@ -359,7 +359,7 @@ func TestPrintProgressOnlyPrintsChanges(t *testing.T) {
 	boom := errors.New("the remote machine died")
 	jobs[0].state.setError(boom)
 
-	failed := captureProgress(t, jobs)
+	failed := captureProgress(t, printer, jobs)
 
 	if !strings.Contains(failed, "the remote machine died") ||
 		!strings.Contains(failed, "[trace r1a2-001-chrome-32.0]") {
@@ -367,7 +367,7 @@ func TestPrintProgressOnlyPrintsChanges(t *testing.T) {
 	}
 }
 
-func captureProgress(t *testing.T, jobs []*job) string {
+func captureProgress(t *testing.T, printer *progressPrinter, jobs []*job) string {
 	t.Helper()
 
 	read, write, err := os.Pipe()
@@ -378,7 +378,7 @@ func captureProgress(t *testing.T, jobs []*job) string {
 	original := os.Stdout
 	os.Stdout = write
 
-	printProgress(jobs)
+	printer.print(jobs)
 
 	os.Stdout = original
 
