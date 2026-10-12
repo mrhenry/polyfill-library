@@ -37,6 +37,10 @@ type runner struct {
 	// request before the session is treated as dead.
 	arrivalGrace time.Duration
 
+	// jobTimeout bounds a whole job across every attempt and replacement, so a
+	// browser that keeps making just enough progress cannot run forever.
+	jobTimeout time.Duration
+
 	// retryPause and replacementPause are the waits before a retry and before a
 	// replacement session. Injected so tests do not sleep the real delays.
 	retryPause       time.Duration
@@ -51,6 +55,7 @@ func newRunner(dial dialFunc, testServer *testserver.Client, gate *capacityGate,
 		gate:             gate,
 		batchName:        batchName,
 		arrivalGrace:     arrivalGrace,
+		jobTimeout:       jobTimeout,
 		retryPause:       retryDelay,
 		replacementPause: replacementDelay,
 	}
@@ -108,6 +113,11 @@ func nextAction(err error, replacements int) action {
 // session that started but is unusable is replaced without consuming one, up to
 // sessionReplacements times.
 func (r *runner) runJob(ctx context.Context, j *job) {
+	// One budget covers every attempt and replacement, so retrying or replacing
+	// a session cannot multiply it.
+	jobCtx, cancel := context.WithTimeout(ctx, r.jobTimeout)
+	defer cancel()
+
 	var (
 		lastErr      error
 		replacements int
@@ -116,14 +126,20 @@ func (r *runner) runJob(ctx context.Context, j *job) {
 	)
 
 	for {
-		if ctx.Err() != nil {
+		if r.shouldStop(jobCtx, ctx, j) {
 			return
 		}
 
-		lastErr = r.runJobOnce(ctx, j, sessions)
+		lastErr = r.runJobOnce(jobCtx, j, sessions)
 		sessions++
 
 		if lastErr == nil {
+			return
+		}
+
+		// The job's own budget may have elapsed mid-attempt, in which case the
+		// returned error is a bare deadline that names nothing useful.
+		if r.shouldStop(jobCtx, ctx, j) {
 			return
 		}
 
@@ -151,8 +167,8 @@ func (r *runner) runJob(ctx context.Context, j *job) {
 			slog.Warn("retrying session start", "browser", j.name, "error", lastErr)
 
 			select {
-			case <-ctx.Done():
-				return
+			case <-jobCtx.Done():
+				// Handled by shouldStop at the top of the loop.
 			case <-time.After(r.retryPause):
 			}
 
@@ -168,11 +184,28 @@ func (r *runner) runJob(ctx context.Context, j *job) {
 			// otherwise browsers with a small pool queue the replacement and
 			// that queue becomes a start timeout.
 			select {
-			case <-ctx.Done():
-				return
+			case <-jobCtx.Done():
+				// Handled by shouldStop at the top of the loop.
 			case <-time.After(r.replacementPause):
 			}
 		}
+	}
+}
+
+// shouldStop reports whether the job must stop before its next attempt. A run
+// that is shutting down is not a job failure, so it is left unrecorded; a job
+// that exhausted its own budget is recorded with a name for the failure.
+func (r *runner) shouldStop(jobCtx, runCtx context.Context, j *job) bool {
+	switch {
+	case runCtx.Err() != nil:
+		return true
+	case errors.Is(jobCtx.Err(), context.DeadlineExceeded):
+		j.state.setError(fmt.Errorf("job exceeded the %s budget at %q on %q",
+			r.jobTimeout, j.state.status().state, j.name))
+
+		return true
+	default:
+		return false
 	}
 }
 

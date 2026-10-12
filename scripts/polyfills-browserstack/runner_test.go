@@ -763,6 +763,41 @@ func (f *fakeDriver) Delete(context.Context) error {
 	return nil
 }
 
+// endlessDriver answers every progress poll with a running state whose
+// completed count keeps climbing, so the stall detector never fires and only
+// the job's total budget can stop it.
+type endlessDriver struct {
+	mu    sync.Mutex
+	count int
+}
+
+func (d *endlessDriver) Navigate(context.Context, string) error {
+	return nil
+}
+
+func (d *endlessDriver) ExecuteScript(_ context.Context, script string, _ []any) (any, error) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	// The readiness poll is answered first; every progress poll after it
+	// reports one more completed runner.
+	if strings.Contains(script, "global_test_page") {
+		return readyPage(), nil
+	}
+
+	d.count++
+
+	return map[string]any{
+		"state":                "running",
+		"runnerCompletedCount": d.count,
+		"runnerCount":          1000000,
+	}, nil
+}
+
+func (d *endlessDriver) Delete(context.Context) error {
+	return nil
+}
+
 // readyPage is the readiness contract the runner polls for.
 func readyPage() map[string]any {
 	return map[string]any{"page": "runner", "started": true, "readyState": "complete"}
@@ -793,6 +828,7 @@ func testRunner(dial dialFunc, testServer *testserver.Client) *runner {
 		testServer: testServer,
 		gate:       newTestGate(staticPlan(browserstack.Plan{ParallelSessionsMaxAllowed: 5}), time.Hour),
 		batchName:  "test-run",
+		jobTimeout: time.Minute,
 	}
 }
 
@@ -925,5 +961,32 @@ func TestRunnerReplacesADeadSession(t *testing.T) {
 
 	if !dead.deleted {
 		t.Error("the dead session was not deleted")
+	}
+}
+
+// TestRunnerGivesUpOnAJobThatExceedsItsBudget covers the total job budget: a
+// browser that keeps reporting progress still has to finish within it, because
+// the stall detector alone would let a combination page grind forever.
+func TestRunnerGivesUpOnAJobThatExceedsItsBudget(t *testing.T) {
+	stats := traceServer(t, 1)
+
+	j := testJob("firefox/51.0", "r1-004-firefox-51.0")
+
+	r := testRunner(func(context.Context, browserstack.Browser, string) (driver, error) {
+		return &endlessDriver{}, nil
+	}, testserver.New(stats.URL))
+
+	r.jobTimeout = 50 * time.Millisecond
+
+	r.runJob(context.Background(), j)
+
+	status := j.state.status()
+
+	if status.state != "error" || status.err == nil {
+		t.Fatalf("runJob = (%q, %v), want an error when the budget elapsed", status.state, status.err)
+	}
+
+	if !strings.Contains(status.err.Error(), "budget") {
+		t.Errorf("error = %v, want it to name the job budget", status.err)
 	}
 }
