@@ -16,18 +16,21 @@
     "lint": "eslint polyfills lib tasks test && tsc --noEmit",
     "lint-config": "node tasks/lint-config/index.js",
     "clean": "node tasks/clean",
-    "build": "npm run clean && node tasks/updatesources && npm run build-types && node tasks/buildsources/buildsources",
+    "build": "npm run clean && node tasks/updatesources && npm run generate-browserua-tables && npm run build-types && node tasks/buildsources/buildsources",
     "build-types": "tsc",
     "watch": "npm run clean && node tasks/updatesources && npm run build-types && node tasks/buildsources/watchsource",
     "fmt": "eslint . --fix",
     "test-end-to-end": "node --test 'test/end-to-end/**/*.test.js'",
     "test-node": "node --test 'test/node/**/*.test.js'",
-    "test-unit": "node --test 'test/unit/**/*.test.js'",
-    "test": "node --test 'test/unit/**/*.test.js' && node --test 'test/node/**/*.test.js' && node --test 'test/end-to-end/**/*.test.js'",
-    "test-older-node": "node --test 'test/unit' && node --test 'test/node' && node --test 'test/end-to-end'",
+    "test-polyfills": "node --test 'test/polyfills/**/*.test.js'",
+    "test-unit": "node --test 'test/unit/**/*.test.js' && node --test 'test/polyfills/**/*.test.js'",
+    "test": "node --test 'test/unit/**/*.test.js' && node --test 'test/node/**/*.test.js' && node --test 'test/polyfills/**/*.test.js' && node --test 'test/end-to-end/**/*.test.js'",
+    "test-older-node": "node --test 'test/unit' && node --test 'test/node' && node --test 'test/polyfills/server.test.js' && node --test 'test/end-to-end'",
+    "test-browserstack": "node ./test/polyfills/server.js & go run ./scripts/polyfills-browserstack",
     "prepublishOnly": "npm run build",
     "create-new-polyfill": "node ./tasks/create-new-polyfill.js",
-    "update-browserstack-list": "node ./tasks/updatebrowserstacklist.js"
+    "update-browserstack-list": "go run ./scripts/polyfills-update-browser-list",
+    "generate-browserua-tables": "node tasks/generate-browserua-tables.js"
   },
   "license": "MIT",
   "engines": {
@@ -46,9 +49,8 @@
     "@eslint/js": "^10.0.1",
     "@financial-times/polyfill-useragent-normaliser": "^2.0.1",
     "@iarna/toml": "^2.2.5",
+    "@types/node": "^22.15.18",
     "apicache": "^1.6.3",
-    "browserstack": "1.6.1",
-    "browserstack-local": "^1.5.6",
     "compression": "^1.8.1",
     "diff": "^5.2.0",
     "eslint": "^10.1.0",
@@ -65,8 +67,7 @@
     "toposort": "^2.0.2",
     "typescript": "^6.0.2",
     "ua-parser-js": "^2.0.9",
-    "uglify-js": "^3.17.4",
-    "webdriverio": "^9.19.2"
+    "uglify-js": "^3.17.4"
   },
   "volta": {
     "node": "26.6.0"

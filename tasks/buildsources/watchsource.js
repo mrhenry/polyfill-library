@@ -51,7 +51,7 @@ processFeatureAndStartServer().then(() => {
 
 				console.log('Building : ' + feature);
 				processFeatureAndStartServer(feature).then(() => {
-					console.log(`Visit : http://bs-local.com:9876/test?includePolyfills=yes&always=no&feature=${feature}`);
+					console.log(`Visit : http://localhost:9876/test?includePolyfills=yes&always=no&feature=${feature}`);
 				});
 			}, 150);
 		});

@@ -6,3 +6,7 @@ coverage
 local.log
 test/polyfills/compat.json
 test/polyfills/results-*.json
+
+# BrowserStackLocal tunnel binary, cached by the Go test runner.
+BrowserStackLocal
+BrowserStackLocal.exe
