@@ -89,7 +89,7 @@ func New(config Config) *Client {
 // capabilities and the session request, so a caller never reassembles the HTTP
 // transport, the hub URL or the credentials.
 func (c *Client) Dial(ctx context.Context, browser Browser, sessionName string) (Driver, error) {
-	caps := CapabilitiesFor(browser, sessionName, ProjectName, "")
+	caps := CapabilitiesFor(browser, sessionName, "")
 
 	return NewSession(ctx, c.http, Hub(), caps, c.credentials)
 }

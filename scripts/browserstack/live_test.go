@@ -135,7 +135,7 @@ func TestLiveBrowserSelection(t *testing.T) {
 				t.Fatalf("no browserstack entry for %s", tc.entry)
 			}
 
-			caps := CapabilitiesFor(browser, "verify "+tc.entry, "polyfill-library verify", "")
+			caps := CapabilitiesFor(browser, "verify "+tc.entry, "")
 
 			session, err := createSessionWithRetry(ctx, client, caps, creds)
 			if err != nil {

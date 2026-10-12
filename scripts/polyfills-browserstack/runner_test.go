@@ -867,13 +867,10 @@ func testRunner(dial dialFunc, testServer *testserver.Client) *runner {
 }
 
 func testJob(name, trace string) *job {
-	return &job{
-		name:         name,
-		url:          "http://bs-local.com:9876/test",
-		expectedPage: "runner",
-		trace:        trace,
-		state:        newJobState(),
-	}
+	j := newJob(name, browserstack.Browser{}, pagecontract.Request{Trace: trace})
+	j.url = "http://bs-local.com:9876/test"
+
+	return j
 }
 
 // TestRunnerCompletesAJobThroughTheSeam drives a whole attempt — dial,

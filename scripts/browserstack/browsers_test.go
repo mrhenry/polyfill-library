@@ -126,7 +126,7 @@ func TestCapabilitiesAreW3COnly(t *testing.T) {
 func TestCapabilitiesForDesktopPlatform(t *testing.T) {
 	pinned := alwaysMatch(t, CapabilitiesFor(
 		Browser{Browser: "ie", BrowserVersion: "10.0", OS: "Windows", OSVersion: "7"},
-		"session", "polyfill-library", "",
+		"session", "",
 	))
 
 	bstack, _ := pinned["bstack:options"].(map[string]any)
@@ -136,7 +136,7 @@ func TestCapabilitiesForDesktopPlatform(t *testing.T) {
 
 	unpinned := alwaysMatch(t, CapabilitiesFor(
 		Browser{Browser: "ie", BrowserVersion: "10.0"},
-		"session", "polyfill-library", "",
+		"session", "",
 	))
 
 	options, _ := unpinned["bstack:options"].(map[string]any)
@@ -165,7 +165,7 @@ func TestHasPreference(t *testing.T) {
 func TestCapabilitiesEnableSessionLogs(t *testing.T) {
 	bstack, _ := alwaysMatch(t, CapabilitiesFor(
 		Browser{Browser: "chrome", BrowserVersion: "100.0"},
-		"session", "polyfill-library", "",
+		"session", "",
 	))["bstack:options"].(map[string]any)
 
 	if bstack == nil {
@@ -217,7 +217,7 @@ func alwaysMatch(t *testing.T, caps Capabilities) map[string]any {
 func TestMobileCapabilities(t *testing.T) {
 	caps := CapabilitiesFor(
 		Browser{OS: "ios", OSVersion: "13", Browser: "iphone", Device: "iPhone 11", RealMobile: true},
-		"session", "polyfill-library", "tunnel-id",
+		"session", "tunnel-id",
 	)
 
 	match := alwaysMatch(t, caps)
@@ -283,7 +283,7 @@ func TestMobileBrowserNameMapping(t *testing.T) {
 func TestMobileCapabilitiesForAndroid(t *testing.T) {
 	caps := CapabilitiesFor(
 		Browser{OS: "android", OSVersion: "13.0", Browser: "android", Device: "Google Pixel 7", RealMobile: true},
-		"session", "polyfill-library", "",
+		"session", "",
 	)
 
 	match := alwaysMatch(t, caps)
