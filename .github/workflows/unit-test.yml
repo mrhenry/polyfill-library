@@ -24,6 +24,8 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build
+      - name: Check browserua tables are current
+        run: git diff --exit-code -- scripts/browserua/tables.json
 
       - run: npm run test-older-node
         if: ${{ (matrix.older_node_version) }}
