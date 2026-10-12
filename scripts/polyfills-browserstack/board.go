@@ -29,6 +29,11 @@ type job struct {
 	shard                int
 	polyfillCombinations bool
 
+	// request is the page request this job loads. It is kept whole so a failure
+	// report can render a reproduce URL from the job itself, rather than
+	// rebuilding the request from the run's options.
+	request pagecontract.Request
+
 	state *jobState
 }
 

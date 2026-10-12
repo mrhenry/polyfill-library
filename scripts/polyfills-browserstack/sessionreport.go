@@ -242,3 +242,63 @@ func firstNonEmpty(values ...string) string {
 
 	return ""
 }
+
+// failureReport renders everything a failed run prints: each job's failing
+// tests, the URL that reproduces them, and the BrowserStack session that ran
+// them. Every line goes through one writer, so the whole report is exercised by
+// a test rather than only the session excerpt.
+type failureReport struct {
+	w        io.Writer
+	origin   string
+	sessions sessionInspector
+}
+
+// newFailureReport builds the report for a run, writing to w. The origin is the
+// URL the browsers reach the test server on, so a reproduce URL points at the
+// same host the job ran against.
+func newFailureReport(w io.Writer, sessions sessionInspector) *failureReport {
+	return &failureReport{
+		w:        w,
+		origin:   fmt.Sprintf("http://bs-local.com:%d", serverPort),
+		sessions: sessions,
+	}
+}
+
+// report writes the failures of every job. The session lookups are prefetched,
+// so a widespread failure does not serialize behind per-call timeouts.
+func (f *failureReport) report(ctx context.Context, jobs []*job) {
+	reports := fetchSessionReports(ctx, jobs, f.sessions)
+
+	fmt.Fprintln(f.w, "\nFailures:")
+
+	for _, j := range jobs {
+		switch status := j.state.status(); status.outcome() {
+		case outcomePassed:
+			continue
+
+		case outcomeUnfinished:
+			fmt.Fprintf(f.w, " • %s (%s): %v\n", j.name, j.testMode, firstNonNil(status.err, "no results"))
+			reportSession(f.w, reports[j])
+
+		case outcomeFailed:
+			fmt.Fprintf(f.w, " - %s:\n", j.name)
+
+			for _, test := range status.results.FailingTests {
+				fmt.Fprintf(f.w, "    -> %s\n", test.Name)
+				fmt.Fprintf(f.w, "       %s\n", j.request.ReproduceURL(f.origin, test.FailingSuite))
+				fmt.Fprintf(f.w, "       %s\n", test.Message)
+			}
+
+			reportSession(f.w, reports[j])
+		}
+	}
+}
+
+// firstNonNil returns err's message, or fallback when err is nil.
+func firstNonNil(err error, fallback string) string {
+	if err != nil {
+		return err.Error()
+	}
+
+	return fallback
+}

@@ -287,7 +287,7 @@ func run(opts options) error {
 		// that may have caused the failures, so the run context's cancellation
 		// is dropped and a fresh budget applied.
 		reportCtx, cancelReport := context.WithTimeout(context.WithoutCancel(runnerCtx), sessionReportTimeout)
-		reportFailures(reportCtx, jobs, opts, client)
+		newFailureReport(os.Stdout, client).report(reportCtx, jobs)
 		cancelReport()
 
 		return errors.New("failures detected")
@@ -436,6 +436,7 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 				request.Shard = shard
 				request.Trace = sharded.trace
 
+				sharded.request = request
 				sharded.url = request.URL(baseURL)
 				jobs = append(jobs, sharded)
 			}
@@ -445,6 +446,7 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 
 		request := baseRequest
 		request.Trace = base.trace
+		base.request = request
 		base.url = request.URL(baseURL)
 		jobs = append(jobs, base)
 	}
@@ -461,6 +463,7 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			request.PolyfillCombinations = true
 			request.Trace = combined.trace
 
+			combined.request = request
 			combined.url = request.URL(baseURL)
 
 			expanded = append(expanded, j, combined)
@@ -705,57 +708,6 @@ func mergeSummaries(a, b *pagecontract.Summary) *pagecontract.Summary {
 		Assets:              assets,
 		SessionReplacements: a.SessionReplacements + b.SessionReplacements,
 	}
-}
-
-// reportFailures lists everything that failed, with a URL to reproduce it and
-// the BrowserStack session that ran it.
-func reportFailures(ctx context.Context, jobs []*job, opts options, sessions sessionInspector) {
-	origin := fmt.Sprintf("http://bs-local.com:%d", serverPort)
-
-	reports := fetchSessionReports(ctx, jobs, sessions)
-
-	fmt.Println("\nFailures:")
-
-	for _, j := range jobs {
-		status := j.state.status()
-
-		switch status.outcome() {
-		case outcomePassed:
-			continue
-
-		case outcomeUnfinished:
-			fmt.Printf(" • %s (%s): %v\n", j.name, j.testMode, firstNonNil(status.err, "no results"))
-			reportSession(os.Stdout, reports[j])
-
-		case outcomeFailed:
-			fmt.Printf(" - %s:\n", j.name)
-
-			for _, test := range status.results.FailingTests {
-				request := pagecontract.Request{
-					Mode:                 opts.testMode,
-					Director:             opts.director,
-					Feature:              opts.feature,
-					Shard:                j.shard,
-					PolyfillCombinations: j.polyfillCombinations,
-					Trace:                j.trace,
-				}
-
-				fmt.Printf("    -> %s\n", test.Name)
-				fmt.Printf("       %s\n", request.ReproduceURL(origin, test.FailingSuite))
-				fmt.Printf("       %s\n", test.Message)
-			}
-
-			reportSession(os.Stdout, reports[j])
-		}
-	}
-}
-
-func firstNonNil(err error, fallback string) string {
-	if err != nil {
-		return err.Error()
-	}
-
-	return fallback
 }
 
 // repoRoot locates the repository root by walking up until the test tree is

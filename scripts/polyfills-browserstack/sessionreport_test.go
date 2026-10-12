@@ -256,3 +256,58 @@ func TestFetchSessionReportsWithoutAnInspectorPrintsNothing(t *testing.T) {
 		t.Errorf("reports = %v, want none without an inspector", reports)
 	}
 }
+
+// TestFailureReportRendersEveryLineThroughOneWriter covers the whole failure
+// report: the job outcome, the reproduce URL and the session excerpt all reach
+// the same writer, so the report is exercised without touching stdout.
+func TestFailureReportRendersEveryLineThroughOneWriter(t *testing.T) {
+	passed := testJob("chrome/100.0", "r-1")
+	passed.state.complete(&pagecontract.Summary{Passed: 3}, 0)
+
+	failed := testJob("ie/9.0", "r-2")
+	failed.testMode = pagecontract.ModeAll
+	failed.request = pagecontract.Request{Mode: pagecontract.ModeAll, Shard: 2, Trace: "r-2"}
+	failed.state.addSession("sess-2")
+	failed.state.complete(&pagecontract.Summary{
+		Passed: 1,
+		Failed: 1,
+		FailingTests: []pagecontract.FailingTest{
+			{Name: "Promise resolves", FailingSuite: "Promise.basic", Message: "expected true"},
+		},
+	}, 0)
+
+	unfinished := testJob("safari/9.0", "r-3")
+	unfinished.testMode = pagecontract.ModeAll
+	unfinished.state.addSession("sess-3")
+	unfinished.state.setError(errors.New("the remote machine died"))
+
+	sessions := fakeSessions{
+		details: browserstack.SessionDetails{PublicURL: "https://automate.browserstack.com/abc"},
+	}
+
+	var buf bytes.Buffer
+
+	newFailureReport(&buf, sessions).report(context.Background(), []*job{passed, failed, unfinished})
+
+	out := buf.String()
+
+	for _, want := range []string{
+		"Failures:",
+		" - ie/9.0:",
+		"-> Promise resolves",
+		"feature=Promise.basic",
+		"shard=2",
+		"trace=r-2",
+		"expected true",
+		"• safari/9.0 (all): the remote machine died",
+		"https://automate.browserstack.com/abc",
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("report is missing %q:\n%s", want, out)
+		}
+	}
+
+	if strings.Contains(out, "chrome/100.0") {
+		t.Errorf("report named a passing job:\n%s", out)
+	}
+}
