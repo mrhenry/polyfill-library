@@ -111,9 +111,9 @@ func TestJobStateTracksOneJob(t *testing.T) {
 		t.Errorf("a new job starts as %q, want ready", got)
 	}
 
-	// Nothing has run yet, so the job counts as failed.
-	if !state.failed() {
-		t.Error("a job that has not completed must read as failed")
+	// Nothing has run yet, so the job's outcome is unfinished.
+	if got := state.status().outcome(); got != outcomeUnfinished {
+		t.Errorf("a job that has not completed reads as %v, want unfinished", got)
 	}
 
 	state.setState("connecting to browser")
@@ -147,14 +147,14 @@ func TestJobStateTracksOneJob(t *testing.T) {
 		t.Errorf("duration/replacements = %s/%d, want 12s/2", status.duration, status.replacements)
 	}
 
-	if state.failed() {
-		t.Error("a completed job with no failures must not read as failed")
+	if got := state.status().outcome(); got != outcomePassed {
+		t.Errorf("a completed job with no failures reads as %v, want passed", got)
 	}
 
 	state.complete(&pagecontract.Summary{Passed: 7, Failed: 1}, time.Second)
 
-	if !state.failed() {
-		t.Error("a completed job with a failing test must read as failed")
+	if got := state.status().outcome(); got != outcomeFailed {
+		t.Errorf("a completed job with a failing test reads as %v, want failed", got)
 	}
 
 	boom := errors.New("boom")
@@ -859,7 +859,7 @@ func TestRunnerCompletesAJobThroughTheSeam(t *testing.T) {
 
 	j := testJob("chrome/32.0", "r1-001-chrome-32.0")
 
-	testRunner(func(context.Context, browserstack.Browser, string) (driver, error) {
+	testRunner(func(context.Context, browserstack.Browser, string) (browserstack.Driver, error) {
 		return d, nil
 	}, testserver.New(stats.URL)).runJob(context.Background(), j)
 
@@ -894,7 +894,7 @@ func TestRunnerRetriesASessionThatFailsToStart(t *testing.T) {
 
 	var calls int
 
-	dial := func(context.Context, browserstack.Browser, string) (driver, error) {
+	dial := func(context.Context, browserstack.Browser, string) (browserstack.Driver, error) {
 		calls++
 
 		if calls == 1 {
@@ -947,7 +947,7 @@ func TestRunnerReplacesADeadSession(t *testing.T) {
 
 	var calls int
 
-	dial := func(context.Context, browserstack.Browser, string) (driver, error) {
+	dial := func(context.Context, browserstack.Browser, string) (browserstack.Driver, error) {
 		calls++
 
 		if calls == 1 {
@@ -984,7 +984,7 @@ func TestRunnerGivesUpOnAJobThatExceedsItsBudget(t *testing.T) {
 
 	j := testJob("firefox/51.0", "r1-004-firefox-51.0")
 
-	r := testRunner(func(context.Context, browserstack.Browser, string) (driver, error) {
+	r := testRunner(func(context.Context, browserstack.Browser, string) (browserstack.Driver, error) {
 		return &endlessDriver{}, nil
 	}, testserver.New(stats.URL))
 
@@ -1011,7 +1011,7 @@ func TestRunnerBudgetErrorKeepsTheLastFailure(t *testing.T) {
 
 	crash := &fakeDriver{scripts: []any{browserstack.ErrPageCrash}}
 
-	r := testRunner(func(context.Context, browserstack.Browser, string) (driver, error) {
+	r := testRunner(func(context.Context, browserstack.Browser, string) (browserstack.Driver, error) {
 		return crash, nil
 	}, testserver.New(stats.URL))
 

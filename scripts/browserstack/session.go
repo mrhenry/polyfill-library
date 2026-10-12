@@ -54,6 +54,21 @@ type Session struct {
 	accessKey string
 }
 
+// Driver is the slice of a WebDriver session the harness drives: the seam
+// between the runner and a browser. Production is *Session; the harness's tests
+// supply an in-memory adapter.
+type Driver interface {
+	Navigate(ctx context.Context, target string) error
+	ExecuteScript(ctx context.Context, script string, args []any) (any, error)
+	Delete(ctx context.Context) error
+
+	// ID is the BrowserStack session id, recorded so a failure report can link
+	// to what the session recorded.
+	ID() string
+}
+
+var _ Driver = (*Session)(nil)
+
 // sessionResponse is the W3C New Session response.
 //
 // BrowserStack answers with the legacy JSON Wire Protocol shape when the

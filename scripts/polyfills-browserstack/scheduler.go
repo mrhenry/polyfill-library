@@ -98,7 +98,7 @@ func (s *scheduler) run(ctx context.Context, jobs []*job) int {
 	failed := 0
 
 	for _, j := range jobs {
-		if j.state.failed() {
+		if !j.state.status().passed() {
 			failed++
 		}
 	}

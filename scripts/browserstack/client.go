@@ -62,7 +62,10 @@ func (c Credentials) Valid() bool {
 	return c.UserName != "" && c.AccessKey != ""
 }
 
-// Client talks to the BrowserStack REST API.
+// ProjectName is the BrowserStack project every session is filed under.
+const ProjectName = "polyfill-library"
+
+// Client talks to the BrowserStack REST API and starts WebDriver sessions.
 type Client struct {
 	http        *http.Client
 	credentials Credentials
@@ -82,15 +85,13 @@ func New(config Config) *Client {
 	}
 }
 
-// HTTPClient is the HTTP client used for WebDriver calls. Requests are
-// authenticated per call, not by the client.
-func (c *Client) HTTPClient() *http.Client {
-	return c.http
-}
+// Dial starts one BrowserStack session for a browser: it builds the
+// capabilities and the session request, so a caller never reassembles the HTTP
+// transport, the hub URL or the credentials.
+func (c *Client) Dial(ctx context.Context, browser Browser, sessionName string) (Driver, error) {
+	caps := CapabilitiesFor(browser, sessionName, ProjectName, "")
 
-// Credentials returns the configured credentials.
-func (c *Client) Credentials() Credentials {
-	return c.credentials
+	return NewSession(ctx, c.http, Hub(), caps, c.credentials)
 }
 
 // Browsers fetches every browser and version BrowserStack offers.

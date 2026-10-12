@@ -59,7 +59,7 @@ func fetchSessionReports(ctx context.Context, jobs []*job, sessions sessionInspe
 
 	for _, j := range jobs {
 		id := j.state.lastSessionID()
-		if id == "" || !reportsFailure(j.state.status()) {
+		if id == "" || j.state.status().passed() {
 			continue
 		}
 
@@ -101,12 +101,6 @@ func fetchSessionReport(ctx context.Context, id string, sessions sessionInspecto
 	report.logs, _ = sessions.ConsoleLogs(ctx, id)
 
 	return report
-}
-
-// reportsFailure reports whether the failure report prints anything for a job:
-// every job that did not finish complete with a clean pass.
-func reportsFailure(status jobStatus) bool {
-	return !(status.results != nil && status.results.Failed == 0 && status.err == nil && status.state == "complete")
 }
 
 // reportSession prints where the job's BrowserStack session can be inspected:

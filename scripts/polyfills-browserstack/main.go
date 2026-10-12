@@ -33,8 +33,6 @@ const (
 	// serverPort is the port test/polyfills/server.js listens on.
 	serverPort = 9876
 
-	projectName = "polyfill-library"
-
 	// concurrency is how many BrowserStack sessions run at once, used when the
 	// account plan cannot be read.
 	concurrency = 4
@@ -268,7 +266,7 @@ func run(opts options) error {
 	// concurrency limit only bounds this process.
 	gate := newCapacityGate(client)
 
-	r := newRunner(browserstackDial(client, credentials), testServer, gate, sessionName)
+	r := newRunner(client.Dial, testServer, gate, sessionName)
 
 	s := newScheduler(r, concurrencyFor(runnerCtx, gate, opts))
 
@@ -401,14 +399,7 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			continue
 		}
 
-		base := job{
-			name:         entry,
-			browser:      browser,
-			testMode:     opts.testMode,
-			expectedPage: baseRequest.ExpectedPage(),
-			trace:        nextTrace(runID, entry),
-			state:        newJobState(),
-		}
+		base := newJob(entry, browser, opts.testMode, baseRequest.ExpectedPage(), nextTrace(runID, entry))
 
 		// Real devices need os/os_version on every session, so they are left
 		// untouched.
@@ -426,7 +417,7 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 		// monopolise it.
 		if needsShard(entry) && opts.testEverything {
 			for shard := 1; shard <= 2; shard++ {
-				sharded := base
+				sharded := base.variant()
 				sharded.shard = shard
 				sharded.trace = nextTrace(runID, fmt.Sprintf("%s#%d", entry, shard))
 
@@ -435,10 +426,7 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 				request.Trace = sharded.trace
 
 				sharded.url = request.URL(baseURL)
-				// A shared state let shards overwrite each other, hiding a
-				// failing shard behind a passing one.
-				sharded.state = newJobState()
-				jobs = append(jobs, &sharded)
+				jobs = append(jobs, sharded)
 			}
 
 			continue
@@ -447,13 +435,13 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 		request := baseRequest
 		request.Trace = base.trace
 		base.url = request.URL(baseURL)
-		jobs = append(jobs, &base)
+		jobs = append(jobs, base)
 	}
 
 	if opts.testPolyfillCombinations {
 		var expanded []*job
 		for _, j := range jobs {
-			combined := *j
+			combined := j.variant()
 			combined.polyfillCombinations = true
 			combined.trace = nextTrace(runID, j.name+"#combined")
 
@@ -463,9 +451,8 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			request.Trace = combined.trace
 
 			combined.url = request.URL(baseURL)
-			combined.state = newJobState()
 
-			expanded = append(expanded, j, &combined)
+			expanded = append(expanded, j, combined)
 		}
 
 		jobs = expanded
@@ -720,35 +707,35 @@ func reportFailures(ctx context.Context, jobs []*job, opts options, sessions ses
 
 	for _, j := range jobs {
 		status := j.state.status()
-		results, err := status.results, status.err
 
-		if results == nil || results.Failed == 0 {
-			if err != nil || status.state != "complete" {
-				fmt.Printf(" • %s (%s): %v\n", j.name, j.testMode, firstNonNil(err, "no results"))
-				reportSession(os.Stdout, reports[j])
-			}
-
+		switch status.outcome() {
+		case outcomePassed:
 			continue
-		}
 
-		fmt.Printf(" - %s:\n", j.name)
+		case outcomeUnfinished:
+			fmt.Printf(" • %s (%s): %v\n", j.name, j.testMode, firstNonNil(status.err, "no results"))
+			reportSession(os.Stdout, reports[j])
 
-		for _, test := range results.FailingTests {
-			request := pagecontract.Request{
-				Mode:                 opts.testMode,
-				Director:             opts.director,
-				Feature:              opts.feature,
-				Shard:                j.shard,
-				PolyfillCombinations: j.polyfillCombinations,
-				Trace:                j.trace,
+		case outcomeFailed:
+			fmt.Printf(" - %s:\n", j.name)
+
+			for _, test := range status.results.FailingTests {
+				request := pagecontract.Request{
+					Mode:                 opts.testMode,
+					Director:             opts.director,
+					Feature:              opts.feature,
+					Shard:                j.shard,
+					PolyfillCombinations: j.polyfillCombinations,
+					Trace:                j.trace,
+				}
+
+				fmt.Printf("    -> %s\n", test.Name)
+				fmt.Printf("       %s\n", request.ReproduceURL(origin, test.FailingSuite))
+				fmt.Printf("       %s\n", test.Message)
 			}
 
-			fmt.Printf("    -> %s\n", test.Name)
-			fmt.Printf("       %s\n", request.ReproduceURL(origin, test.FailingSuite))
-			fmt.Printf("       %s\n", test.Message)
+			reportSession(os.Stdout, reports[j])
 		}
-
-		reportSession(os.Stdout, reports[j])
 	}
 }
 

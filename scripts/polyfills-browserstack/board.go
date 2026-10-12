@@ -9,9 +9,10 @@ import (
 	"github.com/mrhenry/polyfill-library/scripts/pagecontract"
 )
 
-// job is one browser session. The value is immutable once built; progress is
-// held behind a pointer so jobs can be copied cheaply when polyfill
-// combinations expand the matrix.
+// job is one browser session. Its identity fields are immutable once built;
+// progress lives behind the state pointer. Every job mints its own state
+// through newJob or variant, so a copy made while sharding or expanding
+// combinations can never alias another job's progress.
 type job struct {
 	name    string
 	browser browserstack.Browser
@@ -29,6 +30,29 @@ type job struct {
 	polyfillCombinations bool
 
 	state *jobState
+}
+
+// newJob mints a job and its progress together, so identity and state are never
+// created apart.
+func newJob(name string, browser browserstack.Browser, mode pagecontract.Mode, expectedPage, trace string) *job {
+	return &job{
+		name:         name,
+		browser:      browser,
+		testMode:     mode,
+		expectedPage: expectedPage,
+		trace:        trace,
+		state:        newJobState(),
+	}
+}
+
+// variant copies the job's identity fields and gives the copy its own progress.
+// Sharding and combination expansion go through here, so a copy cannot share
+// the state of the job it came from.
+func (j *job) variant() *job {
+	next := *j
+	next.state = newJobState()
+
+	return &next
 }
 
 // jobState is the mutable, concurrently accessed progress of one job.
@@ -57,6 +81,40 @@ type jobStatus struct {
 	duration     time.Duration
 	replacements int
 	err          error
+}
+
+// outcome is the single decision about a job's result: whether it passed
+// cleanly, failed with results, or ended without results. The scheduler's
+// tally, the failure report and the session prefetch all read this rather than
+// re-deriving it, so there is one definition of "did this job fail".
+type outcome int
+
+const (
+	// outcomePassed: completed with results and no failing tests.
+	outcomePassed outcome = iota
+	// outcomeFailed: completed with at least one failing test.
+	outcomeFailed
+	// outcomeUnfinished: ended without results, by error, timeout or deadline.
+	outcomeUnfinished
+)
+
+// outcome classifies the snapshot. A job that reported results and no failures
+// but never reached the complete state has not passed: it ended early.
+func (s jobStatus) outcome() outcome {
+	switch {
+	case s.results != nil && s.results.Failed > 0:
+		return outcomeFailed
+	case s.results != nil && s.err == nil && s.state == "complete":
+		return outcomePassed
+	default:
+		return outcomeUnfinished
+	}
+}
+
+// passed reports whether the job completed cleanly, the one predicate every
+// reader asks instead of re-deriving.
+func (s jobStatus) passed() bool {
+	return s.outcome() == outcomePassed
 }
 
 func newJobState() *jobState {
@@ -139,13 +197,6 @@ func (s *jobState) status() jobStatus {
 		replacements: s.replacements,
 		err:          s.err,
 	}
-}
-
-func (s *jobState) failed() bool {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	return s.err != nil || s.results == nil || s.results.Failed > 0
 }
 
 // browserFor returns the platform for a session, relaxing the pinned one from

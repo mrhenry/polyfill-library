@@ -12,21 +12,9 @@ import (
 	"github.com/mrhenry/polyfill-library/scripts/testserver"
 )
 
-// driver is the slice of a WebDriver session the runner needs: the seam between
-// the runner and a browser. Production wraps browserstack.Session; tests fake it.
-type driver interface {
-	Navigate(ctx context.Context, target string) error
-	ExecuteScript(ctx context.Context, script string, args []any) (any, error)
-	Delete(ctx context.Context) error
-
-	// ID is the BrowserStack session id, recorded so a failure report can link
-	// to what the session recorded.
-	ID() string
-}
-
-// dialFunc starts one browser session. The production adapter builds
-// capabilities and calls BrowserStack; tests return a fake driver.
-type dialFunc func(ctx context.Context, browser browserstack.Browser, sessionName string) (driver, error)
+// dialFunc starts one browser session. The production adapter is
+// browserstack.Client.Dial; tests return a fake driver.
+type dialFunc func(ctx context.Context, browser browserstack.Browser, sessionName string) (browserstack.Driver, error)
 
 // runner drives jobs to completion across the driver seam. Every collaborator
 // is injected so the retry and replacement policy can be exercised without a
@@ -62,20 +50,6 @@ func newRunner(dial dialFunc, testServer *testserver.Client, gate *capacityGate,
 		jobTimeout:       jobTimeout,
 		retryPause:       retryDelay,
 		replacementPause: replacementDelay,
-	}
-}
-
-// browserstackDial is the production adapter at the dial seam.
-func browserstackDial(client *browserstack.Client, credentials browserstack.Credentials) dialFunc {
-	return func(ctx context.Context, browser browserstack.Browser, sessionName string) (driver, error) {
-		caps := browserstack.CapabilitiesFor(browser, sessionName, projectName, "")
-
-		session, err := browserstack.NewSession(ctx, client.HTTPClient(), browserstack.Hub(), caps, credentials)
-		if err != nil {
-			return nil, err
-		}
-
-		return session, nil
 	}
 }
 
@@ -306,7 +280,7 @@ func (r *runner) runJobOnce(ctx, runCtx context.Context, j *job, sessionIndex in
 
 // waitForPageLoad polls until the test page has declared its identity and
 // started.
-func (r *runner) waitForPageLoad(ctx context.Context, session driver, j *job, expected string) error {
+func (r *runner) waitForPageLoad(ctx context.Context, session browserstack.Driver, j *job, expected string) error {
 	deadline := time.Now().Add(pageLoadTimeout)
 
 	var last pagecontract.State
@@ -347,7 +321,7 @@ func (r *runner) pageLoadFailure(ctx context.Context, j *job, last pagecontract.
 	return pageLoadFailure(ctx, r.testServer, j.name, j.trace, last, expected)
 }
 
-func (r *runner) pollForResults(ctx context.Context, session driver, j *job) error {
+func (r *runner) pollForResults(ctx context.Context, session browserstack.Driver, j *job) error {
 	startedAt := time.Now()
 	lastUpdatedAt := startedAt
 
