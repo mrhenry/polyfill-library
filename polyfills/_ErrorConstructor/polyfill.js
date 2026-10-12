@@ -43,6 +43,10 @@ var _ErrorConstructor;
 		}
 		_Error.prototype = _nativeErrors[name].prototype;
 		Object.defineProperty(_Error, 'prototype', { writable: false });
+		// Safari 9-10 skips the parent constructor in `class Sub extends _Error`
+		// unless `_Error.prototype.constructor` is `_Error`, so the wrapper is
+		// never reached to adopt the subclass prototype.
+		CreateMethodProperty(_Error.prototype, 'constructor', _Error);
 		// in IE11, the constructor name needs to be corrected
 		if (_Error.name !== name) {
 			Object.defineProperty(_Error, 'name', { value: name, configurable: true });
