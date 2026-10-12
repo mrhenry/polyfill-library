@@ -10,6 +10,19 @@ describe("ResizeObserver", function () {
 		}, 100)
 	}
 
+	// The polyfill can deliver more than one notification for a target that is
+	// still observed, so only the first is allowed to assert and finish the test.
+	var once = function(callback) {
+		var called = false
+		return function() {
+			if (called) {
+				return
+			}
+			called = true
+			return callback.apply(this, arguments)
+		}
+	}
+
 	var el
 	var ro
 
@@ -158,15 +171,15 @@ describe("ResizeObserver", function () {
 	})
 
 	it("Observer callback.this should be observer", function(done) {
-		ro = new ResizeObserver(function() {
+		ro = new ResizeObserver(once(function() {
 			proclaim.deepStrictEqual(this, ro)
 			done()
-		})
+		}))
 		ro.observe(el)
 	})
 
 	it("Observer should fire initially when element has size and display", function(done) {
-		ro = new ResizeObserver(function(entries) {
+		ro = new ResizeObserver(once(function(entries) {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
 			proclaim.deepStrictEqual(entries[0].contentRect.top, 0)
@@ -174,12 +187,12 @@ describe("ResizeObserver", function () {
 			proclaim.deepStrictEqual(entries[0].contentRect.width, 100)
 			proclaim.deepStrictEqual(entries[0].contentRect.height, 0)
 			done()
-		})
+		}))
 		ro.observe(el)
 	})
 
 	it("Observer should only allow watching the same element once", function(done) {
-		ro = new ResizeObserver(function(entries) {
+		ro = new ResizeObserver(once(function(entries) {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
 			proclaim.deepStrictEqual(entries[0].contentRect.top, 0)
@@ -187,13 +200,13 @@ describe("ResizeObserver", function () {
 			proclaim.deepStrictEqual(entries[0].contentRect.width, 100)
 			proclaim.deepStrictEqual(entries[0].contentRect.height, 0)
 			done()
-		})
+		}))
 		ro.observe(el)
 		ro.observe(el)
 	})
 
 	it("Observer should fire when element size changes", function(done) {
-		ro = new ResizeObserver(function(entries) {
+		ro = new ResizeObserver(once(function(entries) {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
 			proclaim.deepStrictEqual(entries[0].contentRect.top, 0)
@@ -201,7 +214,7 @@ describe("ResizeObserver", function () {
 			proclaim.deepStrictEqual(entries[0].contentRect.width, 100)
 			proclaim.deepStrictEqual(entries[0].contentRect.height, 200)
 			done()
-		})
+		}))
 		el.style.width = "0"
 		el.style.height = "0"
 		ro.observe(el)
@@ -235,7 +248,7 @@ describe("ResizeObserver", function () {
 	})
 
 	it("Observer should fire when only the width changes", function(done) {
-		ro = new ResizeObserver(function(entries) {
+		ro = new ResizeObserver(once(function(entries) {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
 			proclaim.deepStrictEqual(entries[0].contentRect.top, 0)
@@ -243,7 +256,7 @@ describe("ResizeObserver", function () {
 			proclaim.deepStrictEqual(entries[0].contentRect.width, 100)
 			proclaim.deepStrictEqual(entries[0].contentRect.height, 0)
 			done()
-		})
+		}))
 		el.style.width = "0"
 		el.style.height = "0"
 		ro.observe(el)
@@ -253,7 +266,7 @@ describe("ResizeObserver", function () {
 	})
 
 	it("Observer should fire when only the height changes", function(done) {
-		ro = new ResizeObserver(function(entries) {
+		ro = new ResizeObserver(once(function(entries) {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
 			proclaim.deepStrictEqual(entries[0].contentRect.top, 0)
@@ -261,7 +274,7 @@ describe("ResizeObserver", function () {
 			proclaim.deepStrictEqual(entries[0].contentRect.width, 0)
 			proclaim.deepStrictEqual(entries[0].contentRect.height, 100)
 			done()
-		})
+		}))
 		el.style.width = "0"
 		el.style.height = "0"
 		ro.observe(el)
@@ -271,7 +284,7 @@ describe("ResizeObserver", function () {
 	})
 
 	it("Observer should handle padding on an element.", function(done) {
-		ro = new ResizeObserver(function(entries) {
+		ro = new ResizeObserver(once(function(entries) {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
 			proclaim.deepStrictEqual(entries[0].contentRect.top, 1)
@@ -279,7 +292,7 @@ describe("ResizeObserver", function () {
 			proclaim.deepStrictEqual(entries[0].contentRect.width, 100)
 			proclaim.deepStrictEqual(entries[0].contentRect.height, 200)
 			done()
-		})
+		}))
 		el.style.width = "100px"
 		el.style.height = "200px"
 		el.style.padding = "1px 2px 3px 4px"
@@ -287,7 +300,7 @@ describe("ResizeObserver", function () {
 	})
 
 	it("Observer should handle box-sizing and padding correctly.", function(done) {
-		ro = new ResizeObserver(function(entries) {
+		ro = new ResizeObserver(once(function(entries) {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
 			proclaim.deepStrictEqual(entries[0].contentRect.top, 1)
@@ -295,7 +308,7 @@ describe("ResizeObserver", function () {
 			proclaim.deepStrictEqual(entries[0].contentRect.width, 94)
 			proclaim.deepStrictEqual(entries[0].contentRect.height, 196)
 			done()
-		})
+		}))
 		el.style.width = "100px"
 		el.style.height = "200px"
 		el.style.padding = "1px 2px 3px 4px"
@@ -304,9 +317,9 @@ describe("ResizeObserver", function () {
 	})
 
 	it("Observer should fire when text content changes", function(done) {
-		ro = new ResizeObserver(function() {
+		ro = new ResizeObserver(once(function() {
 			done()
-		})
+		}))
 		ro.observe(el)
 		delay(function() {
 			el.textContent = "Hello"
@@ -316,12 +329,12 @@ describe("ResizeObserver", function () {
 	it("Observer should unobserve elements correctly.", function(done) {
 		var el2 = el.cloneNode()
 		document.body.appendChild(el2)
-		ro = new ResizeObserver(function(entries, observer) {
+		ro = new ResizeObserver(once(function(entries, observer) {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
 			proclaim.deepStrictEqual(observer, ro)
 			done()
-		})
+		}))
 		ro.observe(el)
 		ro.observe(el2)
 		ro.unobserve(el2)
@@ -330,12 +343,12 @@ describe("ResizeObserver", function () {
 	it("Observer should allow trying to unobserve multiple times.", function(done) {
 		var el2 = el.cloneNode()
 		document.body.appendChild(el2)
-		ro = new ResizeObserver(function(entries, observer) {
+		ro = new ResizeObserver(once(function(entries, observer) {
 			proclaim.deepStrictEqual(entries.length , 1)
 			proclaim.deepStrictEqual(entries[0].target, el)
 			proclaim.deepStrictEqual(observer, ro)
 			done()
-		})
+		}))
 		ro.observe(el)
 		ro.observe(el2)
 		ro.unobserve(el2)
@@ -362,9 +375,9 @@ describe("ResizeObserver", function () {
 	})
 
 	it("Observer should observe after a disconnect.", function(done) {
-		ro = new ResizeObserver(function() {
+		ro = new ResizeObserver(once(function() {
 			done()
-		})
+		}))
 		ro.observe(el)
 		ro.disconnect()
 		ro.observe(el)
@@ -381,10 +394,10 @@ describe("ResizeObserver", function () {
 	})
 
 	it("Observer should return itself in the callback.", function(done) {
-		ro = new ResizeObserver(function(entries, observer) {
+		ro = new ResizeObserver(once(function(entries, observer) {
 			proclaim.deepStrictEqual(observer, observer)
 			done()
-		})
+		}))
 		ro.observe(el)
 	})
 })
