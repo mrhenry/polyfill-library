@@ -30,7 +30,8 @@ type runner struct {
 	arrivalGrace time.Duration
 
 	// jobTimeout bounds a whole job across every attempt and replacement, so a
-	// browser that keeps making just enough progress cannot run forever.
+	// browser that keeps making just enough progress cannot run forever. Time
+	// spent queueing for account capacity is not counted against it.
 	jobTimeout time.Duration
 
 	// retryPause and replacementPause are the waits before a retry and before a
@@ -91,33 +92,86 @@ func nextAction(err error, replacements int) action {
 // session that started but is unusable is replaced without consuming one, up to
 // sessionReplacements times.
 func (r *runner) runJob(ctx context.Context, j *job) {
-	// One budget covers every attempt and replacement, so retrying or replacing
-	// a session cannot multiply it.
-	jobCtx, cancel := context.WithTimeout(ctx, r.jobTimeout)
-	defer cancel()
-
 	var (
 		lastErr      error
 		replacements int
 		sessions     int
 		attempts     int
+
+		// jobDeadline is when the job's budget runs out. It is pushed forward by
+		// time spent queueing for account capacity, so queueing is not counted
+		// against the job's browser work.
+		jobDeadline time.Time
+
+		cancelJob context.CancelFunc
 	)
 
+	defer func() {
+		if cancelJob != nil {
+			cancelJob()
+		}
+	}()
+
 	for {
-		if r.shouldStop(jobCtx, ctx, j, lastErr) {
+		if ctx.Err() != nil {
 			return
 		}
 
-		lastErr = r.runJobOnce(jobCtx, ctx, j, sessions)
+		j.state.setState("waiting for account capacity")
+
+		queuedAt := time.Now()
+
+		// Hold the session back while the account has no free parallel slot,
+		// rather than requesting one that will queue and time out. This wait is
+		// bounded by the run, not the job budget: queueing for a slot is not
+		// browser work, so it must not exhaust the budget.
+		if err := r.gate.wait(ctx); err != nil {
+			return
+		}
+
+		if jobDeadline.IsZero() {
+			// One budget covers every attempt and replacement, so retrying or
+			// replacing a session cannot multiply it.
+			jobDeadline = time.Now().Add(r.jobTimeout)
+		} else {
+			jobDeadline = jobDeadline.Add(time.Since(queuedAt))
+		}
+
+		if !time.Now().Before(jobDeadline) {
+			// The budget ran out before this attempt could start, so the slot
+			// just acquired has to go back.
+			r.gate.release()
+			j.state.setError(r.budgetError(j, lastErr))
+
+			return
+		}
+
+		if cancelJob != nil {
+			cancelJob()
+		}
+
+		jobCtx, cancel := context.WithDeadline(ctx, jobDeadline)
+		cancelJob = cancel
+
+		lastErr = r.runJobOnce(jobCtx, j, sessions)
 		sessions++
 
 		if lastErr == nil {
 			return
 		}
 
+		// A run that is shutting down is not a job failure, so it is left
+		// unrecorded.
+		if ctx.Err() != nil {
+			return
+		}
+
 		// The job's own budget may have elapsed mid-attempt, in which case the
-		// returned error is a bare deadline that names nothing useful.
-		if r.shouldStop(jobCtx, ctx, j, lastErr) {
+		// returned error is a bare deadline that names nothing useful. The
+		// attempt has already released its slot.
+		if errors.Is(jobCtx.Err(), context.DeadlineExceeded) {
+			j.state.setError(r.budgetError(j, lastErr))
+
 			return
 		}
 
@@ -146,7 +200,7 @@ func (r *runner) runJob(ctx context.Context, j *job) {
 
 			select {
 			case <-jobCtx.Done():
-				// Handled by shouldStop at the top of the loop.
+				// Handled by the budget check at the top of the loop.
 			case <-time.After(r.retryPause):
 			}
 
@@ -163,26 +217,10 @@ func (r *runner) runJob(ctx context.Context, j *job) {
 			// that queue becomes a start timeout.
 			select {
 			case <-jobCtx.Done():
-				// Handled by shouldStop at the top of the loop.
+				// Handled by the budget check at the top of the loop.
 			case <-time.After(r.replacementPause):
 			}
 		}
-	}
-}
-
-// shouldStop reports whether the job must stop before its next attempt. A run
-// that is shutting down is not a job failure, so it is left unrecorded; a job
-// that exhausted its own budget is recorded with a name for the failure.
-func (r *runner) shouldStop(jobCtx, runCtx context.Context, j *job, lastErr error) bool {
-	switch {
-	case runCtx.Err() != nil:
-		return true
-	case errors.Is(jobCtx.Err(), context.DeadlineExceeded):
-		j.state.setError(r.budgetError(j, lastErr))
-
-		return true
-	default:
-		return false
 	}
 }
 
@@ -199,18 +237,9 @@ func (r *runner) budgetError(j *job, lastErr error) error {
 }
 
 // runJobOnce is a single attempt: dial, navigate, wait for the browser's first
-// request, wait for the page, then poll for results.
-func (r *runner) runJobOnce(ctx, runCtx context.Context, j *job, sessionIndex int) error {
-	j.state.setState("waiting for account capacity")
-
-	// Hold the session back while the account has no free parallel slot, rather
-	// than requesting one that will queue and time out. The wait is bounded by
-	// the run, not the job budget: queueing for a slot is not browser work, so
-	// it must not exhaust the budget and be reported as a failure.
-	if err := r.gate.wait(runCtx); err != nil {
-		return err
-	}
-
+// request, wait for the page, then poll for results. The caller holds the
+// account capacity slot this attempt uses.
+func (r *runner) runJobOnce(ctx context.Context, j *job, sessionIndex int) error {
 	j.state.setState("connecting to browser")
 
 	sessionCtx, cancelSession := context.WithTimeout(ctx, sessionStartTimeout)

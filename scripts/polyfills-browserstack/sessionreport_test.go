@@ -106,6 +106,29 @@ func TestConsoleErrorsHandlesLevelFirstFormat(t *testing.T) {
 	}
 }
 
+// TestConsoleErrorsDeduplicatesOnTheDisplayedLine covers two long messages that
+// differ only past the truncation limit: they are printed identically, so only
+// one is shown.
+func TestConsoleErrorsDeduplicatesOnTheDisplayedLine(t *testing.T) {
+	long := strings.Repeat("x", consoleLineLimit+50)
+
+	raw := "1:SEVERE:" + long + "a\n1:SEVERE:" + long + "b\n"
+
+	if got := consoleErrors(raw, 10); len(got) != 1 {
+		t.Errorf("consoleErrors = %v, want one line for the shared prefix", got)
+	}
+}
+
+// TestConsoleErrorsKeepsLevelsDistinct covers the same text at two levels: the
+// level is part of the line, so both are kept.
+func TestConsoleErrorsKeepsLevelsDistinct(t *testing.T) {
+	raw := "1:SEVERE:same text\n1:WARNING:same text\n"
+
+	if got := consoleErrors(raw, 10); len(got) != 2 {
+		t.Errorf("consoleErrors = %v, want both levels kept", got)
+	}
+}
+
 // TestReportSessionPrintsLinksAndErrors covers the failure report body.
 func TestReportSessionPrintsLinksAndErrors(t *testing.T) {
 	sessions := fakeSessions{
@@ -128,7 +151,7 @@ func TestReportSessionPrintsLinksAndErrors(t *testing.T) {
 		"https://automate.browserstack.com/abc123?auth_token=x",
 		"https://automate.browserstack.com/abc123/video",
 		"session result: failed TEST_FAILED",
-		"console errors (1):",
+		"console messages (1):",
 		"SEVERE: Uncaught TypeError: a is not a function",
 	} {
 		if !strings.Contains(out, want) {

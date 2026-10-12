@@ -136,7 +136,7 @@ func reportSession(w io.Writer, report sessionReport) {
 		return
 	}
 
-	fmt.Fprintf(w, "       console errors (%d):\n", len(lines))
+	fmt.Fprintf(w, "       console messages (%d):\n", len(lines))
 
 	for _, line := range lines {
 		fmt.Fprintf(w, "         %s\n", line)
@@ -146,7 +146,8 @@ func reportSession(w io.Writer, report sessionReport) {
 // consoleErrors extracts the error and warning lines from BrowserStack's browser
 // console log, dropping the timestamp prefix, deduplicating and capping. The
 // log covers the whole session, so it is filtered to the levels that matter
-// rather than dumped.
+// rather than dumped. Deduplication is on the displayed line, so truncating two
+// long messages to the same prefix does not print the same line twice.
 func consoleErrors(raw string, limit int) []string {
 	seen := map[string]bool{}
 
@@ -158,12 +159,17 @@ func consoleErrors(raw string, limit int) []string {
 			continue
 		}
 
-		if message == "" || seen[message] {
+		if message == "" {
 			continue
 		}
 
-		seen[message] = true
-		out = append(out, level+": "+truncate(message, consoleLineLimit))
+		display := level + ": " + truncate(message, consoleLineLimit)
+		if seen[display] {
+			continue
+		}
+
+		seen[display] = true
+		out = append(out, display)
 
 		if len(out) >= limit {
 			break

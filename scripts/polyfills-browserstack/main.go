@@ -40,12 +40,18 @@ const (
 	// testBrowserTimeout is how long a browser may run without making progress.
 	testBrowserTimeout = 10 * time.Minute
 
-	// jobTimeout is the total wall clock one job may take, across every session
-	// it retries or replaces. The stall detector only catches a browser that
-	// stops making progress; a combination page that keeps cycling features
-	// (each hitting its own timeout) makes just enough progress to evade it, so
-	// a total budget is needed to stop one job consuming the whole CI step.
+	// jobTimeout is the total browser work one job may take, across every
+	// session it retries or replaces. Queueing for account capacity is not
+	// browser work and does not count against it. The stall detector only
+	// catches a browser that stops making progress; a combination page that
+	// keeps cycling features (each hitting its own timeout) makes just enough
+	// progress to evade it, so a total budget is needed to stop one job
+	// consuming the whole CI step.
 	jobTimeout = 15 * time.Minute
+
+	// sessionReportTimeout bounds how long the failure report waits for the
+	// BrowserStack session lookups it prints.
+	sessionReportTimeout = 2 * time.Minute
 
 	// pollTick is how often test progress is read from the page.
 	pollTick = time.Second
@@ -277,7 +283,12 @@ func run(opts options) error {
 	}
 
 	if failed > 0 {
-		reportFailures(runnerCtx, jobs, opts, client)
+		// Reading back the sessions must not be aborted by the interruption
+		// that may have caused the failures, so the run context's cancellation
+		// is dropped and a fresh budget applied.
+		reportCtx, cancelReport := context.WithTimeout(context.WithoutCancel(runnerCtx), sessionReportTimeout)
+		reportFailures(reportCtx, jobs, opts, client)
+		cancelReport()
 
 		return errors.New("failures detected")
 	}
