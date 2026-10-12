@@ -159,6 +159,36 @@ func TestHasPreference(t *testing.T) {
 	}
 }
 
+// TestCapabilitiesEnableSessionLogs proves every session records what a failure
+// report reads back: the browser console, the network traffic and the session
+// log itself.
+func TestCapabilitiesEnableSessionLogs(t *testing.T) {
+	bstack, _ := alwaysMatch(t, CapabilitiesFor(
+		Browser{Browser: "chrome", BrowserVersion: "100.0"},
+		"session", "polyfill-library", "",
+	))["bstack:options"].(map[string]any)
+
+	if bstack == nil {
+		t.Fatal("bstack:options missing")
+	}
+
+	if got := bstack["consoleLogs"]; got != "errors" {
+		t.Errorf("consoleLogs = %v, want errors enabled", got)
+	}
+
+	if got := bstack["networkLogs"]; got != true {
+		t.Errorf("networkLogs = %v, want true", got)
+	}
+
+	if got := bstack["debug"]; got != true {
+		t.Errorf("debug = %v, want true so the session log is kept", got)
+	}
+
+	if got := bstack["video"]; got != true {
+		t.Errorf("video = %v, want true", got)
+	}
+}
+
 // alwaysMatch parses the capabilities body and returns the W3C alwaysMatch
 // object.
 func alwaysMatch(t *testing.T, caps Capabilities) map[string]any {

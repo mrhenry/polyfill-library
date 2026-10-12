@@ -763,6 +763,10 @@ func (f *fakeDriver) Delete(context.Context) error {
 	return nil
 }
 
+func (f *fakeDriver) ID() string {
+	return "fake-session"
+}
+
 // readyPage is the readiness contract the runner polls for.
 func readyPage() map[string]any {
 	return map[string]any{"page": "runner", "started": true, "readyState": "complete"}
@@ -835,6 +839,10 @@ func TestRunnerCompletesAJobThroughTheSeam(t *testing.T) {
 
 	if !d.deleted {
 		t.Error("the session was not deleted")
+	}
+
+	if got := j.state.lastSessionID(); got != "fake-session" {
+		t.Errorf("lastSessionID() = %q, want the dialed session recorded", got)
 	}
 }
 

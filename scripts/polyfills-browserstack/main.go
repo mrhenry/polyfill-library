@@ -272,7 +272,7 @@ func run(opts options) error {
 	}
 
 	if failed > 0 {
-		reportFailures(jobs, opts)
+		reportFailures(runnerCtx, jobs, opts, client)
 
 		return errors.New("failures detected")
 	}
@@ -702,8 +702,9 @@ func mergeSummaries(a, b *pagecontract.Summary) *pagecontract.Summary {
 	}
 }
 
-// reportFailures lists everything that failed, with a URL to reproduce it.
-func reportFailures(jobs []*job, opts options) {
+// reportFailures lists everything that failed, with a URL to reproduce it and
+// the BrowserStack session that ran it.
+func reportFailures(ctx context.Context, jobs []*job, opts options, sessions sessionInspector) {
 	origin := fmt.Sprintf("http://bs-local.com:%d", serverPort)
 
 	fmt.Println("\nFailures:")
@@ -715,6 +716,7 @@ func reportFailures(jobs []*job, opts options) {
 		if results == nil || results.Failed == 0 {
 			if err != nil || status.state != "complete" {
 				fmt.Printf(" • %s (%s): %v\n", j.name, j.testMode, firstNonNil(err, "no results"))
+				reportSession(ctx, os.Stdout, j, sessions)
 			}
 
 			continue
@@ -736,6 +738,8 @@ func reportFailures(jobs []*job, opts options) {
 			fmt.Printf("       %s\n", request.ReproduceURL(origin, test.FailingSuite))
 			fmt.Printf("       %s\n", test.Message)
 		}
+
+		reportSession(ctx, os.Stdout, j, sessions)
 	}
 }
 

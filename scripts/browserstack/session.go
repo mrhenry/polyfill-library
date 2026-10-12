@@ -260,6 +260,12 @@ func (s *Session) Delete(ctx context.Context) error {
 	return nil
 }
 
+// ID is the BrowserStack session identifier. It addresses the session in the
+// REST API after the session ends, so a failure can point at its logs.
+func (s *Session) ID() string {
+	return s.sessionID
+}
+
 func (s *Session) credentials() Credentials {
 	return Credentials{UserName: s.userName, AccessKey: s.accessKey}
 }
