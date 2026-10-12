@@ -56,6 +56,10 @@ const (
 	// pollTick is how often test progress is read from the page.
 	pollTick = time.Second
 
+	// progressTick is how often the job board is reprinted. It is coarser than
+	// pollTick so the board does not scroll the log while tests are running.
+	progressTick = 10 * time.Second
+
 	// sessionStartTimeout bounds a single New Session call.
 	sessionStartTimeout = 2 * time.Minute
 
