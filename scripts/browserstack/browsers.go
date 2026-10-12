@@ -175,7 +175,8 @@ func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string
 			"local":       true,
 			"video":       true,
 			"debug":       true,
-			"consoleLogs": "errors",
+			// Warnings as well as errors: the failure report shows both levels.
+			"consoleLogs": "warnings",
 			"networkLogs": true,
 			// Stops a session whose client has gone away from holding a
 			// parallel slot. Kept above navigateTimeout.

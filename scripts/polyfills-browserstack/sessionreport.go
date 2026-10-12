@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"sync"
+	"unicode/utf8"
 
 	"github.com/mrhenry/polyfill-library/scripts/browserstack"
 )
@@ -26,42 +28,116 @@ const consoleLimit = 20
 // consoleLineLimit bounds one console line, which can carry a whole stack.
 const consoleLineLimit = 500
 
+// sessionReport is everything a failure line needs about one job's session,
+// gathered before printing so lookups can run concurrently.
+type sessionReport struct {
+	id      string
+	details browserstack.SessionDetails
+	logs    string
+	err     error
+}
+
+// sessionFetchConcurrency caps how many session lookups run at once, so a large
+// failure set does not open hundreds of connections at once.
+const sessionFetchConcurrency = 8
+
+// fetchSessionReports reads the details and console log for every job the
+// report will show, in parallel and bounded, so a widespread failure does not
+// serialize into a long wait behind per-call timeouts. Jobs without a session
+// are omitted.
+func fetchSessionReports(ctx context.Context, jobs []*job, sessions sessionInspector) map[*job]sessionReport {
+	reports := make(map[*job]sessionReport)
+	if sessions == nil {
+		return reports
+	}
+
+	var (
+		mu  sync.Mutex
+		wg  sync.WaitGroup
+		sem = make(chan struct{}, sessionFetchConcurrency)
+	)
+
+	for _, j := range jobs {
+		id := j.state.lastSessionID()
+		if id == "" || !reportsFailure(j.state.status()) {
+			continue
+		}
+
+		wg.Add(1)
+		sem <- struct{}{}
+
+		go func(j *job, id string) {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			report := fetchSessionReport(ctx, id, sessions)
+
+			mu.Lock()
+			reports[j] = report
+			mu.Unlock()
+		}(j, id)
+	}
+
+	wg.Wait()
+
+	return reports
+}
+
+// fetchSessionReport reads one session's details and console log.
+func fetchSessionReport(ctx context.Context, id string, sessions sessionInspector) sessionReport {
+	report := sessionReport{id: id}
+
+	details, err := sessions.SessionDetails(ctx, id)
+	if err != nil {
+		report.err = err
+
+		return report
+	}
+
+	report.details = details
+
+	// A session with no console log, or one BrowserStack will not serve (only
+	// Chrome reports them), is not an error: the links are still worth printing.
+	report.logs, _ = sessions.ConsoleLogs(ctx, id)
+
+	return report
+}
+
+// reportsFailure reports whether the failure report prints anything for a job:
+// every job that did not finish complete with a clean pass.
+func reportsFailure(status jobStatus) bool {
+	return !(status.results != nil && status.results.Failed == 0 && status.err == nil && status.state == "complete")
+}
+
 // reportSession prints where the job's BrowserStack session can be inspected:
 // the dashboard link, the recording, and the browser console errors. A job
 // whose session never started prints nothing.
-func reportSession(ctx context.Context, w io.Writer, j *job, sessions sessionInspector) {
-	id := j.state.lastSessionID()
-	if id == "" || sessions == nil {
+func reportSession(w io.Writer, report sessionReport) {
+	if report.id == "" {
 		return
 	}
 
-	// The id alone is still useful when the API will not answer: the session
+	// The id alone is still useful when the API would not answer: the session
 	// can be found on the dashboard by it.
-	details, err := sessions.SessionDetails(ctx, id)
-	if err != nil {
-		fmt.Fprintf(w, "       browserstack session %s (details unavailable: %v)\n", id, err)
+	if report.err != nil {
+		fmt.Fprintf(w, "       browserstack session %s (details unavailable: %v)\n", report.id, report.err)
 
 		return
 	}
 
-	fmt.Fprintf(w, "       browserstack: %s\n", firstNonEmpty(details.PublicURL, id))
+	fmt.Fprintf(w, "       browserstack: %s\n", firstNonEmpty(report.details.PublicURL, report.id))
 
-	if details.VideoURL != "" {
-		fmt.Fprintf(w, "       video: %s\n", details.VideoURL)
+	if report.details.VideoURL != "" {
+		fmt.Fprintf(w, "       video: %s\n", report.details.VideoURL)
 	}
 
 	// A session the harness ended itself reports CLIENT_STOPPED_SESSION, which
 	// says nothing; anything else is worth naming.
-	if details.Reason != "" && details.Reason != "CLIENT_STOPPED_SESSION" {
-		fmt.Fprintf(w, "       session result: %s %s\n", details.Status, details.Reason)
+	if report.details.Reason != "" && report.details.Reason != "CLIENT_STOPPED_SESSION" {
+		fmt.Fprintf(w, "       session result: %s %s\n", report.details.Status, report.details.Reason)
 	}
 
-	raw, err := sessions.ConsoleLogs(ctx, id)
-	if err != nil || raw == "" {
-		return
-	}
-
-	lines := consoleErrors(raw, consoleLimit)
+	lines := consoleErrors(report.logs, consoleLimit)
 	if len(lines) == 0 {
 		return
 	}
@@ -141,13 +217,19 @@ func isDigits(s string) bool {
 	return true
 }
 
-// truncate caps s at max bytes, marking that it was cut.
+// truncate caps s at max bytes on a rune boundary, marking that it was cut.
 func truncate(s string, max int) string {
 	if len(s) <= max {
 		return s
 	}
 
-	return s[:max] + "..."
+	// Step back off a continuation byte so a multi-byte character is not split.
+	cut := max
+	for cut > 0 && !utf8.RuneStart(s[cut]) {
+		cut--
+	}
+
+	return s[:cut] + "..."
 }
 
 // firstNonEmpty returns the first non-empty string, or "".

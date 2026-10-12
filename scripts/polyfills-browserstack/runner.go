@@ -130,11 +130,11 @@ func (r *runner) runJob(ctx context.Context, j *job) {
 	)
 
 	for {
-		if r.shouldStop(jobCtx, ctx, j) {
+		if r.shouldStop(jobCtx, ctx, j, lastErr) {
 			return
 		}
 
-		lastErr = r.runJobOnce(jobCtx, j, sessions)
+		lastErr = r.runJobOnce(jobCtx, ctx, j, sessions)
 		sessions++
 
 		if lastErr == nil {
@@ -143,7 +143,7 @@ func (r *runner) runJob(ctx context.Context, j *job) {
 
 		// The job's own budget may have elapsed mid-attempt, in which case the
 		// returned error is a bare deadline that names nothing useful.
-		if r.shouldStop(jobCtx, ctx, j) {
+		if r.shouldStop(jobCtx, ctx, j, lastErr) {
 			return
 		}
 
@@ -199,13 +199,12 @@ func (r *runner) runJob(ctx context.Context, j *job) {
 // shouldStop reports whether the job must stop before its next attempt. A run
 // that is shutting down is not a job failure, so it is left unrecorded; a job
 // that exhausted its own budget is recorded with a name for the failure.
-func (r *runner) shouldStop(jobCtx, runCtx context.Context, j *job) bool {
+func (r *runner) shouldStop(jobCtx, runCtx context.Context, j *job, lastErr error) bool {
 	switch {
 	case runCtx.Err() != nil:
 		return true
 	case errors.Is(jobCtx.Err(), context.DeadlineExceeded):
-		j.state.setError(fmt.Errorf("job exceeded the %s budget at %q on %q",
-			r.jobTimeout, j.state.status().state, j.name))
+		j.state.setError(r.budgetError(j, lastErr))
 
 		return true
 	default:
@@ -213,14 +212,28 @@ func (r *runner) shouldStop(jobCtx, runCtx context.Context, j *job) bool {
 	}
 }
 
+// budgetError names the job budget, keeping the last failure when it says
+// something a bare deadline does not.
+func (r *runner) budgetError(j *job, lastErr error) error {
+	at := fmt.Sprintf("job exceeded the %s budget at %q on %q", r.jobTimeout, j.state.status().state, j.name)
+
+	if lastErr == nil || errors.Is(lastErr, context.DeadlineExceeded) || errors.Is(lastErr, context.Canceled) {
+		return errors.New(at)
+	}
+
+	return fmt.Errorf("%s: %w", at, lastErr)
+}
+
 // runJobOnce is a single attempt: dial, navigate, wait for the browser's first
 // request, wait for the page, then poll for results.
-func (r *runner) runJobOnce(ctx context.Context, j *job, sessionIndex int) error {
+func (r *runner) runJobOnce(ctx, runCtx context.Context, j *job, sessionIndex int) error {
 	j.state.setState("waiting for account capacity")
 
 	// Hold the session back while the account has no free parallel slot, rather
-	// than requesting one that will queue and time out.
-	if err := r.gate.wait(ctx); err != nil {
+	// than requesting one that will queue and time out. The wait is bounded by
+	// the run, not the job budget: queueing for a slot is not browser work, so
+	// it must not exhaust the budget and be reported as a failure.
+	if err := r.gate.wait(runCtx); err != nil {
 		return err
 	}
 

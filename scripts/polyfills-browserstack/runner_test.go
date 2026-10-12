@@ -1002,3 +1002,33 @@ func TestRunnerGivesUpOnAJobThatExceedsItsBudget(t *testing.T) {
 		t.Errorf("error = %v, want it to name the job budget", status.err)
 	}
 }
+
+// TestRunnerBudgetErrorKeepsTheLastFailure covers the budget error carrying the
+// reason the last attempt failed, so a job that runs out of time does not lose
+// why it never finished.
+func TestRunnerBudgetErrorKeepsTheLastFailure(t *testing.T) {
+	stats := traceServer(t, 1)
+
+	crash := &fakeDriver{scripts: []any{browserstack.ErrPageCrash}}
+
+	r := testRunner(func(context.Context, browserstack.Browser, string) (driver, error) {
+		return crash, nil
+	}, testserver.New(stats.URL))
+
+	r.jobTimeout = 50 * time.Millisecond
+	r.replacementPause = 200 * time.Millisecond
+
+	j := testJob("firefox/51.0", "r1-005-firefox-51.0")
+
+	r.runJob(context.Background(), j)
+
+	status := j.state.status()
+
+	if status.err == nil || !strings.Contains(status.err.Error(), "budget") {
+		t.Fatalf("runJob = (%q, %v), want a budget error", status.state, status.err)
+	}
+
+	if !errors.Is(status.err, browserstack.ErrPageCrash) {
+		t.Errorf("error = %v, want the last failure preserved", status.err)
+	}
+}

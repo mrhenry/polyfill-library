@@ -5,9 +5,11 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/mrhenry/polyfill-library/scripts/browserstack"
+	"github.com/mrhenry/polyfill-library/scripts/pagecontract"
 )
 
 // fakeSessions is an in-memory adapter at the session inspector seam.
@@ -24,6 +26,26 @@ func (f fakeSessions) SessionDetails(context.Context, string) (browserstack.Sess
 
 func (f fakeSessions) ConsoleLogs(context.Context, string) (string, error) {
 	return f.logs, f.logsErr
+}
+
+// recordingSessions records which session ids were looked up, so tests can
+// prove the report fetches exactly the jobs it prints.
+type recordingSessions struct {
+	mu  sync.Mutex
+	ids []string
+}
+
+func (r *recordingSessions) SessionDetails(_ context.Context, id string) (browserstack.SessionDetails, error) {
+	r.mu.Lock()
+
+	r.ids = append(r.ids, id)
+	r.mu.Unlock()
+
+	return browserstack.SessionDetails{}, nil
+}
+
+func (r *recordingSessions) ConsoleLogs(context.Context, string) (string, error) {
+	return "", nil
 }
 
 // TestConsoleErrorsFiltersAndBounds covers the filter between a session's raw
@@ -86,9 +108,6 @@ func TestConsoleErrorsHandlesLevelFirstFormat(t *testing.T) {
 
 // TestReportSessionPrintsLinksAndErrors covers the failure report body.
 func TestReportSessionPrintsLinksAndErrors(t *testing.T) {
-	j := &job{name: "chrome/100.0", state: newJobState()}
-	j.state.addSession("abc123")
-
 	sessions := fakeSessions{
 		details: browserstack.SessionDetails{
 			Status:    "failed",
@@ -101,7 +120,7 @@ func TestReportSessionPrintsLinksAndErrors(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	reportSession(context.Background(), &buf, j, sessions)
+	reportSession(&buf, fetchSessionReport(context.Background(), "abc123", sessions))
 
 	out := buf.String()
 
@@ -121,9 +140,6 @@ func TestReportSessionPrintsLinksAndErrors(t *testing.T) {
 // TestReportSessionSuppressesTheNormalSessionEnd covers the harness ending its
 // own session: CLIENT_STOPPED_SESSION says nothing and is not printed.
 func TestReportSessionSuppressesTheNormalSessionEnd(t *testing.T) {
-	j := &job{name: "chrome/100.0", state: newJobState()}
-	j.state.addSession("abc123")
-
 	sessions := fakeSessions{
 		details: browserstack.SessionDetails{
 			Status:    "done",
@@ -134,7 +150,7 @@ func TestReportSessionSuppressesTheNormalSessionEnd(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	reportSession(context.Background(), &buf, j, sessions)
+	reportSession(&buf, fetchSessionReport(context.Background(), "abc123", sessions))
 
 	if strings.Contains(buf.String(), "session result:") {
 		t.Errorf("report = %q, want the normal session end suppressed", buf.String())
@@ -144,11 +160,9 @@ func TestReportSessionSuppressesTheNormalSessionEnd(t *testing.T) {
 // TestReportSessionWithoutASessionPrintsNothing covers a job that never started
 // a session: there is nothing to link to.
 func TestReportSessionWithoutASessionPrintsNothing(t *testing.T) {
-	j := &job{name: "chrome/100.0", state: newJobState()}
-
 	var buf bytes.Buffer
 
-	reportSession(context.Background(), &buf, j, fakeSessions{})
+	reportSession(&buf, sessionReport{})
 
 	if buf.Len() != 0 {
 		t.Errorf("report = %q, want nothing for a job with no session", buf.String())
@@ -158,16 +172,64 @@ func TestReportSessionWithoutASessionPrintsNothing(t *testing.T) {
 // TestReportSessionSurvivesAnUnavailableAPI covers the API being unreadable:
 // the session id is still printed so the session can be found by hand.
 func TestReportSessionSurvivesAnUnavailableAPI(t *testing.T) {
-	j := &job{name: "chrome/100.0", state: newJobState()}
-	j.state.addSession("abc123")
-
 	var buf bytes.Buffer
 
-	reportSession(context.Background(), &buf, j, fakeSessions{detailsErr: errors.New("boom")})
+	sessions := fakeSessions{detailsErr: errors.New("boom")}
+
+	reportSession(&buf, fetchSessionReport(context.Background(), "abc123", sessions))
 
 	out := buf.String()
 
 	if !strings.Contains(out, "abc123") || !strings.Contains(out, "details unavailable") {
 		t.Errorf("report = %q, want the session id and the reason", out)
+	}
+}
+
+// TestFetchSessionReportsGathersFailedJobs covers the prefetch: every failing
+// job with a session is looked up and no clean job is.
+func TestFetchSessionReportsGathersFailedJobs(t *testing.T) {
+	failed := testJob("chrome/100.0", "r-1")
+	failed.state.addSession("s1")
+	failed.state.setError(errors.New("boom"))
+
+	clean := testJob("chrome/101.0", "r-2")
+	clean.state.addSession("s2")
+	clean.state.complete(&pagecontract.Summary{Passed: 3}, 0)
+
+	noSession := testJob("chrome/102.0", "r-3")
+	noSession.state.setError(errors.New("boom"))
+
+	sessions := &recordingSessions{}
+
+	reports := fetchSessionReports(context.Background(), []*job{failed, clean, noSession}, sessions)
+
+	if _, ok := reports[failed]; !ok {
+		t.Error("failing job with a session was not prefetched")
+	}
+
+	if _, ok := reports[clean]; ok {
+		t.Error("clean job was prefetched")
+	}
+
+	if _, ok := reports[noSession]; ok {
+		t.Error("job with no session was prefetched")
+	}
+
+	sessions.mu.Lock()
+	defer sessions.mu.Unlock()
+
+	if len(sessions.ids) != 1 || sessions.ids[0] != "s1" {
+		t.Errorf("looked up %v, want only s1", sessions.ids)
+	}
+}
+
+// TestFetchSessionReportsWithoutAnInspectorPrintsNothing covers a nil seam.
+func TestFetchSessionReportsWithoutAnInspectorPrintsNothing(t *testing.T) {
+	j := testJob("chrome/100.0", "r-1")
+	j.state.addSession("s1")
+	j.state.setError(errors.New("boom"))
+
+	if reports := fetchSessionReports(context.Background(), []*job{j}, nil); len(reports) != 0 {
+		t.Errorf("reports = %v, want none without an inspector", reports)
 	}
 }

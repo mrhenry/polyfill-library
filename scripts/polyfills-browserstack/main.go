@@ -714,6 +714,8 @@ func mergeSummaries(a, b *pagecontract.Summary) *pagecontract.Summary {
 func reportFailures(ctx context.Context, jobs []*job, opts options, sessions sessionInspector) {
 	origin := fmt.Sprintf("http://bs-local.com:%d", serverPort)
 
+	reports := fetchSessionReports(ctx, jobs, sessions)
+
 	fmt.Println("\nFailures:")
 
 	for _, j := range jobs {
@@ -723,7 +725,7 @@ func reportFailures(ctx context.Context, jobs []*job, opts options, sessions ses
 		if results == nil || results.Failed == 0 {
 			if err != nil || status.state != "complete" {
 				fmt.Printf(" • %s (%s): %v\n", j.name, j.testMode, firstNonNil(err, "no results"))
-				reportSession(ctx, os.Stdout, j, sessions)
+				reportSession(os.Stdout, reports[j])
 			}
 
 			continue
@@ -746,7 +748,7 @@ func reportFailures(ctx context.Context, jobs []*job, opts options, sessions ses
 			fmt.Printf("       %s\n", test.Message)
 		}
 
-		reportSession(ctx, os.Stdout, j, sessions)
+		reportSession(os.Stdout, reports[j])
 	}
 }
 

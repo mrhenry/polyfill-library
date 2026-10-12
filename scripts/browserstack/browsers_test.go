@@ -172,8 +172,8 @@ func TestCapabilitiesEnableSessionLogs(t *testing.T) {
 		t.Fatal("bstack:options missing")
 	}
 
-	if got := bstack["consoleLogs"]; got != "errors" {
-		t.Errorf("consoleLogs = %v, want errors enabled", got)
+	if got := bstack["consoleLogs"]; got != "warnings" {
+		t.Errorf("consoleLogs = %v, want warnings so both reported levels are captured", got)
 	}
 
 	if got := bstack["networkLogs"]; got != true {
