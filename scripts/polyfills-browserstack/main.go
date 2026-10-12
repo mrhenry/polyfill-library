@@ -40,14 +40,14 @@ const (
 	// testBrowserTimeout is how long a browser may run without making progress.
 	testBrowserTimeout = 10 * time.Minute
 
-	// jobTimeout is the total browser work one job may take, across every
-	// session it retries or replaces. Queueing for account capacity is not
-	// browser work and does not count against it. The stall detector only
+	// defaultJobTimeout is the total browser work one job may take, across
+	// every session it retries or replaces. Queueing for account capacity is
+	// not browser work and does not count against it. The stall detector only
 	// catches a browser that stops making progress; a combination page that
 	// keeps cycling features (each hitting its own timeout) makes just enough
 	// progress to evade it, so a total budget is needed to stop one job
 	// consuming the whole CI step.
-	jobTimeout = 15 * time.Minute
+	defaultJobTimeout = 15 * time.Minute
 
 	// sessionReportTimeout bounds how long the failure report waits for the
 	// BrowserStack session lookups it prints.
@@ -410,7 +410,10 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			continue
 		}
 
-		base := newJob(entry, browser, opts.testMode, baseRequest.ExpectedPage(), nextTrace(runID, entry))
+		request := baseRequest
+		request.Trace = nextTrace(runID, entry)
+
+		base := newJob(entry, browser, request)
 
 		// Real devices need os/os_version on every session, so they are left
 		// untouched.
@@ -432,21 +435,18 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 				sharded.shard = shard
 				sharded.trace = nextTrace(runID, fmt.Sprintf("%s#%d", entry, shard))
 
-				request := baseRequest
-				request.Shard = shard
-				request.Trace = sharded.trace
+				shardedRequest := baseRequest
+				shardedRequest.Shard = shard
+				shardedRequest.Trace = sharded.trace
 
-				sharded.request = request
-				sharded.url = request.URL(baseURL)
+				sharded.request = shardedRequest
+				sharded.url = shardedRequest.URL(baseURL)
 				jobs = append(jobs, sharded)
 			}
 
 			continue
 		}
 
-		request := baseRequest
-		request.Trace = base.trace
-		base.request = request
 		base.url = request.URL(baseURL)
 		jobs = append(jobs, base)
 	}

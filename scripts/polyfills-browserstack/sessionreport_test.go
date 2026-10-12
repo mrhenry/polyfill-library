@@ -151,7 +151,7 @@ func TestReportSessionPrintsLinksAndErrors(t *testing.T) {
 		"https://automate.browserstack.com/abc123?auth_token=x",
 		"https://automate.browserstack.com/abc123/video",
 		"session result: failed TEST_FAILED",
-		"console messages (1):",
+		"console messages (showing 1):",
 		"SEVERE: Uncaught TypeError: a is not a function",
 	} {
 		if !strings.Contains(out, want) {

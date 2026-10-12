@@ -48,7 +48,7 @@ func newRunner(dial dialFunc, testServer *testserver.Client, gate *capacityGate,
 		gate:             gate,
 		batchName:        batchName,
 		arrivalGrace:     arrivalGrace,
-		jobTimeout:       jobTimeout,
+		jobTimeout:       defaultJobTimeout,
 		retryPause:       retryDelay,
 		replacementPause: replacementDelay,
 	}

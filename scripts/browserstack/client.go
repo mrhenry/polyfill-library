@@ -163,22 +163,15 @@ func (c *Client) Plan(ctx context.Context) (Plan, error) {
 }
 
 // SessionDetails is what BrowserStack recorded for one session: its outcome and
-// the links to its recording and logs. The console, network and Selenium log
-// URLs are pre-signed and expire, so they are fetched fresh at reporting time.
+// the links a failure report prints. The browser console excerpt is read
+// separately with ConsoleLogs, so the pre-signed log URLs are not carried here.
 type SessionDetails struct {
-	HashedID string `json:"hashed_id"`
-	Name     string `json:"name"`
-	Status   string `json:"status"`
-	Reason   string `json:"reason"`
+	Status string `json:"status"`
+	Reason string `json:"reason"`
 
 	// PublicURL opens the session dashboard without signing in.
 	PublicURL string `json:"public_url"`
 	VideoURL  string `json:"video_url"`
-
-	// LogsURL is the dashboard's combined session log.
-	LogsURL        string `json:"logs"`
-	ConsoleLogsURL string `json:"browser_console_logs_url"`
-	NetworkLogsURL string `json:"har_logs_url"`
 }
 
 // SessionDetails reads what BrowserStack recorded for a session.

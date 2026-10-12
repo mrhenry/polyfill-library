@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"strings"
 	"sync"
 	"unicode/utf8"
@@ -98,7 +99,13 @@ func fetchSessionReport(ctx context.Context, id string, sessions sessionInspecto
 
 	// A session with no console log, or one BrowserStack will not serve (only
 	// Chrome reports them), is not an error: the links are still worth printing.
-	report.logs, _ = sessions.ConsoleLogs(ctx, id)
+	// A genuine failure is logged rather than dropped, so an empty excerpt is
+	// explainable.
+	if logs, err := sessions.ConsoleLogs(ctx, id); err != nil {
+		slog.Debug("reading session console logs", "session", id, "error", err)
+	} else {
+		report.logs = logs
+	}
 
 	return report
 }
@@ -119,6 +126,9 @@ func reportSession(w io.Writer, report sessionReport) {
 		return
 	}
 
+	// PublicURL carries a per-session auth_token; BrowserStack documents it as
+	// the URL to view the session publicly, a read-only link that needs no
+	// account. It is not an account secret, so it is printed as-is.
 	fmt.Fprintf(w, "       browserstack: %s\n", firstNonEmpty(report.details.PublicURL, report.id))
 
 	if report.details.VideoURL != "" {
@@ -136,7 +146,7 @@ func reportSession(w io.Writer, report sessionReport) {
 		return
 	}
 
-	fmt.Fprintf(w, "       console messages (%d):\n", len(lines))
+	fmt.Fprintf(w, "       console messages (showing %d):\n", len(lines))
 
 	for _, line := range lines {
 		fmt.Fprintf(w, "         %s\n", line)

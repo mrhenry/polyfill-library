@@ -38,14 +38,16 @@ type job struct {
 }
 
 // newJob mints a job and its progress together, so identity and state are never
-// created apart.
-func newJob(name string, browser browserstack.Browser, mode pagecontract.Mode, expectedPage, trace string) *job {
+// created apart. Its mode, expected page and trace come from the request it
+// will load, so those three cannot be passed out of order.
+func newJob(name string, browser browserstack.Browser, request pagecontract.Request) *job {
 	return &job{
 		name:         name,
 		browser:      browser,
-		testMode:     mode,
-		expectedPage: expectedPage,
-		trace:        trace,
+		testMode:     request.Mode,
+		expectedPage: request.ExpectedPage(),
+		trace:        request.Trace,
+		request:      request,
 		state:        newJobState(),
 	}
 }

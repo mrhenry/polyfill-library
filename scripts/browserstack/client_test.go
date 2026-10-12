@@ -8,8 +8,8 @@ import (
 	"testing"
 )
 
-// TestSessionDetailsReadsLinks proves the harness reads back the dashboard link
-// and log URLs for a session, authenticated.
+// TestSessionDetailsReadsLinks proves the harness reads back the public link
+// and video URL for a session, authenticated.
 func TestSessionDetailsReadsLinks(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/automate/sessions/abc123.json" {
@@ -23,13 +23,10 @@ func TestSessionDetailsReadsLinks(t *testing.T) {
 
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"automation_session": map[string]any{
-				"hashed_id":                "abc123",
-				"status":                   "failed",
-				"reason":                   "TEST_FAILED",
-				"public_url":               "https://automate.browserstack.com/abc123?auth_token=x",
-				"video_url":                "https://automate.browserstack.com/abc123/video",
-				"browser_console_logs_url": "https://automate.browserstack.com/abc123/console",
-				"har_logs_url":             "https://automate.browserstack.com/abc123/network",
+				"status":     "failed",
+				"reason":     "TEST_FAILED",
+				"public_url": "https://automate.browserstack.com/abc123?auth_token=x",
+				"video_url":  "https://automate.browserstack.com/abc123/video",
 			},
 		})
 	}))
@@ -47,8 +44,8 @@ func TestSessionDetailsReadsLinks(t *testing.T) {
 		t.Errorf("status/reason = %q/%q, want failed/TEST_FAILED", details.Status, details.Reason)
 	}
 
-	if details.PublicURL == "" || details.VideoURL == "" || details.ConsoleLogsURL == "" || details.NetworkLogsURL == "" {
-		t.Errorf("details = %+v, want every link populated", details)
+	if details.PublicURL == "" || details.VideoURL == "" {
+		t.Errorf("details = %+v, want the public and video links populated", details)
 	}
 }
 
