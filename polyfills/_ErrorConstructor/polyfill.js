@@ -25,7 +25,13 @@ var _ErrorConstructor;
 				? _NativeError.call(null, arguments[0], arguments[1])
 				: _NativeError.call(null, arguments[0]);
 			InstallErrorCause(O, arguments.length > arity && arguments[arity]);
-			CreateMethodProperty(O, 'constructor', _Error);
+			// Reached through `super()` of a subclass: `this` carries new.target's
+			// prototype, and the object returned here becomes the instance.
+			if (this instanceof _Error && Object.getPrototypeOf(this) !== _Error.prototype) {
+				Object.setPrototypeOf(O, Object.getPrototypeOf(this));
+			} else {
+				CreateMethodProperty(O, 'constructor', _Error);
+			}
 			return O;
 		}
 	}
@@ -37,6 +43,10 @@ var _ErrorConstructor;
 		}
 		_Error.prototype = _nativeErrors[name].prototype;
 		Object.defineProperty(_Error, 'prototype', { writable: false });
+		// Safari 9-10 skips the parent constructor in `class Sub extends _Error`
+		// unless `_Error.prototype.constructor` is `_Error`, so the wrapper is
+		// never reached to adopt the subclass prototype.
+		CreateMethodProperty(_Error.prototype, 'constructor', _Error);
 		// in IE11, the constructor name needs to be corrected
 		if (_Error.name !== name) {
 			Object.defineProperty(_Error, 'name', { value: name, configurable: true });
@@ -45,14 +55,14 @@ var _ErrorConstructor;
 	}
 
 	var _newErrors = {
-		Error:          function Error          (_message) { return _errorConstructors.Error.apply(null, arguments); },
-		EvalError:      function EvalError      (_message) { return _errorConstructors.EvalError.apply(null, arguments); },
-		RangeError:     function RangeError     (_message) { return _errorConstructors.RangeError.apply(null, arguments); },
-		ReferenceError: function ReferenceError (_message) { return _errorConstructors.ReferenceError.apply(null, arguments); },
-		SyntaxError:    function SyntaxError    (_message) { return _errorConstructors.SyntaxError.apply(null, arguments); },
-		TypeError:      function TypeError      (_message) { return _errorConstructors.TypeError.apply(null, arguments); },
-		URIError:       function URIError       (_message) { return _errorConstructors.URIError.apply(null, arguments); },
-		AggregateError: function AggregateError (_errors, _message) { return _errorConstructors.AggregateError.apply(null, arguments); }
+		Error:          function Error          (_message) { return _errorConstructors.Error.apply(this, arguments); },
+		EvalError:      function EvalError      (_message) { return _errorConstructors.EvalError.apply(this, arguments); },
+		RangeError:     function RangeError     (_message) { return _errorConstructors.RangeError.apply(this, arguments); },
+		ReferenceError: function ReferenceError (_message) { return _errorConstructors.ReferenceError.apply(this, arguments); },
+		SyntaxError:    function SyntaxError    (_message) { return _errorConstructors.SyntaxError.apply(this, arguments); },
+		TypeError:      function TypeError      (_message) { return _errorConstructors.TypeError.apply(this, arguments); },
+		URIError:       function URIError       (_message) { return _errorConstructors.URIError.apply(this, arguments); },
+		AggregateError: function AggregateError (_errors, _message) { return _errorConstructors.AggregateError.apply(this, arguments); }
 	};
 
 	var _nativeErrors = {};
