@@ -43,6 +43,10 @@ type jobState struct {
 	// replacements counts sessions discarded because their browser never issued
 	// its navigation.
 	replacements int
+
+	// sessions are the BrowserStack session ids this job used, oldest first.
+	// The last one produced the reported outcome, so it is the one to inspect.
+	sessions []string
 }
 
 // jobStatus is one coherent view of a job's progress.
@@ -71,6 +75,31 @@ func (s *jobState) setReplacementCount(n int) {
 	defer s.mu.Unlock()
 
 	s.replacements = n
+}
+
+// addSession records a BrowserStack session id this job started.
+func (s *jobState) addSession(id string) {
+	if id == "" {
+		return
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.sessions = append(s.sessions, id)
+}
+
+// lastSessionID is the session that produced the job's outcome, or "" if no
+// session ever started.
+func (s *jobState) lastSessionID() string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if len(s.sessions) == 0 {
+		return ""
+	}
+
+	return s.sessions[len(s.sessions)-1]
 }
 
 func (s *jobState) setError(err error) {

@@ -18,6 +18,10 @@ type driver interface {
 	Navigate(ctx context.Context, target string) error
 	ExecuteScript(ctx context.Context, script string, args []any) (any, error)
 	Delete(ctx context.Context) error
+
+	// ID is the BrowserStack session id, recorded so a failure report can link
+	// to what the session recorded.
+	ID() string
 }
 
 // dialFunc starts one browser session. The production adapter builds
@@ -238,6 +242,10 @@ func (r *runner) runJobOnce(ctx context.Context, j *job, sessionIndex int) error
 		// failed, rather than a broken page or suite.
 		return fmt.Errorf("%w: %w", browserstack.ErrSessionStart, err)
 	}
+
+	// Recorded before anything can fail, so a failure report can point at the
+	// session that ran this attempt.
+	j.state.addSession(session.ID())
 
 	// Runs even when a later step fails, so a dead job cannot hold a parallel
 	// slot.

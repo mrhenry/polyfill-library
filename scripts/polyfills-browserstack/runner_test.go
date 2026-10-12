@@ -763,6 +763,10 @@ func (f *fakeDriver) Delete(context.Context) error {
 	return nil
 }
 
+func (f *fakeDriver) ID() string {
+	return "fake-session"
+}
+
 // endlessDriver answers every progress poll with a running state whose
 // completed count keeps climbing, so the stall detector never fires and only
 // the job's total budget can stop it.
@@ -796,6 +800,10 @@ func (d *endlessDriver) ExecuteScript(_ context.Context, script string, _ []any)
 
 func (d *endlessDriver) Delete(context.Context) error {
 	return nil
+}
+
+func (d *endlessDriver) ID() string {
+	return "endless-session"
 }
 
 // readyPage is the readiness contract the runner polls for.
@@ -871,6 +879,10 @@ func TestRunnerCompletesAJobThroughTheSeam(t *testing.T) {
 
 	if !d.deleted {
 		t.Error("the session was not deleted")
+	}
+
+	if got := j.state.lastSessionID(); got != "fake-session" {
+		t.Errorf("lastSessionID() = %q, want the dialed session recorded", got)
 	}
 }
 
