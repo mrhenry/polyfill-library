@@ -8,15 +8,13 @@
   },
   "scripts": {
     "build": "node ./compilers/js.js",
-    "test": "mocha test/ua.test.js",
+    "test": "node --test test/ua.test.js",
     "prepublishOnly": "npm run build"
   },
   "author": "Mr. Henry",
   "license": "MIT",
   "devDependencies": {
-    "js-yaml": "^5.4.3",
-    "mocha": "^11.8.0",
-    "proclaim": "^3.6.0"
+    "js-yaml": "^5.4.3"
   },
   "repository": {
     "type": "git",

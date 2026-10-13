@@ -1,7 +1,8 @@
-/* eslint-env mocha */
 "use strict";
 
-const assert = require("proclaim");
+const assert = require("node:assert");
+const { describe, it } = require("node:test");
+
 const uaParser = require("../lib/ua_parser");
 
 function msg(name, actual, expected) {
@@ -9,7 +10,6 @@ function msg(name, actual, expected) {
 }
 
 describe("useragent-parser should pass tests from the ua-parser/uap-core project", function() {
-	this.timeout(30000);
 	it("parses Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/9.0.4 Mobile/7B367 Safari/531.21.10 correctly", function() {
 		const results = uaParser("Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/9.0.4 Mobile/7B367 Safari/531.21.10");
 		assert.strictEqual(results.family, "Mobile Safari/WKWebView", msg("results.family", results.family, "Mobile Safari/WKWebView"));

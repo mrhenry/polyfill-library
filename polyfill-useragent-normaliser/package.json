@@ -8,9 +8,7 @@
   },
   "scripts": {
     "build": "node compilers/node.js",
-    "test": "npm run test:unit && npm run test:integration",
-    "test:integration": "mocha --bail --recursive test/integration/*.test.js",
-    "test:unit": "mocha --bail --recursive test/unit/*.test.js",
+    "test": "node --test 'test/**/*.test.js'",
     "prepublishOnly": "npm run build"
   },
   "author": "Mr. Henry",
@@ -18,10 +16,6 @@
   "dependencies": {
     "@mrhenry/polyfill-useragent-parser": "^1.6.3",
     "semver": "^7.7.4"
-  },
-  "devDependencies": {
-    "mocha": "^11.8.0",
-    "proclaim": "^3.6.0"
   },
   "repository": {
     "type": "git",

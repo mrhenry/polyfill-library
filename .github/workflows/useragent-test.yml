@@ -24,5 +24,4 @@ jobs:
 
       - name: Test @mrhenry/polyfill-useragent-normaliser
         run: |
-          npm run test:unit --workspace @mrhenry/polyfill-useragent-normaliser
-          npm run test:integration --workspace @mrhenry/polyfill-useragent-normaliser
+          npm run test --workspace @mrhenry/polyfill-useragent-normaliser
