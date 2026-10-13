@@ -33,8 +33,6 @@ const (
 	// serverPort is the port test/polyfills/server.js listens on.
 	serverPort = 9876
 
-	projectName = "polyfill-library"
-
 	// concurrency is how many BrowserStack sessions run at once, used when the
 	// account plan cannot be read.
 	concurrency = 4
@@ -42,8 +40,25 @@ const (
 	// testBrowserTimeout is how long a browser may run without making progress.
 	testBrowserTimeout = 10 * time.Minute
 
+	// defaultJobTimeout is the total browser work one job may take, across
+	// every session it retries or replaces. Queueing for account capacity is
+	// not browser work and does not count against it. The stall detector only
+	// catches a browser that stops making progress; a combination page that
+	// keeps cycling features (each hitting its own timeout) makes just enough
+	// progress to evade it, so a total budget is needed to stop one job
+	// consuming the whole CI step.
+	defaultJobTimeout = 15 * time.Minute
+
+	// sessionReportTimeout bounds how long the failure report waits for the
+	// BrowserStack session lookups it prints.
+	sessionReportTimeout = 2 * time.Minute
+
 	// pollTick is how often test progress is read from the page.
 	pollTick = time.Second
+
+	// progressTick is how often the job board is reprinted. It is coarser than
+	// pollTick so the board does not scroll the log while tests are running.
+	progressTick = 10 * time.Second
 
 	// sessionStartTimeout bounds a single New Session call.
 	sessionStartTimeout = 2 * time.Minute
@@ -261,7 +276,7 @@ func run(opts options) error {
 	// concurrency limit only bounds this process.
 	gate := newCapacityGate(client)
 
-	r := newRunner(browserstackDial(client, credentials), testServer, gate, sessionName)
+	r := newRunner(client.Dial, testServer, gate, sessionName)
 
 	s := newScheduler(r, concurrencyFor(runnerCtx, gate, opts))
 
@@ -272,7 +287,12 @@ func run(opts options) error {
 	}
 
 	if failed > 0 {
-		reportFailures(jobs, opts)
+		// Reading back the sessions must not be aborted by the interruption
+		// that may have caused the failures, so the run context's cancellation
+		// is dropped and a fresh budget applied.
+		reportCtx, cancelReport := context.WithTimeout(context.WithoutCancel(runnerCtx), sessionReportTimeout)
+		newFailureReport(os.Stdout, client).report(reportCtx, jobs)
+		cancelReport()
 
 		return errors.New("failures detected")
 	}
@@ -394,14 +414,10 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			continue
 		}
 
-		base := job{
-			name:         entry,
-			browser:      browser,
-			testMode:     opts.testMode,
-			expectedPage: baseRequest.ExpectedPage(),
-			trace:        nextTrace(runID, entry),
-			state:        newJobState(),
-		}
+		request := baseRequest
+		request.Trace = nextTrace(runID, entry)
+
+		base := newJob(entry, browser, request)
 
 		// Real devices need os/os_version on every session, so they are left
 		// untouched.
@@ -419,34 +435,30 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 		// monopolise it.
 		if needsShard(entry) && opts.testEverything {
 			for shard := 1; shard <= 2; shard++ {
-				sharded := base
+				sharded := base.variant()
 				sharded.shard = shard
 				sharded.trace = nextTrace(runID, fmt.Sprintf("%s#%d", entry, shard))
 
-				request := baseRequest
-				request.Shard = shard
-				request.Trace = sharded.trace
+				shardedRequest := baseRequest
+				shardedRequest.Shard = shard
+				shardedRequest.Trace = sharded.trace
 
-				sharded.url = request.URL(baseURL)
-				// A shared state let shards overwrite each other, hiding a
-				// failing shard behind a passing one.
-				sharded.state = newJobState()
-				jobs = append(jobs, &sharded)
+				sharded.request = shardedRequest
+				sharded.url = shardedRequest.URL(baseURL)
+				jobs = append(jobs, sharded)
 			}
 
 			continue
 		}
 
-		request := baseRequest
-		request.Trace = base.trace
 		base.url = request.URL(baseURL)
-		jobs = append(jobs, &base)
+		jobs = append(jobs, base)
 	}
 
 	if opts.testPolyfillCombinations {
 		var expanded []*job
 		for _, j := range jobs {
-			combined := *j
+			combined := j.variant()
 			combined.polyfillCombinations = true
 			combined.trace = nextTrace(runID, j.name+"#combined")
 
@@ -455,10 +467,10 @@ func buildJobs(entries []string, index *browserstack.Index, opts options, runID 
 			request.PolyfillCombinations = true
 			request.Trace = combined.trace
 
+			combined.request = request
 			combined.url = request.URL(baseURL)
-			combined.state = newJobState()
 
-			expanded = append(expanded, j, &combined)
+			expanded = append(expanded, j, combined)
 		}
 
 		jobs = expanded
@@ -700,51 +712,6 @@ func mergeSummaries(a, b *pagecontract.Summary) *pagecontract.Summary {
 		Assets:              assets,
 		SessionReplacements: a.SessionReplacements + b.SessionReplacements,
 	}
-}
-
-// reportFailures lists everything that failed, with a URL to reproduce it.
-func reportFailures(jobs []*job, opts options) {
-	origin := fmt.Sprintf("http://bs-local.com:%d", serverPort)
-
-	fmt.Println("\nFailures:")
-
-	for _, j := range jobs {
-		status := j.state.status()
-		results, err := status.results, status.err
-
-		if results == nil || results.Failed == 0 {
-			if err != nil || status.state != "complete" {
-				fmt.Printf(" • %s (%s): %v\n", j.name, j.testMode, firstNonNil(err, "no results"))
-			}
-
-			continue
-		}
-
-		fmt.Printf(" - %s:\n", j.name)
-
-		for _, test := range results.FailingTests {
-			request := pagecontract.Request{
-				Mode:                 opts.testMode,
-				Director:             opts.director,
-				Feature:              opts.feature,
-				Shard:                j.shard,
-				PolyfillCombinations: j.polyfillCombinations,
-				Trace:                j.trace,
-			}
-
-			fmt.Printf("    -> %s\n", test.Name)
-			fmt.Printf("       %s\n", request.ReproduceURL(origin, test.FailingSuite))
-			fmt.Printf("       %s\n", test.Message)
-		}
-	}
-}
-
-func firstNonNil(err error, fallback string) string {
-	if err != nil {
-		return err.Error()
-	}
-
-	return fallback
 }
 
 // repoRoot locates the repository root by walking up until the test tree is

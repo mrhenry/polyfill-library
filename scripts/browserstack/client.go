@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -30,11 +31,25 @@ func Hub() string {
 	return HubURL
 }
 
-// BrowsersAPIURL lists every browser and version BrowserStack offers.
-const BrowsersAPIURL = "https://api.browserstack.com/automate/browsers.json"
+// apiBaseEnv overrides the BrowserStack REST base URL, for tests.
+const apiBaseEnv = "POLYFILLS_BROWSERSTACK_API"
 
-// PlanAPIURL reports the account's plan, including its parallel allowance.
-const PlanAPIURL = "https://api.browserstack.com/automate/plan.json"
+// APIBase is the BrowserStack REST base URL. It is read per call so tests can
+// point it at a local server.
+func APIBase() string {
+	if override := os.Getenv(apiBaseEnv); override != "" {
+		return strings.TrimSuffix(override, "/")
+	}
+
+	return "https://api.browserstack.com"
+}
+
+// The REST paths the harness reads, all relative to APIBase.
+const (
+	browsersAPIPath = "/automate/browsers.json"
+	planAPIPath     = "/automate/plan.json"
+	sessionsAPIPath = "/automate/sessions/"
+)
 
 // Credentials are the BrowserStack account details.
 type Credentials struct {
@@ -47,7 +62,10 @@ func (c Credentials) Valid() bool {
 	return c.UserName != "" && c.AccessKey != ""
 }
 
-// Client talks to the BrowserStack REST API.
+// ProjectName is the BrowserStack project every session is filed under.
+const ProjectName = "polyfill-library"
+
+// Client talks to the BrowserStack REST API and starts WebDriver sessions.
 type Client struct {
 	http        *http.Client
 	credentials Credentials
@@ -67,15 +85,13 @@ func New(config Config) *Client {
 	}
 }
 
-// HTTPClient is the HTTP client used for WebDriver calls. Requests are
-// authenticated per call, not by the client.
-func (c *Client) HTTPClient() *http.Client {
-	return c.http
-}
+// Dial starts one BrowserStack session for a browser: it builds the
+// capabilities and the session request, so a caller never reassembles the HTTP
+// transport, the hub URL or the credentials.
+func (c *Client) Dial(ctx context.Context, browser Browser, sessionName string) (Driver, error) {
+	caps := CapabilitiesFor(browser, sessionName, "")
 
-// Credentials returns the configured credentials.
-func (c *Client) Credentials() Credentials {
-	return c.credentials
+	return NewSession(ctx, c.http, Hub(), caps, c.credentials)
 }
 
 // Browsers fetches every browser and version BrowserStack offers.
@@ -83,7 +99,7 @@ func (c *Client) Browsers(ctx context.Context) ([]Browser, error) {
 	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
 	defer cancel()
 
-	res, err := do(ctx, c.http, c.credentials, http.MethodGet, BrowsersAPIURL, nil)
+	res, err := do(ctx, c.http, c.credentials, http.MethodGet, APIBase()+browsersAPIPath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +139,7 @@ func (c *Client) Plan(ctx context.Context) (Plan, error) {
 	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
 	defer cancel()
 
-	res, err := do(ctx, c.http, c.credentials, http.MethodGet, PlanAPIURL, nil)
+	res, err := do(ctx, c.http, c.credentials, http.MethodGet, APIBase()+planAPIPath, nil)
 	if err != nil {
 		return Plan{}, err
 	}
@@ -144,6 +160,79 @@ func (c *Client) Plan(ctx context.Context) (Plan, error) {
 	}
 
 	return plan, nil
+}
+
+// SessionDetails is what BrowserStack recorded for one session: its outcome and
+// the links a failure report prints. The browser console excerpt is read
+// separately with ConsoleLogs, so the pre-signed log URLs are not carried here.
+type SessionDetails struct {
+	Status string `json:"status"`
+	Reason string `json:"reason"`
+
+	// PublicURL opens the session dashboard without signing in.
+	PublicURL string `json:"public_url"`
+	VideoURL  string `json:"video_url"`
+}
+
+// SessionDetails reads what BrowserStack recorded for a session.
+func (c *Client) SessionDetails(ctx context.Context, id string) (SessionDetails, error) {
+	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+
+	res, err := do(ctx, c.http, c.credentials, http.MethodGet, sessionTarget(id)+".json", nil)
+	if err != nil {
+		return SessionDetails{}, err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return SessionDetails{}, err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return SessionDetails{}, decodeError(res.StatusCode, body)
+	}
+
+	var parsed struct {
+		Session SessionDetails `json:"automation_session"`
+	}
+	if err := json.Unmarshal(body, &parsed); err != nil {
+		return SessionDetails{}, fmt.Errorf("parsing session details: %w", err)
+	}
+
+	return parsed.Session, nil
+}
+
+// ConsoleLogs reads the browser console output BrowserStack captured for a
+// session, as plain text. Browsers that do not report console logs answer with
+// an empty body, which is not an error.
+func (c *Client) ConsoleLogs(ctx context.Context, id string) (string, error) {
+	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+
+	res, err := do(ctx, c.http, c.credentials, http.MethodGet, sessionTarget(id)+"/consolelogs", nil)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return "", decodeError(res.StatusCode, body)
+	}
+
+	return string(body), nil
+}
+
+// sessionTarget is the REST target for one session, with the id escaped so it
+// cannot alter the path.
+func sessionTarget(id string) string {
+	return APIBase() + sessionsAPIPath + url.PathEscape(id)
 }
 
 // apiError is BrowserStack's JSON error envelope.
