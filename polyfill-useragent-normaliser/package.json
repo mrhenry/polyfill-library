@@ -1,0 +1,39 @@
+{
+  "name": "@mrhenry/polyfill-useragent-normaliser",
+  "version": "2.0.1",
+  "description": "The user-agent normalisation logic behind polyfill-library and polyfill.io",
+  "main": "lib/normalise-user-agent.js",
+  "engines": {
+    "node": ">=8"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "fix": "eslint . --fix",
+    "build": "node compilers/fastly.js && node compilers/node.js && npm run fix",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:integration": "mocha --bail --recursive test/integration/*.test.js",
+    "test:unit": "mocha --bail --recursive test/unit/*.test.js",
+    "version": "npm run build && git add .",
+    "prepare": "npm run build"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@mrhenry/polyfill-useragent-parser": "^1.6.1",
+    "semver": "^7.1.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.2.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "mocha": "^8.0.1",
+    "prettier": "^2.0.1",
+    "proclaim": "^3.6.0",
+    "supertest": "^6.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrhenry/polyfill-library.git",
+    "directory": "polyfill-useragent-normaliser"
+  }
+}

@@ -1,0 +1,198 @@
+{
+    "//": "Regex to check for an already normalised user-agent",
+    "isNormalized": "/(?i)^(\\w+)\\/(\\d+)(?:\\.(\\d+)(?:\\.(\\d+))?)?$/",
+
+    "//": "The lowest version of each browser which has >=0.1% of global usage according to https://caniuse.com/usage-table",
+    "baselineVersions": {
+        "edge": "*",
+        "edge_mob": "*",
+        "ie": "9",
+        "ie_mob": "11",
+        "chrome": "29",
+        "safari": "9",
+        "ios_saf": "9",
+        "ios_chr": "9",
+        "firefox": "38",
+        "firefox_mob": "38",
+        "android": "4.3",
+        "opera": "33",
+        "op_mob": "10",
+        "op_mini": "5",
+        "bb": "6",
+        "samsung_mob": "4"
+    },
+
+    "normalisations": [{
+            "reason": "Google Search iOS app should be detected as the underlying browser, which is safari on iOS",
+            "regex": "/(?i) GSA\\/[\\d.]+/"
+        },
+        {
+            "reason": "Instagram should be detected as the underlying browser, which is safari on ios",
+            "regex": "/(?i) Instagram [\\d.]+/"
+        },
+        {
+            "reason": "WebPageTest is not a real browser, remove the token to find the underlying browser",
+            "regex": "/(?i) PTST\\/[\\d.]+/"
+        },
+        {
+            "reason": "Waterfox is a Firefox fork, we can remove the Waterfox identifiers and parse the result as Firefox",
+            "regex": "/(?i) Waterfox\\/[\\d.]+/"
+        },
+        {
+            "reason": "Pale Moon has a Firefox-compat UA string, we can remove the Pale Moon and Goanna identifiers and parse the result as Firefox",
+            "regex": "/(?i) Goanna\\/[\\d.]+/"
+        },
+        {
+            "reason": "Pale Moon has a Firefox-compat UA string, we can remove the Pale Moon and Goanna identifiers and parse the result as Firefox",
+            "regex": "/(?i) PaleMoon\\/[\\d.]+/"
+        },
+        {
+            "reason": "Yandex browser is recognised by UA module but is actually Chromium under the hood, so better to remove the Yandex identifier and get the UA module to detect it as Chrome",
+            "regex": "/(YaBrowser)\\/(\\d+\\.)+\\d+ /"
+        },
+        {
+            "reason": "Crosswalk browser is recognised by UA module but is actually Chromium under the hood, so better to remove the identifier and get the UA module to detect it as Chrome",
+            "regex": "/(?i) (Crosswalk)\\/(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)/"
+        },
+        {
+            "reason": "Chrome and Opera on iOS uses a UIWebView of the underlying platform to render content. By stripping the CriOS or OPiOS strings, the useragent parser will alias the user agent to ios_saf for the UIWebView, which is closer to the actual renderer",
+            "regex": "/((CriOS|OPiOS)\\/(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)|(FxiOS\\/(\\d+)\\.(\\d+)))/"
+        },
+        {
+            "reason": "Vivaldi browser is recognised by UA module but is actually identical to Chrome, so the best way to get accurate targeting is to remove the vivaldi token from the UA",
+            "regex": "/(?i) vivaldi\\/[\\d.]+\\d+/"
+        },
+        {
+            "reason": "Facebook in-app browser `[FBAN/.....]` or `[FB_IAB/.....]` (see https://github.com/Financial-Times/polyfill-service/issues/990)",
+            "regex": "/(?i) \\[(FB_IAB|FBAN|FBIOS|FB4A)\\/[^\\]]+\\]/"
+        },
+        {
+            "reason": "Electron/X.Y.Z` (see https://github.com/Financial-Times/polyfill-service/issues/1129)",
+            "regex": "/(?i) Electron\\/[\\d.]+\\d+/"
+        },
+        {
+            "reason": "Chromium-based Edge",
+            "regex": "/(?i) Edg\\/[\\d.]+\\d+/"
+        },
+        {
+            "reason": "Modern mobile Googlebot which uses modern Chrome",
+            "regex": "/(?i)Safari.* Googlebot\\/2\\.1; \\+http:\\/\\/www\\.google\\.com\\/bot\\.html\\)/"
+        },
+        {
+            "reason": "Modern desktop Googlebot which uses modern Chrome",
+            "regex": "/(?i) Googlebot\\/2\\.1; \\+http:\\/\\/www\\.google\\.com\\/bot\\.html\\) /"
+        }
+    ],
+
+    "//": "Aliases may be expressed in three formats:",
+    "//": "1. <detectedfamily>: <targetfamily>",
+    "//": "The browser family is renamed, version is maintained",
+    "//": "2. <detectedfamily>: [<targetfamily>, <targetmajor>, <targetminor>, <targetpatch>]",
+    "//": "The browser family is renamed and the version is set to the one specified",
+    "//": "3. <detectedfamily>: { <semver>: [<targetfamily>, <targetmajor>, <targetminor>, <targetpatch>], ... }",
+    "//": "Specific version ranges of this family are mapped to the specified browsers",
+    "aliases": {
+        "blackberry webkit": "bb",
+        "blackberry": "bb",
+
+        "pale moon (firefox variant)": "firefox",
+        "pale moon": "firefox",
+        "firefox mobile": "firefox_mob",
+        "firefox namoroka": "firefox",
+        "firefox shiretoko": "firefox",
+        "firefox minefield": "firefox",
+        "firefox alpha": "firefox",
+        "firefox beta": "firefox",
+        "microb": "firefox",
+        "mozilladeveloperpreview": "firefox",
+        "iceweasel": "firefox",
+
+        "opera tablet": "opera",
+
+        "opera mobile": "op_mob",
+        "opera mini": "op_mini",
+
+        "chrome mobile webview": "chrome",
+        "chrome mobile": "chrome",
+        "chrome frame": "chrome",
+        "chromium": "chrome",
+        "headlesschrome": "chrome",
+
+        "ie mobile": "ie_mob",
+
+        "ie large screen": "ie",
+        "internet explorer": "ie",
+        "edge mobile": "edge_mob",
+        "uc browser": {
+            "9.9": ["ie", 10]
+        },
+
+        "chrome mobile ios": "ios_chr",
+
+        "mobile safari": "ios_saf",
+        "iphone": "ios_saf",
+        "iphone simulator": "ios_saf",
+        "mobile safari uiwebview": "ios_saf",
+        "mobile safari ui/wkwebview": "ios_saf",
+        "mobile safari/wkwebview": "ios_saf",
+
+        "samsung internet": "samsung_mob",
+
+        "phantomjs": ["safari", 5],
+
+        "opera": {
+            "20": ["chrome", 33],
+            "21": ["chrome", 34],
+            "22": ["chrome", 35],
+            "23": ["chrome", 36],
+            "24": ["chrome", 37],
+            "25": ["chrome", 38],
+            "26": ["chrome", 39],
+            "27": ["chrome", 40],
+            "28": ["chrome", 41],
+            "29": ["chrome", 42],
+            "30": ["chrome", 43],
+            "31": ["chrome", 44],
+            "32": ["chrome", 45],
+            "33": ["chrome", 46],
+            "34": ["chrome", 47],
+            "35": ["chrome", 48],
+            "36": ["chrome", 49],
+            "37": ["chrome", 50],
+            "38": ["chrome", 51],
+            "39": ["chrome", 52],
+            "40": ["chrome", 53],
+            "41": ["chrome", 54],
+            "42": ["chrome", 55],
+            "43": ["chrome", 56],
+            "44": ["chrome", 57],
+            "45": ["chrome", 58],
+            "46": ["chrome", 59],
+            "47": ["chrome", 60],
+            "48": ["chrome", 61],
+            "49": ["chrome", 62],
+            "50": ["chrome", 63],
+            "51": ["chrome", 64],
+            "52": ["chrome", 65],
+            "53": ["chrome", 66],
+            "54": ["chrome", 67],
+            "55": ["chrome", 68],
+            "56": ["chrome", 69],
+            "57": ["chrome", 70],
+            "58": ["chrome", 71],
+            "59": ["chrome", 72],
+            "60": ["chrome", 73],
+            "61": ["chrome", 74],
+            "62": ["chrome", 75],
+            "63": ["chrome", 76],
+            "64": ["chrome", 77],
+            "65": ["chrome", 78],
+            "66": ["chrome", 79],
+            "67": ["chrome", 80]
+        },
+
+        "googlebot": {
+            "2.1": ["chrome", 41]
+        }
+    }
+}

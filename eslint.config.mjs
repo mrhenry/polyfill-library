@@ -68,6 +68,10 @@ const ignores = [
 
 	// Vendored mocha
 	"test/polyfills/mocha/**",
+
+	// Vendored user-agent packages, each with their own tooling
+	"polyfill-useragent-normaliser/**",
+	"useragent-parser/**",
 ];
 
 const unicornConfigOverrides = {

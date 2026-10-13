@@ -1,0 +1,150 @@
+user_agent_parsers:
+  - regex: 'Opera/9\.80 \(.+(Opera Mini)/(\d+)(?:\.(\d+)|)(?:\.(\d+)|)'
+  - regex: 'Opera/9\.80 \(.+(Opera Mini)/(\d+)(?:\.(\d+)|)'
+  # https://en.wikipedia.org/wiki/Safari_version_history
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/525\.18(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "3"
+    v2_replacement: "1"
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/528\.18(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "4"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/531\.21(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "4"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/532\.9(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "4"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/532\+'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "5"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/533\.17(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "5"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/534\.12(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "5"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/534\.46(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "5"
+    v2_replacement: "1"
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/536\.26(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "6"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/537\.51(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "7"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/600\.1(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "8"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/601\.1(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "9"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/601\.5(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "9"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/602\.1(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "10"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/602\.2(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "10"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/602\.3(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "10"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/602\.4(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "10"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/603\.1(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "10"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/603\.2(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "10"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/604\.1(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "11"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/604\.2(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "11"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/604\.3(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "11"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/604\.5(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "11"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/605\.1(?:\.\d+|) \(KHTML, like Gecko\) Version\/(\d+)\.?(\d+)?\.?(\d+)?.+?Mobile\/\w+\s(Safari)'
+    family_replacement: "Mobile Safari/WKWebView"
+  - regex: '(iPod|iPhone|iPad).+OS (\d+)_(\d+) like Mac OS X\) AppleWebKit\/605\.1(?:\.\d+|) \(KHTML, like Gecko\) Mobile\/\w+'
+    family_replacement: "Mobile Safari/WKWebView"
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/605\.1(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "11"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/606\.1(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "12"
+    v2_replacement:
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/607\.1(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "12"
+    v2_replacement: "1"
+    v3_replacement:
+  - regex: '(iPod|iPhone|iPad).+AppleWebKit\/608\.2(?:\.\d+|)'
+    family_replacement: "Mobile Safari/WKWebView"
+    v1_replacement: "13"
+    v2_replacement:
+    v3_replacement:
+  # QQ Browsers
+  - regex: '(MQQBrowser/Mini)(?:(\d+)(?:\.(\d+)|)(?:\.(\d+)|)|)'
+    family_replacement: "QQ Browser Mini"
+  - regex: '(MQQBrowser)(?:/(\d+)(?:\.(\d+)|)(?:\.(\d+)|)|)'
+    family_replacement: "QQ Browser Mobile"
+  - regex: '(QQBrowser)(?:/(\d+)(?:\.(\d+)\.(\d+)(?:\.(\d+)|)|)|)'
+    family_replacement: "QQ Browser"
