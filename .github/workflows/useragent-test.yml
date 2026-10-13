@@ -1,10 +1,7 @@
 name: Useragent Test
 
-# The two user-agent packages are vendored under `polyfill-useragent-normaliser/`
-# and `useragent-parser/`. They are their own npm packages with their own
-# dependency trees, so they are installed and tested independently of the
-# polyfill-library package at the repository root. Installing them as workspaces
-# would hoist dependencies and break their pinned tooling.
+# The two user-agent packages are npm workspaces of this repository, so a single
+# root `npm ci` links them and installs their dependencies.
 on:
   merge_group:
   pull_request:
@@ -19,25 +16,13 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
+          cache: 'npm'
+      - run: npm ci
 
-      # The normaliser depends on @mrhenry/polyfill-useragent-parser. Its
-      # lockfile resolves that dependency to the sibling `useragent-parser`
-      # directory, so the parser must be installed (its `prepare` build) first.
-      - name: Install @mrhenry/polyfill-useragent-parser
-        working-directory: useragent-parser
-        run: npm ci
       - name: Test @mrhenry/polyfill-useragent-parser
-        working-directory: useragent-parser
-        run: npm test
+        run: npm test --workspace @mrhenry/polyfill-useragent-parser
 
-      - name: Install @mrhenry/polyfill-useragent-normaliser
-        working-directory: polyfill-useragent-normaliser
-        run: npm ci
       - name: Test @mrhenry/polyfill-useragent-normaliser
-        working-directory: polyfill-useragent-normaliser
         run: |
-          npm run test:unit
-          npx mocha --bail test/integration/node.test.js
-
-      # test/integration/fastly.test.js is intentionally not run: it asserts
-      # against a live Fastly service (`test.in.ft.com.global.prod.fastly.net`).
+          npm run test:unit --workspace @mrhenry/polyfill-useragent-normaliser
+          npm run test:integration --workspace @mrhenry/polyfill-useragent-normaliser

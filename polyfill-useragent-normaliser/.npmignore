@@ -1,8 +1,2 @@
 node_modules
-.editorconfig
 .vscode/
-.terraform.tfstate.lock.info
-terraform.tfstate
-terraform.tfstate.backup
-.terraform/plugins/darwin_amd64/lock.json
-.terraform/plugins/darwin_amd64/terraform-provider-fastly_v0.1.2_x4

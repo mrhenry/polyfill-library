@@ -1,9 +1,7 @@
 /* eslint-env mocha */
 "use strict";
 
-const fs = require("fs");
 const assert = require("proclaim");
-const yaml = require("yamlparser");
 const uaParser = require("../lib/ua_parser");
 
 function msg(name, actual, expected) {

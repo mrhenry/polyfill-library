@@ -1,32 +1,35 @@
 {
   "name": "@mrhenry/polyfill-useragent-parser",
   "version": "1.6.3",
-  "description": "This is the VCL & JS implementation of the [ua-parser](https://github.com/tobie/ua-parser)",
+  "description": "This is a JavaScript implementation of the [ua-parser](https://github.com/tobie/ua-parser)",
   "main": "lib/ua_parser.js",
-  "scripts": {
-    "build": "node ./compilers/vcl.js && node ./compilers/js.js && node ./compilers/js-c-at-e.js",
-    "test": "mocha test/ua.test.js",
-    "version": "npm run build",
-    "prepare": "npm run build"
+  "engines": {
+    "node": ">=12"
   },
-  "author": "Jake Champion",
+  "scripts": {
+    "build": "node ./compilers/js.js && prettier --use-tabs --write lib/ua_parser.js",
+    "format": "prettier --use-tabs --write 'compilers/**/*.js'",
+    "test": "mocha test/ua.test.js",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Mr. Henry",
   "license": "MIT",
   "devDependencies": {
-    "eslint": "^8.11.0",
-    "js-yaml": "^4.0.0",
-    "lodash": "^4.17.11",
-    "mocha": "^8.0.1",
-    "proclaim": "^3.6.0",
-    "uap-ref-impl": "^0.3.0",
-    "yamlparser": "0.0.2"
+    "js-yaml": "^5.4.3",
+    "mocha": "^11.8.0",
+    "prettier": "^3.9.10",
+    "proclaim": "^3.6.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mrhenry/polyfill-library.git",
-    "directory": "useragent-parser"
+    "directory": "polyfill-useragent-parser"
   },
   "bugs": {
     "url": "https://github.com/mrhenry/polyfill-library/issues"
   },
-  "homepage": "https://github.com/mrhenry/polyfill-library/tree/main/useragent-parser#readme"
+  "homepage": "https://github.com/mrhenry/polyfill-library/tree/main/polyfill-useragent-parser#readme",
+  "volta": {
+    "extends": "../package.json"
+  }
 }
