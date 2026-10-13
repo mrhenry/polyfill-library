@@ -38,7 +38,7 @@ func newScheduler(runner jobRunner, maxConcurrency int) *scheduler {
 		runner:         runner,
 		printer:        newProgressPrinter(os.Stdout),
 		maxConcurrency: maxConcurrency,
-		tick:           pollTick,
+		tick:           progressTick,
 		passPause:      passPause,
 	}
 }
@@ -98,7 +98,7 @@ func (s *scheduler) run(ctx context.Context, jobs []*job) int {
 	failed := 0
 
 	for _, j := range jobs {
-		if j.state.failed() {
+		if !j.state.status().passed() {
 			failed++
 		}
 	}

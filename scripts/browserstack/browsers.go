@@ -167,15 +167,16 @@ func (c Capabilities) MarshalJSON() ([]byte, error) {
 // Real devices are keyed by os/os_version: the device fixes the OS. No Appium
 // capability is sent, so BrowserStack picks a compatible version and driver.
 // localIdentifier is only sent when non-empty.
-func CapabilitiesFor(b Browser, sessionName, projectName, localIdentifier string) Capabilities {
+func CapabilitiesFor(b Browser, sessionName, localIdentifier string) Capabilities {
 	caps := Capabilities{
 		BStack: map[string]any{
 			"sessionName": sessionName,
-			"projectName": projectName,
+			"projectName": ProjectName,
 			"local":       true,
 			"video":       true,
 			"debug":       true,
-			"consoleLogs": "errors",
+			// Warnings as well as errors: the failure report shows both levels.
+			"consoleLogs": "warnings",
 			"networkLogs": true,
 			// Stops a session whose client has gone away from holding a
 			// parallel slot. Kept above navigateTimeout.

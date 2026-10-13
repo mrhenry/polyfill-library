@@ -126,7 +126,7 @@ func TestCapabilitiesAreW3COnly(t *testing.T) {
 func TestCapabilitiesForDesktopPlatform(t *testing.T) {
 	pinned := alwaysMatch(t, CapabilitiesFor(
 		Browser{Browser: "ie", BrowserVersion: "10.0", OS: "Windows", OSVersion: "7"},
-		"session", "polyfill-library", "",
+		"session", "",
 	))
 
 	bstack, _ := pinned["bstack:options"].(map[string]any)
@@ -136,7 +136,7 @@ func TestCapabilitiesForDesktopPlatform(t *testing.T) {
 
 	unpinned := alwaysMatch(t, CapabilitiesFor(
 		Browser{Browser: "ie", BrowserVersion: "10.0"},
-		"session", "polyfill-library", "",
+		"session", "",
 	))
 
 	options, _ := unpinned["bstack:options"].(map[string]any)
@@ -156,6 +156,36 @@ func TestHasPreference(t *testing.T) {
 
 	if HasPreference("chrome/32.0") {
 		t.Error("chrome/32.0 should not have a pinned platform")
+	}
+}
+
+// TestCapabilitiesEnableSessionLogs proves every session records what a failure
+// report reads back: the browser console, the network traffic and the session
+// log itself.
+func TestCapabilitiesEnableSessionLogs(t *testing.T) {
+	bstack, _ := alwaysMatch(t, CapabilitiesFor(
+		Browser{Browser: "chrome", BrowserVersion: "100.0"},
+		"session", "",
+	))["bstack:options"].(map[string]any)
+
+	if bstack == nil {
+		t.Fatal("bstack:options missing")
+	}
+
+	if got := bstack["consoleLogs"]; got != "warnings" {
+		t.Errorf("consoleLogs = %v, want warnings so both reported levels are captured", got)
+	}
+
+	if got := bstack["networkLogs"]; got != true {
+		t.Errorf("networkLogs = %v, want true", got)
+	}
+
+	if got := bstack["debug"]; got != true {
+		t.Errorf("debug = %v, want true so the session log is kept", got)
+	}
+
+	if got := bstack["video"]; got != true {
+		t.Errorf("video = %v, want true", got)
 	}
 }
 
@@ -187,7 +217,7 @@ func alwaysMatch(t *testing.T, caps Capabilities) map[string]any {
 func TestMobileCapabilities(t *testing.T) {
 	caps := CapabilitiesFor(
 		Browser{OS: "ios", OSVersion: "13", Browser: "iphone", Device: "iPhone 11", RealMobile: true},
-		"session", "polyfill-library", "tunnel-id",
+		"session", "tunnel-id",
 	)
 
 	match := alwaysMatch(t, caps)
@@ -253,7 +283,7 @@ func TestMobileBrowserNameMapping(t *testing.T) {
 func TestMobileCapabilitiesForAndroid(t *testing.T) {
 	caps := CapabilitiesFor(
 		Browser{OS: "android", OSVersion: "13.0", Browser: "android", Device: "Google Pixel 7", RealMobile: true},
-		"session", "polyfill-library", "",
+		"session", "",
 	)
 
 	match := alwaysMatch(t, caps)

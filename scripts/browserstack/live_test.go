@@ -20,7 +20,7 @@ func createSessionWithRetry(ctx context.Context, client *Client, caps Capabiliti
 
 	for attempt := 1; attempt <= 3; attempt++ {
 		sessionCtx, cancel := context.WithTimeout(ctx, 4*time.Minute)
-		session, err := NewSession(sessionCtx, client.HTTPClient(), Hub(), caps, creds)
+		session, err := NewSession(sessionCtx, client.http, Hub(), caps, creds)
 		cancel()
 
 		if err == nil {
@@ -135,7 +135,7 @@ func TestLiveBrowserSelection(t *testing.T) {
 				t.Fatalf("no browserstack entry for %s", tc.entry)
 			}
 
-			caps := CapabilitiesFor(browser, "verify "+tc.entry, "polyfill-library verify", "")
+			caps := CapabilitiesFor(browser, "verify "+tc.entry, "")
 
 			session, err := createSessionWithRetry(ctx, client, caps, creds)
 			if err != nil {
