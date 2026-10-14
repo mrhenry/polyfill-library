@@ -2,7 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const UA = require('@financial-times/polyfill-useragent-normaliser');
+const UA = require('@mrhenry/polyfill-useragent-normaliser');
 
 // The Go BrowserStack runner (scripts/browserua) needs the same browser
 // baselines and Opera remap the polyfill build uses. Generating them from the
