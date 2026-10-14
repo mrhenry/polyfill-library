@@ -10722,7 +10722,7 @@ describe("useragent-parser should pass tests from the ua-parser/uap-core project
 	});
 	it("parses Python/3.6 aiohttp/3.5.4 correctly", function() {
 		const results = uaParser("Python/3.6 aiohttp/3.5.4");
-		assert.strictEqual(results.family, "Python/3.6 aiohttp", msg("results.family", results.family, "Python/3.6 aiohttp"));
+		assert.strictEqual(results.family, "Python aiohttp", msg("results.family", results.family, "Python aiohttp"));
 		assert.strictEqual(results.major || "", "3", msg("results.major", results.major || "", "3"));
 		assert.strictEqual(results.minor || "", "5", msg("results.minor", results.minor || "", "5"));
 		assert.equal(results.patch || "", "4" || "", msg("results.patch", results.patch || "", "4" || ""));
@@ -12514,7 +12514,7 @@ describe("useragent-parser should pass tests from the ua-parser/uap-core project
 	});
 	it("parses Download Master correctly", function() {
 		const results = uaParser("Download Master");
-		assert.strictEqual(results.family, "Other", msg("results.family", results.family, "Other"));
+		assert.strictEqual(results.family, "Download Master", msg("results.family", results.family, "Download Master"));
 		assert.strictEqual(results.major || "", "", msg("results.major", results.major || "", ""));
 		assert.strictEqual(results.minor || "", "", msg("results.minor", results.minor || "", ""));
 		assert.equal(results.patch || "", "" || "", msg("results.patch", results.patch || "", "" || ""));
@@ -95688,10 +95688,10 @@ describe("useragent-parser should pass tests from the ua-parser/uap-core project
 	});
 	it("parses RPT-HTTPClient/0.3-3E correctly", function() {
 		const results = uaParser("RPT-HTTPClient/0.3-3E");
-		assert.strictEqual(results.family, "Other", msg("results.family", results.family, "Other"));
-		assert.strictEqual(results.major || "", "", msg("results.major", results.major || "", ""));
-		assert.strictEqual(results.minor || "", "", msg("results.minor", results.minor || "", ""));
-		assert.equal(results.patch || "", "" || "", msg("results.patch", results.patch || "", "" || ""));
+		assert.strictEqual(results.family, "HTTPClient", msg("results.family", results.family, "HTTPClient"));
+		assert.strictEqual(results.major || "", "0", msg("results.major", results.major || "", "0"));
+		assert.strictEqual(results.minor || "", "3", msg("results.minor", results.minor || "", "3"));
+		assert.equal(results.patch || "", "3E" || "", msg("results.patch", results.patch || "", "3E" || ""));
 	});
 	it("parses RT-browser correctly", function() {
 		const results = uaParser("RT-browser");

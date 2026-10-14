@@ -1,6 +1,4 @@
 user_agent_parsers:
-  - regex: 'Opera/9\.80 \(.+(Opera Mini)/(\d+)(?:\.(\d+)|)(?:\.(\d+)|)'
-  - regex: 'Opera/9\.80 \(.+(Opera Mini)/(\d+)(?:\.(\d+)|)'
   # https://en.wikipedia.org/wiki/Safari_version_history
   - regex: '(iPod|iPhone|iPad).+AppleWebKit\/525\.18(?:\.\d+|)'
     family_replacement: "Mobile Safari/WKWebView"
@@ -141,10 +139,3 @@ user_agent_parsers:
     v1_replacement: "13"
     v2_replacement:
     v3_replacement:
-  # QQ Browsers
-  - regex: '(MQQBrowser/Mini)(?:(\d+)(?:\.(\d+)|)(?:\.(\d+)|)|)'
-    family_replacement: "QQ Browser Mini"
-  - regex: '(MQQBrowser)(?:/(\d+)(?:\.(\d+)|)(?:\.(\d+)|)|)'
-    family_replacement: "QQ Browser Mobile"
-  - regex: '(QQBrowser)(?:/(\d+)(?:\.(\d+)\.(\d+)(?:\.(\d+)|)|)|)'
-    family_replacement: "QQ Browser"

@@ -4,13 +4,13 @@ const yaml = require("js-yaml");
 const fs = require("fs");
 const path = require("path");
 
-const customUap = yaml.load(
-	fs.readFileSync(require.resolve("../regexes.yaml"), "utf8")
+const overrides = yaml.load(
+	fs.readFileSync(path.join(__dirname, "overrides-regexes.yaml"), "utf8")
 ).user_agent_parsers;
-const uap = yaml.load(
-	fs.readFileSync(require.resolve("../uap-core/regexes.yaml"), "utf8")
+const uapCore = yaml.load(
+	fs.readFileSync(path.join(__dirname, "uap-core-regexes.yaml"), "utf8")
 ).user_agent_parsers;
-const agents = customUap.concat(uap);
+const agents = overrides.concat(uapCore);
 
 const lines = [];
 const push = (line) => lines.push(line);
