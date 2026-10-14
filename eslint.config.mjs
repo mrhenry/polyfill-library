@@ -68,6 +68,14 @@ const ignores = [
 
 	// Vendored mocha
 	"test/polyfills/mocha/**",
+
+	// Generated output of the vendored user-agent packages
+	"polyfill-useragent-normaliser/lib/**",
+	"polyfill-useragent-parser/lib/**",
+	"polyfill-useragent-parser/uap-core/**",
+
+	// Vendored uap-core test suite
+	"polyfill-useragent-parser/test/ua.test.js",
 ];
 
 const unicornConfigOverrides = {
@@ -194,5 +202,21 @@ export default [
 			}
 		},
 		rules: browserScriptDefaults.rules,
-	}
-]
+	},
+	{
+		files: [
+			"polyfill-useragent-normaliser/compilers/**/*.js",
+			"polyfill-useragent-normaliser/test/**/*.js",
+			"polyfill-useragent-parser/compilers/**/*.js",
+			"polyfill-useragent-parser/test/**/*.js",
+		],
+		languageOptions: {
+			ecmaVersion: 2022,
+			globals: {
+				...globals.commonjs,
+				...globals.node,
+				...globals.mocha,
+			},
+		},
+	},
+];
