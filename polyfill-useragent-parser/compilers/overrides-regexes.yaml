@@ -6,5 +6,9 @@ user_agent_parsers:
   #
   # Opera Mini is excluded: it is a non-WebKit proxy browser that merely embeds
   # an iOS UA fragment, so it must keep its own family and version.
-  - regex: '^(?!.*Opera Mini).*?(iPod touch|iPod|iPhone|iPad).+OS[ +](\d+)[_.](\d+)(?:[_.](\d+)|)'
+  #
+  # The `.{0,500}` bounds keep the quantifiers finite so the regex can not cause
+  # polynomial backtracking (CodeQL js/polynomial-redos); the values are far
+  # longer than any real iOS user agent fragment.
+  - regex: '^(?!.{0,500}Opera Mini).{0,500}?(iPod touch|iPod|iPhone|iPad).{1,500}OS[ +](\d+)[_.](\d+)(?:[_.](\d+)|)'
     family_replacement: "Mobile Safari/WKWebView"

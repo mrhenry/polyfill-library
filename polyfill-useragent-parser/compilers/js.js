@@ -3,13 +3,16 @@
 const yaml = require("js-yaml");
 const fs = require("fs");
 const path = require("path");
+const { applyRegexOverrides } = require("./regex-overrides");
 
 const overrides = yaml.load(
 	fs.readFileSync(path.join(__dirname, "overrides-regexes.yaml"), "utf8")
 ).user_agent_parsers;
-const uapCore = yaml.load(
-	fs.readFileSync(path.join(__dirname, "uap-core-regexes.yaml"), "utf8")
-).user_agent_parsers;
+const uapCore = applyRegexOverrides(
+	yaml.load(
+		fs.readFileSync(path.join(__dirname, "uap-core-regexes.yaml"), "utf8")
+	).user_agent_parsers
+);
 const agents = overrides.concat(uapCore);
 
 const lines = [];

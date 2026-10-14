@@ -13,7 +13,7 @@ module.exports = function useragent_parser(ua) {
 		};
 	} else if (
 		(result =
-			/^(?!.*Opera Mini).*?(iPod touch|iPod|iPhone|iPad).+OS[ +](\d+)[_.](\d+)(?:[_.](\d+)|)/.exec(
+			/^(?!.{0,500}Opera Mini).{0,500}?(iPod touch|iPod|iPhone|iPad).{1,500}OS[ +](\d+)[_.](\d+)(?:[_.](\d+)|)/.exec(
 				ua
 			))
 	) {
@@ -192,13 +192,13 @@ module.exports = function useragent_parser(ua) {
 	} else if ((result = /(espn\.go)/.exec(ua))) {
 		const family = "ESPN";
 		return { family, major, minor, patch };
-	} else if ((result = /(espnradio\.com)/.exec(ua))) {
+	} else if ((result = /^.*(espnradio\.com)/.exec(ua))) {
 		const family = "ESPN";
 		return { family, major, minor, patch };
 	} else if ((result = /ESPN APP$/.exec(ua))) {
 		const family = "ESPN";
 		return { family, major, minor, patch };
-	} else if ((result = /(audioboom\.com)/.exec(ua))) {
+	} else if ((result = /^.*(audioboom\.com)/.exec(ua))) {
 		const family = "AudioBoom";
 		return { family, major, minor, patch };
 	} else if ((result = / (Rivo) RHYTHM/.exec(ua))) {
@@ -294,7 +294,7 @@ module.exports = function useragent_parser(ua) {
 		return { family, major, minor, patch };
 	} else if (
 		(result =
-			/\/((?:Ant-|)Nutch|[A-z]+[Bb]ot|[A-z]+[Ss]pider|Axtaris|fetchurl|Isara|ShopSalad|Tailsweep)[ \-](\d+)(?:\.(\d+)|)(?:\.(\d+)|)/.exec(
+			/\/((?:Ant-|)Nutch|[A-Za-z_]+[Bb]ot|[A-Za-z_]+[Ss]pider|Axtaris|fetchurl|Isara|ShopSalad|Tailsweep)[ \-](\d+)(?:\.(\d+)|)(?:\.(\d+)|)/.exec(
 				ua
 			))
 	) {
@@ -354,7 +354,7 @@ module.exports = function useragent_parser(ua) {
 		return { family, major, minor, patch };
 	} else if (
 		(result =
-			/(CSimpleSpider|Cityreview Robot|CrawlDaddy|CrawlFire|Finderbots|Index crawler|Job Roboter|KiwiStatus Spider|Lijit Crawler|QuerySeekerSpider|ScollSpider|Trends Crawler|USyd-NLP-Spider|SiteCat Webbot|BotName\/\$BotVersion|123metaspider-Bot|1470\.net crawler|50\.nu|8bo Crawler Bot|Aboundex|Accoona-[A-z]{1,30}-Agent|AdsBot-Google(?:-[a-z]{1,30}|)|altavista|AppEngine-Google|archive.{0,30}\.org_bot|archiver|Ask Jeeves|[Bb]ai[Dd]u[Ss]pider(?:-[A-Za-z]{1,30})(?:-[A-Za-z]{1,30}|)|bingbot|BingPreview|blitzbot|BlogBridge|Bloglovin|BoardReader Blog Indexer|BoardReader Favicon Fetcher|boitho.com-dc|BotSeer|BUbiNG|\b\w{0,30}favicon\w{0,30}\b|\bYeti(?:-[a-z]{1,30}|)|Catchpoint(?: bot|)|[Cc]harlotte|Checklinks|clumboot|Comodo HTTP\(S\) Crawler|Comodo-Webinspector-Crawler|ConveraCrawler|CRAWL-E|CrawlConvera|Daumoa(?:-feedfetcher|)|Feed Seeker Bot|Feedbin|findlinks|Flamingo_SearchEngine|FollowSite Bot|furlbot|Genieo|gigabot|GomezAgent|gonzo1|(?:[a-zA-Z]{1,30}-|)Googlebot(?:-[a-zA-Z]{1,30}|)|GoogleOther|Google SketchUp|grub-client|gsa-crawler|heritrix|HiddenMarket|holmes|HooWWWer|htdig|ia_archiver|ICC-Crawler|Icarus6j|ichiro(?:\/mobile|)|IconSurf|IlTrovatore(?:-Setaccio|)|InfuzApp|Innovazion Crawler|InternetArchive|IP2[a-z]{1,30}Bot|jbot\b|KaloogaBot|Kraken|Kurzor|larbin|LEIA|LesnikBot|Linguee Bot|LinkAider|LinkedInBot|Lite Bot|Llaut|lycos|Mail\.RU_Bot|masscan|masidani_bot|Mediapartners-Google|Microsoft .{0,30} Bot|mogimogi|mozDex|MJ12bot|msnbot(?:-media {0,2}|)|msrbot|Mtps Feed Aggregation System|netresearch|Netvibes|NewsGator[^/]{0,30}|^NING|Nutch[^/]{0,30}|Nymesis|ObjectsSearch|OgScrper|Orbiter|OOZBOT|PagePeeker|PagesInventory|PaxleFramework|Peeplo Screenshot Bot|PHPCrawl|PlantyNet_WebRobot|Pompos|Qwantify|Read%20Later|Reaper|RedCarpet|Retreiver|Riddler|Rival IQ|scooter|Scrapy|Scrubby|searchsight|seekbot|semanticdiscovery|SemrushBot|Simpy|SimplePie|SEOstats|SimpleRSS|SiteCon|Slackbot-LinkExpanding|Slack-ImgProxy|Slurp|snappy|Speedy Spider|Squrl Java|Stringer|TheUsefulbot|ThumbShotsBot|Thumbshots\.ru|Tiny Tiny RSS|Twitterbot|WhatsApp|URL2PNG|Vagabondo|VoilaBot|^vortex|Votay bot|^voyager|WASALive.Bot|Web-sniffer|WebThumb|WeSEE:[A-z]{1,30}|WhatWeb|WIRE|WordPress|Wotbox|www\.almaden\.ibm\.com|Xenu(?:.s|) Link Sleuth|Xerka [A-z]{1,30}Bot|yacy(?:bot|)|YahooSeeker|Yahoo! Slurp|Yandex\w{1,30}|YodaoBot(?:-[A-z]{1,30}|)|YottaaMonitor|Yowedo|^Zao|^Zao-Crawler|ZeBot_www\.ze\.bz|ZooShot|ZyBorg|ArcGIS Hub Indexer|GPTBot|Google-InspectionTool)(?:[ /]v?(\d+)(?:\.(\d+)(?:\.(\d+)|)|)|)/.exec(
+			/(CSimpleSpider|Cityreview Robot|CrawlDaddy|CrawlFire|Finderbots|Index crawler|Job Roboter|KiwiStatus Spider|Lijit Crawler|QuerySeekerSpider|ScollSpider|Trends Crawler|USyd-NLP-Spider|SiteCat Webbot|BotName\/\$BotVersion|123metaspider-Bot|1470\.net crawler|50\.nu|8bo Crawler Bot|Aboundex|Accoona-[A-Za-z_]{1,30}-Agent|AdsBot-Google(?:-[a-z]{1,30}|)|altavista|AppEngine-Google|archive.{0,30}\.org_bot|archiver|Ask Jeeves|[Bb]ai[Dd]u[Ss]pider(?:-[A-Za-z]{1,30})(?:-[A-Za-z]{1,30}|)|bingbot|BingPreview|blitzbot|BlogBridge|Bloglovin|BoardReader Blog Indexer|BoardReader Favicon Fetcher|boitho.com-dc|BotSeer|BUbiNG|\b\w{0,30}favicon\w{0,30}\b|\bYeti(?:-[a-z]{1,30}|)|Catchpoint(?: bot|)|[Cc]harlotte|Checklinks|clumboot|Comodo HTTP\(S\) Crawler|Comodo-Webinspector-Crawler|ConveraCrawler|CRAWL-E|CrawlConvera|Daumoa(?:-feedfetcher|)|Feed Seeker Bot|Feedbin|findlinks|Flamingo_SearchEngine|FollowSite Bot|furlbot|Genieo|gigabot|GomezAgent|gonzo1|(?:[a-zA-Z]{1,30}-|)Googlebot(?:-[a-zA-Z]{1,30}|)|GoogleOther|Google SketchUp|grub-client|gsa-crawler|heritrix|HiddenMarket|holmes|HooWWWer|htdig|ia_archiver|ICC-Crawler|Icarus6j|ichiro(?:\/mobile|)|IconSurf|IlTrovatore(?:-Setaccio|)|InfuzApp|Innovazion Crawler|InternetArchive|IP2[a-z]{1,30}Bot|jbot\b|KaloogaBot|Kraken|Kurzor|larbin|LEIA|LesnikBot|Linguee Bot|LinkAider|LinkedInBot|Lite Bot|Llaut|lycos|Mail\.RU_Bot|masscan|masidani_bot|Mediapartners-Google|Microsoft .{0,30} Bot|mogimogi|mozDex|MJ12bot|msnbot(?:-media {0,2}|)|msrbot|Mtps Feed Aggregation System|netresearch|Netvibes|NewsGator[^/]{0,30}|^NING|Nutch[^/]{0,30}|Nymesis|ObjectsSearch|OgScrper|Orbiter|OOZBOT|PagePeeker|PagesInventory|PaxleFramework|Peeplo Screenshot Bot|PHPCrawl|PlantyNet_WebRobot|Pompos|Qwantify|Read%20Later|Reaper|RedCarpet|Retreiver|Riddler|Rival IQ|scooter|Scrapy|Scrubby|searchsight|seekbot|semanticdiscovery|SemrushBot|Simpy|SimplePie|SEOstats|SimpleRSS|SiteCon|Slackbot-LinkExpanding|Slack-ImgProxy|Slurp|snappy|Speedy Spider|Squrl Java|Stringer|TheUsefulbot|ThumbShotsBot|Thumbshots\.ru|Tiny Tiny RSS|Twitterbot|WhatsApp|URL2PNG|Vagabondo|VoilaBot|^vortex|Votay bot|^voyager|WASALive.Bot|Web-sniffer|WebThumb|WeSEE:[A-Za-z_]{1,30}|WhatWeb|WIRE|WordPress|Wotbox|www\.almaden\.ibm\.com|Xenu(?:.s|) Link Sleuth|Xerka [A-Za-z_]{1,30}Bot|yacy(?:bot|)|YahooSeeker|Yahoo! Slurp|Yandex\w{1,30}|YodaoBot(?:-[A-Za-z_]{1,30}|)|YottaaMonitor|Yowedo|^Zao|^Zao-Crawler|ZeBot_www\.ze\.bz|ZooShot|ZyBorg|ArcGIS Hub Indexer|GPTBot|Google-InspectionTool)(?:[ /]v?(\d+)(?:\.(\d+)(?:\.(\d+)|)|)|)/.exec(
 				ua
 			))
 	) {
@@ -452,7 +452,7 @@ module.exports = function useragent_parser(ua) {
 		return { family, major, minor, patch };
 	} else if (
 		(result =
-			/^.{0,200}?((?:[A-z0-9]{1,50}|[A-z\-]{1,50} ?|)(?: the |)(?:[Ss][Pp][Ii][Dd][Ee][Rr]|[Ss]crape|[Cc][Rr][Aa][Ww][Ll])[A-z0-9]{0,50})(?:(?:[ /]| v)(\d+)(?:\.(\d+)|)(?:\.(\d+)|)|)/.exec(
+			/^.{0,200}?((?:[A-Za-z0-9_]{1,50}|[A-Za-z_\-]{1,50} ?|)(?: the |)(?:[Ss][Pp][Ii][Dd][Ee][Rr]|[Ss]crape|[Cc][Rr][Aa][Ww][Ll])[A-Za-z0-9_]{0,50})(?:(?:[ /]| v)(\d+)(?:\.(\d+)|)(?:\.(\d+)|)|)/.exec(
 				ua
 			))
 	) {
@@ -1473,7 +1473,8 @@ module.exports = function useragent_parser(ua) {
 		const patch = result[4];
 		return { family, major, minor, patch };
 	} else if (
-		(result = /(Chrome)\/\d+\.\d+\.\d+\.\d+ .* QIHU 360(?:SEi18n|ENT)/.exec(ua))
+		(result =
+			/(Chrome)\/\d+\.\d+\.\d+\.\d+ .{0,200} QIHU 360(?:SEi18n|ENT)/.exec(ua))
 	) {
 		const family = "360 Secure Browser";
 		return { family, major, minor, patch };
@@ -2210,7 +2211,7 @@ module.exports = function useragent_parser(ua) {
 	} else if ((result = /(Obigo)\-Browser/.exec(ua))) {
 		const family = result[1];
 		return { family, major, minor, patch };
-	} else if ((result = /(Obigo|OBIGO)[^\d]*(\d+)(?:.(\d+)|)/.exec(ua))) {
+	} else if ((result = /(Obigo|OBIGO)[^\d]{0,50}(\d+)(?:\.(\d+)|)/.exec(ua))) {
 		const family = "Obigo";
 		const major = result[2];
 		const minor = result[3];
@@ -2371,7 +2372,7 @@ module.exports = function useragent_parser(ua) {
 	} else if ((result = /^(Nokia)/.exec(ua))) {
 		const family = "Nokia Services (WAP) Browser";
 		return { family, major, minor, patch };
-	} else if ((result = /(NokiaBrowser)\/(\d+)\.(\d+).(\d+)\.(\d+)/.exec(ua))) {
+	} else if ((result = /(NokiaBrowser)\/(\d+)\.(\d+)\.(\d+)\.(\d+)/.exec(ua))) {
 		const family = "Nokia Browser";
 		const major = result[2];
 		const minor = result[3];

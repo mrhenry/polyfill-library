@@ -3,6 +3,8 @@
 const fs = require("node:fs");
 const https = require("node:https");
 const path = require("node:path");
+const yaml = require("js-yaml");
+const { applyRegexOverrides } = require("./regex-overrides");
 
 // Refreshes the vendored upstream ua-parser data: the regex definitions that
 // the parser is compiled from, and the test fixtures it is verified against.
@@ -64,6 +66,16 @@ function download(url) {
 async function main() {
 	for (const [source, output] of FILES) {
 		const body = await download(BASE + source);
+
+		// The regex overrides in `regex-overrides.js` key off the exact upstream
+		// regex strings. Fail before writing anything when upstream renamed or
+		// removed a regex we patch, so the fix is never silently dropped.
+		if (source === "regexes.yaml") {
+			const userAgentParsers = yaml.load(body.toString("utf8"))
+				.user_agent_parsers;
+			applyRegexOverrides(userAgentParsers);
+		}
+
 		const destination = path.join(PACKAGE_ROOT, output);
 
 		fs.mkdirSync(path.dirname(destination), { recursive: true });

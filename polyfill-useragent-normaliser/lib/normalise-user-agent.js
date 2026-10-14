@@ -59,7 +59,10 @@ function UA(uaString) {
 			uaString = uaString.replace(/ vivaldi\/[\d.]+\d+/i, "");
 
 			// Facebook in-app browser `[FBAN/.....]` or `[FB_IAB/.....]` (see https://github.com/Financial-Times/polyfill-service/issues/990)
-			uaString = uaString.replace(/ \[(FB_IAB|FBAN|FBIOS|FB4A)\/[^\]]+\]/i, "");
+			uaString = uaString.replace(
+				/ \[(FB_IAB|FBAN|FBIOS|FB4A)\/[^\]]{1,1000}\]/i,
+				""
+			);
 
 			// Electron/X.Y.Z` (see https://github.com/Financial-Times/polyfill-service/issues/1129)
 			uaString = uaString.replace(/ Electron\/[\d.]+\d+/i, "");
@@ -69,7 +72,7 @@ function UA(uaString) {
 
 			// Modern mobile Googlebot which uses modern Chrome
 			uaString = uaString.replace(
-				/Safari.* Googlebot\/2\.1; \+http:\/\/www\.google\.com\/bot\.html\)/i,
+				/Safari.{0,1000} Googlebot\/2\.1; \+http:\/\/www\.google\.com\/bot\.html\)/i,
 				""
 			);
 
