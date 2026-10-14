@@ -38,7 +38,11 @@ npm run build
 
 # Tests
 
-`npm test` (native `node --test`) runs the local fixtures in `test/ua.test.js`
-and verifies the parser against the upstream fixtures in `test/uap-core`.
-Deviations from the upstream fixtures are only allowed for user agents matched
-by `compilers/overrides-regexes.yaml`.
+`npm test` (native `node --test`) runs:
+
+- `test/ua.test.js` — the local fixtures.
+- `test/upstream.test.js` — verifies the parser against the upstream fixtures in
+  `test/uap-core`. Deviations are only allowed for user agents matched by
+  `compilers/overrides-regexes.yaml`.
+- `test/browserstack.test.js` — verifies the parser against the fixtures in
+  `test/browserstack-useragent-strings.yaml`.
