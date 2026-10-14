@@ -13,7 +13,7 @@ npm install @mrhenry/polyfill-library --save
 
 ```javascript
 const polyfillLibrary = require('@mrhenry/polyfill-library');
-const UA = require('@financial-times/polyfill-useragent-normaliser');
+const UA = require('@mrhenry/polyfill-useragent-normaliser');
 
 const polyfillBundle = polyfillLibrary.getPolyfillString({
 	ua: new UA('Mozilla/5.0 (Windows; U; MSIE 7.0; Windows NT 6.0; en-US)'),
