@@ -39,19 +39,19 @@ describe("lib/UA", function () {
 			it("firefox for iOS", () => {
 				const firefoxIOS =
 					"Mozilla/5.0 (iPhone; CPU iPhone OS 12_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/23.0 Mobile/16B92 Safari/605.1.15";
-				assert.equal(UA.normalize(firefoxIOS), "ios_saf/11.0.0");
+				assert.equal(UA.normalize(firefoxIOS), "ios_saf/12.1.0");
 			});
 
 			it("chrome for iOS", () => {
 				const chromeIOS =
 					"Mozilla/5.0 (iPhone; CPU iPhone OS 12_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/80.0.3987.95 Mobile/15E148 Safari/605.1";
-				assert.equal(UA.normalize(chromeIOS), "ios_saf/11.0.0");
+				assert.equal(UA.normalize(chromeIOS), "ios_saf/12.1.0");
 			});
 
 			it("opera for iOS", () => {
 				const operaIOS =
 					"Mozilla/5.0 (iPad; CPU OS 11_2_6 like Mac OS X) AppleWebKit/604.5.6 (KHTML, like Gecko) OPiOS/16.0.8.121059 Mobile/15D100 Safari/9537.53";
-				assert.equal(UA.normalize(operaIOS), "ios_saf/11.0.0");
+				assert.equal(UA.normalize(operaIOS), "ios_saf/11.2.0");
 			});
 		});
 
@@ -73,7 +73,7 @@ describe("lib/UA", function () {
 			it("Facebook for iOS", () => {
 				const facebook =
 					"Mozilla/5.0 (iPhone; CPU iPhone OS 9_2 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Mobile/13C75 [FBAN/FBIOS;FBAV/46.0.0.54.156;FBBV/18972819;FBDV/iPhone8,1;FBMD/iPhone;FBSN/iPhone OS;FBSV/9.2;FBSS/2; FBCR/Telenor;FBID/phone;FBLC/nb_NO;FBOP/5]";
-				assert.equal(UA.normalize(facebook), "ios_saf/9.0.0");
+				assert.equal(UA.normalize(facebook), "ios_saf/9.2.0");
 			});
 
 			it("Webview in iOS App with short ua", () => {
@@ -383,7 +383,7 @@ describe("lib/UA", function () {
 			const test = UA.normalize(
 				"Mozilla/5.0 (iPhone; CPU iPhone OS 9_2 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Mobile/13C75 [FBAN/FBIOS;FBAV/46.0.0.54.156;FBBV/18972819;FBDV/iPhone8,1;FBMD/iPhone;FBSN/iPhone OS;FBSV/9.2;FBSS/2; FBCR/Telenor;FBID/phone;FBLC/nb_NO;FBOP/5]"
 			);
-			assert.equal(test, "ios_saf/9.0.0");
+			assert.equal(test, "ios_saf/9.2.0");
 		});
 
 		it("should resolve mobile googlebot 2.1 to current chrome", function () {
