@@ -4,7 +4,7 @@ const test = require('node:test');
 const { describe, it } = test;
 
 const assert = require('node:assert');
-const UA = require('@financial-times/polyfill-useragent-normaliser');
+const UA = require('@mrhenry/polyfill-useragent-normaliser');
 
 describe('exported property/properties', () => {
 	it('is an object', () => {

@@ -111,9 +111,9 @@ func TestJobStateTracksOneJob(t *testing.T) {
 		t.Errorf("a new job starts as %q, want ready", got)
 	}
 
-	// Nothing has run yet, so the job counts as failed.
-	if !state.failed() {
-		t.Error("a job that has not completed must read as failed")
+	// Nothing has run yet, so the job's outcome is unfinished.
+	if got := state.status().outcome(); got != outcomeUnfinished {
+		t.Errorf("a job that has not completed reads as %v, want unfinished", got)
 	}
 
 	state.setState("connecting to browser")
@@ -147,14 +147,14 @@ func TestJobStateTracksOneJob(t *testing.T) {
 		t.Errorf("duration/replacements = %s/%d, want 12s/2", status.duration, status.replacements)
 	}
 
-	if state.failed() {
-		t.Error("a completed job with no failures must not read as failed")
+	if got := state.status().outcome(); got != outcomePassed {
+		t.Errorf("a completed job with no failures reads as %v, want passed", got)
 	}
 
 	state.complete(&pagecontract.Summary{Passed: 7, Failed: 1}, time.Second)
 
-	if !state.failed() {
-		t.Error("a completed job with a failing test must read as failed")
+	if got := state.status().outcome(); got != outcomeFailed {
+		t.Errorf("a completed job with a failing test reads as %v, want failed", got)
 	}
 
 	boom := errors.New("boom")
@@ -763,6 +763,75 @@ func (f *fakeDriver) Delete(context.Context) error {
 	return nil
 }
 
+func (f *fakeDriver) ID() string {
+	return "fake-session"
+}
+
+// endlessDriver answers every progress poll with a running state whose
+// completed count keeps climbing, so the stall detector never fires and only
+// the job's total budget can stop it.
+type endlessDriver struct {
+	mu    sync.Mutex
+	count int
+}
+
+func (d *endlessDriver) Navigate(context.Context, string) error {
+	return nil
+}
+
+func (d *endlessDriver) ExecuteScript(_ context.Context, script string, _ []any) (any, error) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	// The readiness poll is answered first; every progress poll after it
+	// reports one more completed runner.
+	if script == pagecontract.ReadinessScript {
+		return readyPage(), nil
+	}
+
+	d.count++
+
+	return map[string]any{
+		"state":                "running",
+		"runnerCompletedCount": d.count,
+		"runnerCount":          1000000,
+	}, nil
+}
+
+func (d *endlessDriver) Delete(context.Context) error {
+	return nil
+}
+
+func (d *endlessDriver) ID() string {
+	return "endless-session"
+}
+
+// blockedDriver blocks in Navigate until its context is canceled, so a run can
+// be shut down deterministically mid-attempt.
+type blockedDriver struct {
+	started chan struct{}
+}
+
+func (d *blockedDriver) Navigate(ctx context.Context, _ string) error {
+	close(d.started)
+
+	<-ctx.Done()
+
+	return ctx.Err()
+}
+
+func (d *blockedDriver) ExecuteScript(context.Context, string, []any) (any, error) {
+	return nil, nil
+}
+
+func (d *blockedDriver) Delete(context.Context) error {
+	return nil
+}
+
+func (d *blockedDriver) ID() string {
+	return "blocked-session"
+}
+
 // readyPage is the readiness contract the runner polls for.
 func readyPage() map[string]any {
 	return map[string]any{"page": "runner", "started": true, "readyState": "complete"}
@@ -793,17 +862,15 @@ func testRunner(dial dialFunc, testServer *testserver.Client) *runner {
 		testServer: testServer,
 		gate:       newTestGate(staticPlan(browserstack.Plan{ParallelSessionsMaxAllowed: 5}), time.Hour),
 		batchName:  "test-run",
+		jobTimeout: time.Minute,
 	}
 }
 
 func testJob(name, trace string) *job {
-	return &job{
-		name:         name,
-		url:          "http://bs-local.com:9876/test",
-		expectedPage: "runner",
-		trace:        trace,
-		state:        newJobState(),
-	}
+	j := newJob(name, browserstack.Browser{}, pagecontract.Request{Trace: trace})
+	j.url = "http://bs-local.com:9876/test"
+
+	return j
 }
 
 // TestRunnerCompletesAJobThroughTheSeam drives a whole attempt — dial,
@@ -815,7 +882,7 @@ func TestRunnerCompletesAJobThroughTheSeam(t *testing.T) {
 
 	j := testJob("chrome/32.0", "r1-001-chrome-32.0")
 
-	testRunner(func(context.Context, browserstack.Browser, string) (driver, error) {
+	testRunner(func(context.Context, browserstack.Browser, string) (browserstack.Driver, error) {
 		return d, nil
 	}, testserver.New(stats.URL)).runJob(context.Background(), j)
 
@@ -836,6 +903,10 @@ func TestRunnerCompletesAJobThroughTheSeam(t *testing.T) {
 	if !d.deleted {
 		t.Error("the session was not deleted")
 	}
+
+	if got := j.state.lastSessionID(); got != "fake-session" {
+		t.Errorf("lastSessionID() = %q, want the dialed session recorded", got)
+	}
 }
 
 // TestRunnerRetriesASessionThatFailsToStart covers the retry branch.
@@ -846,7 +917,7 @@ func TestRunnerRetriesASessionThatFailsToStart(t *testing.T) {
 
 	var calls int
 
-	dial := func(context.Context, browserstack.Browser, string) (driver, error) {
+	dial := func(context.Context, browserstack.Browser, string) (browserstack.Driver, error) {
 		calls++
 
 		if calls == 1 {
@@ -899,7 +970,7 @@ func TestRunnerReplacesADeadSession(t *testing.T) {
 
 	var calls int
 
-	dial := func(context.Context, browserstack.Browser, string) (driver, error) {
+	dial := func(context.Context, browserstack.Browser, string) (browserstack.Driver, error) {
 		calls++
 
 		if calls == 1 {
@@ -925,5 +996,147 @@ func TestRunnerReplacesADeadSession(t *testing.T) {
 
 	if !dead.deleted {
 		t.Error("the dead session was not deleted")
+	}
+}
+
+// TestRunnerGivesUpOnAJobThatExceedsItsBudget covers the total job budget: a
+// browser that keeps reporting progress still has to finish within it, because
+// the stall detector alone would let a combination page grind forever.
+func TestRunnerGivesUpOnAJobThatExceedsItsBudget(t *testing.T) {
+	stats := traceServer(t, 1)
+
+	j := testJob("firefox/51.0", "r1-004-firefox-51.0")
+
+	r := testRunner(func(context.Context, browserstack.Browser, string) (browserstack.Driver, error) {
+		return &endlessDriver{}, nil
+	}, testserver.New(stats.URL))
+
+	r.jobTimeout = 50 * time.Millisecond
+
+	r.runJob(context.Background(), j)
+
+	status := j.state.status()
+
+	if status.state != "error" || status.err == nil {
+		t.Fatalf("runJob = (%q, %v), want an error when the budget elapsed", status.state, status.err)
+	}
+
+	if !strings.Contains(status.err.Error(), "budget") {
+		t.Errorf("error = %v, want it to name the job budget", status.err)
+	}
+}
+
+// TestRunnerBudgetErrorKeepsTheLastFailure covers the budget error carrying the
+// reason the last attempt failed, so a job that runs out of time does not lose
+// why it never finished.
+func TestRunnerBudgetErrorKeepsTheLastFailure(t *testing.T) {
+	stats := traceServer(t, 1)
+
+	crash := &fakeDriver{scripts: []any{browserstack.ErrPageCrash}}
+
+	r := testRunner(func(context.Context, browserstack.Browser, string) (browserstack.Driver, error) {
+		return crash, nil
+	}, testserver.New(stats.URL))
+
+	r.jobTimeout = 50 * time.Millisecond
+	r.replacementPause = 200 * time.Millisecond
+
+	j := testJob("firefox/51.0", "r1-005-firefox-51.0")
+
+	r.runJob(context.Background(), j)
+
+	status := j.state.status()
+
+	if status.err == nil || !strings.Contains(status.err.Error(), "budget") {
+		t.Fatalf("runJob = (%q, %v), want a budget error", status.state, status.err)
+	}
+
+	if !errors.Is(status.err, browserstack.ErrPageCrash) {
+		t.Errorf("error = %v, want the last failure preserved", status.err)
+	}
+}
+
+// TestRunnerDoesNotCountQueueTimeAgainstTheBudget covers the budget starting
+// only once the job holds a slot: a job that queues longer than its budget for a
+// free slot still gets to run.
+func TestRunnerDoesNotCountQueueTimeAgainstTheBudget(t *testing.T) {
+	stats := traceServer(t, 1)
+
+	d := &fakeDriver{scripts: []any{readyPage(), completeResults()}}
+
+	r := testRunner(func(context.Context, browserstack.Browser, string) (browserstack.Driver, error) {
+		return d, nil
+	}, testserver.New(stats.URL))
+
+	// A single slot, held here until well past the job's budget, so the job
+	// spends longer queueing than its whole budget.
+	r.gate = newTestGate(staticPlan(browserstack.Plan{ParallelSessionsMaxAllowed: 1}), time.Millisecond)
+	r.jobTimeout = 50 * time.Millisecond
+
+	if err := r.gate.wait(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+
+	j := testJob("chrome/32.0", "r1-006-chrome-32.0")
+
+	done := make(chan struct{})
+
+	go func() {
+		r.runJob(context.Background(), j)
+		close(done)
+	}()
+
+	time.Sleep(150 * time.Millisecond)
+
+	r.gate.release()
+
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("runJob did not finish after the slot was released")
+	}
+
+	status := j.state.status()
+
+	if status.err != nil || status.state != "complete" {
+		t.Fatalf("runJob = (%q, %v), want a pass despite queueing past the budget", status.state, status.err)
+	}
+}
+
+// TestRunnerLeavesAShutDownJobUnrecorded covers run cancellation: shutting the
+// run down is not a job failure, so no error is recorded against the job.
+func TestRunnerLeavesAShutDownJobUnrecorded(t *testing.T) {
+	stats := traceServer(t, 1)
+
+	d := &blockedDriver{started: make(chan struct{})}
+
+	r := testRunner(func(context.Context, browserstack.Browser, string) (browserstack.Driver, error) {
+		return d, nil
+	}, testserver.New(stats.URL))
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	j := testJob("chrome/32.0", "r1-007-chrome-32.0")
+
+	done := make(chan struct{})
+
+	go func() {
+		r.runJob(ctx, j)
+		close(done)
+	}()
+
+	<-d.started
+
+	cancel()
+
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("runJob did not stop when the run was canceled")
+	}
+
+	if status := j.state.status(); status.err != nil {
+		t.Errorf("error = %v, want a shut down job left unrecorded", status.err)
 	}
 }

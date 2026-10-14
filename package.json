@@ -13,7 +13,7 @@
   },
   "scripts": {
     "prebuild": "bash tasks/install-polyfill-dependencies.sh",
-    "lint": "eslint polyfills lib tasks test && tsc --noEmit",
+    "lint": "eslint polyfills lib tasks test polyfill-useragent-normaliser polyfill-useragent-parser && tsc --noEmit",
     "lint-config": "node tasks/lint-config/index.js",
     "clean": "node tasks/clean",
     "build": "npm run clean && node tasks/updatesources && npm run generate-browserua-tables && npm run build-types && node tasks/buildsources/buildsources",
@@ -36,6 +36,10 @@
   "engines": {
     "node": ">=12"
   },
+  "workspaces": [
+    "polyfill-useragent-normaliser",
+    "polyfill-useragent-parser"
+  ],
   "files": [
     "/CHANGELOG.md",
     "/LICENSE.md",
@@ -47,7 +51,7 @@
   ],
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@financial-times/polyfill-useragent-normaliser": "^2.0.1",
+    "@mrhenry/polyfill-useragent-normaliser": "^1.0.0",
     "@iarna/toml": "^2.2.5",
     "@types/node": "^22.15.18",
     "apicache": "^1.6.3",

@@ -1,0 +1,14 @@
+user_agent_parsers:
+  # iOS apps and browsers render with WebKit (Safari's engine), so map every iOS
+  # UA to "Mobile Safari/WKWebView" and expose the iOS OS version (not the Safari
+  # version), which is what MDN BCD and the polyfill configs key on.
+  # https://github.com/mdn/browser-compat-data/issues/17241
+  #
+  # Opera Mini is excluded: it is a non-WebKit proxy browser that merely embeds
+  # an iOS UA fragment, so it must keep its own family and version.
+  #
+  # The `.{0,500}` bounds keep the quantifiers finite so the regex can not cause
+  # polynomial backtracking (CodeQL js/polynomial-redos); the values are far
+  # longer than any real iOS user agent fragment.
+  - regex: '^(?!.{0,500}Opera Mini).{0,500}?(iPod touch|iPod|iPhone|iPad).{1,500}OS[ +](\d+)[_.](\d+)(?:[_.](\d+)|)'
+    family_replacement: "Mobile Safari/WKWebView"

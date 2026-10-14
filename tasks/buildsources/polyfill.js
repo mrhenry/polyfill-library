@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const uglify = require('uglify-js');
-const UA = require('@financial-times/polyfill-useragent-normaliser');
+const UA = require('@mrhenry/polyfill-useragent-normaliser');
 const TOML = require('@iarna/toml');
 
 const validateSource = require('./validate-source');

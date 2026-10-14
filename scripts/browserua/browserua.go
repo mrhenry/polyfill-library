@@ -1,5 +1,5 @@
 // Package browserua reimplements the parts of
-// @financial-times/polyfill-useragent-normaliser the BrowserStack harness needs.
+// @mrhenry/polyfill-useragent-normaliser the BrowserStack harness needs.
 // It only accepts the short "family/version" form used by
 // test/polyfills/browsers.toml, never a real User-Agent header; the baselines
 // and Opera remap are generated from that package.
@@ -26,7 +26,7 @@ const Unknown = "other/0.0.0"
 // package's /^(\w+)\/(\d+)(?:\.(\d+)(?:\.(\d+))?)?$/i.
 var shortForm = regexp.MustCompile(`(?i)^(\w+)/(\d+)(?:\.(\d+)(?:\.(\d+))?)?$`)
 
-// tables.json is generated from @financial-times/polyfill-useragent-normaliser
+// tables.json is generated from @mrhenry/polyfill-useragent-normaliser
 // by `npm run generate-browserua-tables`, so the baselines and Opera remap have
 // one source of truth.
 //

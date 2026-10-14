@@ -40,7 +40,7 @@ func (c *Client) WaitForTunnel(ctx context.Context, browsers []Browser) error {
 	probe := Capabilities{
 		BStack: map[string]any{
 			"sessionName": "polyfill-library tunnel readiness probe",
-			"projectName": "polyfill-library",
+			"projectName": ProjectName,
 			"local":       true,
 			"video":       false,
 		},

@@ -1,0 +1,27 @@
+name: Useragent Test
+
+# The two user-agent packages are npm workspaces of this repository, so a single
+# root `npm ci` links them and installs their dependencies.
+on:
+  merge_group:
+  pull_request:
+
+jobs:
+  useragent:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: 'npm'
+      - run: npm ci
+
+      - name: Test @mrhenry/polyfill-useragent-parser
+        run: npm test --workspace @mrhenry/polyfill-useragent-parser
+
+      - name: Test @mrhenry/polyfill-useragent-normaliser
+        run: |
+          npm run test --workspace @mrhenry/polyfill-useragent-normaliser

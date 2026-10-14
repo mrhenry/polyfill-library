@@ -12,17 +12,9 @@ import (
 	"github.com/mrhenry/polyfill-library/scripts/testserver"
 )
 
-// driver is the slice of a WebDriver session the runner needs: the seam between
-// the runner and a browser. Production wraps browserstack.Session; tests fake it.
-type driver interface {
-	Navigate(ctx context.Context, target string) error
-	ExecuteScript(ctx context.Context, script string, args []any) (any, error)
-	Delete(ctx context.Context) error
-}
-
-// dialFunc starts one browser session. The production adapter builds
-// capabilities and calls BrowserStack; tests return a fake driver.
-type dialFunc func(ctx context.Context, browser browserstack.Browser, sessionName string) (driver, error)
+// dialFunc starts one browser session. The production adapter is
+// browserstack.Client.Dial; tests return a fake driver.
+type dialFunc func(ctx context.Context, browser browserstack.Browser, sessionName string) (browserstack.Driver, error)
 
 // runner drives jobs to completion across the driver seam. Every collaborator
 // is injected so the retry and replacement policy can be exercised without a
@@ -36,6 +28,11 @@ type runner struct {
 	// arrivalGrace bounds how long a navigation is given to produce its first
 	// request before the session is treated as dead.
 	arrivalGrace time.Duration
+
+	// jobTimeout bounds a whole job across every attempt and replacement, so a
+	// browser that keeps making just enough progress cannot run forever. Time
+	// spent queueing for account capacity is not counted against it.
+	jobTimeout time.Duration
 
 	// retryPause and replacementPause are the waits before a retry and before a
 	// replacement session. Injected so tests do not sleep the real delays.
@@ -51,22 +48,9 @@ func newRunner(dial dialFunc, testServer *testserver.Client, gate *capacityGate,
 		gate:             gate,
 		batchName:        batchName,
 		arrivalGrace:     arrivalGrace,
+		jobTimeout:       defaultJobTimeout,
 		retryPause:       retryDelay,
 		replacementPause: replacementDelay,
-	}
-}
-
-// browserstackDial is the production adapter at the dial seam.
-func browserstackDial(client *browserstack.Client, credentials browserstack.Credentials) dialFunc {
-	return func(ctx context.Context, browser browserstack.Browser, sessionName string) (driver, error) {
-		caps := browserstack.CapabilitiesFor(browser, sessionName, projectName, "")
-
-		session, err := browserstack.NewSession(ctx, client.HTTPClient(), browserstack.Hub(), caps, credentials)
-		if err != nil {
-			return nil, err
-		}
-
-		return session, nil
 	}
 }
 
@@ -113,17 +97,81 @@ func (r *runner) runJob(ctx context.Context, j *job) {
 		replacements int
 		sessions     int
 		attempts     int
+
+		// jobDeadline is when the job's budget runs out. It is pushed forward by
+		// time spent queueing for account capacity, so queueing is not counted
+		// against the job's browser work.
+		jobDeadline time.Time
+
+		cancelJob context.CancelFunc
 	)
+
+	defer func() {
+		if cancelJob != nil {
+			cancelJob()
+		}
+	}()
 
 	for {
 		if ctx.Err() != nil {
 			return
 		}
 
-		lastErr = r.runJobOnce(ctx, j, sessions)
+		j.state.setState("waiting for account capacity")
+
+		queuedAt := time.Now()
+
+		// Hold the session back while the account has no free parallel slot,
+		// rather than requesting one that will queue and time out. This wait is
+		// bounded by the run, not the job budget: queueing for a slot is not
+		// browser work, so it must not exhaust the budget.
+		if err := r.gate.wait(ctx); err != nil {
+			return
+		}
+
+		if jobDeadline.IsZero() {
+			// One budget covers every attempt and replacement, so retrying or
+			// replacing a session cannot multiply it.
+			jobDeadline = time.Now().Add(r.jobTimeout)
+		} else {
+			jobDeadline = jobDeadline.Add(time.Since(queuedAt))
+		}
+
+		if !time.Now().Before(jobDeadline) {
+			// The budget ran out before this attempt could start, so the slot
+			// just acquired has to go back.
+			r.gate.release()
+			j.state.setError(r.budgetError(j, lastErr))
+
+			return
+		}
+
+		if cancelJob != nil {
+			cancelJob()
+		}
+
+		jobCtx, cancel := context.WithDeadline(ctx, jobDeadline)
+		cancelJob = cancel
+
+		lastErr = r.runJobOnce(jobCtx, j, sessions)
 		sessions++
 
 		if lastErr == nil {
+			return
+		}
+
+		// A run that is shutting down is not a job failure, so it is left
+		// unrecorded.
+		if ctx.Err() != nil {
+			return
+		}
+
+		// The job's own budget may have elapsed mid-attempt, in which case the
+		// returned error is a bare deadline that names nothing useful. The
+		// attempt has already released its slot.
+		if errors.Is(jobCtx.Err(), context.DeadlineExceeded) {
+			j.state.setError(r.budgetError(j, lastErr))
+
 			return
 		}
 
@@ -151,8 +199,8 @@ func (r *runner) runJob(ctx context.Context, j *job) {
 			slog.Warn("retrying session start", "browser", j.name, "error", lastErr)
 
 			select {
-			case <-ctx.Done():
-				return
+			case <-jobCtx.Done():
+				// Handled by the budget check at the top of the loop.
 			case <-time.After(r.retryPause):
 			}
 
@@ -168,25 +216,30 @@ func (r *runner) runJob(ctx context.Context, j *job) {
 			// otherwise browsers with a small pool queue the replacement and
 			// that queue becomes a start timeout.
 			select {
-			case <-ctx.Done():
-				return
+			case <-jobCtx.Done():
+				// Handled by the budget check at the top of the loop.
 			case <-time.After(r.replacementPause):
 			}
 		}
 	}
 }
 
-// runJobOnce is a single attempt: dial, navigate, wait for the browser's first
-// request, wait for the page, then poll for results.
-func (r *runner) runJobOnce(ctx context.Context, j *job, sessionIndex int) error {
-	j.state.setState("waiting for account capacity")
+// budgetError names the job budget, keeping the last failure when it says
+// something a bare deadline does not.
+func (r *runner) budgetError(j *job, lastErr error) error {
+	at := fmt.Sprintf("job exceeded the %s budget at %q on %q", r.jobTimeout, j.state.status().state, j.name)
 
-	// Hold the session back while the account has no free parallel slot, rather
-	// than requesting one that will queue and time out.
-	if err := r.gate.wait(ctx); err != nil {
-		return err
+	if lastErr == nil || errors.Is(lastErr, context.DeadlineExceeded) || errors.Is(lastErr, context.Canceled) {
+		return errors.New(at)
 	}
 
+	return fmt.Errorf("%s: %w", at, lastErr)
+}
+
+// runJobOnce is a single attempt: dial, navigate, wait for the browser's first
+// request, wait for the page, then poll for results. The caller holds the
+// account capacity slot this attempt uses.
+func (r *runner) runJobOnce(ctx context.Context, j *job, sessionIndex int) error {
 	j.state.setState("connecting to browser")
 
 	sessionCtx, cancelSession := context.WithTimeout(ctx, sessionStartTimeout)
@@ -205,6 +258,10 @@ func (r *runner) runJobOnce(ctx context.Context, j *job, sessionIndex int) error
 		// failed, rather than a broken page or suite.
 		return fmt.Errorf("%w: %w", browserstack.ErrSessionStart, err)
 	}
+
+	// Recorded before anything can fail, so a failure report can point at the
+	// session that ran this attempt.
+	j.state.addSession(session.ID())
 
 	// Runs even when a later step fails, so a dead job cannot hold a parallel
 	// slot.
@@ -252,7 +309,7 @@ func (r *runner) runJobOnce(ctx context.Context, j *job, sessionIndex int) error
 
 // waitForPageLoad polls until the test page has declared its identity and
 // started.
-func (r *runner) waitForPageLoad(ctx context.Context, session driver, j *job, expected string) error {
+func (r *runner) waitForPageLoad(ctx context.Context, session browserstack.Driver, j *job, expected string) error {
 	deadline := time.Now().Add(pageLoadTimeout)
 
 	var last pagecontract.State
@@ -293,7 +350,7 @@ func (r *runner) pageLoadFailure(ctx context.Context, j *job, last pagecontract.
 	return pageLoadFailure(ctx, r.testServer, j.name, j.trace, last, expected)
 }
 
-func (r *runner) pollForResults(ctx context.Context, session driver, j *job) error {
+func (r *runner) pollForResults(ctx context.Context, session browserstack.Driver, j *job) error {
 	startedAt := time.Now()
 	lastUpdatedAt := startedAt
 

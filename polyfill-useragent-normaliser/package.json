@@ -1,0 +1,28 @@
+{
+  "name": "@mrhenry/polyfill-useragent-normaliser",
+  "version": "1.0.0",
+  "description": "The user-agent normalisation logic behind @mrhenry/polyfill-library",
+  "main": "lib/normalise-user-agent.js",
+  "engines": {
+    "node": ">=12"
+  },
+  "scripts": {
+    "build": "node compilers/node.js",
+    "test": "node --test 'test/**/*.test.js'",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Mr. Henry",
+  "license": "MIT",
+  "dependencies": {
+    "@mrhenry/polyfill-useragent-parser": "^1.0.0",
+    "semver": "^7.8.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrhenry/polyfill-library.git",
+    "directory": "polyfill-useragent-normaliser"
+  },
+  "volta": {
+    "extends": "../package.json"
+  }
+}

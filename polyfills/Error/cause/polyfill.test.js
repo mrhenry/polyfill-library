@@ -12,6 +12,15 @@ if ('AggregateError' in self) {
 	testCases.push({_Error: self.AggregateError, name: 'AggregateError', arity: 2});
 }
 
+// `class` is a syntax error where it is not supported, so it is only ever parsed through `Function`
+var makeSubclass = (function () {
+	try {
+		return new Function('_Error', 'return class Subclass extends _Error {}');
+	} catch (e) {
+		return null;
+	}
+})();
+
 testCases.forEach(function (testCase) {
 	var _Error = testCase._Error;
 	var name = testCase.name;
@@ -70,6 +79,19 @@ testCases.forEach(function (testCase) {
 			it('creates an object without new', function () {
 				proclaim.isObject(_Error());
 			});
+
+			if (makeSubclass) {
+				it('can be subclassed', function () {
+					var Subclass = makeSubclass(_Error);
+					var error = new Subclass('m', { cause: 'c' });
+					proclaim.isInstanceOf(error, Subclass);
+					proclaim.isInstanceOf(error, _Error);
+					proclaim.isInstanceOf(error, Error);
+					proclaim.equal(error.constructor, Subclass);
+					proclaim.equal(error.message, 'm');
+					proclaim.equal(error.cause, 'c');
+				});
+			}
 		} else {
 			it('is instance of Error', function () {
 				proclaim.isInstanceOf(new _Error([], 'm'), Error);
@@ -96,6 +118,20 @@ testCases.forEach(function (testCase) {
 			it('creates an object without new', function () {
 				proclaim.isObject(_Error([]));
 			});
+
+			if (makeSubclass) {
+				it('can be subclassed', function () {
+					var Subclass = makeSubclass(_Error);
+					var error = new Subclass([], 'm', { cause: 'c' });
+					proclaim.isInstanceOf(error, Subclass);
+					proclaim.isInstanceOf(error, _Error);
+					proclaim.isInstanceOf(error, Error);
+					proclaim.equal(error.constructor, Subclass);
+					proclaim.deepEqual(error.errors, []);
+					proclaim.equal(error.message, 'm');
+					proclaim.equal(error.cause, 'c');
+				});
+			}
 		}
 	});
 });
