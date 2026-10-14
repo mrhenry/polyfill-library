@@ -1,7 +1,7 @@
 {
   "name": "@mrhenry/polyfill-useragent-parser",
-  "version": "1.6.3",
-  "description": "This is a JavaScript implementation of the [ua-parser](https://github.com/tobie/ua-parser)",
+  "version": "1.0.0",
+  "description": "This is a JavaScript implementation of https://github.com/ua-parser/uap-core",
   "main": "lib/ua_parser.js",
   "engines": {
     "node": ">=12"

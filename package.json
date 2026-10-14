@@ -51,7 +51,7 @@
   ],
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@financial-times/polyfill-useragent-normaliser": "^2.0.1",
+    "@mrhenry/polyfill-useragent-normaliser": "^1.0.0",
     "@iarna/toml": "^2.2.5",
     "@types/node": "^22.15.18",
     "apicache": "^1.6.3",

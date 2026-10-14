@@ -1,6 +1,6 @@
 # User Agent normaliser
 
-This is the JavaScript implementation of the User-Agent normalisation used within the [polyfill-library](https://github.com/Financial-Times/polyfill-library).
+This is the JavaScript implementation of the User-Agent normalisation used within the [polyfill-library](https://github.com/mrhenry/polyfill-library).
 
 # Usage
 

@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const data = JSON.parse(
-	fs.readFileSync(path.join(__dirname, "../data.json"), "utf8")
+	fs.readFileSync(path.join(__dirname, "data.json"), "utf8")
 );
 
 const lines = [];

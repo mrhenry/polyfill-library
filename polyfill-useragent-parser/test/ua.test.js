@@ -355,37 +355,37 @@ describe("useragent-parser should pass tests from the ua-parser/uap-core project
 	});
 	it("parses Opera/9.80 (J2ME/MIDP; Opera Mini/5.0 (iPhone; U; fr; CPU iPhone OS 4_2_1 like Mac OS X; fr) AppleWebKit/23.405; U; en) Presto/2.5.25 Version/10.54 correctly", function() {
 		const results = uaParser("Opera/9.80 (J2ME/MIDP; Opera Mini/5.0 (iPhone; U; fr; CPU iPhone OS 4_2_1 like Mac OS X; fr) AppleWebKit/23.405; U; en) Presto/2.5.25 Version/10.54");
-		assert.strictEqual(results.family, "Mobile Safari/WKWebView", msg("results.family", results.family, "Mobile Safari/WKWebView"));
-		assert.strictEqual(results.major || "", "4", msg("results.major", results.major || "", "4"));
-		assert.strictEqual(results.minor || "", "2", msg("results.minor", results.minor || "", "2"));
-		assert.equal(results.patch || "", "1" || "", msg("results.patch", results.patch || "", "1" || ""));
+		assert.strictEqual(results.family, "Opera Mini", msg("results.family", results.family, "Opera Mini"));
+		assert.strictEqual(results.major || "", "5", msg("results.major", results.major || "", "5"));
+		assert.strictEqual(results.minor || "", "0", msg("results.minor", results.minor || "", "0"));
+		assert.equal(results.patch || "", "" || "", msg("results.patch", results.patch || "", "" || ""));
 	});
 	it("parses Opera/9.80 (J2ME/MIDP; Opera Mini/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/23.411; U; en) Presto/2.5.25 Version/10.54 correctly", function() {
 		const results = uaParser("Opera/9.80 (J2ME/MIDP; Opera Mini/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/23.411; U; en) Presto/2.5.25 Version/10.54");
-		assert.strictEqual(results.family, "Mobile Safari/WKWebView", msg("results.family", results.family, "Mobile Safari/WKWebView"));
-		assert.strictEqual(results.major || "", "3", msg("results.major", results.major || "", "3"));
+		assert.strictEqual(results.family, "Opera Mini", msg("results.family", results.family, "Opera Mini"));
+		assert.strictEqual(results.major || "", "5", msg("results.major", results.major || "", "5"));
 		assert.strictEqual(results.minor || "", "0", msg("results.minor", results.minor || "", "0"));
 		assert.equal(results.patch || "", "" || "", msg("results.patch", results.patch || "", "" || ""));
 	});
 	it("parses Opera/9.80 (J2ME/MIDP; Opera Mini/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/23.377; U; en) Presto/2.5.25 Version/10.54 correctly", function() {
 		const results = uaParser("Opera/9.80 (J2ME/MIDP; Opera Mini/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/23.377; U; en) Presto/2.5.25 Version/10.54");
-		assert.strictEqual(results.family, "Mobile Safari/WKWebView", msg("results.family", results.family, "Mobile Safari/WKWebView"));
-		assert.strictEqual(results.major || "", "3", msg("results.major", results.major || "", "3"));
+		assert.strictEqual(results.family, "Opera Mini", msg("results.family", results.family, "Opera Mini"));
+		assert.strictEqual(results.major || "", "5", msg("results.major", results.major || "", "5"));
 		assert.strictEqual(results.minor || "", "0", msg("results.minor", results.minor || "", "0"));
 		assert.equal(results.patch || "", "" || "", msg("results.patch", results.patch || "", "" || ""));
 	});
 	it("parses Opera/9.80 (J2ME/MIDP; Opera Mini/4.3.24214; iPhone; CPU iPhone OS 4_2_1 like Mac OS X; AppleWebKit/24.783; U; en) Presto/2.5.25 Version/10.54 correctly", function() {
 		const results = uaParser("Opera/9.80 (J2ME/MIDP; Opera Mini/4.3.24214; iPhone; CPU iPhone OS 4_2_1 like Mac OS X; AppleWebKit/24.783; U; en) Presto/2.5.25 Version/10.54");
-		assert.strictEqual(results.family, "Mobile Safari/WKWebView", msg("results.family", results.family, "Mobile Safari/WKWebView"));
+		assert.strictEqual(results.family, "Opera Mini", msg("results.family", results.family, "Opera Mini"));
 		assert.strictEqual(results.major || "", "4", msg("results.major", results.major || "", "4"));
-		assert.strictEqual(results.minor || "", "2", msg("results.minor", results.minor || "", "2"));
-		assert.equal(results.patch || "", "1" || "", msg("results.patch", results.patch || "", "1" || ""));
+		assert.strictEqual(results.minor || "", "3", msg("results.minor", results.minor || "", "3"));
+		assert.equal(results.patch || "", "24214" || "", msg("results.patch", results.patch || "", "24214" || ""));
 	});
 	it("parses Opera/9.80 (J2ME/MIDP; Opera Mini/4.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/23.411; U; en) Presto/2.5.25 Version/10.54 correctly", function() {
 		const results = uaParser("Opera/9.80 (J2ME/MIDP; Opera Mini/4.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/23.411; U; en) Presto/2.5.25 Version/10.54");
-		assert.strictEqual(results.family, "Mobile Safari/WKWebView", msg("results.family", results.family, "Mobile Safari/WKWebView"));
-		assert.strictEqual(results.major || "", "3", msg("results.major", results.major || "", "3"));
-		assert.strictEqual(results.minor || "", "2", msg("results.minor", results.minor || "", "2"));
+		assert.strictEqual(results.family, "Opera Mini", msg("results.family", results.family, "Opera Mini"));
+		assert.strictEqual(results.major || "", "4", msg("results.major", results.major || "", "4"));
+		assert.strictEqual(results.minor || "", "0", msg("results.minor", results.minor || "", "0"));
 		assert.equal(results.patch || "", "" || "", msg("results.patch", results.patch || "", "" || ""));
 	});
 	it("parses Mozilla/5.0 (iPhone; CPU OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/9.3 Mobile/11A465 Safari/9537.53 VLC for iOS/2.7.2 correctly", function() {

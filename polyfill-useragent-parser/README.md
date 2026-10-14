@@ -1,6 +1,6 @@
 # User Agent parser
 
-This is a JavaScript implementation of the [ua-parser](https://github.com/tobie/ua-parser)
+This is a JavaScript implementation of [uap-core](https://github.com/ua-parser/uap-core)
 
 # Usage
 
@@ -40,7 +40,10 @@ npm run build
 
 `npm test` (native `node --test`) runs:
 
-- `test/ua.test.js` — the local fixtures.
+- `test/ua.test.js` — the full snapshot of the upstream and local user agent
+  fixtures.
+- `test/overrides.test.js` — verifies the parser against the local fixtures in
+  `test/user_agent_strings.yaml`.
 - `test/upstream.test.js` — verifies the parser against the upstream fixtures in
   `test/uap-core`. Deviations are only allowed for user agents matched by
   `compilers/overrides-regexes.yaml`.

@@ -13,7 +13,7 @@ module.exports = function useragent_parser(ua) {
 		};
 	} else if (
 		(result =
-			/(iPod touch|iPod|iPhone|iPad).+OS[ +](\d+)[_.](\d+)(?:[_.](\d+)|)/.exec(
+			/^(?!.*Opera Mini).*?(iPod touch|iPod|iPhone|iPad).+OS[ +](\d+)[_.](\d+)(?:[_.](\d+)|)/.exec(
 				ua
 			))
 	) {
