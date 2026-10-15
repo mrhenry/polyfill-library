@@ -3,12 +3,10 @@ const stream = require("stream");
 const browserify = require("browserify");
 const path = require("path");
 
-const IteratorHelpersPolyfillOutput = path.resolve(
-	"polyfills/_IteratorHelpers"
-);
+const IteratorHelpersPolyfillOutput = __dirname;
 
 const entry = `
-self._IteratorHelpersUtils = {
+self._IteratorHelpers = {
   iteratorPrototype: {
 	  drop: require("es-iterator-helpers/Iterator.prototype.drop"),
 	  every: require("es-iterator-helpers/Iterator.prototype.every"),
@@ -29,8 +27,8 @@ self._IteratorHelpersUtils = {
 `;
 
 const footer = `
-var IteratorHelpersUtils = self._IteratorHelpersUtils;
-delete self._IteratorHelpersUtils;
+var IteratorHelpers = self._IteratorHelpers;
+delete self._IteratorHelpers;
 `;
 
 browserify()

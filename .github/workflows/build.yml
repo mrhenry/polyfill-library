@@ -1,0 +1,67 @@
+name: Build
+
+# Builds pull requests from forks so that "Test Polyfills (fork)" can run the
+# BrowserStack tests without the pull request's code ever having access to the
+# credentials.
+#
+# This runs on "pull_request", from which GitHub withholds secrets, so this job
+# cannot read the BrowserStack credentials even by accident. The consumer treats
+# the artifact below as untrusted data.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event.pull_request.head.repo.fork == true
+    runs-on: ubuntu-latest
+    steps:
+      # "pull_request" checks out the merge commit by default, which is what we
+      # want to test. No allow-unsafe-pr-checkout is needed: that protection
+      # only applies to pull_request_target and workflow_run.
+      - name: Branch based PR checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 50
+          # The build runs the pull request's code. Do not leave the token in
+          # .git/config where that code could read it.
+          persist-credentials: false
+
+      # Runs before the build so that generated files do not show up in the diff.
+      # The privileged job checks out the default branch and cannot see the
+      # fork's git history, so this list is handed over in the artifact.
+      - name: Determine modified files
+        run: |
+          git remote add upstream https://github.com/mrhenry/polyfill-library.git
+          git fetch --depth=50 upstream main
+          base=$(git merge-base HEAD upstream/main || echo upstream/main)
+          git --no-pager diff --name-only "$base" HEAD > modified-files.txt
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npm run build
+
+      # Only data is published: the built polyfills, the polyfill test suites and
+      # the list of changed files. Artifacts are scoped to this workflow run, so
+      # the name cannot collide with another commit or pull request.
+      - name: Upload build output
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: polyfill-dist
+          path: |
+            polyfills/__dist
+            polyfills/**/polyfill.test.js
+            modified-files.txt
+          retention-days: 2
+          overwrite: true

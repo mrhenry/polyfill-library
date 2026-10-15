@@ -8,6 +8,7 @@ on:
 concurrency:
   group: browserstack
   cancel-in-progress: false
+  queue: max
 
 jobs:
   test:
@@ -30,15 +31,19 @@ jobs:
         - safari
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
 
 
-      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
           cache: 'npm'
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: stable
 
       - name: env
         run: echo "commit-sha=$(echo ${GITHUB_SHA})" >> $GITHUB_ENV
@@ -47,7 +52,7 @@ jobs:
 
       - name: cache __dist
         id: cache-dist
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: polyfills/__dist
           key: cache--dist--${{ env.commit-sha }}
@@ -56,7 +61,7 @@ jobs:
         if: steps.cache-dist.outputs.cache-hit != 'true'
 
       - name: Test ${{ matrix.browser }}
-        run: node ./test/polyfills/server.js & node ./test/polyfills/remotetest.js
+        run: node ./test/polyfills/server.js & go run ./scripts/polyfills-browserstack
           test-polyfill-combinations targeted director browser="${{ matrix.browser }}"
         timeout-minutes: 45
         env:

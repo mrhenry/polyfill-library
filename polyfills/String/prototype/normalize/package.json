@@ -6,6 +6,6 @@
     "unorm": "1.6.0"
   },
   "volta": {
-    "extends": "../../package.json"
+    "extends": "../../../../package.json"
   }
 }

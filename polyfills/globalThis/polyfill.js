@@ -31,6 +31,7 @@
 		typeof global == "object" && global // eslint-disable-line no-undef
 	);
 
+	// eslint-disable-next-line no-shadow-restricted-names
 	var globalThis =
 		// Modern browsers which already have globalThis but are running this polyfill anyway.
 		freeGlobalThis ||

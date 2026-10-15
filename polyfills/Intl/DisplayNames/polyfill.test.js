@@ -1,3 +1,5 @@
+/* globals Intl */
+
 describe("Intl.DisplayNames", function () {
 	before(function () {
 		if (

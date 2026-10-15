@@ -2,8 +2,45 @@ describe('Event.scrollend', function () {
 	// Scrolling and scroll events can be flaky in headless mode.
 	// CI environments are often headless.
 	this.retries(3);
+	this.timeout(10 * 1000);
 
 	var el;
+
+	// The polyfill dispatches scrollend 100ms after the last scroll event, and a
+	// loaded CI machine can take much longer than that to deliver the scroll in
+	// the first place. Wait for the expected number of calls instead of asserting
+	// after a fixed delay, then give the polyfill a moment to deliver any stray
+	// extra call before finishing.
+	var expectCalls = function (getCount, expected, done) {
+		var startedAt = Date.now();
+		var deadline = startedAt + 5000;
+		// A listener that should never fire needs long enough for the scrollend
+		// the polyfill would otherwise dispatch to have had a chance to arrive.
+		var minimum = expected === 0 ? 1500 : 0;
+
+		(function poll() {
+			var count = getCount();
+
+			if (count > expected || Date.now() >= deadline) {
+				throw new Error('Listener was called ' + count + ' times, expected ' + expected);
+			}
+
+			if (count < expected || Date.now() - startedAt < minimum) {
+				setTimeout(poll, 25);
+				return;
+			}
+
+			setTimeout(function () {
+				var settled = getCount();
+
+				if (settled !== expected) {
+					throw new Error('Listener was called ' + settled + ' times, expected ' + expected);
+				}
+
+				done();
+			}, 500);
+		}());
+	};
 
 	before(function () {
 		el = document.body.appendChild(document.createElement("div"));
@@ -111,14 +148,9 @@ describe('Event.scrollend', function () {
 			el.scrollTop = 0;
 		}, 200);
 
-		setTimeout(function () {
-			if (counter === 1) {
-				done();
-				return;
-			}
-
-			throw new Error('Listener was called ' + counter + ' times, expected 1');
-		}, 400);
+		expectCalls(function () {
+			return counter;
+		}, 1, done);
 	});
 
 	it('respects once on the document', function (done) {
@@ -134,14 +166,9 @@ describe('Event.scrollend', function () {
 			window.scrollTo(0, 0);
 		}, 200);
 
-		setTimeout(function () {
-			if (counter === 1) {
-				done();
-				return;
-			}
-
-			throw new Error('Listener was called ' + counter + ' times, expected 1');
-		}, 400);
+		expectCalls(function () {
+			return counter;
+		}, 1, done);
 	});
 
 	it('respects once on the window', function (done) {
@@ -157,14 +184,9 @@ describe('Event.scrollend', function () {
 			window.scrollTo(0, 0);
 		}, 200);
 
-		setTimeout(function () {
-			if (counter === 1) {
-				done();
-				return;
-			}
-
-			throw new Error('Listener was called ' + counter + ' times, expected 1' );
-		}, 400);
+		expectCalls(function () {
+			return counter;
+		}, 1, done);
 	});
 
 	it('removes listeners on elements', function (done) {
@@ -177,14 +199,9 @@ describe('Event.scrollend', function () {
 		el.removeEventListener('scrollend', listener);
 		el.scrollTop = 10000;
 
-		setTimeout(function () {
-			if (counter === 0) {
-				done();
-				return;
-			}
-
-			throw new Error('Listener was not removed');
-		}, 200);
+		expectCalls(function () {
+			return counter;
+		}, 0, done);
 	});
 
 	it('removes listeners on the document', function (done) {
@@ -197,14 +214,9 @@ describe('Event.scrollend', function () {
 		document.removeEventListener('scrollend', listener);
 		window.scrollTo(0, 10000);
 
-		setTimeout(function () {
-			if (counter === 0) {
-				done();
-				return;
-			}
-
-			throw new Error('Listener was not removed');
-		}, 200);
+		expectCalls(function () {
+			return counter;
+		}, 0, done);
 	});
 
 	it('removes listeners on the window', function (done) {
@@ -217,14 +229,9 @@ describe('Event.scrollend', function () {
 		window.removeEventListener('scrollend', listener);
 		window.scrollTo(0, 10000);
 
-		setTimeout(function () {
-			if (counter === 0) {
-				done();
-				return;
-			}
-
-			throw new Error('Listener was not removed');
-		}, 200);
+		expectCalls(function () {
+			return counter;
+		}, 0, done);
 	});
 
 	it('fires a scrollend event added in scroll for element', function (done) {
@@ -291,14 +298,9 @@ describe('Event.scrollend', function () {
 		el.addEventListener('scroll', listener2);
 		el.scrollTop = 10000;
 
-		setTimeout(function () {
-			if (counter === 1) {
-				done();
-				return;
-			}
-
-			throw new Error('Listener was not removed');
-		}, 300);
+		expectCalls(function () {
+			return counter;
+		}, 1, done);
 	});
 
 	it('correctly keeps track of event listeners - b', function (done) {
@@ -319,14 +321,9 @@ describe('Event.scrollend', function () {
 		el.removeEventListener('scrollend', listener);
 		el.scrollTop = 10000;
 
-		setTimeout(function () {
-			if (counter === 0) {
-				done();
-				return;
-			}
-
-			throw new Error('Listener was not removed');
-		}, 300);
+		expectCalls(function () {
+			return counter;
+		}, 0, done);
 	});
 
 	it('correctly keeps track of event listeners - c', function (done) {

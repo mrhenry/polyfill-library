@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const uglify = require('uglify-js');
-const UA = require('@financial-times/polyfill-useragent-normaliser');
+const UA = require('@mrhenry/polyfill-useragent-normaliser');
 const TOML = require('@iarna/toml');
 
 const validateSource = require('./validate-source');
@@ -260,7 +260,8 @@ module.exports = class Polyfill {
 
 			const minified = uglify.minify(source, {
 				compress: {
-					keep_fnames: true
+					keep_fnames: true,
+					arrows: false
 				},
 				mangle: {},
 				output: {
@@ -301,6 +302,7 @@ module.exports = class Polyfill {
 					expression: true,
 					keep_fnames: true,
 					inline: false,
+					arrows: false,
 				},
 				mangle: {},
 				output: {

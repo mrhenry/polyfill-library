@@ -1,6 +1,6 @@
 {
   "name": "@mrhenry/polyfill-library",
-  "version": "5.2.1",
+  "version": "5.3.1",
   "description": "A polyfill combinator",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -11,30 +11,35 @@
   "bugs": {
     "url": "https://github.com/mrhenry/polyfill-library/issues"
   },
-  "workspaces": [
-    "polyfills/**/*"
-  ],
   "scripts": {
-    "lint": "eslint polyfills lib tasks test && tsc --noEmit",
+    "prebuild": "bash tasks/install-polyfill-dependencies.sh",
+    "lint": "eslint polyfills lib tasks test polyfill-useragent-normaliser polyfill-useragent-parser && tsc --noEmit",
     "lint-config": "node tasks/lint-config/index.js",
     "clean": "node tasks/clean",
-    "build": "npm run clean && node tasks/updatesources && npm run build-types && node tasks/buildsources/buildsources",
-    "build-types": "tsc lib/*.js --declaration --allowJs --emitDeclarationOnly --outDir lib",
+    "build": "npm run clean && node tasks/updatesources && npm run generate-browserua-tables && npm run build-types && node tasks/buildsources/buildsources",
+    "build-types": "tsc",
     "watch": "npm run clean && node tasks/updatesources && npm run build-types && node tasks/buildsources/watchsource",
     "fmt": "eslint . --fix",
     "test-end-to-end": "node --test 'test/end-to-end/**/*.test.js'",
     "test-node": "node --test 'test/node/**/*.test.js'",
-    "test-unit": "node --test 'test/unit/**/*.test.js'",
-    "test": "node --test 'test/unit/**/*.test.js' && node --test 'test/node/**/*.test.js' && node --test 'test/end-to-end/**/*.test.js'",
-    "test-older-node": "node --test 'test/unit' && node --test 'test/node' && node --test 'test/end-to-end'",
+    "test-polyfills": "node --test 'test/polyfills/**/*.test.js'",
+    "test-unit": "node --test 'test/unit/**/*.test.js' && node --test 'test/polyfills/**/*.test.js'",
+    "test": "node --test 'test/unit/**/*.test.js' && node --test 'test/node/**/*.test.js' && node --test 'test/polyfills/**/*.test.js' && node --test 'test/end-to-end/**/*.test.js'",
+    "test-older-node": "node --test 'test/unit' && node --test 'test/node' && node --test 'test/polyfills/server.test.js' && node --test 'test/end-to-end'",
+    "test-browserstack": "node ./test/polyfills/server.js & go run ./scripts/polyfills-browserstack",
     "prepublishOnly": "npm run build",
     "create-new-polyfill": "node ./tasks/create-new-polyfill.js",
-    "update-browserstack-list": "node ./tasks/updatebrowserstacklist.js"
+    "update-browserstack-list": "go run ./scripts/polyfills-update-browser-list",
+    "generate-browserua-tables": "node tasks/generate-browserua-tables.js"
   },
   "license": "MIT",
   "engines": {
     "node": ">=12"
   },
+  "workspaces": [
+    "polyfill-useragent-normaliser",
+    "polyfill-useragent-parser"
+  ],
   "files": [
     "/CHANGELOG.md",
     "/LICENSE.md",
@@ -45,30 +50,34 @@
     "/types"
   ],
   "devDependencies": {
-    "@financial-times/polyfill-useragent-normaliser": "^2.0.1",
+    "@eslint/js": "^10.0.1",
+    "@mrhenry/polyfill-useragent-normaliser": "^1.0.0",
     "@iarna/toml": "^2.2.5",
+    "@types/node": "^22.15.18",
     "apicache": "^1.6.3",
-    "browserstack": "1.6.1",
-    "browserstack-local": "^1.5.6",
-    "compression": "^1.8.0",
+    "compression": "^1.8.1",
     "diff": "^5.2.0",
-    "eslint": "^9.26.0",
-    "eslint-plugin-uncalled-iife": "^1.0.3",
-    "eslint-plugin-unicorn": "^60.0.0",
+    "eslint": "^10.1.0",
+    "eslint-plugin-uncalled-iife": "^1.0.4",
+    "eslint-plugin-unicorn": "^64.0.0",
     "express": "^5.1.0",
-    "glob": "^7.1.1",
-    "handlebars": "^4.7.8",
+    "glob": "^13.0.6",
+    "globals": "^17.4.0",
+    "handlebars": "^4.7.9",
     "hard-rejection": "^2.1.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "proclaim": "^3.6.0",
-    "semver": "^7.7.2",
+    "semver": "^7.7.4",
     "toposort": "^2.0.2",
-    "typescript": "^5.8.3",
-    "ua-parser-js": "^2.0.3",
-    "uglify-js": "^3.17.4",
-    "webdriverio": "^9.19.2"
+    "typescript": "^6.0.2",
+    "ua-parser-js": "^2.0.9",
+    "uglify-js": "^3.17.4"
   },
   "volta": {
-    "node": "24.8.0"
+    "node": "26.6.0"
+  },
+  "allowScripts": {
+    "edgedriver@6.1.2": true,
+    "geckodriver@5.0.0": true
   }
 }

@@ -16,8 +16,8 @@
 var fs = require('fs');
 var path = require('path');
 var LocalesPath = path.dirname(require.resolve('@formatjs/intl-pluralrules/locale-data/en.js'));
-var IntlPolyfillOutput = path.resolve('polyfills/Intl/PluralRules');
-var LocalesPolyfillOutput = path.resolve('polyfills/Intl/PluralRules/~locale');
+var IntlPolyfillOutput = __dirname;
+var LocalesPolyfillOutput = path.join(__dirname, '~locale');
 var TOML = require('@iarna/toml');
 
 var configSource = TOML.parse(fs.readFileSync(path.join(IntlPolyfillOutput, 'config.toml'), 'utf-8'));

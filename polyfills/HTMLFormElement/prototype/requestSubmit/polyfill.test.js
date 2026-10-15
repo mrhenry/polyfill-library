@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 describe("HTMLFormElement.prototype.requestSubmit", function () {
 	var supportsFormAssociatedElements = false;
+	var testIframe;
 
 	// Add <iframe> to DOM for use by several tests
 	this.beforeAll(function () {
@@ -61,6 +62,7 @@ describe("HTMLFormElement.prototype.requestSubmit", function () {
 			"afterbegin",
 			'<iframe name="iframe" src="about:blank"></iframe>'
 		);
+		testIframe = document.body.querySelector('iframe[name="iframe"]');
 	});
 
 	this.beforeEach(function () {
@@ -387,15 +389,22 @@ describe("HTMLFormElement.prototype.requestSubmit", function () {
 			"afterbegin",
 			'<form action="/empty-document.html" target="iframe"><input required><input type=submit formnovalidate name="prop" value="e277b63f-a0b1-437e-a557-51c854f7d19b"></form>'
 		);
-		var form = document.body.querySelector("form");
-		var iframe = document.body.querySelector("iframe");
+		var form = document.getElementById("test-container").querySelector("form");
+		var iframe = testIframe;
 
-		// The form should be submitted though it is invalid. Use <iframe> to accept the POST, and examine the submission there.
-		iframe.addEventListener("load", function () {
+		// The form should be submitted though it is invalid. Use <iframe> to accept the submission, and examine it there.
+		function onIframeLoad() {
+			// Ignore the iframe's initial "about:blank" load, which can fire
+			// after this listener is attached.
+			if (iframe.contentWindow.location.href === "about:blank") {
+				return;
+			}
+			iframe.removeEventListener("load", onIframeLoad);
 			var formUrlencodedSubmission = iframe.contentWindow.location.search;
 			proclaim.isTrue(formUrlencodedSubmission.indexOf("prop=e277b63f-a0b1-437e-a557-51c854f7d19b") !== -1);
 			done();
-		});
+		}
+		iframe.addEventListener("load", onIframeLoad);
 		form.requestSubmit(form.querySelector("[type=submit]"));
 	});
 

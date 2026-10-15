@@ -1,3 +1,5 @@
+/* globals Intl */
+
 describe("Intl.RelativeTimeFormat", function () {
 	before(function () {
 		if (

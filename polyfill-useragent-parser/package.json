@@ -1,0 +1,32 @@
+{
+  "name": "@mrhenry/polyfill-useragent-parser",
+  "version": "1.0.0",
+  "description": "This is a JavaScript implementation of https://github.com/ua-parser/uap-core",
+  "main": "lib/ua_parser.js",
+  "engines": {
+    "node": ">=12"
+  },
+  "scripts": {
+    "build": "node ./compilers/js.js",
+    "test": "node --test 'test/**/*.test.js'",
+    "update-uap-core": "node compilers/update-uap-core.js",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Mr. Henry",
+  "license": "MIT",
+  "devDependencies": {
+    "js-yaml": "^5.4.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrhenry/polyfill-library.git",
+    "directory": "polyfill-useragent-parser"
+  },
+  "bugs": {
+    "url": "https://github.com/mrhenry/polyfill-library/issues"
+  },
+  "homepage": "https://github.com/mrhenry/polyfill-library/tree/main/polyfill-useragent-parser#readme",
+  "volta": {
+    "extends": "../package.json"
+  }
+}

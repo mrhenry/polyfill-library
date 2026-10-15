@@ -2,7 +2,7 @@
 
 var fs = require('fs');
 var path = require('path');
-var arrayBufferPolyfillOutput = path.resolve('polyfills/ArrayBuffer/polyfill.js');
+var arrayBufferPolyfillOutput = path.resolve(path.join(__dirname, 'polyfill.js'));
 
 var polyfill = fs.readFileSync(arrayBufferPolyfillOutput, 'utf-8');
 
