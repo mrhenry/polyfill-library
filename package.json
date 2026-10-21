@@ -74,7 +74,7 @@
     "uglify-js": "^3.17.4"
   },
   "volta": {
-    "node": "26.6.0"
+    "node": "26.12.1"
   },
   "allowScripts": {
     "edgedriver@6.1.2": true,
