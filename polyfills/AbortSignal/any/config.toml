@@ -1,0 +1,24 @@
+dependencies = [
+	"_ESAbstract.GetIterator",
+	"_ESAbstract.IteratorStepValue",
+	"_ESAbstract.Type",
+	"AbortController",
+	"Symbol.iterator",
+]
+spec = "https://dom.spec.whatwg.org/#dom-abortsignal-any"
+docs = "https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/any_static"
+
+[browsers]
+android = "*"
+chrome = "<116"
+edge = "*"
+edge_mob = "*"
+firefox = "<124"
+firefox_mob = "<124"
+ie = ">=10"
+ie_mob = ">=10"
+opera = "<102"
+op_mob = "<78"
+safari = "<17.4"
+ios_saf = "<17.4"
+samsung_mob = "<24.0"
