@@ -1,0 +1,44 @@
+aliases = [ "es2026" ]
+dependencies = [
+	"_ESAbstract.ArrayCreate",
+	"_ESAbstract.AsyncIteratorClose",
+	"_ESAbstract.Call",
+	"_ESAbstract.Construct",
+	"_ESAbstract.CreateAsyncFromSyncIterator",
+	"_ESAbstract.CreateDataPropertyOrThrow",
+	"_ESAbstract.CreateMethodProperty",
+	"_ESAbstract.Get",
+	"_ESAbstract.GetIterator",
+	"_ESAbstract.GetMethod",
+	"_ESAbstract.IsCallable",
+	"_ESAbstract.IsConstructor",
+	"_ESAbstract.IteratorComplete",
+	"_ESAbstract.IteratorValue",
+	"_ESAbstract.LengthOfArrayLike",
+	"_ESAbstract.ThrowCompletion",
+	"_ESAbstract.ToObject",
+	"_ESAbstract.ToString",
+	"_ESAbstract.Type",
+	"Promise",
+	"Symbol.asyncIterator",
+	"Symbol.iterator",
+]
+spec = "https://tc39.es/ecma262/#sec-array.fromasync"
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fromAsync"
+
+[browsers]
+android = "*"
+bb = "*"
+chrome = "<121"
+edge = "*"
+edge_mob = "*"
+firefox = "<115"
+firefox_mob = "<115"
+ie = "*"
+ie_mob = "*"
+opera = "<107"
+op_mob = "<81"
+op_mini = "*"
+safari = "<16.4"
+ios_saf = "<16.4"
+samsung_mob = "<25.0"

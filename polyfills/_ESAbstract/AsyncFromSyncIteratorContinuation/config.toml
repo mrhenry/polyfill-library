@@ -1,0 +1,26 @@
+dependencies = [
+	"_ESAbstract.CreateIterResultObject",
+	"_ESAbstract.IteratorClose",
+	"_ESAbstract.IteratorComplete",
+	"_ESAbstract.IteratorValue",
+	"_ESAbstract.ThrowCompletion",
+	"Promise",
+]
+spec = "https://tc39.es/ecma262/#sec-asyncfromsynciteratorcontinuation"
+
+[browsers]
+android = "*"
+bb = "*"
+chrome = "*"
+edge = "*"
+edge_mob = "*"
+firefox = "*"
+firefox_mob = "*"
+ie = "*"
+ie_mob = "*"
+opera = "*"
+op_mob = "*"
+op_mini = "*"
+safari = "*"
+ios_saf = "*"
+samsung_mob = "*"
