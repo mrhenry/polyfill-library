@@ -1,0 +1,32 @@
+aliases = [ "es2027" ]
+dependencies = [
+	"_ESAbstract.CreateMethodProperty",
+	"_ESAbstract.Get",
+	"_ESAbstract.IsInteger",
+	"_ESAbstract.IteratorClose",
+	"_ESAbstract.IteratorStepValue",
+	"_ESAbstract.NormalCompletion",
+	"_ESAbstract.SameValueZero",
+	"_ESAbstract.ThrowCompletion",
+	"_ESAbstract.Type",
+	"Iterator",
+	"Number.MAX_SAFE_INTEGER",
+]
+spec = "https://tc39.es/ecma262/#sec-iterator.prototype.includes"
+docs = "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/includes"
+
+[browsers]
+android = "*"
+bb = "*"
+chrome = "<154"
+edge = "*"
+edge_mob = "*"
+firefox = "<154"
+firefox_mob = "<154"
+ie = "*"
+ie_mob = "*"
+opera = "<138"
+op_mob = "<103"
+safari = "*"
+ios_saf = "*"
+samsung_mob = "*"
