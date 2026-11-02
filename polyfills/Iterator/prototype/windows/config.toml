@@ -9,6 +9,7 @@ dependencies = [
 	"_ESAbstract.NormalCompletion",
 	"_ESAbstract.ThrowCompletion",
 	"_ESAbstract.Type",
+	"_IteratorHelpers",
 	"Iterator",
 	"Symbol.iterator",
 ]
