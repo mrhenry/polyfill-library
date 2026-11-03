@@ -87,7 +87,7 @@ CreateMethodProperty(Iterator.prototype, "chunks", function chunks(chunkSize) {
 			if (buffer.length === chunkSize) {
 				// 1. Let completion be Completion(Yield(CreateArrayFromList(buffer))).
 				try {
-					var completion = CreateIterResultObject(buffer.slice(), true);
+					var completion = CreateIterResultObject(buffer.slice(), false);
 				}
 				// 2. IfAbruptCloseIterator(completion, iterated).
 				catch (err) {

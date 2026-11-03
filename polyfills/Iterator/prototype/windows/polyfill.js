@@ -105,7 +105,7 @@ CreateMethodProperty(Iterator.prototype, "windows", function windows(windowSize 
 			if (buffer.length === windowSize) {
 				// 1. Let completion be Completion(Yield(CreateArrayFromList(buffer))).
 				try {
-					return CreateIterResultObject(buffer.slice(), true);
+					return CreateIterResultObject(buffer.slice(), false);
 				}
 				// 2. IfAbruptCloseIterator(completion, iterated).
 				catch (err) {
