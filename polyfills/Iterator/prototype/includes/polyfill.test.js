@@ -40,15 +40,15 @@ describe("includes", function () {
 		}, TypeError);
 		proclaim.throws(function () {
 			new TestIterator(["a", "b", "c"]).includes("a", -1);
-		}, TypeError);
+		}, RangeError);
 		proclaim.throws(function () {
 			new TestIterator(["a", "b", "c"]).includes("a", -Infinity);
-		}, TypeError);
+		}, RangeError);
 		proclaim.throws(function () {
 			new TestIterator(["a", "b", "c"]).includes("a", .5);
 		}, TypeError);
 		proclaim.throws(function () {
 			new TestIterator(["a", "b", "c"]).includes("a", Number.MAX_SAFE_INTEGER + 1);
-		}, TypeError);
+		}, RangeError);
 	});
 });

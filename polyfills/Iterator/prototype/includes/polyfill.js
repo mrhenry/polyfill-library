@@ -34,14 +34,14 @@ CreateMethodProperty(Iterator.prototype, "includes", function includes(searchEle
 	// 6. If toSkip < -0𝔽, then
 	if (toSkip < 0) {
 		// a. Let error be ThrowCompletion(a newly created RangeError object).
-		error = ThrowCompletion(new TypeError("`skippedElements` is negative"));
+		error = ThrowCompletion(new RangeError("`skippedElements` is negative"));
 		// b. Return ? IteratorClose(iterated, error).
 		return IteratorClose(iterated, error);
 	}
 	// 7. If toSkip is finite and toSkip > 𝔽(2**53 - 1), then
 	if (toSkip !== Infinity && toSkip > Number.MAX_SAFE_INTEGER) {
 		// a. Let error be ThrowCompletion(a newly created RangeError object).
-		error = ThrowCompletion(new TypeError("`skippedElements` is greater than MAX_SAFE_INTEGER"));
+		error = ThrowCompletion(new RangeError("`skippedElements` is greater than MAX_SAFE_INTEGER"));
 		// b. Return ? IteratorClose(iterated, error).
 		return IteratorClose(iterated, error);
 	}
