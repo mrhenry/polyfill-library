@@ -116,9 +116,11 @@ CreateMethodProperty(Iterator.prototype, "windows", function windows(windowSize 
 		}
 	});
 
-	CreateMethodProperty(result, "return", function () {
-		IteratorClose(iterated, NormalCompletion());
-		this["[[Done]]"] = true;
+	CreateMethodProperty(result, "return", function (value) {
+		if (this["[[Done]]"] !== true) {
+			IteratorClose(iterated, NormalCompletion(value));
+			this["[[Done]]"] = true;
+		}
 		return CreateIterResultObject(undefined, true);
 	});
 
