@@ -95,12 +95,14 @@ CreateMethodProperty(Iterator, "concat", function concat(/* ...items */) {
 		// b. Return ReturnCompletion(undefined).
 	});
 
-	CreateMethodProperty(gen, "return", function () {
-		var iterable = iterables[0];
-		if (iterable && iterable._iteratorRecord) {
-			IteratorClose(iterable._iteratorRecord, NormalCompletion());
+	CreateMethodProperty(gen, "return", function (value) {
+		if (this["[[Done]]"] !== true) {
+			var iterable = iterables[0];
+			if (iterable && iterable._iteratorRecord) {
+				IteratorClose(iterable._iteratorRecord, NormalCompletion(value));
+			}
+			this["[[Done]]"] = true;
 		}
-		this["[[Done]]"] = true;
 		return CreateIterResultObject(undefined, true);
 	});
 
